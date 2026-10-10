@@ -1,0 +1,45 @@
+{
+  "name": "locavite-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Application web Angular 18 de la plateforme LocaVite",
+  "scripts": {
+    "start": "ng serve",
+    "build": "ng build",
+    "test": "ng test --watch=false --browsers=ChromeHeadless",
+    "test:e2e": "cypress run",
+    "lint": "ng lint"
+  },
+  "dependencies": {
+    "@angular/animations": "18.2.10",
+    "@angular/common": "18.2.10",
+    "@angular/compiler": "18.2.10",
+    "@angular/core": "18.2.10",
+    "@angular/forms": "18.2.10",
+    "@angular/platform-browser": "18.2.10",
+    "@angular/platform-browser-dynamic": "18.2.10",
+    "@angular/router": "18.2.10",
+    "@angular/material": "18.2.10",
+    "@angular/cdk": "18.2.10",
+    "@ngx-translate/core": "16.0.4",
+    "@ngx-translate/http-loader": "16.0.1",
+    "chart.js": "4.4.4",
+    "rxjs": "7.8.1",
+    "tslib": "2.7.0",
+    "zone.js": "0.14.10"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "18.2.10",
+    "@angular/cli": "18.2.10",
+    "@angular/compiler-cli": "18.2.10",
+    "@types/jasmine": "5.1.4",
+    "cypress": "13.15.0",
+    "jasmine-core": "5.4.0",
+    "karma": "6.4.4",
+    "karma-chrome-launcher": "3.2.0",
+    "karma-coverage": "2.2.1",
+    "karma-jasmine": "5.1.0",
+    "karma-jasmine-html-reporter": "2.1.0",
+    "typescript": "5.5.4"
+  }
+}
