@@ -56,6 +56,14 @@ services:
       retries: 5
       start_period: 10s
 
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: locavite-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
 volumes:
   # Volumes nommés : les données persistent entre les redémarrages des conteneurs.
   postgres_data:
