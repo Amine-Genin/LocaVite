@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8081}
 
 spring:
   application:
@@ -32,6 +32,18 @@ spring:
           auth: false
           starttls:
             enable: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D6351655468576D5A7134743777217A25432A}
+    expiration: ${JWT_EXPIRATION:86400000}
+    refresh-token:
+      expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
 springdoc:
   api-docs:
