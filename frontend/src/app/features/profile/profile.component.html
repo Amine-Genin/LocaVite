@@ -1,0 +1,114 @@
+<div class="container">
+  <div class="header-bar">
+    <h1>Mon profil</h1>
+    <button mat-stroked-button (click)="logout()">Déconnexion</button>
+  </div>
+
+  @if (user(); as u) {
+    <div class="grid">
+
+      <!-- Informations (lecture seule) -->
+      <section class="card">
+        <h2>Informations</h2>
+        <dl class="info">
+          <div><dt>Nom</dt><dd>{{ u.lastName }}</dd></div>
+          <div><dt>Prénom</dt><dd>{{ u.firstName }}</dd></div>
+          <div><dt>E-mail</dt><dd>{{ u.email }}</dd></div>
+          <div><dt>Téléphone</dt><dd>{{ u.phone }}</dd></div>
+          <div><dt>Rôle</dt><dd>{{ u.role }}</dd></div>
+          <div><dt>Inscrit le</dt><dd>{{ u.createdAt | date: 'dd/MM/yyyy' }}</dd></div>
+        </dl>
+      </section>
+
+      <!-- Formulaire d'édition -->
+      <section class="card">
+        <h2>Modifier mes informations</h2>
+        <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Nom</mat-label>
+            <input matInput formControlName="lastName" autocomplete="family-name" />
+            @if (form.controls.lastName.hasError('required')) {
+              <mat-error>Le nom est obligatoire.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Prénom</mat-label>
+            <input matInput formControlName="firstName" autocomplete="given-name" />
+            @if (form.controls.firstName.hasError('required')) {
+              <mat-error>Le prénom est obligatoire.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Téléphone</mat-label>
+            <input matInput formControlName="phone" type="tel" autocomplete="tel" />
+            @if (form.controls.phone.hasError('required')) {
+              <mat-error>Le téléphone est obligatoire.</mat-error>
+            } @else if (form.controls.phone.hasError('pattern')) {
+              <mat-error>Numéro invalide (ex. 0612345678 ou +212612345678).</mat-error>
+            }
+          </mat-form-field>
+
+          <button mat-flat-button type="submit" [disabled]="form.invalid || saving()">
+            {{ saving() ? 'Enregistrement…' : 'Enregistrer' }}
+          </button>
+        </form>
+      </section>
+
+      <!-- Documents -->
+      <section class="card documents">
+        <h2>Mes documents</h2>
+
+        @for (type of documentTypes; track type.value) {
+          <div class="doc-block">
+            <div class="doc-head">
+              <h3>{{ type.label }}</h3>
+              @if (docOf(type.value); as d) {
+                <app-status-badge [tone]="statusTone(d.status)">
+                  {{ statusLabel(d.status) }}
+                </app-status-badge>
+              }
+            </div>
+
+            @if (docOf(type.value); as d) {
+              <p class="file-name">
+                @if (d.url) {
+                  <a [href]="d.url" target="_blank" rel="noopener">Consulter le document</a>
+                } @else {
+                  <span>Document stocké</span>
+                }
+                · envoyé le {{ d.uploadedAt | date: 'dd/MM/yyyy' }}
+              </p>
+            }
+
+            <div class="dropzone"
+                 [class.over]="dragOver() === type.value"
+                 (dragover)="onDragOver($event, type.value)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event, type.value)">
+              <p>Glissez un fichier ici ou</p>
+              <label class="browse">
+                parcourir
+                <input type="file" hidden accept=".pdf,.jpg,.jpeg,.png"
+                       (change)="onFileSelected($event, type.value)" />
+              </label>
+              @if (uploading() === type.value) {
+                <p class="uploading">Envoi en cours…</p>
+              }
+            </div>
+          </div>
+        }
+      </section>
+
+    </div>
+  } @else if (loading()) {
+    <p class="state">Chargement…</p>
+  } @else {
+    <div class="state error">
+      <p>Impossible de charger le profil.</p>
+      <button mat-stroked-button (click)="loadProfile()">Réessayer</button>
+    </div>
+  }
+</div>

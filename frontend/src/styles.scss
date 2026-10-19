@@ -1,0 +1,75 @@
+/* You can add global styles to this file, and also import other style files */
+:root {
+  // Palette
+  --c-navy: #142e45;        // bleu profond : navigation / texte
+  --c-primary: #b4532a;     // terre cuite : action principale
+  --c-primary-dark: #98441f;
+  --c-bg: #f4f6f9;          // fond
+  --c-surface: #ffffff;     // cartes
+  --c-border: #dde3ea;
+  --c-muted: #5f6f7f;
+
+  --c-success: #176a50;  --c-success-bg: #e5f4ed;
+  --c-warning: #805a1c;  --c-warning-bg: #fff3d9;
+  --c-error: #a72d35;    --c-error-bg: #fdebec;
+  --c-info: #142e45;     --c-info-bg: #e9f0fa;
+
+  // Grille de 8 px
+  --sp-1: 8px;  --sp-2: 16px;  --sp-3: 24px;
+  --sp-4: 32px; --sp-6: 48px;  --sp-8: 64px;
+  --radius: 8px;
+
+  // Overrides Material (jetons MDC)
+  --mdc-filled-button-container-color: var(--c-primary);
+  --mdc-filled-button-label-text-color: #fff;
+  --mdc-filled-button-container-height: 44px;
+  --mdc-outlined-button-container-height: 44px;
+  --mdc-text-button-container-height: 44px;
+  --mdc-outlined-button-outline-color: var(--c-border);
+  --mdc-outlined-button-label-text-color: var(--c-navy);
+  --mdc-text-button-label-text-color: var(--c-navy);
+  --mdc-outlined-text-field-outline-color: var(--c-border);
+  --mdc-outlined-text-field-focus-outline-color: var(--c-navy);
+  --mdc-outlined-text-field-error-outline-color: var(--c-error);
+  --mat-snack-bar-container-color: var(--c-navy);
+  --mat-snack-bar-supporting-text-color: #fff;
+}
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--c-bg);
+  color: var(--c-navy);
+  font-family: 'Inter', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0;
+}
+
+// Arabe (RTL)
+[dir='rtl'] body { font-family: 'Cairo', 'Inter', sans-serif; }
+
+h1 { font-size: 36px; font-weight: 650; line-height: 1.2; }
+h2 { font-size: 28px; font-weight: 650; }
+h3 { font-size: 20px; font-weight: 650; }
+
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  padding: var(--sp-3);
+}
+
+// Anneau de focus accessible
+:focus-visible {
+  outline: 3px solid var(--c-navy);
+  outline-offset: 2px;
+}
+
+// Mobile first : 1 colonne, marge 16 px ; desktop : marge 48 px
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: var(--sp-2);
+  @media (min-width: 1024px) { padding: var(--sp-6); }
+}
