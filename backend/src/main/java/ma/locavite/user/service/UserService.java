@@ -11,6 +11,8 @@ import ma.locavite.common.exception.InvalidRoleException;
 import ma.locavite.common.exception.SelfRoleModificationException;
 import ma.locavite.common.exception.UserNotFoundException;
 import ma.locavite.user.dto.AssignRolesRequest;
+import ma.locavite.user.dto.UpdateProfileRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -50,6 +52,23 @@ public class UserService {
         }
         return assignRole(userId, request.getRoles());
     }
+    //jajoute ces deux 
+    @Transactional(readOnly = true)
+     public UserResponse getProfile(Long userId) {
+     User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'id : " + userId));
+    return userMapper.toResponse(user);
+    }
+
+   @Transactional
+    public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'id : " + userId));
+    user.setNom(request.getNom());
+    user.setPrenom(request.getPrenom());
+    user.setTelephone(request.getTelephone());
+    return userMapper.toResponse(userRepository.save(user));
+}
 
     @Transactional
     public UserResponse assignRole(Long userId, Set<String> roleNames) {
