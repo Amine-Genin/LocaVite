@@ -1,12 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
-import { MatSnackBar } from '@angular/material/snack-bar';
-
 import { ProfileComponent } from './profile.component';
 import { UserService } from './services/user.service';
 import { AuthService } from '../../core/auth/auth.service';
-import { User, UserDocument } from './models/user.model';
+import { User } from './models/user.model';
 
 describe('ProfileComponent', () => {
   let component: ProfileComponent;
