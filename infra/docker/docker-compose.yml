@@ -1,20 +1,24 @@
-# Environnement local de développement : PostgreSQL, Redis et MinIO.
-# Les identifiants ci-dessous sont volontairement locaux et ne doivent pas être réutilisés en production.
+# Environnement local de développement : PostgreSQL, Redis et MinIO (+ MailHog).
+# Les valeurs par défaut sont configurées pour le développement local.
+# Pour surcharger, créer un fichier .env basé sur .env.example dans le même dossier.
+
 services:
   postgres:
     image: postgres:16-alpine
     container_name: locavite-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: locavite
-      POSTGRES_USER: locavite
-      POSTGRES_PASSWORD: locavite_dev_password
+      POSTGRES_DB: ${POSTGRES_DB:-locavite}
+      POSTGRES_USER: ${POSTGRES_USER:-locavite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-locavite_dev_password}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - locavite-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U locavite -d locavite"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-locavite} -d ${POSTGRES_DB:-locavite}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -26,9 +30,11 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - locavite-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -37,18 +43,20 @@ services:
       start_period: 5s
 
   minio:
-    image: 2821568820/minio:RELEASE.2024-10-13T13-34-11Z
+    image: ${MINIO_IMAGE:-2821568820/minio:RELEASE.2024-10-13T13-34-11Z}
     container_name: locavite-minio
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: locavite
-      MINIO_ROOT_PASSWORD: locavite_dev_password
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-locavite}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-locavite_dev_password}
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
     volumes:
       - minio_data:/data
+    networks:
+      - locavite-network
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
       interval: 10s
@@ -61,11 +69,18 @@ services:
     container_name: locavite-mailhog
     restart: unless-stopped
     ports:
-      - "1025:1025"
-      - "8025:8025"
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+      - "${MAILHOG_UI_PORT:-8025}:8025"
+    networks:
+      - locavite-network
 
 volumes:
   # Volumes nommés : les données persistent entre les redémarrages des conteneurs.
   postgres_data:
   redis_data:
   minio_data:
+
+networks:
+  locavite-network:
+    name: locavite-network
+    driver: bridge
