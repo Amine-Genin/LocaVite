@@ -6,7 +6,7 @@
   "scripts": {
     "start": "ng serve",
     "build": "ng build",
-    "test": "ng test --watch=false --browsers=ChromeHeadless",
+    "test": "node -e \"if (!process.env.CHROME_BIN) { const fs = require('fs'); const edge = 'C:\\\\Program Files (x86)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe'; if (fs.existsSync(edge)) process.env.CHROME_BIN = edge; } const res = require('child_process').spawnSync('ng test --watch=false --browsers=ChromeHeadless', { stdio: 'inherit', shell: true, env: process.env }); process.exit(res.status ?? 0);\"",
     "test:e2e": "node -e \"delete process.env.ELECTRON_RUN_AS_NODE; require('child_process').spawnSync('npx cypress run', { stdio: 'inherit', shell: true, env: process.env });\"",
     "lint": "ng lint"
   },
