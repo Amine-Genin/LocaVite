@@ -1,0 +1,93 @@
+{
+  "COMMON": {
+    "APP_NAME": "LOCAVITE",
+    "TAGLINE": "Fast & easy vehicle rentals in Morocco",
+    "LANGUAGE": "Language",
+    "FR": "FR",
+    "EN": "EN",
+    "AR": "العربية",
+    "CLOSE": "Close",
+    "OR": "or"
+  },
+  "NAV": {
+    "RENT_CAR": "Rent a car",
+    "BUY_CAR": "Buy a car",
+    "AGENCIES": "Our agencies",
+    "HOW_IT_WORKS": "How it works",
+    "MY_SPACE": "My account"
+  },
+  "AUTH": {
+    "PROMO": {
+      "TITLE": "Fewer formalities. More freedom.",
+      "DESC": "Your bookings, documents and contracts in one place. In French, English or Arabic.",
+      "FEATURES": "Verified agencies · Secure CMI payment · Local assistance"
+    },
+    "SECURITY": {
+      "TITLE": "A secure space",
+      "DESC": "We will never ask for your password via WhatsApp or SMS. Agency accounts are created by an administrator."
+    },
+    "LOGIN": {
+      "PAGE_TITLE": "Welcome back.",
+      "TITLE": "Sign in",
+      "SUBTITLE": "Log in to your LocaVite account",
+      "EMAIL": "Email address",
+      "EMAIL_PLACEHOLDER": "yasmine@example.com",
+      "EMAIL_REQUIRED": "Email address is required.",
+      "EMAIL_INVALID": "Please enter a valid email address.",
+      "PASSWORD": "Password",
+      "PASSWORD_PLACEHOLDER": "••••••••••••",
+      "PASSWORD_REQUIRED": "Password is required.",
+      "REMEMBER_ME": "Stay signed in on this device",
+      "SUBMIT": "Sign in",
+      "SUBMITTING": "Signing in…",
+      "FORGOT_PASSWORD": "Forgot password?",
+      "NO_ACCOUNT": "Don't have an account?",
+      "REGISTER_LINK": "Create an account",
+      "ERROR": "Invalid email or password.",
+      "SUCCESS_AFTER_REGISTER": "Account created successfully! Please log in."
+    },
+    "REGISTER": {
+      "PAGE_TITLE": "Your next journey starts here.",
+      "TITLE": "Create account",
+      "SUBTITLE": "Create your account in seconds",
+      "NOM": "Last name",
+      "NOM_PLACEHOLDER": "Amrani",
+      "NOM_REQUIRED": "Last name is required.",
+      "PRENOM": "First name",
+      "PRENOM_PLACEHOLDER": "Yasmine",
+      "PRENOM_REQUIRED": "First name is required.",
+      "EMAIL": "Email address",
+      "EMAIL_PLACEHOLDER": "yasmine@example.com",
+      "EMAIL_REQUIRED": "Email address is required.",
+      "EMAIL_INVALID": "Please enter a valid email address.",
+      "TELEPHONE": "Phone number",
+      "TELEPHONE_PLACEHOLDER": "+212 600 000 014",
+      "TELEPHONE_REQUIRED": "Phone number is required.",
+      "TELEPHONE_INVALID": "Invalid format (e.g. 0612345678 or +212612345678).",
+      "PASSWORD": "Password",
+      "PASSWORD_PLACEHOLDER": "••••••••••••",
+      "PASSWORD_REQUIRED": "Password is required.",
+      "PASSWORD_STRONG": "At least 8 characters with at least 1 uppercase and 1 number.",
+      "PASSWORD_HINT": "Min. 8 characters, one uppercase letter and one digit.",
+      "CONFIRM_PASSWORD": "Confirm password",
+      "CONFIRM_PASSWORD_PLACEHOLDER": "••••••••••••",
+      "CONFIRM_PASSWORD_REQUIRED": "Password confirmation is required.",
+      "CONFIRM_PASSWORD_MISMATCH": "Passwords do not match.",
+      "TERMS_LABEL": "I agree to the Terms of Service and Privacy Policy.",
+      "SUBMIT": "Create account",
+      "SUBMITTING": "Creating account…",
+      "HAVE_ACCOUNT": "Already have an account?",
+      "LOGIN_LINK": "Sign in",
+      "ALREADY_HAVE_ACCOUNT_BTN": "Already have an account · Sign in",
+      "SUCCESS": "Your account has been created successfully!",
+      "ERROR_EMAIL_EXISTS": "This email address is already in use.",
+      "ERROR_GENERIC": "An error occurred during registration."
+    }
+  },
+  "FOOTER": {
+    "SLOGAN": "LOCAVITE · Rent. Buy. Hit the road.",
+    "CITIES": "Casablanca · Marrakech · Agadir · Tangier · Oujda",
+    "CONTACT": "WhatsApp +212 522 000 000 · Help · Terms · Privacy",
+    "COPYRIGHT": "© 2027 LOCAVITE · Demo — sample data · Prices in DH / MAD"
+  }
+}

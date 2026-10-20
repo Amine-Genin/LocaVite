@@ -1,10 +1,17 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { LanguageService } from './core/i18n/language.service';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
+      providers: [
+        {
+          provide: LanguageService,
+          useValue: { init: jasmine.createSpy('init') },
+        },
+      ],
     }).compileComponents();
   });
 
