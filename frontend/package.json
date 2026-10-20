@@ -7,20 +7,21 @@
     "start": "ng serve",
     "build": "ng build",
     "test": "node -e \"if (!process.env.CHROME_BIN) { const fs = require('fs'); const edge = 'C:\\\\Program Files (x86)\\\\Microsoft\\\\Edge\\\\Application\\\\msedge.exe'; if (fs.existsSync(edge)) process.env.CHROME_BIN = edge; } const res = require('child_process').spawnSync('ng test --watch=false --browsers=ChromeHeadless', { stdio: 'inherit', shell: true, env: process.env }); process.exit(res.status ?? 0);\"",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
     "test:e2e": "node -e \"delete process.env.ELECTRON_RUN_AS_NODE; require('child_process').spawnSync('npx cypress run', { stdio: 'inherit', shell: true, env: process.env });\"",
     "lint": "ng lint"
   },
   "dependencies": {
     "@angular/animations": "18.2.10",
+    "@angular/cdk": "18.2.10",
     "@angular/common": "18.2.10",
     "@angular/compiler": "18.2.10",
     "@angular/core": "18.2.10",
     "@angular/forms": "18.2.10",
+    "@angular/material": "18.2.10",
     "@angular/platform-browser": "18.2.10",
     "@angular/platform-browser-dynamic": "18.2.10",
     "@angular/router": "18.2.10",
-    "@angular/material": "18.2.10",
-    "@angular/cdk": "18.2.10",
     "@ngx-translate/core": "16.0.4",
     "@ngx-translate/http-loader": "16.0.1",
     "chart.js": "4.4.4",
@@ -33,13 +34,16 @@
     "@angular/cli": "18.2.10",
     "@angular/compiler-cli": "18.2.10",
     "@types/jasmine": "5.1.4",
+    "angular-eslint": "18.4.3",
     "cypress": "13.15.0",
+    "eslint": "^9.15.0",
     "jasmine-core": "5.4.0",
     "karma": "6.4.4",
     "karma-chrome-launcher": "3.2.0",
     "karma-coverage": "2.2.1",
     "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.1.0",
-    "typescript": "5.5.4"
+    "typescript": "5.5.4",
+    "typescript-eslint": "8.16.0"
   }
 }

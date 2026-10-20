@@ -4,6 +4,7 @@
 ![Projet](https://img.shields.io/badge/projet-académique-blue)
 ![Licence](https://img.shields.io/badge/licence-MIT-green)
 [![Backend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 
 ## 📋 Description
 
