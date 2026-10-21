@@ -1,10 +1,20 @@
 package ma.locavite.auth.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(description = "Réponse d'authentification contenant les tokens JWT et le profil utilisateur")
 public class AuthResponse {
 
+    @Schema(description = "Jeton d'accès JWT pour authentifier les requêtes", example = "eyJhbGciOiJIUzUxMiJ9...")
     private String accessToken;
+
+    @Schema(description = "Jeton de rafraîchissement stocké dans Redis", example = "d9c28741-f672-4d2c-8067-27b92f440ee5")
     private String refreshToken;
+
+    @Schema(description = "Durée de validité du jeton d'accès en secondes", example = "86400")
     private Long expiresIn;
+
+    @Schema(description = "Informations publiques de l'utilisateur connecté")
     private UserResponse user;
 
     public AuthResponse() {

@@ -1,0 +1,961 @@
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "LocaVite API",
+    "description" : "Documentation interactive de l'API REST LocaVite (plateforme de location et vente de véhicules au Maroc). Utilisez le bouton 'Authorize' avec votre JWT (format : Bearer <token>) pour tester les endpoints sécurisés.",
+    "contact" : {
+      "name" : "Équipe LocaVite",
+      "email" : "contact@locavite.ma"
+    },
+    "license" : {
+      "name" : "MIT License",
+      "url" : "https://opensource.org/licenses/MIT"
+    },
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost",
+    "description" : "Generated server url"
+  } ],
+  "security" : [ {
+    "BearerAuth" : [ ]
+  } ],
+  "tags" : [ {
+    "name" : "Documents",
+    "description" : "Endpoints d'administration et de validation des documents utilisateurs"
+  }, {
+    "name" : "Users",
+    "description" : "Endpoints d'administration des utilisateurs et attribution des rôles"
+  }, {
+    "name" : "Users",
+    "description" : "Endpoints de gestion du profil de l'utilisateur connecté"
+  }, {
+    "name" : "Auth",
+    "description" : "Endpoints d'authentification, inscription, rafraîchissement de token et déconnexion"
+  }, {
+    "name" : "Documents",
+    "description" : "Endpoints de gestion des documents justificatifs de l'utilisateur (CIN, Permis)"
+  } ],
+  "paths" : {
+    "/api/users/me" : {
+      "get" : {
+        "tags" : [ "Users" ],
+        "summary" : "Consulter son profil",
+        "description" : "Retourne les informations du profil de l'utilisateur actuellement authentifié via JWT.",
+        "operationId" : "getMe",
+        "responses" : {
+          "401" : {
+            "description" : "Non authentifié (token JWT manquant ou invalide)"
+          },
+          "200" : {
+            "description" : "Profil récupéré avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Accès refusé"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "Users" ],
+        "summary" : "Mettre à jour son profil",
+        "description" : "Met à jour les informations personnelles (nom, prénom, téléphone) de l'utilisateur connecté.",
+        "operationId" : "updateMe",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/UpdateProfileRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Profil mis à jour avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Données de formulaire invalides"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès refusé"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/admin/users/{id}/roles" : {
+      "put" : {
+        "tags" : [ "Users" ],
+        "summary" : "Attribuer des rôles à un utilisateur (ADMIN)",
+        "description" : "Modifie l'ensemble des rôles attribués à un utilisateur (CLIENT, AGENCE, ADMIN). Un administrateur ne peut pas se retirer lui-même le rôle ADMIN.",
+        "operationId" : "assignRoles",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Identifiant de l'utilisateur cible",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/AssignRolesRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Rôles mis à jour avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "400" : {
+            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Utilisateur introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/admin/documents/{id}/verify" : {
+      "put" : {
+        "tags" : [ "Documents" ],
+        "summary" : "Valider ou rejeter un document (ADMIN)",
+        "description" : "Met à jour le statut de validation du document (VALIDATED ou REJECTED). Réservé aux administrateurs.",
+        "operationId" : "verifyDocument",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Identifiant du document à vérifier",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/VerifyDocumentRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "description" : "Requête invalide (statut non supporté)"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "200" : {
+            "description" : "Document vérifié avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Document introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/users/me/documents" : {
+      "get" : {
+        "tags" : [ "Documents" ],
+        "summary" : "Lister ses documents",
+        "description" : "Retourne tous les documents téléversés par l'utilisateur connecté avec leurs URL de visualisation sécurisées.",
+        "operationId" : "getUserDocuments",
+        "responses" : {
+          "200" : {
+            "description" : "Liste des documents récupérée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/DocumentResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "Documents" ],
+        "summary" : "Téléverser un document",
+        "description" : "Téléverse un document (CIN ou PERMIS) sous format PDF, PNG ou JPEG vers le stockage MinIO.",
+        "operationId" : "uploadDocument",
+        "parameters" : [ {
+          "name" : "type",
+          "in" : "query",
+          "description" : "Type de document (CIN, PERMIS)",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "enum" : [ "PERMIS", "CIN", "PASSEPORT" ]
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "required" : [ "file" ],
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "description" : "Fichier du document (PDF, PNG, JPG - max 5 Mo)",
+                    "format" : "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Document téléversé avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/auth/register" : {
+      "post" : {
+        "tags" : [ "Auth" ],
+        "summary" : "Inscription utilisateur",
+        "description" : "Crée un nouveau compte utilisateur avec le rôle CLIENT par défaut et envoie un email de confirmation.",
+        "operationId" : "register",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "201" : {
+            "description" : "Utilisateur créé avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Données d'inscription invalides ou email déjà utilisé"
+          }
+        }
+      }
+    },
+    "/api/auth/refresh" : {
+      "post" : {
+        "tags" : [ "Auth" ],
+        "summary" : "Rafraîchir les tokens",
+        "description" : "Génère un nouveau couple accessToken / refreshToken à partir d'un refreshToken valide.",
+        "operationId" : "refresh",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "description" : "Requête invalide"
+          },
+          "200" : {
+            "description" : "Tokens rafraîchis avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Refresh token invalide ou expiré"
+          }
+        }
+      }
+    },
+    "/api/auth/logout" : {
+      "post" : {
+        "tags" : [ "Auth" ],
+        "summary" : "Déconnexion utilisateur",
+        "description" : "Révoque le refreshToken fourni dans Redis.",
+        "operationId" : "logout",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "204" : {
+            "description" : "Déconnexion réussie / Token révoqué"
+          }
+        }
+      }
+    },
+    "/api/auth/login" : {
+      "post" : {
+        "tags" : [ "Auth" ],
+        "summary" : "Connexion utilisateur",
+        "description" : "Authentifie l'utilisateur via son email et mot de passe. Renvoie un JWT accessToken et un refreshToken.",
+        "operationId" : "login",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "description" : "Format de la requête invalide"
+          },
+          "401" : {
+            "description" : "Email ou mot de passe incorrect"
+          },
+          "200" : {
+            "description" : "Authentification réussie",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/me/documents/{id}" : {
+      "get" : {
+        "tags" : [ "Documents" ],
+        "summary" : "Consulter un document",
+        "description" : "Retourne le document spécifié par son ID s'il appartient à l'utilisateur connecté.",
+        "operationId" : "getDocument",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Identifiant du document",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "403" : {
+            "description" : "Accès non autorisé à ce document"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "200" : {
+            "description" : "Document récupéré avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Document introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "Documents" ],
+        "summary" : "Supprimer un document",
+        "description" : "Supprime le document de la base et du stockage MinIO s'il appartient à l'utilisateur connecté.",
+        "operationId" : "deleteDocument",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Identifiant du document",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "204" : {
+            "description" : "Document supprimé avec succès"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès non autorisé"
+          },
+          "404" : {
+            "description" : "Document introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/admin/users" : {
+      "get" : {
+        "tags" : [ "Users" ],
+        "summary" : "Lister les utilisateurs (ADMIN)",
+        "description" : "Retourne la liste paginée de tous les utilisateurs inscrits sans exposer les mots de passe. Réservé aux administrateurs.",
+        "operationId" : "getUsers",
+        "parameters" : [ {
+          "name" : "pageable",
+          "in" : "query",
+          "description" : "Paramètres de pagination (page, size, sort)",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "200" : {
+            "description" : "Liste paginée des utilisateurs récupérée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageUserResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/admin/documents/{id}" : {
+      "get" : {
+        "tags" : [ "Documents" ],
+        "summary" : "Consulter un document utilisateur (ADMIN)",
+        "description" : "Accède aux détails et à l'URL de téléchargement d'un document utilisateur. Réservé aux administrateurs.",
+        "operationId" : "getDocument_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Identifiant du document",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "200" : {
+            "description" : "Document récupéré avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/DocumentResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Document introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "UpdateProfileRequest" : {
+        "required" : [ "nom", "prenom", "telephone" ],
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "description" : "Nom de famille",
+            "example" : "Alaoui"
+          },
+          "prenom" : {
+            "type" : "string",
+            "description" : "Prénom",
+            "example" : "Fatima"
+          },
+          "telephone" : {
+            "pattern" : "^(\\+212|0)[5-7]\\d{8}$",
+            "type" : "string",
+            "description" : "Numéro de téléphone marocain",
+            "example" : "+212611223344"
+          }
+        },
+        "description" : "Requête de mise à jour des informations de profil utilisateur"
+      },
+      "UserResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "description" : "Identifiant unique de l'utilisateur",
+            "format" : "int64",
+            "example" : 1
+          },
+          "nom" : {
+            "type" : "string",
+            "description" : "Nom de famille",
+            "example" : "Alaoui"
+          },
+          "prenom" : {
+            "type" : "string",
+            "description" : "Prénom",
+            "example" : "Fatima"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Adresse email",
+            "example" : "fatima.alaoui@example.com"
+          },
+          "telephone" : {
+            "type" : "string",
+            "description" : "Numéro de téléphone",
+            "example" : "+212611223344"
+          },
+          "roles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Rôles attribués à l'utilisateur",
+            "example" : [ "CLIENT", "AGENCE" ],
+            "items" : {
+              "type" : "string",
+              "description" : "Rôles attribués à l'utilisateur",
+              "example" : "[\"CLIENT\",\"AGENCE\"]"
+            }
+          },
+          "createdAt" : {
+            "type" : "string",
+            "description" : "Date et heure d'inscription",
+            "format" : "date-time"
+          }
+        },
+        "description" : "Représentation publique d'un utilisateur sans mot de passe"
+      },
+      "AssignRolesRequest" : {
+        "required" : [ "roles" ],
+        "type" : "object",
+        "properties" : {
+          "roles" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Ensemble non vide de rôles valides (CLIENT, AGENCE, ADMIN)",
+            "example" : [ "CLIENT", "AGENCE" ],
+            "items" : {
+              "type" : "string",
+              "description" : "Ensemble non vide de rôles valides (CLIENT, AGENCE, ADMIN)",
+              "example" : "[\"CLIENT\",\"AGENCE\"]"
+            }
+          }
+        },
+        "description" : "Requête d'attribution de rôles à un utilisateur par un administrateur"
+      },
+      "VerifyDocumentRequest" : {
+        "required" : [ "status" ],
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "description" : "Nouveau statut à appliquer au document",
+            "example" : "VALIDATED",
+            "enum" : [ "PENDING", "VALIDATED", "REJECTED" ]
+          }
+        },
+        "description" : "Requête de vérification/validation d'un document utilisateur par un administrateur"
+      },
+      "DocumentResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "description" : "Identifiant unique du document",
+            "format" : "int64",
+            "example" : 10
+          },
+          "userId" : {
+            "type" : "integer",
+            "description" : "Identifiant de l'utilisateur propriétaire du document",
+            "format" : "int64",
+            "example" : 1
+          },
+          "type" : {
+            "type" : "string",
+            "description" : "Type de document (CIN, PERMIS)",
+            "example" : "PERMIS",
+            "enum" : [ "PERMIS", "CIN", "PASSEPORT" ]
+          },
+          "path" : {
+            "type" : "string",
+            "description" : "Chemin de stockage dans le bucket MinIO",
+            "example" : "1/PERMIS/550e8400-e29b-41d4-a716-446655440000.pdf"
+          },
+          "status" : {
+            "type" : "string",
+            "description" : "Statut actuel de vérification",
+            "example" : "VALIDATED",
+            "enum" : [ "PENDING", "VALIDATED", "REJECTED" ]
+          },
+          "url" : {
+            "type" : "string",
+            "description" : "URL présignée sécurisée pour télécharger/visualiser le document",
+            "example" : "http://localhost:9000/locavite-documents/..."
+          },
+          "uploadedAt" : {
+            "type" : "string",
+            "description" : "Date et heure de téléversement",
+            "format" : "date-time"
+          },
+          "verifiedAt" : {
+            "type" : "string",
+            "description" : "Date et heure de validation/rejet",
+            "format" : "date-time"
+          },
+          "verifiedBy" : {
+            "type" : "integer",
+            "description" : "Identifiant de l'administrateur ayant vérifié le document",
+            "format" : "int64",
+            "example" : 2
+          }
+        },
+        "description" : "Détails d'un document justificatif téléversé"
+      },
+      "RegisterRequest" : {
+        "required" : [ "email", "nom", "password", "prenom", "telephone" ],
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "type" : "string",
+            "description" : "Nom de famille",
+            "example" : "Alaoui"
+          },
+          "prenom" : {
+            "type" : "string",
+            "description" : "Prénom",
+            "example" : "Fatima"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "Adresse email valide",
+            "example" : "fatima.alaoui@example.com"
+          },
+          "telephone" : {
+            "type" : "string",
+            "description" : "Numéro de téléphone marocain",
+            "example" : "+212611223344"
+          },
+          "password" : {
+            "pattern" : "^(?=.*[A-Z])(?=.*\\d).{8,}$",
+            "type" : "string",
+            "description" : "Mot de passe sécurisé (au moins 8 caractères, 1 majuscule, 1 chiffre)",
+            "example" : "Password123!"
+          }
+        },
+        "description" : "Requête d'inscription d'un nouvel utilisateur"
+      },
+      "RefreshTokenRequest" : {
+        "required" : [ "refreshToken" ],
+        "type" : "object",
+        "properties" : {
+          "refreshToken" : {
+            "type" : "string",
+            "description" : "Jeton de rafraîchissement reçu lors du login",
+            "example" : "d9c28741-f672-4d2c-8067-27b92f440ee5"
+          }
+        },
+        "description" : "Requête de rafraîchissement ou de déconnexion d'un token"
+      },
+      "AuthResponse" : {
+        "type" : "object",
+        "properties" : {
+          "accessToken" : {
+            "type" : "string",
+            "description" : "Jeton d'accès JWT pour authentifier les requêtes",
+            "example" : "eyJhbGciOiJIUzUxMiJ9..."
+          },
+          "refreshToken" : {
+            "type" : "string",
+            "description" : "Jeton de rafraîchissement stocké dans Redis",
+            "example" : "d9c28741-f672-4d2c-8067-27b92f440ee5"
+          },
+          "expiresIn" : {
+            "type" : "integer",
+            "description" : "Durée de validité du jeton d'accès en secondes",
+            "format" : "int64",
+            "example" : 86400
+          },
+          "user" : {
+            "$ref" : "#/components/schemas/UserResponse"
+          }
+        },
+        "description" : "Réponse d'authentification contenant les tokens JWT et le profil utilisateur"
+      },
+      "LoginRequest" : {
+        "required" : [ "email", "password" ],
+        "type" : "object",
+        "properties" : {
+          "email" : {
+            "type" : "string",
+            "description" : "Adresse email de l'utilisateur",
+            "example" : "fatima.alaoui@example.com"
+          },
+          "password" : {
+            "type" : "string",
+            "description" : "Mot de passe de l'utilisateur",
+            "example" : "Password123!"
+          }
+        },
+        "description" : "Requête d'authentification par email et mot de passe"
+      },
+      "Pageable" : {
+        "type" : "object",
+        "properties" : {
+          "page" : {
+            "minimum" : 0,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "minimum" : 1,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "PageUserResponse" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/UserResponse"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PageableObject" : {
+        "type" : "object",
+        "properties" : {
+          "offset" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
+          },
+          "paged" : {
+            "type" : "boolean"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "SortObject" : {
+        "type" : "object",
+        "properties" : {
+          "direction" : {
+            "type" : "string"
+          },
+          "nullHandling" : {
+            "type" : "string"
+          },
+          "ascending" : {
+            "type" : "boolean"
+          },
+          "property" : {
+            "type" : "string"
+          },
+          "ignoreCase" : {
+            "type" : "boolean"
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "BearerAuth" : {
+        "type" : "http",
+        "description" : "Authentification JWT. Entrez votre token d'accès généré via l'endpoint /api/auth/login",
+        "scheme" : "bearer",
+        "bearerFormat" : "JWT"
+      }
+    }
+  }
+}

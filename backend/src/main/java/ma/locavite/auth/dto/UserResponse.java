@@ -1,16 +1,32 @@
 package ma.locavite.auth.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 
+@Schema(description = "Représentation publique d'un utilisateur sans mot de passe")
 public class UserResponse {
 
+    @Schema(description = "Identifiant unique de l'utilisateur", example = "1")
     private Long id;
+
+    @Schema(description = "Nom de famille", example = "Alaoui")
     private String nom;
+
+    @Schema(description = "Prénom", example = "Fatima")
     private String prenom;
+
+    @Schema(description = "Adresse email", example = "fatima.alaoui@example.com")
     private String email;
+
+    @Schema(description = "Numéro de téléphone", example = "+212611223344")
     private String telephone;
+
+    @Schema(description = "Rôles attribués à l'utilisateur", example = "[\"CLIENT\", \"AGENCE\"]")
     private Set<String> roles;
+
+    @Schema(description = "Date et heure d'inscription", example = "2026-10-17T14:30:00")
     private LocalDateTime createdAt;
 
     public UserResponse() {

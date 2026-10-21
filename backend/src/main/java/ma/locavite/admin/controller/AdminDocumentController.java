@@ -1,5 +1,13 @@
 package ma.locavite.admin.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import ma.locavite.auth.domain.User;
 import ma.locavite.auth.repository.UserRepository;
@@ -15,6 +23,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/admin/documents")
+@Tag(name = "Documents", description = "Endpoints d'administration et de validation des documents utilisateurs")
+@SecurityRequirement(name = "BearerAuth")
 public class AdminDocumentController {
 
     private final DocumentService documentService;
@@ -27,11 +37,20 @@ public class AdminDocumentController {
 
     @PutMapping("/{id}/verify")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Valider ou rejeter un document (ADMIN)", description = "Met à jour le statut de validation du document (VALIDATED ou REJECTED). Réservé aux administrateurs.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document vérifié avec succès",
+                    content = @Content(schema = @Schema(implementation = DocumentResponse.class))),
+            @ApiResponse(responseCode = "400", description = "Requête invalide (statut non supporté)", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Non authentifié", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Accès interdit (rôle ADMIN requis)", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Document introuvable", content = @Content)
+    })
     public ResponseEntity<DocumentResponse> verifyDocument(
-            @PathVariable Long id,
+            @Parameter(description = "Identifiant du document à vérifier", required = true) @PathVariable Long id,
             @Valid @RequestBody VerifyDocumentRequest request,
-            @io.swagger.v3.oas.annotations.Parameter(hidden = true) @AuthenticationPrincipal User adminUser,
-            @io.swagger.v3.oas.annotations.Parameter(hidden = true) Authentication authentication) {
+            @Parameter(hidden = true) @AuthenticationPrincipal User adminUser,
+            @Parameter(hidden = true) Authentication authentication) {
         User user = resolveCurrentUser(adminUser, authentication);
         DocumentResponse response = documentService.verifyDocument(id, request, user);
         return ResponseEntity.ok(response);
@@ -39,10 +58,18 @@ public class AdminDocumentController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Consulter un document utilisateur (ADMIN)", description = "Accède aux détails et à l'URL de téléchargement d'un document utilisateur. Réservé aux administrateurs.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Document récupéré avec succès",
+                    content = @Content(schema = @Schema(implementation = DocumentResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Non authentifié", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Accès interdit (rôle ADMIN requis)", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Document introuvable", content = @Content)
+    })
     public ResponseEntity<DocumentResponse> getDocument(
-            @PathVariable Long id,
-            @io.swagger.v3.oas.annotations.Parameter(hidden = true) @AuthenticationPrincipal User adminUser,
-            @io.swagger.v3.oas.annotations.Parameter(hidden = true) Authentication authentication) {
+            @Parameter(description = "Identifiant du document", required = true) @PathVariable Long id,
+            @Parameter(hidden = true) @AuthenticationPrincipal User adminUser,
+            @Parameter(hidden = true) Authentication authentication) {
         User user = resolveCurrentUser(adminUser, authentication);
         DocumentResponse response = documentService.getDocumentById(user, id);
         return ResponseEntity.ok(response);
