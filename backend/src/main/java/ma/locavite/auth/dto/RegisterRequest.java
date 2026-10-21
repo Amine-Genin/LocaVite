@@ -1,15 +1,19 @@
 package ma.locavite.auth.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
+@Schema(description = "Requête d'inscription d'un nouvel utilisateur")
 public class RegisterRequest {
 
     @NotBlank(message = "Le nom est obligatoire")
+    @Schema(description = "Nom de famille", example = "Alaoui", requiredMode = Schema.RequiredMode.REQUIRED)
     private String nom;
 
     @NotBlank(message = "Le prénom est obligatoire")
+    @Schema(description = "Prénom", example = "Fatima", requiredMode = Schema.RequiredMode.REQUIRED)
     private String prenom;
 
     @NotBlank(message = "L'adresse email est obligatoire")
@@ -17,9 +21,11 @@ public class RegisterRequest {
         regexp = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$",
         message = "Format d'email invalide"
     )
+    @Schema(description = "Adresse email valide", example = "fatima.alaoui@example.com", requiredMode = Schema.RequiredMode.REQUIRED)
     private String email;
 
     @NotBlank(message = "Le numéro de téléphone est obligatoire")
+    @Schema(description = "Numéro de téléphone marocain", example = "+212611223344", requiredMode = Schema.RequiredMode.REQUIRED)
     private String telephone;
 
     @NotBlank(message = "Le mot de passe est obligatoire")
@@ -27,6 +33,7 @@ public class RegisterRequest {
         regexp = "^(?=.*[A-Z])(?=.*\\d).{8,}$",
         message = "Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre"
     )
+    @Schema(description = "Mot de passe sécurisé (au moins 8 caractères, 1 majuscule, 1 chiffre)", example = "Password123!", requiredMode = Schema.RequiredMode.REQUIRED)
     private String password;
 
     public RegisterRequest() {
@@ -80,59 +87,38 @@ public class RegisterRequest {
         this.password = password;
     }
 
-    // Record-like accessors
-    public String nom() {
-        return nom;
+    public static Builder builder() {
+        return new Builder();
     }
 
-    public String prenom() {
-        return prenom;
-    }
-
-    public String email() {
-        return email;
-    }
-
-    public String telephone() {
-        return telephone;
-    }
-
-    public String password() {
-        return password;
-    }
-
-    public static RegisterRequestBuilder builder() {
-        return new RegisterRequestBuilder();
-    }
-
-    public static class RegisterRequestBuilder {
+    public static class Builder {
         private String nom;
         private String prenom;
         private String email;
         private String telephone;
         private String password;
 
-        public RegisterRequestBuilder nom(String nom) {
+        public Builder nom(String nom) {
             this.nom = nom;
             return this;
         }
 
-        public RegisterRequestBuilder prenom(String prenom) {
+        public Builder prenom(String prenom) {
             this.prenom = prenom;
             return this;
         }
 
-        public RegisterRequestBuilder email(String email) {
+        public Builder email(String email) {
             this.email = email;
             return this;
         }
 
-        public RegisterRequestBuilder telephone(String telephone) {
+        public Builder telephone(String telephone) {
             this.telephone = telephone;
             return this;
         }
 
-        public RegisterRequestBuilder password(String password) {
+        public Builder password(String password) {
             this.password = password;
             return this;
         }

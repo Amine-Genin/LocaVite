@@ -1,13 +1,16 @@
 package ma.locavite.user.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 
 import java.util.Set;
 
+@Schema(description = "Requête d'attribution de rôles à un utilisateur par un administrateur")
 public class AssignRolesRequest {
 
     @NotEmpty(message = "La liste des rôles ne peut pas être vide")
+    @Schema(description = "Ensemble non vide de rôles valides (CLIENT, AGENCE, ADMIN)", example = "[\"CLIENT\", \"AGENCE\"]", requiredMode = Schema.RequiredMode.REQUIRED)
     private Set<@NotBlank(message = "Le nom du rôle ne peut pas être vide") String> roles;
 
     public AssignRolesRequest() {
