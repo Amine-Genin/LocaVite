@@ -6,6 +6,20 @@
 [![Backend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml)
 [![Frontend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 
+### Qualité du code Backend (SonarCloud)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-backend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-backend)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-backend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-backend)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-backend&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-backend)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-backend&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-backend)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-backend&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-backend)
+
+### Qualité du code Frontend (SonarCloud)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-frontend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-frontend)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-frontend&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-frontend)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-frontend&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-frontend)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-frontend&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-frontend)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-frontend&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-frontend)
+
 ## 📋 Description
 
 LocaVite est une plateforme web dédiée à la **location et à la vente de voitures au Maroc**. Elle met en relation les clients et les gestionnaires de véhicules au travers d'une expérience moderne, sécurisée et adaptée au marché marocain.
@@ -44,7 +58,25 @@ LocaVite/
 | Conteneurisation | Docker |
 | Orchestration | Kubernetes |
 | CI/CD | GitHub Actions |
+| Qualité de code | SonarCloud / SonarQube |
 | Gestion de projet | Jira |
+
+## 🔍 Qualité du code (SonarQube & SonarCloud)
+
+L'analyse de la qualité du code est intégrée aux pipelines CI/CD de GitHub Actions pour chaque Pull Request et push sur la branche principale :
+
+- **Plateforme SaaS recommandée** : [SonarCloud](https://sonarcloud.io/) (gratuit pour les dépôts publics)
+- **Token CI** : secret GitHub `SONAR_TOKEN`
+- **Politique de Quality Gate** :
+  - **0 nouveau bug**
+  - **0 nouvelle vulnérabilité**
+  - **Couverture de tests sur le nouveau code > 70%**
+- **Blocage de la PR** : Grâce à `sonar.qualitygate.wait=true`, si le Quality Gate échoue, le job CI échoue et bloque la fusion de la PR sur GitHub.
+- **Alternative locale auto-hébergée (Docker)** :
+  ```bash
+  docker compose -f infra/docker/docker-compose.sonar.yml up -d
+  ```
+  Console accessible sur [http://localhost:9000](http://localhost:9000) (admin / admin).
 
 ## 🚀 Démarrage rapide
 

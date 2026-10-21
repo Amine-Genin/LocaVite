@@ -30,6 +30,23 @@
         <springdoc.version>2.6.0</springdoc.version>
         <testcontainers.version>1.20.2</testcontainers.version>
         <jacoco.version>0.8.12</jacoco.version>
+        <sonar.version>5.8.0.7211</sonar.version>
+
+        <!-- Propriétés SonarCloud / SonarQube -->
+        <sonar.organization>amine-genin</sonar.organization>
+        <sonar.projectKey>Amine-Genin_LocaVite-backend</sonar.projectKey>
+        <sonar.projectName>LocaVite Backend</sonar.projectName>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+        <sonar.coverage.exclusions>
+            src/main/java/ma/locavite/*Application.java,
+            src/main/java/ma/locavite/**/config/**,
+            src/main/java/ma/locavite/**/dto/**,
+            src/main/java/ma/locavite/**/domain/**,
+            src/main/java/ma/locavite/**/exception/**,
+            src/main/java/ma/locavite/**/mapper/**
+        </sonar.coverage.exclusions>
     </properties>
 
     <dependencyManagement>
@@ -228,6 +245,12 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- Analyse de la qualité du code avec SonarCloud / SonarQube -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>${sonar.version}</version>
             </plugin>
             <!-- Exécute l'application Spring Boot et prépare le packaging. -->
             <plugin>
