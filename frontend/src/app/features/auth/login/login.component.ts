@@ -92,7 +92,7 @@ import { AuthFooterComponent } from '../../../shared/components/auth-footer/auth
                       type="button"
                       class="icon-btn"
                       (click)="hidePassword.set(!hidePassword())"
-                      [attr.aria-label]="hidePassword() ? 'Afficher mot de passe' : 'Masquer mot de passe'"
+                      [attr.aria-label]="hidePassword() ? ('AUTH.LOGIN.SHOW_PASSWORD' | translate) : ('AUTH.LOGIN.HIDE_PASSWORD' | translate)"
                     >
                       <mat-icon class="input-icon">{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
                     </button>

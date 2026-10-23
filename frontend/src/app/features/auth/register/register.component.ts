@@ -176,7 +176,7 @@ import { AuthFooterComponent } from '../../../shared/components/auth-footer/auth
                       type="button"
                       class="icon-btn"
                       (click)="hidePassword.set(!hidePassword())"
-                      [attr.aria-label]="hidePassword() ? 'Afficher mot de passe' : 'Masquer mot de passe'"
+                      [attr.aria-label]="hidePassword() ? ('AUTH.REGISTER.SHOW_PASSWORD' | translate) : ('AUTH.REGISTER.HIDE_PASSWORD' | translate)"
                     >
                       <mat-icon class="input-icon">{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
                     </button>
@@ -212,7 +212,7 @@ import { AuthFooterComponent } from '../../../shared/components/auth-footer/auth
                       type="button"
                       class="icon-btn"
                       (click)="hideConfirmPassword.set(!hideConfirmPassword())"
-                      [attr.aria-label]="hideConfirmPassword() ? 'Afficher confirmation' : 'Masquer confirmation'"
+                      [attr.aria-label]="hideConfirmPassword() ? ('AUTH.REGISTER.SHOW_CONFIRM_PASSWORD' | translate) : ('AUTH.REGISTER.HIDE_CONFIRM_PASSWORD' | translate)"
                     >
                       <mat-icon class="input-icon">{{ hideConfirmPassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
                     </button>
