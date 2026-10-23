@@ -9,7 +9,11 @@ describe('AppComponent', () => {
       providers: [
         {
           provide: LanguageService,
-          useValue: { init: jasmine.createSpy('init') },
+          useValue: {
+            init: jasmine.createSpy('init'),
+            direction: () => 'ltr',
+            currentLang: () => 'fr',
+          },
         },
       ],
     }).compileComponents();

@@ -10,7 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
       <div class="promo-image-wrapper">
         <img
           src="/assets/images/auth-banner.jpg"
-          alt="Route côtière au Maroc - LocaVite"
+          [alt]="'AUTH.PROMO.IMAGE_ALT' | translate"
           class="promo-image"
           loading="lazy"
         />
@@ -79,4 +79,3 @@ import { TranslateModule } from '@ngx-translate/core';
   `],
 })
 export class AuthPromoCardComponent {}
-

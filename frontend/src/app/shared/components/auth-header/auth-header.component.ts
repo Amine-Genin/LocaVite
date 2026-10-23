@@ -1,12 +1,12 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { LanguageService, SupportedLang } from '../../../core/i18n/language.service';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 @Component({
   selector: 'app-auth-header',
   standalone: true,
-  imports: [RouterLink, TranslateModule],
+  imports: [RouterLink, TranslateModule, LanguageSwitcherComponent],
   template: `
     <header class="site-header">
       <div class="header-inner">
@@ -29,34 +29,7 @@ import { LanguageService, SupportedLang } from '../../../core/i18n/language.serv
 
         <!-- Right: Language Switcher & Mon Espace -->
         <div class="header-right">
-          <div class="lang-bar">
-            <button
-              type="button"
-              class="lang-btn"
-              [class.active]="langService.currentLang() === 'fr'"
-              (click)="setLang('fr')"
-            >
-              FR
-            </button>
-            <span class="dot">•</span>
-            <button
-              type="button"
-              class="lang-btn"
-              [class.active]="langService.currentLang() === 'en'"
-              (click)="setLang('en')"
-            >
-              EN
-            </button>
-            <span class="dot">•</span>
-            <button
-              type="button"
-              class="lang-btn"
-              [class.active]="langService.currentLang() === 'ar'"
-              (click)="setLang('ar')"
-            >
-              العربية
-            </button>
-          </div>
+          <app-language-switcher [variant]="'buttons'"></app-language-switcher>
           <a routerLink="/login" class="user-space-link">{{ 'NAV.MY_SPACE' | translate }}</a>
         </div>
       </div>
@@ -122,42 +95,7 @@ import { LanguageService, SupportedLang } from '../../../core/i18n/language.serv
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 3px;
-    }
-
-    .lang-bar {
-      display: inline-flex;
-      align-items: center;
       gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #607282;
-    }
-
-    .lang-btn {
-      background: none;
-      border: none;
-      padding: 0;
-      font-size: 12px;
-      font-weight: 600;
-      color: #7b8e9f;
-      cursor: pointer;
-      font-family: inherit;
-      transition: color 0.15s ease;
-
-      &:hover {
-        color: var(--c-navy);
-      }
-
-      &.active {
-        color: var(--c-navy);
-        font-weight: 700;
-      }
-    }
-
-    .dot {
-      color: #a8b8c6;
-      font-size: 11px;
     }
 
     .user-space-link {
@@ -182,11 +120,4 @@ import { LanguageService, SupportedLang } from '../../../core/i18n/language.serv
     }
   `],
 })
-export class AuthHeaderComponent {
-  langService = inject(LanguageService);
-
-  setLang(lang: SupportedLang) {
-    this.langService.setLanguage(lang);
-  }
-}
-
+export class AuthHeaderComponent {}

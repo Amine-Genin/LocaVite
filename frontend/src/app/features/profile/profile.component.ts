@@ -5,17 +5,30 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { UserService } from './services/user.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { DocumentStatus, DocumentType, User, UserDocument } from './models/user.model';
 import { StatusBadgeComponent, BadgeTone } from '../../shared/components/status-badge/status-badge.component';
+import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
+import { LocalizedDatePipe } from '../../core/i18n/localized-date.pipe';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [DatePipe, ReactiveFormsModule, MatButtonModule, MatFormFieldModule,
-            MatInputModule, MatSnackBarModule, StatusBadgeComponent],
+  imports: [
+    DatePipe,
+    LocalizedDatePipe,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSnackBarModule,
+    TranslateModule,
+    StatusBadgeComponent,
+    LanguageSwitcherComponent,
+  ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
 })
@@ -24,6 +37,7 @@ export class ProfileComponent implements OnInit {
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
   private fb = inject(FormBuilder);
+  private translate = inject(TranslateService, { optional: true });
 
   private readonly ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
   private readonly MAX_SIZE = 5 * 1024 * 1024; // 5 Mo, limite du backend
@@ -34,9 +48,9 @@ export class ProfileComponent implements OnInit {
   dragOver = signal<DocumentType | null>(null);
   uploading = signal<DocumentType | null>(null);
 
-  documentTypes: { value: DocumentType; label: string }[] = [
-    { value: 'permis', label: 'Permis de conduire' },
-    { value: 'cin', label: 'CIN' },
+  documentTypes: { value: DocumentType; labelKey: string; fallbackLabel: string }[] = [
+    { value: 'permis', labelKey: 'PROFILE.DOC_PERMIS', fallbackLabel: 'Permis de conduire' },
+    { value: 'cin', labelKey: 'PROFILE.DOC_CIN', fallbackLabel: 'CIN' },
   ];
 
   form = this.fb.nonNullable.group({
@@ -45,11 +59,11 @@ export class ProfileComponent implements OnInit {
     phone: ['', [Validators.required, Validators.pattern(/^(\+212|0)[5-7]\d{8}$/)]],
   });
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadProfile();
   }
 
-  loadProfile() {
+  loadProfile(): void {
     this.loading.set(true);
     this.userService.getProfile().subscribe({
       next: (u) => {
@@ -59,12 +73,12 @@ export class ProfileComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.toast('Erreur de chargement du profil.');
+        this.toast(this.t('PROFILE.LOAD_ERROR_TOAST', 'Erreur de chargement du profil.'));
       },
     });
   }
 
-  save() {
+  save(): void {
     if (this.form.invalid) return;
     this.saving.set(true);
     this.userService.updateProfile(this.form.getRawValue()).subscribe({
@@ -72,16 +86,16 @@ export class ProfileComponent implements OnInit {
         this.user.set(u);
         this.form.patchValue(u);
         this.saving.set(false);
-        this.toast('Profil mis à jour.');
+        this.toast(this.t('PROFILE.UPDATE_SUCCESS', 'Profil mis à jour.'));
       },
       error: (err) => {
         this.saving.set(false);
-        this.toast(this.errorMessage(err, 'Échec de la mise à jour.'));
+        this.toast(this.errorMessage(err, this.t('PROFILE.UPDATE_ERROR', 'Échec de la mise à jour.')));
       },
     });
   }
 
-  logout() {
+  logout(): void {
     this.authService.logout();
   }
 
@@ -101,15 +115,23 @@ export class ProfileComponent implements OnInit {
 
   statusLabel(s: DocumentStatus | string): string {
     const key = (s || '').toLowerCase();
-    const map: Record<string, string> = {
+    const labelKeyMap: Record<string, string> = {
+      pending: 'PROFILE.STATUS_PENDING',
+      validated: 'PROFILE.STATUS_VALIDATED',
+      rejected: 'PROFILE.STATUS_REJECTED',
+    };
+    const fallbackMap: Record<string, string> = {
       pending: 'En attente',
       validated: 'Validé',
       rejected: 'Rejeté',
     };
-    return map[key] || s;
+    if (labelKeyMap[key]) {
+      return this.t(labelKeyMap[key], fallbackMap[key]);
+    }
+    return s;
   }
 
-  onDragOver(e: DragEvent, type: DocumentType) {
+  onDragOver(e: DragEvent, type: DocumentType): void {
     e.preventDefault();
     e.stopPropagation();
     if (e.dataTransfer) {
@@ -118,13 +140,13 @@ export class ProfileComponent implements OnInit {
     this.dragOver.set(type);
   }
 
-  onDragLeave(e: DragEvent) {
+  onDragLeave(e: DragEvent): void {
     e.preventDefault();
     e.stopPropagation();
     this.dragOver.set(null);
   }
 
-  onDrop(e: DragEvent, type: DocumentType) {
+  onDrop(e: DragEvent, type: DocumentType): void {
     e.preventDefault();
     e.stopPropagation();
     this.dragOver.set(null);
@@ -132,7 +154,7 @@ export class ProfileComponent implements OnInit {
     if (file) this.upload(type, file);
   }
 
-  onFileSelected(e: Event, type: DocumentType) {
+  onFileSelected(e: Event, type: DocumentType): void {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     if (file) {
@@ -141,18 +163,18 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  private upload(type: DocumentType, file: File) {
+  private upload(type: DocumentType, file: File): void {
     const fileType = (file.type || '').toLowerCase();
     const fileName = (file.name || '').toLowerCase();
     const isAllowed = this.ALLOWED_TYPES.includes(fileType) ||
       /\.(pdf|jpg|jpeg|png)$/i.test(fileName);
 
     if (!isAllowed) {
-      this.toast('Format non autorisé. Formats acceptés : PDF, JPG, PNG.');
+      this.toast(this.t('PROFILE.FORMAT_ERROR', 'Format non autorisé. Formats acceptés : PDF, JPG, PNG.'));
       return;
     }
     if (file.size > this.MAX_SIZE) {
-      this.toast('Le fichier dépasse la taille maximale de 5 Mo.');
+      this.toast(this.t('PROFILE.SIZE_ERROR', 'Le fichier dépasse la taille maximale de 5 Mo.'));
       return;
     }
 
@@ -165,27 +187,39 @@ export class ProfileComponent implements OnInit {
           this.user.set({ ...u, documents: [...u.documents.filter((d) => d.type !== type), doc] });
         }
         this.uploading.set(null);
-        this.toast('Document envoyé.');
+        this.toast(this.t('PROFILE.UPLOAD_SUCCESS', 'Document envoyé.'));
         if (previous) this.userService.deleteDocument(previous.id).subscribe({ error: () => {} });
       },
       error: (err) => {
         this.uploading.set(null);
-        this.toast(this.errorMessage(err, "Échec de l'envoi du document."));
+        this.toast(this.errorMessage(err, this.t('PROFILE.UPLOAD_ERROR', "Échec de l'envoi du document.")));
       },
     });
   }
 
-  private errorMessage(err: any, fallback: string): string {
-    if (err?.error?.errors && typeof err.error.errors === 'object') {
-      const messages = Object.values(err.error.errors).filter(Boolean);
+  private errorMessage(err: unknown, fallback: string): string {
+    const errorObj = err as { error?: { errors?: Record<string, string>; message?: string } };
+    if (errorObj?.error?.errors && typeof errorObj.error.errors === 'object') {
+      const messages = Object.values(errorObj.error.errors).filter(Boolean);
       if (messages.length > 0) {
         return messages.join(', ');
       }
     }
-    return err?.error?.message ?? fallback;
+    return errorObj?.error?.message ?? fallback;
   }
 
-  private toast(msg: string) {
-    this.snackBar.open(msg, 'OK', { duration: 4000 });
+  private toast(msg: string): void {
+    const okLabel = this.t('COMMON.OK', 'OK');
+    this.snackBar.open(msg, okLabel, { duration: 4000 });
+  }
+
+  private t(key: string, fallback: string): string {
+    if (this.translate) {
+      const val = this.translate.instant(key);
+      if (val && val !== key) {
+        return val;
+      }
+    }
+    return fallback;
   }
 }

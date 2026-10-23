@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
 import { ProfileComponent } from './profile.component';
 import { UserService } from './services/user.service';
 import { AuthService } from '../../core/auth/auth.service';
@@ -64,7 +65,7 @@ describe('ProfileComponent', () => {
     userServiceSpy.deleteDocument.and.returnValue(of(undefined));
 
     await TestBed.configureTestingModule({
-      imports: [ProfileComponent],
+      imports: [ProfileComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
         { provide: UserService, useValue: userServiceSpy },
@@ -74,7 +75,7 @@ describe('ProfileComponent', () => {
 
     fixture = TestBed.createComponent(ProfileComponent);
     component = fixture.componentInstance;
-    snackBarSpy = spyOn((component as any).snackBar, 'open').and.callThrough();
+    snackBarSpy = spyOn((component as unknown as { snackBar: { open: jasmine.Spy } }).snackBar, 'open').and.callThrough();
     fixture.detectChanges();
   });
 
@@ -186,4 +187,3 @@ describe('ProfileComponent', () => {
     expect(authServiceSpy.logout).toHaveBeenCalled();
   });
 });
-
