@@ -1,4 +1,9 @@
-import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  importProvidersFrom,
+  isDevMode,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -6,12 +11,14 @@ import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import localeAr from '@angular/common/locales/ar';
 import localeEn from '@angular/common/locales/en';
+import { provideServiceWorker } from '@angular/service-worker';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
 import { jwtInterceptor } from './core/interceptors/jwt.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { environment } from '../environments/environment';
 
 // Register supported locales for Angular pipes (DatePipe, DecimalPipe, CurrencyPipe)
 registerLocaleData(localeFr, 'fr');
@@ -30,7 +37,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     importProvidersFrom(
       TranslateModule.forRoot({
-        defaultLanguage: 'fr',
+        defaultLanguage: environment.defaultLanguage,
         loader: {
           provide: TranslateLoader,
           useFactory: HttpLoaderFactory,
@@ -38,5 +45,9 @@ export const appConfig: ApplicationConfig = {
         },
       }),
     ),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };

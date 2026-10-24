@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
@@ -68,7 +69,7 @@ describe('LoginComponent', () => {
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
-    snackBarSpy = spyOn((component as any).snackBar, 'open').and.callThrough();
+    snackBarSpy = spyOn((component as unknown as { snackBar: MatSnackBar }).snackBar, 'open').and.callThrough();
     fixture.detectChanges();
   });
 
@@ -135,4 +136,3 @@ describe('LoginComponent', () => {
     expect(component.hidePassword()).toBeFalse();
   });
 });
-
