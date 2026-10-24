@@ -55,7 +55,7 @@ describe('errorInterceptor', () => {
     };
     authServiceSpy.refreshToken.and.returnValue(of(mockAuthResponse));
 
-    let responseData: any = null;
+    let responseData: unknown = null;
     http.get('/api/users/profile').subscribe({
       next: (res) => {
         responseData = res;
@@ -80,7 +80,7 @@ describe('errorInterceptor', () => {
   it('devrait déconnecter l\'utilisateur si 401 et aucun refresh token n\'est disponible', () => {
     authServiceSpy.getRefreshToken.and.returnValue(null);
 
-    let caughtError: any = null;
+    let caughtError: unknown = null;
     http.get('/api/users/profile').subscribe({
       error: (err) => {
         caughtError = err;
@@ -99,7 +99,7 @@ describe('errorInterceptor', () => {
     authServiceSpy.getRefreshToken.and.returnValue('expired-refresh-token');
     authServiceSpy.refreshToken.and.returnValue(throwError(() => new Error('Refresh failed')));
 
-    let caughtError: any = null;
+    let caughtError: unknown = null;
     http.get('/api/users/profile').subscribe({
       error: (err) => {
         caughtError = err;
@@ -115,7 +115,7 @@ describe('errorInterceptor', () => {
   });
 
   it('devrait déconnecter immédiatement en cas de 401 sur /api/auth/login', () => {
-    let caughtError: any = null;
+    let caughtError: unknown = null;
     http.post('/api/auth/login', { email: 'test@locavite.ma', password: 'bad' }).subscribe({
       error: (err) => {
         caughtError = err;
@@ -131,7 +131,7 @@ describe('errorInterceptor', () => {
   });
 
   it('ne devrait pas intercepter les erreurs non-401 (ex: 500)', () => {
-    let caughtError: any = null;
+    let caughtError: unknown = null;
     http.get('/api/some-endpoint').subscribe({
       error: (err) => {
         caughtError = err;
@@ -143,7 +143,6 @@ describe('errorInterceptor', () => {
 
     expect(authServiceSpy.logout).not.toHaveBeenCalled();
     expect(authServiceSpy.refreshToken).not.toHaveBeenCalled();
-    expect(caughtError.status).toBe(500);
+    expect((caughtError as { status?: number }).status).toBe(500);
   });
 });
-
