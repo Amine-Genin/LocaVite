@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+          "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+          "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="warning"/>
+    <property name="fileExtensions" value="java, properties, xml"/>
+
+    <!-- Vérifie que les fichiers se terminent par un saut de ligne -->
+    <module name="NewlineAtEndOfFile"/>
+
+    <!-- Vérifie qu'il n'y a pas de caractères de tabulation -->
+    <module name="FileTabCharacter">
+        <property name="eachLine" value="true"/>
+    </module>
+
+    <module name="TreeWalker">
+        <!-- Conventions de nommage des packages -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+        </module>
+
+        <!-- Conventions de nommage des classes, interfaces et records -->
+        <module name="TypeName"/>
+
+        <!-- Conventions de nommage des constantes -->
+        <module name="ConstantName"/>
+
+        <!-- Conventions de nommage des membres et variables locales -->
+        <module name="MemberName"/>
+        <module name="LocalVariableName"/>
+        <module name="ParameterName"/>
+        <module name="MethodName"/>
+
+        <!-- Gestion des imports : pas d'import wildcard, pas d'imports inutilisés -->
+        <module name="AvoidStarImport"/>
+        <module name="IllegalImport"/>
+        <module name="RedundantImport"/>
+        <module name="UnusedImports"/>
+
+        <!-- Style des accolades -->
+        <module name="NeedBraces"/>
+        <module name="LeftCurly"/>
+        <module name="RightCurly"/>
+
+        <!-- Modificateurs -->
+        <module name="ModifierOrder"/>
+        <module name="RedundantModifier"/>
+
+        <!-- Bonnes pratiques de code -->
+        <module name="EmptyBlock"/>
+        <module name="EqualsHashCode"/>
+        <module name="MissingSwitchDefault"/>
+        <module name="SimplifyBooleanExpression"/>
+        <module name="SimplifyBooleanReturn"/>
+        <module name="StringLiteralEquality"/>
+    </module>
+</module>

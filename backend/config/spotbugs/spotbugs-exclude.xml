@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Ignorer les mappers générés par MapStruct -->
+    <Match>
+        <Class name="~ma\.locavite\..*\.mapper\..*Impl" />
+    </Match>
+
+    <!-- Ignorer les avertissements sur l'exposition des représentations internes dans les entités et DTOs -->
+    <Match>
+        <Or>
+            <Bug pattern="EI_EXPOSE_REP" />
+            <Bug pattern="EI_EXPOSE_REP2" />
+        </Or>
+    </Match>
+
+    <!-- Ignorer les classes de test -->
+    <Match>
+        <Class name="~.*Test(\$.*)?" />
+    </Match>
+    <Match>
+        <Class name="~.*IT(\$.*)?" />
+    </Match>
+</FindBugsFilter>

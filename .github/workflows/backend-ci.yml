@@ -69,7 +69,8 @@ jobs:
         with:
           name: backend-jar
           path: |
+            backend/app-web/target/locavite-backend-*.jar
             backend/target/locavite-backend-*.jar
-            !backend/target/*.original
+            !backend/**/target/*.original
           if-no-files-found: error
           retention-days: 7

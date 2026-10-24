@@ -1,0 +1,48 @@
+# ==============================================================================
+# Configuration du profil PROD (Production)
+# ==============================================================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://${DB_HOST:postgres}:${DB_PORT:5432}/${DB_NAME:locavite}}}
+    username: ${DB_USER:locavite}
+    password: ${DB_PASSWORD:locavite_password}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: false
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  mail:
+    host: ${MAIL_HOST:smtp.locavite.ma}
+    port: ${MAIL_PORT:587}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+
+minio:
+  init-bucket: false
+
+logging:
+  level:
+    ma.locavite: INFO
+    org.springframework: WARN
