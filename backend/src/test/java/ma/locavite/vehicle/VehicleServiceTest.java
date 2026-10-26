@@ -2,6 +2,7 @@
 package ma.locavite.vehicle;
 
 import ma.locavite.vehicle.domain.*;
+import ma.locavite.vehicle.dto.VehicleFilter;
 import ma.locavite.vehicle.dto.VehicleRequest;
 import ma.locavite.vehicle.dto.VehicleResponse;
 import ma.locavite.vehicle.exception.MatriculeAlreadyExistsException;
@@ -17,15 +18,23 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -93,7 +102,7 @@ class VehicleServiceTest {
         );
     }
 
-    // ---------------- CREATE ----------------
+    // ==================== CREATE ====================
 
     @Test
     void create_shouldSaveVehicle() {
@@ -140,7 +149,7 @@ class VehicleServiceTest {
     }
 
     @Test
-    void create_shouldThrowWhenUserIsNotAuthenticated() {
+    void create_shouldRejectUnauthenticatedUser() {
         when(currentUser.getCurrentUserId())
                 .thenReturn(Optional.empty());
 
@@ -150,10 +159,26 @@ class VehicleServiceTest {
         verifyNoInteractions(repository, mapper);
     }
 
-    // ---------------- GET BY ID ----------------
+    @Test
+    void create_shouldConvertDatabaseConflictToBusinessException() {
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
+        when(repository.existsByMatriculeIgnoreCase("12345-A-1"))
+                .thenReturn(false);
+        when(mapper.toEntity(any(VehicleRequest.class)))
+                .thenReturn(new Vehicle());
+        when(repository.saveAndFlush(any(Vehicle.class)))
+                .thenThrow(new DataIntegrityViolationException(
+                        "Duplicate matricule"));
+
+        assertThatThrownBy(() -> service.create(sampleRequest()))
+                .isInstanceOf(MatriculeAlreadyExistsException.class);
+    }
+
+    // ==================== GET BY ID ====================
 
     @Test
-    void getById_shouldReturnVehicle() {
+    void getById_shouldReturnPublishedVehicle() {
         Vehicle vehicle =
                 sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
 
@@ -162,9 +187,7 @@ class VehicleServiceTest {
         when(mapper.toResponse(vehicle))
                 .thenReturn(sampleResponse());
 
-        VehicleResponse result = service.getById(1L);
-
-        assertThat(result).isNotNull();
+        assertThat(service.getById(1L)).isNotNull();
         verify(mapper).toResponse(vehicle);
     }
 
@@ -181,26 +204,9 @@ class VehicleServiceTest {
 
     @Test
     void getById_shouldThrowWhenVehicleIsArchived() {
-        Vehicle vehicle =
-                sampleVehicle(1L, 7L, VehicleStatus.ARCHIVED);
-
         when(repository.findById(1L))
-                .thenReturn(Optional.of(vehicle));
-
-        assertThatThrownBy(() -> service.getById(1L))
-                .isInstanceOf(VehicleNotFoundException.class);
-    }
-
-    @Test
-    void getById_shouldRejectDraftOwnedByAnotherAgency() {
-        Vehicle vehicle =
-                sampleVehicle(1L, 99L, VehicleStatus.DRAFT);
-
-        when(repository.findById(1L))
-                .thenReturn(Optional.of(vehicle));
-        when(currentUser.isAdmin()).thenReturn(false);
-        when(currentUser.getCurrentUserId())
-                .thenReturn(Optional.of(7L));
+                .thenReturn(Optional.of(
+                        sampleVehicle(1L, 7L, VehicleStatus.ARCHIVED)));
 
         assertThatThrownBy(() -> service.getById(1L))
                 .isInstanceOf(VehicleNotFoundException.class);
@@ -217,18 +223,30 @@ class VehicleServiceTest {
         when(mapper.toResponse(vehicle))
                 .thenReturn(sampleResponse());
 
-        VehicleResponse result = service.getById(1L);
-
-        assertThat(result).isNotNull();
+        assertThat(service.getById(1L)).isNotNull();
         verify(mapper).toResponse(vehicle);
     }
 
-    // ---------------- UPDATE ----------------
+    @Test
+    void getById_shouldAllowOwnerToSeeDraft() {
+        Vehicle vehicle =
+                sampleVehicle(1L, 7L, VehicleStatus.DRAFT);
+
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(vehicle));
+        when(currentUser.isAdmin()).thenReturn(false);
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
+        when(mapper.toResponse(vehicle))
+                .thenReturn(sampleResponse());
+
+        assertThat(service.getById(1L)).isNotNull();
+    }
 
     @Test
-    void update_shouldRejectVehicleOwnedByAnotherAgency() {
+    void getById_shouldHideAnotherAgenciesDraft() {
         Vehicle vehicle =
-                sampleVehicle(1L, 99L, VehicleStatus.PUBLISHED);
+                sampleVehicle(1L, 99L, VehicleStatus.DRAFT);
 
         when(repository.findById(1L))
                 .thenReturn(Optional.of(vehicle));
@@ -236,68 +254,71 @@ class VehicleServiceTest {
         when(currentUser.getCurrentUserId())
                 .thenReturn(Optional.of(7L));
 
-        assertThatThrownBy(
-                () -> service.update(1L, sampleRequest()))
-                .isInstanceOf(AccessDeniedException.class);
-
-        verify(mapper, never()).updateEntity(any(), any());
-    }
-
-    @Test
-    void update_shouldThrowWhenVehicleDoesNotExist() {
-        when(repository.findById(100L))
-                .thenReturn(Optional.empty());
-
-        assertThatThrownBy(
-                () -> service.update(100L, sampleRequest()))
+        assertThatThrownBy(() -> service.getById(1L))
                 .isInstanceOf(VehicleNotFoundException.class);
     }
 
-    @Test
-    void update_shouldThrowWhenVehicleIsArchived() {
-        Vehicle vehicle =
-                sampleVehicle(1L, 7L, VehicleStatus.ARCHIVED);
-
-        when(repository.findById(1L))
-                .thenReturn(Optional.of(vehicle));
-
-        assertThatThrownBy(
-                () -> service.update(1L, sampleRequest()))
-                .isInstanceOf(VehicleNotFoundException.class);
-    }
+    // ==================== SEARCH ====================
 
     @Test
-    void update_shouldRejectDuplicateMatricule() {
+    void search_shouldReturnPagedVehicles() {
+        Pageable pageable = PageRequest.of(0, 10);
+        VehicleFilter filter = mock(VehicleFilter.class);
+
         Vehicle vehicle =
                 sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
 
-        vehicle.setMatricule("OLD-A-1");
+        Page<Vehicle> page =
+                new PageImpl<>(List.of(vehicle), pageable, 1);
 
-        when(repository.findById(1L))
-                .thenReturn(Optional.of(vehicle));
-        when(currentUser.isAdmin()).thenReturn(false);
-        when(currentUser.getCurrentUserId())
-                .thenReturn(Optional.of(7L));
-        when(repository.existsByMatriculeIgnoreCase("12345-A-1"))
-                .thenReturn(true);
+        when(repository.findAll(
+                org.mockito.ArgumentMatchers
+                        .<Specification<Vehicle>>any(),
+                eq(pageable)))
+                .thenReturn(page);
 
-        assertThatThrownBy(
-                () -> service.update(1L, sampleRequest()))
-                .isInstanceOf(MatriculeAlreadyExistsException.class);
+        when(mapper.toResponse(vehicle))
+                .thenReturn(sampleResponse());
 
-        verify(mapper, never()).updateEntity(any(), any());
+        Page<VehicleResponse> result =
+                service.search(filter, pageable);
+
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent()).hasSize(1);
+        verify(mapper).toResponse(vehicle);
     }
 
     @Test
-    void update_shouldAllowAdminToManageAnotherAgencyVehicle() {
-        Vehicle vehicle =
-                sampleVehicle(1L, 99L, VehicleStatus.PUBLISHED);
+    void search_shouldReturnEmptyPage() {
+        Pageable pageable = PageRequest.of(0, 10);
+        VehicleFilter filter = mock(VehicleFilter.class);
 
+        when(repository.findAll(
+                org.mockito.ArgumentMatchers
+                        .<Specification<Vehicle>>any(),
+                eq(pageable)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        Page<VehicleResponse> result =
+                service.search(filter, pageable);
+
+        assertThat(result).isEmpty();
+        verify(mapper, never()).toResponse(any(Vehicle.class));
+    }
+
+    // ==================== UPDATE ====================
+
+    @Test
+    void update_shouldUpdateVehicleOwnedByCurrentAgency() {
+        Vehicle vehicle =
+                sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
         VehicleRequest request = sampleRequest();
 
         when(repository.findById(1L))
                 .thenReturn(Optional.of(vehicle));
-        when(currentUser.isAdmin()).thenReturn(true);
+        when(currentUser.isAdmin()).thenReturn(false);
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
         when(repository.saveAndFlush(vehicle))
                 .thenReturn(vehicle);
         when(mapper.toResponse(vehicle))
@@ -310,50 +331,121 @@ class VehicleServiceTest {
         verify(repository).saveAndFlush(vehicle);
     }
 
-    // ---------------- DELETE ----------------
-
     @Test
-    void delete_shouldThrowWhenVehicleDoesNotExist() {
-        when(repository.findById(100L))
-                .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.delete(100L))
-                .isInstanceOf(VehicleNotFoundException.class);
-    }
-
-    @Test
-    void delete_shouldThrowWhenVehicleIsArchived() {
+    void update_shouldAllowAdminToUpdateAnotherAgencyVehicle() {
         Vehicle vehicle =
-                sampleVehicle(1L, 7L, VehicleStatus.ARCHIVED);
+                sampleVehicle(1L, 99L, VehicleStatus.PUBLISHED);
+        VehicleRequest request = sampleRequest();
 
         when(repository.findById(1L))
                 .thenReturn(Optional.of(vehicle));
+        when(currentUser.isAdmin()).thenReturn(true);
+        when(repository.saveAndFlush(vehicle))
+                .thenReturn(vehicle);
+        when(mapper.toResponse(vehicle))
+                .thenReturn(sampleResponse());
 
-        assertThatThrownBy(() -> service.delete(1L))
-                .isInstanceOf(VehicleNotFoundException.class);
-
-        verify(repository, never()).save(any());
+        assertThat(service.update(1L, request)).isNotNull();
+        verify(mapper).updateEntity(request, vehicle);
     }
 
     @Test
-    void delete_shouldRejectVehicleOwnedByAnotherAgency() {
+    void update_shouldThrowWhenVehicleDoesNotExist() {
+        when(repository.findById(100L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.update(100L, sampleRequest()))
+                .isInstanceOf(VehicleNotFoundException.class);
+    }
+
+    @Test
+    void update_shouldThrowWhenVehicleIsArchived() {
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(
+                        sampleVehicle(1L, 7L, VehicleStatus.ARCHIVED)));
+
+        assertThatThrownBy(() -> service.update(1L, sampleRequest()))
+                .isInstanceOf(VehicleNotFoundException.class);
+    }
+
+    @Test
+    void update_shouldRejectAnotherAgenciesVehicle() {
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(
+                        sampleVehicle(1L, 99L, VehicleStatus.PUBLISHED)));
+        when(currentUser.isAdmin()).thenReturn(false);
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
+
+        assertThatThrownBy(() -> service.update(1L, sampleRequest()))
+                .isInstanceOf(AccessDeniedException.class);
+
+        verify(mapper, never()).updateEntity(any(), any());
+    }
+
+    @Test
+    void update_shouldRejectDuplicateMatricule() {
         Vehicle vehicle =
-                sampleVehicle(1L, 99L, VehicleStatus.PUBLISHED);
+                sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
+        vehicle.setMatricule("OLD-A-1");
 
         when(repository.findById(1L))
                 .thenReturn(Optional.of(vehicle));
         when(currentUser.isAdmin()).thenReturn(false);
         when(currentUser.getCurrentUserId())
                 .thenReturn(Optional.of(7L));
+        when(repository.existsByMatriculeIgnoreCase("12345-A-1"))
+                .thenReturn(true);
 
-        assertThatThrownBy(() -> service.delete(1L))
-                .isInstanceOf(AccessDeniedException.class);
+        assertThatThrownBy(() -> service.update(1L, sampleRequest()))
+                .isInstanceOf(MatriculeAlreadyExistsException.class);
 
-        verify(repository, never()).save(any());
+        verify(mapper, never()).updateEntity(any(), any());
     }
 
     @Test
-    void delete_shouldArchiveVehicleOwnedByCurrentAgency() {
+    void update_shouldKeepSameMatriculeWithoutDuplicateLookup() {
+        Vehicle vehicle =
+                sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
+
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(vehicle));
+        when(currentUser.isAdmin()).thenReturn(false);
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
+        when(repository.saveAndFlush(vehicle))
+                .thenReturn(vehicle);
+        when(mapper.toResponse(vehicle))
+                .thenReturn(sampleResponse());
+
+        service.update(1L, sampleRequest());
+
+        verify(repository, never())
+                .existsByMatriculeIgnoreCase(any());
+    }
+
+    @Test
+    void update_shouldConvertDatabaseConflictToBusinessException() {
+        Vehicle vehicle =
+                sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
+
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(vehicle));
+        when(currentUser.isAdmin()).thenReturn(false);
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
+        when(repository.saveAndFlush(vehicle))
+                .thenThrow(new DataIntegrityViolationException(
+                        "Duplicate matricule"));
+
+        assertThatThrownBy(() -> service.update(1L, sampleRequest()))
+                .isInstanceOf(MatriculeAlreadyExistsException.class);
+    }
+
+    // ==================== DELETE ====================
+
+    @Test
+    void delete_shouldArchiveVehicle() {
         Vehicle vehicle =
                 sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
 
@@ -367,12 +459,11 @@ class VehicleServiceTest {
 
         assertThat(vehicle.getStatut())
                 .isEqualTo(VehicleStatus.ARCHIVED);
-
         verify(repository).save(vehicle);
     }
 
     @Test
-    void delete_shouldAllowAdminToArchiveAnotherAgencyVehicle() {
+    void delete_shouldAllowAdminToArchiveAnotherAgenciesVehicle() {
         Vehicle vehicle =
                 sampleVehicle(1L, 99L, VehicleStatus.PUBLISHED);
 
@@ -384,7 +475,44 @@ class VehicleServiceTest {
 
         assertThat(vehicle.getStatut())
                 .isEqualTo(VehicleStatus.ARCHIVED);
-
         verify(repository).save(vehicle);
+    }
+
+    @Test
+    void delete_shouldThrowWhenVehicleDoesNotExist() {
+        when(repository.findById(100L))
+                .thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.delete(100L))
+                .isInstanceOf(VehicleNotFoundException.class);
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void delete_shouldThrowWhenVehicleIsArchived() {
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(
+                        sampleVehicle(1L, 7L, VehicleStatus.ARCHIVED)));
+
+        assertThatThrownBy(() -> service.delete(1L))
+                .isInstanceOf(VehicleNotFoundException.class);
+
+        verify(repository, never()).save(any());
+    }
+
+    @Test
+    void delete_shouldRejectAnotherAgenciesVehicle() {
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(
+                        sampleVehicle(1L, 99L, VehicleStatus.PUBLISHED)));
+        when(currentUser.isAdmin()).thenReturn(false);
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
+
+        assertThatThrownBy(() -> service.delete(1L))
+                .isInstanceOf(AccessDeniedException.class);
+
+        verify(repository, never()).save(any());
     }
 }

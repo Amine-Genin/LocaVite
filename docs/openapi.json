@@ -124,12 +124,6 @@
         "description" : "Retourne les informations du profil de l'utilisateur actuellement authentifié via JWT.",
         "operationId" : "getMe",
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié (token JWT manquant ou invalide)"
-          },
-          "403" : {
-            "description" : "Accès refusé"
-          },
           "200" : {
             "description" : "Profil récupéré avec succès",
             "content" : {
@@ -139,6 +133,12 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Accès refusé"
+          },
+          "401" : {
+            "description" : "Non authentifié (token JWT manquant ou invalide)"
           }
         },
         "security" : [ {
@@ -161,15 +161,6 @@
           "required" : true
         },
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
-          },
-          "403" : {
-            "description" : "Accès refusé"
-          },
-          "400" : {
-            "description" : "Données de formulaire invalides"
-          },
           "200" : {
             "description" : "Profil mis à jour avec succès",
             "content" : {
@@ -179,6 +170,15 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Accès refusé"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "400" : {
+            "description" : "Données de formulaire invalides"
           }
         },
         "security" : [ {
@@ -223,17 +223,17 @@
               }
             }
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
           },
           "404" : {
             "description" : "Utilisateur introuvable"
           },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "400" : {
             "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
           }
         },
         "security" : [ {
@@ -268,11 +268,14 @@
           "required" : true
         },
         "responses" : {
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Document introuvable"
+          },
           "401" : {
             "description" : "Non authentifié"
-          },
-          "400" : {
-            "description" : "Requête invalide (statut non supporté)"
           },
           "200" : {
             "description" : "Document vérifié avec succès",
@@ -284,11 +287,8 @@
               }
             }
           },
-          "404" : {
-            "description" : "Document introuvable"
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
+          "400" : {
+            "description" : "Requête invalide (statut non supporté)"
           }
         },
         "security" : [ {
@@ -362,9 +362,6 @@
         "description" : "Retourne tous les documents téléversés par l'utilisateur connecté avec leurs URL de visualisation sécurisées.",
         "operationId" : "getUserDocuments",
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "200" : {
             "description" : "Liste des documents récupérée",
             "content" : {
@@ -377,6 +374,9 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -488,12 +488,6 @@
           "required" : true
         },
         "responses" : {
-          "401" : {
-            "description" : "Refresh token invalide ou expiré"
-          },
-          "400" : {
-            "description" : "Requête invalide"
-          },
           "200" : {
             "description" : "Tokens rafraîchis avec succès",
             "content" : {
@@ -503,6 +497,12 @@
                 }
               }
             }
+          },
+          "400" : {
+            "description" : "Requête invalide"
+          },
+          "401" : {
+            "description" : "Refresh token invalide ou expiré"
           }
         }
       }
@@ -546,12 +546,6 @@
           "required" : true
         },
         "responses" : {
-          "400" : {
-            "description" : "Format de la requête invalide"
-          },
-          "401" : {
-            "description" : "Email ou mot de passe incorrect"
-          },
           "200" : {
             "description" : "Authentification réussie",
             "content" : {
@@ -561,6 +555,12 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Email ou mot de passe incorrect"
+          },
+          "400" : {
+            "description" : "Format de la requête invalide"
           }
         }
       }
@@ -582,11 +582,8 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
-          },
-          "403" : {
-            "description" : "Accès non autorisé à ce document"
+          "404" : {
+            "description" : "Document introuvable"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -598,8 +595,11 @@
               }
             }
           },
-          "404" : {
-            "description" : "Document introuvable"
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès non autorisé à ce document"
           }
         },
         "security" : [ {
@@ -622,17 +622,17 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "204" : {
             "description" : "Document supprimé avec succès"
+          },
+          "403" : {
+            "description" : "Accès non autorisé"
           },
           "404" : {
             "description" : "Document introuvable"
           },
-          "403" : {
-            "description" : "Accès non autorisé"
+          "401" : {
+            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -656,11 +656,11 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "401" : {
+            "description" : "Non authentifié"
           },
           "200" : {
             "description" : "Liste paginée des utilisateurs récupérée",
@@ -695,8 +695,11 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Document introuvable"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -708,11 +711,8 @@
               }
             }
           },
-          "404" : {
-            "description" : "Document introuvable"
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
+          "401" : {
+            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -1202,13 +1202,6 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "numberOfElements" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "pageable" : {
-            "$ref" : "#/components/schemas/PageableObject"
-          },
           "first" : {
             "type" : "boolean"
           },
@@ -1220,6 +1213,13 @@
             "items" : {
               "$ref" : "#/components/schemas/SortObject"
             }
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
           },
           "empty" : {
             "type" : "boolean"
@@ -1233,6 +1233,15 @@
             "type" : "integer",
             "format" : "int64"
           },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          },
           "paged" : {
             "type" : "boolean"
           },
@@ -1243,15 +1252,6 @@
           "pageSize" : {
             "type" : "integer",
             "format" : "int32"
-          },
-          "unpaged" : {
-            "type" : "boolean"
-          },
-          "sort" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/SortObject"
-            }
           }
         }
       },
