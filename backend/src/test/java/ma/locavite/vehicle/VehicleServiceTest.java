@@ -1,4 +1,3 @@
-
 package ma.locavite.vehicle;
 
 import ma.locavite.vehicle.domain.*;
@@ -18,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -52,6 +52,8 @@ class VehicleServiceTest {
     @InjectMocks
     VehicleService service;
 
+    // ==================== HELPERS ====================
+
     private VehicleRequest sampleRequest() {
         return new VehicleRequest(
                 "Toyota", "Corolla", 2022,
@@ -62,6 +64,19 @@ class VehicleServiceTest {
                 TransmissionType.MANUELLE,
                 5, "Très bon état",
                 " 12345-a-1 ", null
+        );
+    }
+
+    private VehicleRequest requestWithStatus(VehicleStatus status) {
+        return new VehicleRequest(
+                "Toyota", "Corolla", 2022,
+                CategoryType.BERLINE, "Casablanca",
+                new BigDecimal("350"),
+                new BigDecimal("180000"),
+                FuelType.DIESEL,
+                TransmissionType.MANUELLE,
+                5, "Très bon état",
+                "12345-A-1", status
         );
     }
 
@@ -132,6 +147,29 @@ class VehicleServiceTest {
         assertThat(saved.getStatut()).isEqualTo(VehicleStatus.DRAFT);
         assertThat(saved.getMatricule()).isEqualTo("12345-A-1");
         assertThat(result.id()).isEqualTo(1L);
+    }
+
+    @Test
+    void create_shouldUseProvidedStatus() {
+        VehicleRequest request =
+                requestWithStatus(VehicleStatus.PUBLISHED);
+        Vehicle vehicle = new Vehicle();
+
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
+        when(repository.existsByMatriculeIgnoreCase("12345-A-1"))
+                .thenReturn(false);
+        when(mapper.toEntity(request)).thenReturn(vehicle);
+        when(repository.saveAndFlush(any(Vehicle.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+        when(mapper.toResponse(any(Vehicle.class)))
+                .thenReturn(sampleResponse());
+
+        service.create(request);
+
+        assertThat(vehicle.getStatut())
+                .isEqualTo(VehicleStatus.PUBLISHED);
+        verify(repository).saveAndFlush(vehicle);
     }
 
     @Test
@@ -264,7 +302,6 @@ class VehicleServiceTest {
     void search_shouldReturnPagedVehicles() {
         Pageable pageable = PageRequest.of(0, 10);
         VehicleFilter filter = mock(VehicleFilter.class);
-
         Vehicle vehicle =
                 sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
 
@@ -276,7 +313,6 @@ class VehicleServiceTest {
                         .<Specification<Vehicle>>any(),
                 eq(pageable)))
                 .thenReturn(page);
-
         when(mapper.toResponse(vehicle))
                 .thenReturn(sampleResponse());
 
@@ -328,6 +364,54 @@ class VehicleServiceTest {
 
         assertThat(result).isNotNull();
         verify(mapper).updateEntity(request, vehicle);
+        verify(repository).saveAndFlush(vehicle);
+    }
+
+    @Test
+    void update_shouldChangeStatusWhenRequestStatusIsProvided() {
+        Vehicle vehicle =
+                sampleVehicle(1L, 7L, VehicleStatus.DRAFT);
+        VehicleRequest request =
+                requestWithStatus(VehicleStatus.PUBLISHED);
+
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(vehicle));
+        when(currentUser.isAdmin()).thenReturn(false);
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
+        when(repository.saveAndFlush(vehicle))
+                .thenReturn(vehicle);
+        when(mapper.toResponse(vehicle))
+                .thenReturn(sampleResponse());
+
+        service.update(1L, request);
+
+        assertThat(vehicle.getStatut())
+                .isEqualTo(VehicleStatus.PUBLISHED);
+        verify(mapper).updateEntity(request, vehicle);
+        verify(repository).saveAndFlush(vehicle);
+    }
+
+    @Test
+    void update_shouldKeepExistingStatusWhenRequestStatusIsNull() {
+        Vehicle vehicle =
+                sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
+        VehicleRequest request = sampleRequest();
+
+        when(repository.findById(1L))
+                .thenReturn(Optional.of(vehicle));
+        when(currentUser.isAdmin()).thenReturn(false);
+        when(currentUser.getCurrentUserId())
+                .thenReturn(Optional.of(7L));
+        when(repository.saveAndFlush(vehicle))
+                .thenReturn(vehicle);
+        when(mapper.toResponse(vehicle))
+                .thenReturn(sampleResponse());
+
+        service.update(1L, request);
+
+        assertThat(vehicle.getStatut())
+                .isEqualTo(VehicleStatus.PUBLISHED);
         verify(repository).saveAndFlush(vehicle);
     }
 
