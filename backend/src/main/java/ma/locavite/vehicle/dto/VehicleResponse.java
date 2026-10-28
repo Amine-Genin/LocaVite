@@ -1,11 +1,12 @@
 package ma.locavite.vehicle.dto;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.Instant;
+
 import ma.locavite.vehicle.domain.FuelType;
 import ma.locavite.vehicle.domain.TransmissionType;
 import ma.locavite.vehicle.domain.VehicleStatus;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 
 public record VehicleResponse(
         Long id,
@@ -27,4 +28,4 @@ public record VehicleResponse(
         Long agenceId,
         Instant createdAt,
         Instant updatedAt
-) {}
+) implements Serializable {}

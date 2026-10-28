@@ -13,8 +13,8 @@ import ma.locavite.vehicle.exception.MatriculeAlreadyExistsException;
 import ma.locavite.vehicle.exception.VehicleNotFoundException;
 import ma.locavite.vehicle.mapper.VehicleMapper;
 import ma.locavite.vehicle.repository.VehicleRepository;
-import ma.locavite.vehicle.spec.VehicleSpecifications;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -47,6 +47,7 @@ public class VehicleService {
     }
 
     @Transactional
+    @CacheEvict(value = "vehicleSearch", allEntries = true)
     public VehicleResponse create(VehicleRequest request) {
         Long agenceId = currentUser.getCurrentUserId()
                 .orElseThrow(() -> new AccessDeniedException("Utilisateur non authentifié"));
@@ -79,11 +80,12 @@ public class VehicleService {
     }
 
     public Page<VehicleResponse> search(VehicleFilter filter, Pageable pageable) {
-        return repository.findAll(VehicleSpecifications.publicSearch(filter), pageable)
+        return repository.findAll(ma.locavite.vehicle.spec.VehicleSpecifications.publicSearch(filter), pageable)
                 .map(mapper::toResponse);
     }
 
     @Transactional
+    @CacheEvict(value = "vehicleSearch", allEntries = true)
     public VehicleResponse update(Long id, VehicleRequest request) {
         Vehicle vehicle = findManageable(id);
 
@@ -106,10 +108,19 @@ public class VehicleService {
 
     /** Soft delete : le véhicule passe en ARCHIVED. */
     @Transactional
+    @CacheEvict(value = "vehicleSearch", allEntries = true)
     public void delete(Long id) {
         Vehicle vehicle = findManageable(id);
         vehicle.setStatut(VehicleStatus.ARCHIVED);
         repository.save(vehicle);
+    }
+
+    /**
+     * À appeler par le module réservation lorsqu'une réservation est confirmée.
+     */
+    @CacheEvict(value = "vehicleSearch", allEntries = true)
+    public void invalidateSearchCache() {
+        // L'invalidation est portée par l'annotation afin de rester atomique avec le proxy Spring.
     }
 
     // ---------- helpers ----------
