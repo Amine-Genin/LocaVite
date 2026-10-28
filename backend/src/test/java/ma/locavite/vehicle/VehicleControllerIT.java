@@ -2,6 +2,10 @@
 package ma.locavite.vehicle;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ma.locavite.catalog.domain.Brand;
+import ma.locavite.catalog.domain.Category;
+import ma.locavite.catalog.repository.BrandRepository;
+import ma.locavite.catalog.repository.CategoryRepository;
 import ma.locavite.vehicle.domain.*;
 import ma.locavite.vehicle.repository.VehicleRepository;
 import ma.locavite.vehicle.service.CurrentUserService;
@@ -29,7 +33,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.cache.type=none")
 @AutoConfigureMockMvc
 class VehicleControllerIT {
 
@@ -44,6 +48,12 @@ class VehicleControllerIT {
 
     @Autowired
     VehicleRepository repository;
+
+    @Autowired
+    BrandRepository brandRepository;
+
+    @Autowired
+    CategoryRepository categoryRepository;
 
     @MockBean
     CurrentUserService currentUser;
@@ -62,10 +72,10 @@ class VehicleControllerIT {
 
     private Map<String, Object> body(String matricule) {
         return Map.ofEntries(
-                Map.entry("marque", "Toyota"),
+                Map.entry("brandId", brandId("Toyota")),
                 Map.entry("modele", "Corolla"),
                 Map.entry("annee", 2022),
-                Map.entry("categorie", "BERLINE"),
+                Map.entry("categoryId", categoryId("BERLINE")),
                 Map.entry("ville", "Casablanca"),
                 Map.entry("prixJour", 350),
                 Map.entry("prixVente", 180000),
@@ -86,10 +96,10 @@ class VehicleControllerIT {
 
         Vehicle v = new Vehicle();
 
-        v.setMarque(marque);
+        v.setBrand(brandRepository.findByNameIgnoreCase(marque).orElseThrow());
         v.setModele("X");
         v.setAnnee(2021);
-        v.setCategorie(CategoryType.SUV);
+        v.setCategory(categoryRepository.findByNameIgnoreCase("SUV").orElseThrow());
         v.setVille(ville);
         v.setPrixJour(new BigDecimal("300"));
         v.setPrixVente(new BigDecimal("150000"));
@@ -102,6 +112,14 @@ class VehicleControllerIT {
         v.setAgenceId(agenceId);
 
         return repository.saveAndFlush(v);
+    }
+
+    private Long brandId(String name) {
+        return brandRepository.findByNameIgnoreCase(name).orElseThrow().getId();
+    }
+
+    private Long categoryId(String name) {
+        return categoryRepository.findByNameIgnoreCase(name).orElseThrow().getId();
     }
 
     // ---------------- CREATE ----------------
@@ -217,6 +235,8 @@ class VehicleControllerIT {
                         .param("sort", "createdAt,desc"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].brandId").value(brandId("Toyota")))
+                .andExpect(jsonPath("$.content[0].categoryId").value(categoryId("SUV")))
                 .andExpect(jsonPath("$.content[0].matricule")
                         .value("4444-A-1"));
     }

@@ -2,16 +2,18 @@ package ma.locavite.vehicle.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
-import ma.locavite.vehicle.domain.*;
+import ma.locavite.vehicle.domain.FuelType;
+import ma.locavite.vehicle.domain.TransmissionType;
+import ma.locavite.vehicle.domain.VehicleStatus;
 
 import java.math.BigDecimal;
 import java.time.Year;
 
 public record VehicleRequest(
-        @NotBlank @Size(max = 100) String marque,
+        @NotNull @Positive Long brandId,
         @NotBlank @Size(max = 100) String modele,
         @NotNull @Min(value = 1990, message = "L'année doit être >= 1990") Integer annee,
-        @NotNull CategoryType categorie,
+        @NotNull @Positive Long categoryId,
         @NotBlank @Size(max = 100) String ville,
         @NotNull @DecimalMin(value = "0.0", inclusive = false, message = "Le prix par jour doit être > 0") BigDecimal prixJour,
         @NotNull @DecimalMin(value = "0.0", inclusive = false, message = "Le prix de vente doit être > 0") BigDecimal prixVente,

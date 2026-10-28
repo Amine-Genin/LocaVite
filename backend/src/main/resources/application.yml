@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: locavite-backend
+  cache:
+    type: redis
+    redis:
+      time-to-live: 1h
 
   servlet:
     multipart:
