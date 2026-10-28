@@ -11,15 +11,23 @@ import org.mapstruct.MappingTarget;
 public interface VehicleMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "brand", ignore = true)
+    @Mapping(target = "category", ignore = true)
     @Mapping(target = "statut", ignore = true)
     @Mapping(target = "agenceId", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Vehicle toEntity(VehicleRequest request);
 
+    @Mapping(target = "brandId", source = "brand.id")
+    @Mapping(target = "marque", source = "brand.name")
+    @Mapping(target = "categoryId", source = "category.id")
+    @Mapping(target = "categorie", source = "category.name")
     VehicleResponse toResponse(Vehicle vehicle);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "brand", ignore = true)
+    @Mapping(target = "category", ignore = true)
     @Mapping(target = "statut", ignore = true)
     @Mapping(target = "agenceId", ignore = true)
     @Mapping(target = "createdAt", ignore = true)

@@ -1,5 +1,7 @@
 package ma.locavite.vehicle.domain;
 
+import ma.locavite.catalog.domain.Brand;
+import ma.locavite.catalog.domain.Category;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -15,8 +17,9 @@ public class Vehicle {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 100)
-    private String marque;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "brand_id", nullable = false)
+    private Brand brand;
 
     @Column(nullable = false, length = 100)
     private String modele;
@@ -24,9 +27,9 @@ public class Vehicle {
     @Column(nullable = false)
     private Integer annee;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private CategoryType categorie;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
     @Column(nullable = false, length = 100)
     private String ville;
@@ -71,14 +74,14 @@ public class Vehicle {
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public String getMarque() { return marque; }
-    public void setMarque(String marque) { this.marque = marque; }
+    public Brand getBrand() { return brand; }
+    public void setBrand(Brand brand) { this.brand = brand; }
     public String getModele() { return modele; }
     public void setModele(String modele) { this.modele = modele; }
     public Integer getAnnee() { return annee; }
     public void setAnnee(Integer annee) { this.annee = annee; }
-    public CategoryType getCategorie() { return categorie; }
-    public void setCategorie(CategoryType categorie) { this.categorie = categorie; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
     public String getVille() { return ville; }
     public void setVille(String ville) { this.ville = ville; }
     public BigDecimal getPrixJour() { return prixJour; }

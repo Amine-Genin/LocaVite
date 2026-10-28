@@ -1,5 +1,9 @@
 package ma.locavite.vehicle;
 
+import ma.locavite.catalog.domain.Brand;
+import ma.locavite.catalog.domain.Category;
+import ma.locavite.catalog.repository.BrandRepository;
+import ma.locavite.catalog.repository.CategoryRepository;
 import ma.locavite.vehicle.domain.*;
 import ma.locavite.vehicle.dto.VehicleFilter;
 import ma.locavite.vehicle.dto.VehicleRequest;
@@ -12,6 +16,7 @@ import ma.locavite.vehicle.service.CurrentUserService;
 import ma.locavite.vehicle.service.VehicleService;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -49,15 +54,33 @@ class VehicleServiceTest {
     @Mock
     CurrentUserService currentUser;
 
+    @Mock
+    BrandRepository brandRepository;
+
+    @Mock
+    CategoryRepository categoryRepository;
+
     @InjectMocks
     VehicleService service;
+
+    @BeforeEach
+    void setUpCatalogReferences() {
+        Brand brand = new Brand();
+        brand.setId(1L);
+        brand.setName("Toyota");
+        Category category = new Category();
+        category.setId(1L);
+        category.setName("BERLINE");
+        lenient().when(brandRepository.findById(1L)).thenReturn(Optional.of(brand));
+        lenient().when(categoryRepository.findById(1L)).thenReturn(Optional.of(category));
+    }
 
     // ==================== HELPERS ====================
 
     private VehicleRequest sampleRequest() {
         return new VehicleRequest(
-                "Toyota", "Corolla", 2022,
-                CategoryType.BERLINE, "Casablanca",
+                1L, "Corolla", 2022,
+                1L, "Casablanca",
                 new BigDecimal("350"),
                 new BigDecimal("180000"),
                 FuelType.DIESEL,
@@ -69,8 +92,8 @@ class VehicleServiceTest {
 
     private VehicleRequest requestWithStatus(VehicleStatus status) {
         return new VehicleRequest(
-                "Toyota", "Corolla", 2022,
-                CategoryType.BERLINE, "Casablanca",
+                1L, "Corolla", 2022,
+                1L, "Casablanca",
                 new BigDecimal("350"),
                 new BigDecimal("180000"),
                 FuelType.DIESEL,
@@ -86,10 +109,16 @@ class VehicleServiceTest {
         Vehicle vehicle = new Vehicle();
         vehicle.setId(id);
         vehicle.setAgenceId(agenceId);
-        vehicle.setMarque("Toyota");
+        Brand brand = new Brand();
+        brand.setId(1L);
+        brand.setName("Toyota");
+        vehicle.setBrand(brand);
         vehicle.setModele("Corolla");
         vehicle.setAnnee(2022);
-        vehicle.setCategorie(CategoryType.BERLINE);
+        Category category = new Category();
+        category.setId(1L);
+        category.setName("BERLINE");
+        vehicle.setCategory(category);
         vehicle.setVille("Casablanca");
         vehicle.setPrixJour(new BigDecimal("350"));
         vehicle.setPrixVente(new BigDecimal("180000"));
@@ -105,8 +134,8 @@ class VehicleServiceTest {
 
     private VehicleResponse sampleResponse() {
         return new VehicleResponse(
-                1L, "Toyota", "Corolla", 2022,
-                CategoryType.BERLINE, "Casablanca",
+                1L, 1L, "Toyota", "Corolla", 2022,
+                1L, "BERLINE", "Casablanca",
                 new BigDecimal("350"),
                 new BigDecimal("180000"),
                 FuelType.DIESEL,

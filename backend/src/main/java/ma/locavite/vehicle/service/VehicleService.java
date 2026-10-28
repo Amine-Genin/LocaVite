@@ -1,5 +1,9 @@
 package ma.locavite.vehicle.service;
 
+import ma.locavite.catalog.domain.Brand;
+import ma.locavite.catalog.domain.Category;
+import ma.locavite.catalog.repository.BrandRepository;
+import ma.locavite.catalog.repository.CategoryRepository;
 import ma.locavite.vehicle.domain.Vehicle;
 import ma.locavite.vehicle.domain.VehicleStatus;
 import ma.locavite.vehicle.dto.VehicleFilter;
@@ -26,11 +30,20 @@ public class VehicleService {
     private final VehicleRepository repository;
     private final VehicleMapper mapper;
     private final CurrentUserService currentUser;
+    private final BrandRepository brandRepository;
+    private final CategoryRepository categoryRepository;
 
-    public VehicleService(VehicleRepository repository, VehicleMapper mapper, CurrentUserService currentUser) {
+    public VehicleService(
+            VehicleRepository repository,
+            VehicleMapper mapper,
+            CurrentUserService currentUser,
+            BrandRepository brandRepository,
+            CategoryRepository categoryRepository) {
         this.repository = repository;
         this.mapper = mapper;
         this.currentUser = currentUser;
+        this.brandRepository = brandRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @Transactional
@@ -44,6 +57,8 @@ public class VehicleService {
         }
 
         Vehicle vehicle = mapper.toEntity(request);
+        vehicle.setBrand(findBrand(request.brandId()));
+        vehicle.setCategory(findCategory(request.categoryId()));
         vehicle.setMatricule(matricule);
         vehicle.setAgenceId(agenceId);
         vehicle.setStatut(request.statut() != null ? request.statut() : VehicleStatus.DRAFT);
@@ -79,6 +94,8 @@ public class VehicleService {
         }
 
         mapper.updateEntity(request, vehicle);
+        vehicle.setBrand(findBrand(request.brandId()));
+        vehicle.setCategory(findCategory(request.categoryId()));
         vehicle.setMatricule(matricule);
         if (request.statut() != null) {
             vehicle.setStatut(request.statut());
@@ -124,5 +141,15 @@ public class VehicleService {
 
     private static String normalize(String matricule) {
         return matricule.trim().toUpperCase(Locale.ROOT);
+    }
+
+    private Brand findBrand(Long id) {
+        return brandRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Marque introuvable : " + id));
+    }
+
+    private Category findCategory(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Catégorie introuvable : " + id));
     }
 }

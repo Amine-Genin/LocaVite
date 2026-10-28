@@ -1,14 +1,15 @@
 package ma.locavite.vehicle.dto;
 
-import ma.locavite.vehicle.domain.CategoryType;
 import ma.locavite.vehicle.domain.FuelType;
 import ma.locavite.vehicle.domain.TransmissionType;
 
-/** Filtres de recherche : ?marque=Toyota&categorie=SUV&ville=Casablanca */
+/** Filtres de recherche par identifiants de catalogue ou par noms. */
 public record VehicleFilter(
         String marque,
-        CategoryType categorie,
+        String categorie,
         String ville,
         FuelType carburant,
-        TransmissionType transmission
+        TransmissionType transmission,
+        Long brandId,
+        Long categoryId
 ) {}

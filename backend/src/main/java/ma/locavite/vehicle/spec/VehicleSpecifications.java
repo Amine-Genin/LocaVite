@@ -12,9 +12,11 @@ public final class VehicleSpecifications {
     /** Recherche publique : uniquement les véhicules PUBLISHED + filtres non nuls. */
     public static Specification<Vehicle> publicSearch(VehicleFilter f) {
         return hasStatus(VehicleStatus.PUBLISHED)
-                .and(textEquals("marque", f.marque()))
+                .and(associationNameEquals("brand", f.marque()))
+                .and(idEquals("brand", f.brandId()))
                 .and(textEquals("ville", f.ville()))
-                .and(equalsValue("categorie", f.categorie()))
+                .and(associationNameEquals("category", f.categorie()))
+                .and(idEquals("category", f.categoryId()))
                 .and(equalsValue("carburant", f.carburant()))
                 .and(equalsValue("transmission", f.transmission()));
     }
@@ -36,5 +38,21 @@ public final class VehicleSpecifications {
             return (root, query, cb) -> cb.conjunction();
         }
         return (root, query, cb) -> cb.equal(root.get(field), value);
+    }
+
+    private static Specification<Vehicle> idEquals(String association, Long id) {
+        if (id == null) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+        return (root, query, cb) -> cb.equal(root.get(association).get("id"), id);
+    }
+
+    private static Specification<Vehicle> associationNameEquals(String association, String value) {
+        if (value == null || value.isBlank()) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+        String normalized = value.trim().toLowerCase();
+        return (root, query, cb) ->
+                cb.equal(cb.lower(root.get(association).get("name")), normalized);
     }
 }
