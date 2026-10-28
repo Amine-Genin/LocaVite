@@ -21,6 +21,9 @@
     "BearerAuth" : [ ]
   } ],
   "tags" : [ {
+    "name" : "Vehicle photos",
+    "description" : "Gestion des photos des véhicules"
+  }, {
     "name" : "Documents",
     "description" : "Endpoints d'administration et de validation des documents utilisateurs"
   }, {
@@ -546,9 +549,6 @@
           "required" : true
         },
         "responses" : {
-          "400" : {
-            "description" : "Format de la requête invalide"
-          },
           "401" : {
             "description" : "Email ou mot de passe incorrect"
           },
@@ -561,6 +561,9 @@
                 }
               }
             }
+          },
+          "400" : {
+            "description" : "Format de la requête invalide"
           }
         }
       }
@@ -590,6 +593,9 @@
           },
           "404" : {
             "description" : "Document introuvable"
+          },
+          "403" : {
+            "description" : "Accès non autorisé à ce document"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -695,6 +701,9 @@
           }
         } ],
         "responses" : {
+          "404" : {
+            "description" : "Document introuvable"
+          },
           "401" : {
             "description" : "Non authentifié"
           },
@@ -1220,6 +1229,9 @@
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
           },
           "empty" : {
             "type" : "boolean"

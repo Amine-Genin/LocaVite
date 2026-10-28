@@ -40,7 +40,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler({UserNotFoundException.class, ma.locavite.document.exception.DocumentNotFoundException.class})
+    @ExceptionHandler({
+            UserNotFoundException.class,
+            ma.locavite.document.exception.DocumentNotFoundException.class,
+            ma.locavite.vehicle.exception.VehicleNotFoundException.class,
+            ma.locavite.vehicle.exception.VehiclePhotoNotFoundException.class
+    })
     public ResponseEntity<Map<String, Object>> handleUserNotFound(RuntimeException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
@@ -50,8 +55,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
-    @ExceptionHandler(ma.locavite.document.exception.InvalidDocumentException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidDocument(ma.locavite.document.exception.InvalidDocumentException ex) {
+    @ExceptionHandler({
+            ma.locavite.document.exception.InvalidDocumentException.class,
+            ma.locavite.vehicle.exception.InvalidVehiclePhotoException.class
+    })
+    public ResponseEntity<Map<String, Object>> handleInvalidDocument(RuntimeException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.BAD_REQUEST.value());
@@ -66,7 +74,7 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.PAYLOAD_TOO_LARGE.value());
         body.put("error", "Payload Too Large");
-        body.put("message", ex.getMessage() != null ? ex.getMessage() : "Le fichier dépasse la taille maximale autorisée de 5 Mo");
+        body.put("message", ex.getMessage() != null ? ex.getMessage() : "Le fichier dépasse la taille maximale autorisée");
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(body);
     }
 
