@@ -132,7 +132,7 @@ class VehiclePhotoServiceTest {
     }
 
     @Test
-    void rejectsPhotosLargerThanTenMegabytes() {
+    void rejectsPhotosLargerThanEightMegabytes() {
         whenVehicleOwned();
         MockMultipartFile largeFile = new MockMultipartFile("files", "large.png", "image/png",
                 new byte[(int) VehiclePhotoService.MAX_PHOTO_SIZE + 1]);
@@ -140,7 +140,7 @@ class VehiclePhotoServiceTest {
 
         assertThatThrownBy(() -> photoService.upload(VEHICLE_ID, owner, List.of(largeFile)))
                 .isInstanceOf(FileTooLargeException.class)
-                .hasMessageContaining("10 Mo");
+                .hasMessageContaining("8 Mo");
         verifyNoInteractions(storageService);
     }
 

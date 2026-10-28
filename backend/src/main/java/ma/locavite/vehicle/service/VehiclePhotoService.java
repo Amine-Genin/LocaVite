@@ -27,7 +27,7 @@ import java.util.UUID;
 public class VehiclePhotoService {
 
     public static final int MAX_PHOTOS_PER_VEHICLE = 10;
-    public static final long MAX_PHOTO_SIZE = 10L * 1024 * 1024;
+    public static final long MAX_PHOTO_SIZE = 8L * 1024 * 1024;
     private static final Set<String> ALLOWED_MIME_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
     private static final Logger log = LoggerFactory.getLogger(VehiclePhotoService.class);
 
@@ -142,7 +142,7 @@ public class VehiclePhotoService {
             throw new InvalidVehiclePhotoException("Les photos ne peuvent pas être vides");
         }
         if (file.getSize() > MAX_PHOTO_SIZE) {
-            throw new FileTooLargeException("Chaque photo ne doit pas dépasser 10 Mo");
+            throw new FileTooLargeException("Chaque photo ne doit pas dépasser 8 Mo");
         }
 
         try {
