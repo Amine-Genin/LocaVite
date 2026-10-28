@@ -19,7 +19,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,6 +30,8 @@ public class VehiclePhotoService {
 
     public static final int MAX_PHOTOS_PER_VEHICLE = 10;
     public static final long MAX_PHOTO_SIZE = 8L * 1024 * 1024;
+    private static final String SELECT_VEHICLE_OWNER = "SELECT agence_id FROM vehicles WHERE id = ?";
+    private static final String SELECT_VEHICLE_OWNER_FOR_UPDATE = SELECT_VEHICLE_OWNER + " FOR UPDATE";
     private static final Set<String> ALLOWED_MIME_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
     private static final Logger log = LoggerFactory.getLogger(VehiclePhotoService.class);
 
@@ -171,7 +175,7 @@ public class VehiclePhotoService {
         if (vehicleId == null) {
             throw new VehicleNotFoundException(null);
         }
-        String query = "SELECT agence_id FROM vehicles WHERE id = ?" + (lock ? " FOR UPDATE" : "");
+        String query = lock ? SELECT_VEHICLE_OWNER_FOR_UPDATE : SELECT_VEHICLE_OWNER;
         List<Long> ownerIds = jdbcTemplate.queryForList(query, Long.class, vehicleId);
         if (ownerIds.isEmpty()) {
             throw new VehicleNotFoundException(vehicleId);
@@ -217,5 +221,33 @@ public class VehiclePhotoService {
 
     private record PreparedPhoto(String path, String thumbnailPath, byte[] original, byte[] thumbnail,
                                  String mimeType) {
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof PreparedPhoto other)) {
+                return false;
+            }
+            return Objects.equals(path, other.path)
+                    && Objects.equals(thumbnailPath, other.thumbnailPath)
+                    && Arrays.equals(original, other.original)
+                    && Arrays.equals(thumbnail, other.thumbnail)
+                    && Objects.equals(mimeType, other.mimeType);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(path, thumbnailPath, mimeType);
+            result = 31 * result + Arrays.hashCode(original);
+            result = 31 * result + Arrays.hashCode(thumbnail);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "PreparedPhoto[path='%s', thumbnailPath='%s', mimeType='%s', originalLength=%d, thumbnailLength=%d]"
+                    .formatted(path, thumbnailPath, mimeType, original.length, thumbnail.length);
+        }
     }
 }
