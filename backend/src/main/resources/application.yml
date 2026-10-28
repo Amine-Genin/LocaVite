@@ -11,7 +11,7 @@ spring:
       max-request-size: 8MB
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:locavite}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:locavite}
     username: ${DB_USER:locavite}
     password: ${DB_PASSWORD:locavite_dev_password}
     driver-class-name: org.postgresql.Driver

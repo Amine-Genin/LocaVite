@@ -5,12 +5,14 @@ on:
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
+      - '.github/maven-settings.xml'
   pull_request:
     branches:
       - main
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci.yml'
+      - '.github/maven-settings.xml'
   workflow_dispatch:
 
 concurrency:
@@ -42,7 +44,11 @@ jobs:
           cache-dependency-path: 'backend/pom.xml'
 
       - name: Build and test with Maven (mvn clean verify)
-        run: mvn clean verify -B
+        run: >
+          mvn clean verify -B
+          -s "$GITHUB_WORKSPACE/.github/maven-settings.xml"
+          -Daether.remoteRepositoryFilter.prefixes=false
+          -Dmaven.wagon.http.retryHandler.count=3
 
       - name: SonarCloud Scan & Quality Gate
         if: success()
@@ -52,7 +58,9 @@ jobs:
         run: |
           mvn sonar:sonar \
             -Dsonar.qualitygate.wait=true \
-            -B
+            -B \
+            -s "$GITHUB_WORKSPACE/.github/maven-settings.xml" \
+            -Daether.remoteRepositoryFilter.prefixes=false
 
       - name: Upload JaCoCo coverage report
         if: always()
