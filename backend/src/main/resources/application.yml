@@ -7,8 +7,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 6MB
+      max-file-size: 10MB
+      max-request-size: 101MB
 
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:locavite}
@@ -56,6 +56,7 @@ minio:
   secret-key: ${MINIO_SECRET_KEY:locavite_dev_password}
   bucket: ${MINIO_BUCKET:locavite-documents}
   init-bucket: ${MINIO_INIT_BUCKET:true}
+  vehicles-bucket: ${MINIO_VEHICLES_BUCKET:locavite-vehicles}
 
 springdoc:
   api-docs:

@@ -21,6 +21,9 @@
     "BearerAuth" : [ ]
   } ],
   "tags" : [ {
+    "name" : "Vehicle photos",
+    "description" : "Gestion des photos des véhicules"
+  }, {
     "name" : "Documents",
     "description" : "Endpoints d'administration et de validation des documents utilisateurs"
   }, {
@@ -37,6 +40,124 @@
     "description" : "Endpoints de gestion des documents justificatifs de l'utilisateur (CIN, Permis)"
   } ],
   "paths" : {
+    "/api/vehicles/{vehicleId}/photos/{photoId}/primary" : {
+      "put" : {
+        "tags" : [ "Vehicle photos" ],
+        "operationId" : "setPrimary",
+        "parameters" : [ {
+          "name" : "vehicleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "photoId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VehiclePhotoResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/vehicles/{id}" : {
+      "get" : {
+        "tags" : [ "vehicle-controller" ],
+        "operationId" : "getById",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VehicleResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "vehicle-controller" ],
+        "operationId" : "update",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/VehicleRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VehicleResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "vehicle-controller" ],
+        "operationId" : "delete",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
     "/api/users/me" : {
       "get" : {
         "tags" : [ "Users" ],
@@ -44,9 +165,6 @@
         "description" : "Retourne les informations du profil de l'utilisateur actuellement authentifié via JWT.",
         "operationId" : "getMe",
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié (token JWT manquant ou invalide)"
-          },
           "200" : {
             "description" : "Profil récupéré avec succès",
             "content" : {
@@ -56,6 +174,9 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Non authentifié (token JWT manquant ou invalide)"
           },
           "403" : {
             "description" : "Accès refusé"
@@ -133,6 +254,12 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
+          },
+          "404" : {
+            "description" : "Utilisateur introuvable"
+          },
           "200" : {
             "description" : "Rôles mis à jour avec succès",
             "content" : {
@@ -146,14 +273,8 @@
           "401" : {
             "description" : "Non authentifié"
           },
-          "400" : {
-            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
-          },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Utilisateur introuvable"
           }
         },
         "security" : [ {
@@ -191,8 +312,8 @@
           "400" : {
             "description" : "Requête invalide (statut non supporté)"
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "404" : {
+            "description" : "Document introuvable"
           },
           "200" : {
             "description" : "Document vérifié avec succès",
@@ -204,11 +325,153 @@
               }
             }
           },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/vehicles" : {
+      "get" : {
+        "tags" : [ "vehicle-controller" ],
+        "operationId" : "search",
+        "parameters" : [ {
+          "name" : "filter",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/VehicleFilter"
+          }
+        }, {
+          "name" : "pageable",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagedModelVehicleResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "vehicle-controller" ],
+        "operationId" : "create",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/VehicleRequest"
+              }
+            }
           },
-          "404" : {
-            "description" : "Document introuvable"
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VehicleResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vehicles/{vehicleId}/photos" : {
+      "get" : {
+        "tags" : [ "Vehicle photos" ],
+        "operationId" : "getPhotos",
+        "parameters" : [ {
+          "name" : "vehicleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/VehiclePhotoResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "Vehicle photos" ],
+        "operationId" : "uploadPhotos",
+        "parameters" : [ {
+          "name" : "vehicleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "required" : [ "files" ],
+                "type" : "object",
+                "properties" : {
+                  "files" : {
+                    "type" : "array",
+                    "items" : {
+                      "type" : "string",
+                      "format" : "binary"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/VehiclePhotoResponse"
+                  }
+                }
+              }
+            }
           }
         },
         "security" : [ {
@@ -277,6 +540,9 @@
           }
         },
         "responses" : {
+          "400" : {
+            "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
+          },
           "201" : {
             "description" : "Document téléversé avec succès",
             "content" : {
@@ -286,9 +552,6 @@
                 }
               }
             }
-          },
-          "400" : {
-            "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
           },
           "401" : {
             "description" : "Non authentifié"
@@ -352,6 +615,9 @@
           "400" : {
             "description" : "Requête invalide"
           },
+          "401" : {
+            "description" : "Refresh token invalide ou expiré"
+          },
           "200" : {
             "description" : "Tokens rafraîchis avec succès",
             "content" : {
@@ -361,9 +627,6 @@
                 }
               }
             }
-          },
-          "401" : {
-            "description" : "Refresh token invalide ou expiré"
           }
         }
       }
@@ -407,9 +670,6 @@
           "required" : true
         },
         "responses" : {
-          "400" : {
-            "description" : "Format de la requête invalide"
-          },
           "401" : {
             "description" : "Email ou mot de passe incorrect"
           },
@@ -422,6 +682,9 @@
                 }
               }
             }
+          },
+          "400" : {
+            "description" : "Format de la requête invalide"
           }
         }
       }
@@ -443,11 +706,14 @@
           }
         } ],
         "responses" : {
-          "403" : {
-            "description" : "Accès non autorisé à ce document"
+          "404" : {
+            "description" : "Document introuvable"
           },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès non autorisé à ce document"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -458,9 +724,6 @@
                 }
               }
             }
-          },
-          "404" : {
-            "description" : "Document introuvable"
           }
         },
         "security" : [ {
@@ -483,17 +746,17 @@
           }
         } ],
         "responses" : {
+          "404" : {
+            "description" : "Document introuvable"
+          },
           "204" : {
             "description" : "Document supprimé avec succès"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           },
           "403" : {
             "description" : "Accès non autorisé"
           },
-          "404" : {
-            "description" : "Document introuvable"
+          "401" : {
+            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -520,6 +783,9 @@
           "401" : {
             "description" : "Non authentifié"
           },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
           "200" : {
             "description" : "Liste paginée des utilisateurs récupérée",
             "content" : {
@@ -529,9 +795,6 @@
                 }
               }
             }
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
           }
         },
         "security" : [ {
@@ -556,8 +819,14 @@
           }
         } ],
         "responses" : {
+          "404" : {
+            "description" : "Document introuvable"
+          },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -568,12 +837,37 @@
                 }
               }
             }
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Document introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/vehicles/{vehicleId}/photos/{photoId}" : {
+      "delete" : {
+        "tags" : [ "Vehicle photos" ],
+        "operationId" : "deletePhoto",
+        "parameters" : [ {
+          "name" : "vehicleId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "photoId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
           }
         },
         "security" : [ {
@@ -584,6 +878,166 @@
   },
   "components" : {
     "schemas" : {
+      "VehiclePhotoResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "vehicleId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "url" : {
+            "type" : "string"
+          },
+          "thumbnailUrl" : {
+            "type" : "string"
+          },
+          "isPrimary" : {
+            "type" : "boolean"
+          },
+          "ordre" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "uploadedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
+      "VehicleRequest" : {
+        "required" : [ "annee", "carburant", "categorie", "description", "marque", "matricule", "modele", "places", "prixJour", "prixVente", "transmission", "ville" ],
+        "type" : "object",
+        "properties" : {
+          "marque" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "modele" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "annee" : {
+            "minimum" : 1990,
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "categorie" : {
+            "type" : "string",
+            "enum" : [ "CITADINE", "BERLINE", "SUV", "LUXE", "UTILITAIRE" ]
+          },
+          "ville" : {
+            "maxLength" : 100,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "prixJour" : {
+            "minimum" : 0.0,
+            "exclusiveMinimum" : true,
+            "type" : "number"
+          },
+          "prixVente" : {
+            "minimum" : 0.0,
+            "exclusiveMinimum" : true,
+            "type" : "number"
+          },
+          "carburant" : {
+            "type" : "string",
+            "enum" : [ "ESSENCE", "DIESEL", "HYBRIDE", "ELECTRIQUE" ]
+          },
+          "transmission" : {
+            "type" : "string",
+            "enum" : [ "MANUELLE", "AUTOMATIQUE" ]
+          },
+          "places" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "matricule" : {
+            "maxLength" : 30,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "DRAFT", "PUBLISHED", "RENTED", "SOLD", "ARCHIVED" ]
+          }
+        }
+      },
+      "VehicleResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "marque" : {
+            "type" : "string"
+          },
+          "modele" : {
+            "type" : "string"
+          },
+          "annee" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "categorie" : {
+            "type" : "string",
+            "enum" : [ "CITADINE", "BERLINE", "SUV", "LUXE", "UTILITAIRE" ]
+          },
+          "ville" : {
+            "type" : "string"
+          },
+          "prixJour" : {
+            "type" : "number"
+          },
+          "prixVente" : {
+            "type" : "number"
+          },
+          "carburant" : {
+            "type" : "string",
+            "enum" : [ "ESSENCE", "DIESEL", "HYBRIDE", "ELECTRIQUE" ]
+          },
+          "transmission" : {
+            "type" : "string",
+            "enum" : [ "MANUELLE", "AUTOMATIQUE" ]
+          },
+          "places" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "matricule" : {
+            "type" : "string"
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "DRAFT", "PUBLISHED", "RENTED", "SOLD", "ARCHIVED" ]
+          },
+          "agenceId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        }
+      },
       "UpdateProfileRequest" : {
         "required" : [ "nom", "prenom", "telephone" ],
         "type" : "object",
@@ -829,6 +1283,29 @@
         },
         "description" : "Requête d'authentification par email et mot de passe"
       },
+      "VehicleFilter" : {
+        "type" : "object",
+        "properties" : {
+          "marque" : {
+            "type" : "string"
+          },
+          "categorie" : {
+            "type" : "string",
+            "enum" : [ "CITADINE", "BERLINE", "SUV", "LUXE", "UTILITAIRE" ]
+          },
+          "ville" : {
+            "type" : "string"
+          },
+          "carburant" : {
+            "type" : "string",
+            "enum" : [ "ESSENCE", "DIESEL", "HYBRIDE", "ELECTRIQUE" ]
+          },
+          "transmission" : {
+            "type" : "string",
+            "enum" : [ "MANUELLE", "AUTOMATIQUE" ]
+          }
+        }
+      },
       "Pageable" : {
         "type" : "object",
         "properties" : {
@@ -847,6 +1324,41 @@
             "items" : {
               "type" : "string"
             }
+          }
+        }
+      },
+      "PageMetadata" : {
+        "type" : "object",
+        "properties" : {
+          "size" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }
+      },
+      "PagedModelVehicleResponse" : {
+        "type" : "object",
+        "properties" : {
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VehicleResponse"
+            }
+          },
+          "page" : {
+            "$ref" : "#/components/schemas/PageMetadata"
           }
         }
       },
@@ -875,24 +1387,24 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "sort" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/SortObject"
-            }
-          },
           "first" : {
             "type" : "boolean"
           },
           "last" : {
             "type" : "boolean"
           },
-          "pageable" : {
-            "$ref" : "#/components/schemas/PageableObject"
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
           },
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
           },
           "empty" : {
             "type" : "boolean"
@@ -912,9 +1424,6 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
-          "paged" : {
-            "type" : "boolean"
-          },
           "pageNumber" : {
             "type" : "integer",
             "format" : "int32"
@@ -924,6 +1433,9 @@
             "format" : "int32"
           },
           "unpaged" : {
+            "type" : "boolean"
+          },
+          "paged" : {
             "type" : "boolean"
           }
         }

@@ -9,6 +9,7 @@ public class MinioProperties {
     private String accessKey = "locavite";
     private String secretKey = "locavite_dev_password";
     private String bucket = "locavite-documents";
+    private String vehiclesBucket = "locavite-vehicles";
     private boolean initBucket = true;
 
     public String getEndpoint() {
@@ -41,6 +42,14 @@ public class MinioProperties {
 
     public void setBucket(String bucket) {
         this.bucket = bucket;
+    }
+
+    public String getVehiclesBucket() {
+        return vehiclesBucket;
+    }
+
+    public void setVehiclesBucket(String vehiclesBucket) {
+        this.vehiclesBucket = vehiclesBucket;
     }
 
     public boolean isInitBucket() {
