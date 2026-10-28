@@ -10,9 +10,13 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 public class CacheConfig {
 
     @Bean
-    RedisCacheManagerBuilderCustomizer vehicleSearchCacheCustomizer() {
-        return builder -> builder.withCacheConfiguration(
-                "vehicleSearch",
-                RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)));
+    RedisCacheManagerBuilderCustomizer vehicleCacheCustomizer() {
+        return builder -> builder
+                .withCacheConfiguration(
+                        "vehicleSearch",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(5)))
+                .withCacheConfiguration(
+                        "vehicleAvailability",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(1)));
     }
 }
