@@ -264,6 +264,54 @@ class VehicleControllerIT {
                         .value(expected));
     }
 
+    @Test
+    void search_byCity_returnsPublishedVehiclesWithPaginationMetadata() throws Exception {
+        Vehicle matching = save(OTHER, "Toyota", "Casablanca",
+                "4600-A-1", VehicleStatus.PUBLISHED);
+        save(OTHER, "Toyota", "Rabat",
+                "4600-A-2", VehicleStatus.PUBLISHED);
+        save(OTHER, "Toyota", "Casablanca",
+                "4600-A-3", VehicleStatus.DRAFT);
+
+        mvc.perform(get("/api/vehicles/search")
+                        .param("ville", "Casablanca")
+                        .param("page", "0")
+                        .param("size", "1")
+                        .param("sort", "prixJour,asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(matching.getId()))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1));
+    }
+
+    @Test
+    void search_withCategoryAndDates_appliesFilters() throws Exception {
+        Vehicle matching = save(OTHER, "Dacia", "Casablanca",
+                "4600-A-4", VehicleStatus.PUBLISHED);
+        Vehicle nonMatching = save(OTHER, "Toyota", "Casablanca",
+                "4600-A-5", VehicleStatus.PUBLISHED);
+        nonMatching.setCategory(categoryRepository.findByNameIgnoreCase("BERLINE").orElseThrow());
+        repository.saveAndFlush(nonMatching);
+
+        mvc.perform(get("/api/vehicles/search")
+                        .param("ville", "Casablanca")
+                        .param("categorie", "SUV")
+                        .param("dateDebut", "2026-11-01")
+                        .param("dateFin", "2026-11-05")
+                        .param("prixMin", "200")
+                        .param("prixMax", "400"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].id").value(matching.getId()));
+    }
+
+    @Test
+    void search_withoutCity_returnsBadRequest() throws Exception {
+        mvc.perform(get("/api/vehicles/search"))
+                .andExpect(status().isBadRequest());
+    }
+
     // ---------------- UPDATE ----------------
 
     @Test

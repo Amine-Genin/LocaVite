@@ -5,6 +5,7 @@ import ma.locavite.vehicle.dto.VehicleFilter;
 import ma.locavite.vehicle.dto.VehicleRequest;
 import ma.locavite.vehicle.dto.VehicleResponse;
 import ma.locavite.vehicle.service.VehicleService;
+import ma.locavite.vehicle.service.VehicleSearchService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -21,9 +22,11 @@ import java.net.URI;
 public class VehicleController {
 
     private final VehicleService vehicleService;
+    private final VehicleSearchService vehicleSearchService;
 
-    public VehicleController(VehicleService vehicleService) {
+    public VehicleController(VehicleService vehicleService, VehicleSearchService vehicleSearchService) {
         this.vehicleService = vehicleService;
+        this.vehicleSearchService = vehicleSearchService;
     }
 
     @PostMapping
@@ -47,6 +50,14 @@ public class VehicleController {
             VehicleFilter filter,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return new PagedModel<>(vehicleService.search(filter, pageable));
+    }
+
+    @GetMapping("/search")
+    public org.springframework.data.domain.Page<VehicleResponse> searchVehicles(
+            @RequestParam String ville,
+            VehicleFilter filter,
+            @PageableDefault(size = 20, sort = "prixJour", direction = Sort.Direction.ASC) Pageable pageable) {
+        return vehicleSearchService.search(filter.withVille(ville), pageable);
     }
 
     @PutMapping("/{id}")

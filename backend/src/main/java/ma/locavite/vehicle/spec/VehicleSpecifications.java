@@ -18,7 +18,9 @@ public final class VehicleSpecifications {
                 .and(associationNameEquals("category", f.categorie()))
                 .and(idEquals("category", f.categoryId()))
                 .and(equalsValue("carburant", f.carburant()))
-                .and(equalsValue("transmission", f.transmission()));
+                .and(equalsValue("transmission", f.transmission()))
+                .and(priceGreaterThanOrEqual(f.prixMin()))
+                .and(priceLessThanOrEqual(f.prixMax()));
     }
 
     private static Specification<Vehicle> hasStatus(VehicleStatus status) {
@@ -54,5 +56,19 @@ public final class VehicleSpecifications {
         String normalized = value.trim().toLowerCase();
         return (root, query, cb) ->
                 cb.equal(cb.lower(root.get(association).get("name")), normalized);
+    }
+
+    private static Specification<Vehicle> priceGreaterThanOrEqual(java.math.BigDecimal value) {
+        if (value == null) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get("prixJour"), value);
+    }
+
+    private static Specification<Vehicle> priceLessThanOrEqual(java.math.BigDecimal value) {
+        if (value == null) {
+            return (root, query, cb) -> cb.conjunction();
+        }
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get("prixJour"), value);
     }
 }
