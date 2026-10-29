@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { PhotoUploaderComponent } from './photo-uploader.component';
-import { UploadedPhotoItem } from '../models/vehicle.model';
 import { TranslateModule } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 

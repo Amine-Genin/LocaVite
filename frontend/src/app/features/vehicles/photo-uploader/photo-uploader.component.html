@@ -7,6 +7,8 @@
     (dragleave)="onDragLeave($event)"
     (drop)="onDrop($event)"
     (click)="triggerFileInput()"
+    (keydown.enter)="triggerFileInput()"
+    (keydown.space)="$event.preventDefault(); triggerFileInput()"
     tabindex="0"
     role="button"
     aria-label="Zone de dépôt des photos du véhicule"
