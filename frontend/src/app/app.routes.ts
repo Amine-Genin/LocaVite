@@ -11,6 +11,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'vehicles/:id',
+    loadComponent: () =>
+      import('./features/vehicles/vehicle-detail/vehicle-detail.component').then(
+        (m) => m.VehicleDetailComponent,
+      ),
+  },
+  {
+    path: 'reservation/:id',
+    loadComponent: () =>
+      import(
+        './features/vehicles/reservation-placeholder/reservation-placeholder.component'
+      ).then((m) => m.ReservationPlaceholderComponent),
+  },
+  {
     path: 'admin/vehicles/new',
     canActivate: [roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },

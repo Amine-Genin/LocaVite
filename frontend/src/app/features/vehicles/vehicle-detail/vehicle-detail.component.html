@@ -1,0 +1,429 @@
+<div class="page-container" data-cy="vehicle-detail-page">
+  <app-auth-header></app-auth-header>
+
+  <main class="main-content">
+    <!-- Back Button Bar -->
+    <div class="top-nav-bar">
+      <a [routerLink]="['/vehicles']" class="back-link" data-cy="back-btn">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        <span>{{ 'VEHICLES.DETAIL.BACK' | translate }}</span>
+      </a>
+    </div>
+
+    <!-- Loading State -->
+    @if (loading()) {
+      <div class="loading-state" data-cy="loading-indicator">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>{{ 'VEHICLES.LOADING' | translate }}</p>
+      </div>
+    }
+
+    <!-- Error / Not Found State -->
+    @if (!loading() && (error() || !vehicle())) {
+      <div class="not-found-state" data-cy="not-found-state">
+        <div class="not-found-card">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#e11d48"
+            stroke-width="2"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <h2>{{ 'VEHICLES.DETAIL.NOT_FOUND_TITLE' | translate }}</h2>
+          <p>{{ 'VEHICLES.DETAIL.NOT_FOUND_MSG' | translate }}</p>
+          <a mat-flat-button color="primary" [routerLink]="['/vehicles']">
+            {{ 'VEHICLES.DETAIL.BACK' | translate }}
+          </a>
+        </div>
+      </div>
+    }
+
+    <!-- Vehicle Content -->
+    @if (!loading() && vehicle(); as v) {
+      <div class="detail-grid">
+        <!-- Left Column: Gallery & Tabs -->
+        <div class="media-details-column">
+          <!-- Photo Gallery -->
+          <div class="gallery-wrapper">
+            <app-photo-gallery
+              [photos]="v.photos || []"
+              [alt]="v.marque + ' ' + v.modele"
+            ></app-photo-gallery>
+          </div>
+
+          <!-- Tabs: Features, Availability, Agency -->
+          <div class="tabs-container">
+            <mat-tab-group animationDuration="200ms" class="vehicle-tabs" data-cy="vehicle-tabs">
+              <!-- Tab 1: Caractéristiques & Description -->
+              <mat-tab [label]="'VEHICLES.DETAIL.TABS.SPECS' | translate">
+                <div class="tab-pane specs-pane">
+                  <!-- Description -->
+                  <div class="description-section">
+                    <h3 class="section-heading">{{ 'VEHICLES.DETAIL.DESCRIPTION' | translate }}</h3>
+                    <p class="description-text" data-cy="vehicle-description">
+                      {{ v.description || ('VEHICLES.DETAIL.NO_DESCRIPTION' | translate) }}
+                    </p>
+                  </div>
+
+                  <!-- Spec Grid -->
+                  <div class="specs-grid">
+                    <div class="spec-card">
+                      <span class="spec-label">{{
+                        'VEHICLES.DETAIL.SPECS.BRAND' | translate
+                      }}</span>
+                      <strong class="spec-value" data-cy="vehicle-brand">{{ v.marque }}</strong>
+                    </div>
+
+                    <div class="spec-card">
+                      <span class="spec-label">{{
+                        'VEHICLES.DETAIL.SPECS.MODEL' | translate
+                      }}</span>
+                      <strong class="spec-value" data-cy="vehicle-model">{{ v.modele }}</strong>
+                    </div>
+
+                    <div class="spec-card">
+                      <span class="spec-label">{{ 'VEHICLES.DETAIL.SPECS.YEAR' | translate }}</span>
+                      <strong class="spec-value" data-cy="vehicle-year">{{ v.annee }}</strong>
+                    </div>
+
+                    <div class="spec-card">
+                      <span class="spec-label">{{
+                        'VEHICLES.DETAIL.SPECS.CATEGORY' | translate
+                      }}</span>
+                      <strong class="spec-value" data-cy="vehicle-category">{{
+                        v.categorie
+                      }}</strong>
+                    </div>
+
+                    <div class="spec-card">
+                      <span class="spec-label">{{ 'VEHICLES.DETAIL.SPECS.FUEL' | translate }}</span>
+                      <strong class="spec-value" data-cy="vehicle-fuel">{{
+                        v.carburant || 'ESSENCE'
+                      }}</strong>
+                    </div>
+
+                    <div class="spec-card">
+                      <span class="spec-label">{{
+                        'VEHICLES.DETAIL.SPECS.TRANSMISSION' | translate
+                      }}</span>
+                      <strong class="spec-value" data-cy="vehicle-transmission">{{
+                        v.transmission || 'MANUELLE'
+                      }}</strong>
+                    </div>
+
+                    <div class="spec-card">
+                      <span class="spec-label">{{
+                        'VEHICLES.DETAIL.SPECS.SEATS' | translate
+                      }}</span>
+                      <strong class="spec-value" data-cy="vehicle-seats">{{
+                        v.places ?? 5
+                      }}</strong>
+                    </div>
+
+                    @if (v.matricule) {
+                      <div class="spec-card">
+                        <span class="spec-label">{{
+                          'VEHICLES.DETAIL.SPECS.MATRICULE' | translate
+                        }}</span>
+                        <strong class="spec-value" data-cy="vehicle-matricule">{{
+                          v.matricule
+                        }}</strong>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </mat-tab>
+
+              <!-- Tab 2: Disponibilité & Calendrier -->
+              <mat-tab [label]="'VEHICLES.DETAIL.TABS.AVAILABILITY' | translate">
+                <div class="tab-pane availability-pane">
+                  <app-availability-calendar
+                    [vehicleId]="v.id"
+                    [availability]="availability()"
+                  ></app-availability-calendar>
+                </div>
+              </mat-tab>
+
+              <!-- Tab 3: Agence & Contact -->
+              <mat-tab [label]="'VEHICLES.DETAIL.TABS.AGENCY' | translate">
+                <div class="tab-pane agency-pane">
+                  <div class="agency-info-card">
+                    <div class="agency-header">
+                      <div class="agency-avatar">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 class="agency-name" data-cy="vehicle-agency">
+                          {{ v.agenceNom || ('VEHICLES.DETAIL.DEFAULT_AGENCY' | translate) }}
+                        </h4>
+                        <p class="agency-city" data-cy="vehicle-city">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                          </svg>
+                          {{ v.ville }}, Maroc
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="agency-body">
+                      <p class="agency-desc">
+                        Partenaire agréé LocaVite. Prise en charge rapide, contrat digitalisé et
+                        assistance 7j/7.
+                      </p>
+                      <button
+                        type="button"
+                        mat-stroked-button
+                        color="primary"
+                        (click)="openContactDialog()"
+                      >
+                        {{ 'VEHICLES.DETAIL.CONTACT_AGENCY' | translate }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </mat-tab>
+            </mat-tab-group>
+          </div>
+        </div>
+
+        <!-- Right Column: Sticky Pricing & Action Card -->
+        <aside class="action-sidebar">
+          <mat-card class="action-card" data-cy="action-card">
+            <!-- Header with Title & Favorite -->
+            <div class="action-card-header">
+              <div class="header-titles">
+                <span class="category-pill" data-cy="vehicle-category-pill">{{ v.categorie }}</span>
+                <h1 class="main-title">
+                  <span data-cy="vehicle-brand">{{ v.marque }}</span>
+                  <span data-cy="vehicle-model">{{ v.modele }}</span>
+                </h1>
+                <div class="meta-row">
+                  <span class="meta-badge year" data-cy="vehicle-year">{{ v.annee }}</span>
+                  <span class="meta-badge location" data-cy="vehicle-city">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    {{ v.ville }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Favorite Button -->
+              <button
+                type="button"
+                class="favorite-circle-btn"
+                [class.active]="isFavorite()"
+                [attr.aria-pressed]="isFavorite()"
+                [attr.aria-label]="
+                  (isFavorite() ? 'VEHICLES.REMOVE_FAVORITE' : 'VEHICLES.ADD_FAVORITE') | translate
+                "
+                (click)="onToggleFavorite()"
+                data-cy="favorite-btn"
+              >
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  [attr.fill]="isFavorite() ? '#ef4444' : 'none'"
+                  [attr.stroke]="isFavorite() ? '#ef4444' : 'currentColor'"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="pricing-section">
+              <!-- Location Price -->
+              <div class="price-box rental-box">
+                <span class="price-kind">{{ 'VEHICLES.DETAIL.RENT_PRICE' | translate }}</span>
+                <div class="price-value" data-cy="vehicle-rent-price">
+                  <span class="amount">{{ v.prixJour }}</span>
+                  <span class="currency">{{ 'COMMON.CURRENCY_MAD' | translate }}</span>
+                  <span class="unit">/ {{ 'VEHICLES.DETAIL.PER_DAY' | translate }}</span>
+                </div>
+              </div>
+
+              <!-- Sale Price (if available) -->
+              @if (v.prixVente) {
+                <div class="price-box sale-box">
+                  <span class="price-kind">{{ 'VEHICLES.DETAIL.SALE_PRICE' | translate }}</span>
+                  <div class="price-value sale" data-cy="vehicle-sale-price">
+                    <span class="amount">{{ v.prixVente }}</span>
+                    <span class="currency">{{ 'COMMON.CURRENCY_MAD' | translate }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Agency Banner -->
+            <div class="agency-banner">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <div class="banner-text">
+                <span class="banner-label">{{ 'VEHICLES.DETAIL.AGENCY' | translate }}</span>
+                <strong class="banner-agency-name" data-cy="vehicle-agency">
+                  {{ v.agenceNom || ('VEHICLES.DETAIL.DEFAULT_AGENCY' | translate) }}
+                </strong>
+              </div>
+            </div>
+
+            <!-- CTA Actions -->
+            <div class="action-buttons">
+              <!-- Bouton Réserver -->
+              <button
+                type="button"
+                mat-flat-button
+                color="primary"
+                class="reserve-cta-btn"
+                (click)="onReserve()"
+                data-cy="reserve-btn"
+              >
+                {{ 'VEHICLES.DETAIL.RESERVE' | translate }}
+              </button>
+
+              <!-- Bouton Contacter l'agence -->
+              <button
+                type="button"
+                mat-stroked-button
+                class="contact-cta-btn"
+                (click)="openContactDialog()"
+                data-cy="contact-agency-btn"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                </svg>
+                {{ 'VEHICLES.DETAIL.CONTACT_AGENCY' | translate }}
+              </button>
+            </div>
+
+            <!-- Reassurance perks -->
+            <ul class="perks-list">
+              <li>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#10b981"
+                  stroke-width="2.5"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Annulation gratuite jusqu'à 48h avant</span>
+              </li>
+              <li>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#10b981"
+                  stroke-width="2.5"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Kilométrage illimité & assurance tous risques</span>
+              </li>
+              <li>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#10b981"
+                  stroke-width="2.5"
+                >
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Paiement sécurisé CMI ou en agence</span>
+              </li>
+            </ul>
+          </mat-card>
+        </aside>
+      </div>
+
+      <!-- Section Véhicules Similaires (3 suggestions) -->
+      @if (similarVehicles().length > 0) {
+        <section class="similar-section" data-cy="similar-vehicles">
+          <div class="similar-header">
+            <h2 class="similar-title">{{ 'VEHICLES.DETAIL.SIMILAR_TITLE' | translate }}</h2>
+            <p class="similar-subtitle">{{ 'VEHICLES.DETAIL.SIMILAR_SUBTITLE' | translate }}</p>
+          </div>
+
+          <div class="similar-grid">
+            @for (similar of similarVehicles(); track similar.id) {
+              <app-vehicle-card
+                [vehicle]="similar"
+                (favoriteToggle)="onSimilarFavoriteToggle($event)"
+              ></app-vehicle-card>
+            }
+          </div>
+        </section>
+      }
+    }
+  </main>
+
+  <app-auth-footer></app-auth-footer>
+</div>

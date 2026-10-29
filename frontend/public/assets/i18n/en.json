@@ -234,6 +234,69 @@
           "CREATED_DRAFT": "Draft saved successfully!"
         }
       }
+    },
+    "DETAIL": {
+      "BACK": "Back to catalog",
+      "RESERVE": "Book this vehicle",
+      "CONTACT_AGENCY": "Contact agency",
+      "FAVORITE_ADD": "Add to favorites",
+      "FAVORITE_REMOVE": "Remove from favorites",
+      "SALE_PRICE": "Sale price",
+      "RENT_PRICE": "Rental price",
+      "PER_DAY": "per day",
+      "LOCATION": "Location",
+      "AGENCY": "Agency",
+      "DEFAULT_AGENCY": "LocaVite Main Agency",
+      "DESCRIPTION": "Description",
+      "NO_DESCRIPTION": "No description provided for this vehicle.",
+      "TABS": {
+        "SPECS": "Specifications",
+        "AVAILABILITY": "Availability",
+        "AGENCY": "Agency & Contact"
+      },
+      "SPECS": {
+        "BRAND": "Brand",
+        "MODEL": "Model",
+        "YEAR": "Year",
+        "CATEGORY": "Category",
+        "FUEL": "Fuel",
+        "TRANSMISSION": "Transmission",
+        "SEATS": "Seats",
+        "MATRICULE": "Registration",
+        "STATUS": "Status"
+      },
+      "CALENDAR": {
+        "TITLE": "Availability Calendar",
+        "SUBTITLE": "Check real-time available and reserved dates",
+        "AVAILABLE": "Available",
+        "UNAVAILABLE": "Reserved / Unavailable",
+        "SELECTED_DATE": "Selected date",
+        "STATUS_AVAILABLE": "This vehicle is available on this date",
+        "STATUS_UNAVAILABLE": "This vehicle is unavailable or already reserved on this date",
+        "MONTH_VIEW": "Monthly view"
+      },
+      "CONTACT_DIALOG": {
+        "TITLE": "Contact Agency",
+        "SUBTITLE": "Fill in the form or contact us directly on WhatsApp",
+        "WHATSAPP_BTN": "Chat on WhatsApp",
+        "NAME": "Full name",
+        "NAME_REQUIRED": "Name is required",
+        "EMAIL": "Email address",
+        "EMAIL_REQUIRED": "Email is required",
+        "EMAIL_INVALID": "Invalid email address",
+        "PHONE": "Phone number",
+        "PHONE_REQUIRED": "Phone number is required",
+        "MESSAGE": "Your message",
+        "MESSAGE_REQUIRED": "Message is required",
+        "SEND": "Send inquiry",
+        "SENDING": "Sending…",
+        "SUCCESS": "Your inquiry has been sent to our agency! We will reply within 2 hours.",
+        "CALL_US": "Or call our agency directly"
+      },
+      "SIMILAR_TITLE": "Similar Vehicles",
+      "SIMILAR_SUBTITLE": "Other models in the same category that might interest you",
+      "NOT_FOUND_TITLE": "Vehicle not found",
+      "NOT_FOUND_MSG": "The requested vehicle does not exist or has been deactivated."
     }
   }
 }

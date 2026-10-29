@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 
 import {
+  AvailabilityResponse,
   CatalogEntry,
   PageMetadata,
   Vehicle,
@@ -30,54 +31,53 @@ interface RawVehiclePageApi {
   number?: number;
 }
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root',
+})
 export class VehicleService {
   private readonly http = inject(HttpClient);
-
-  private readonly filterSubject = new BehaviorSubject<VehicleFilter>({
-    page: 0,
-    size: 12,
-  });
-  readonly filters$: Observable<VehicleFilter> = this.filterSubject.asObservable();
-
   private readonly favoritesSubject = new BehaviorSubject<Set<number>>(this.loadFavorites());
-  readonly favorites$: Observable<Set<number>> = this.favoritesSubject.asObservable();
 
-  get currentFilters(): VehicleFilter {
-    return this.filterSubject.value;
-  }
+  readonly favorites$ = this.favoritesSubject.asObservable();
 
-  updateFilters(partial: Partial<VehicleFilter>): void {
-    this.filterSubject.next({
-      ...this.filterSubject.value,
-      ...partial,
-    });
-  }
-
-  resetFilters(size = 12): void {
-    this.filterSubject.next({ page: 0, size });
-  }
-
-  search(filter: VehicleFilter = {}): Observable<VehiclePageResponse> {
+  getVehicles(filter: VehicleFilter = {}): Observable<VehiclePageResponse> {
     let params = new HttpParams();
 
-    const entries = Object.entries(filter) as [keyof VehicleFilter, unknown][];
-    for (const [key, value] of entries) {
-      if (value !== undefined && value !== null && value !== '') {
-        params = params.set(key, String(value));
-      }
+    if (filter.marque) params = params.set('marque', filter.marque);
+    if (filter.categorie) params = params.set('categorie', filter.categorie);
+    if (filter.ville) params = params.set('ville', filter.ville);
+    if (filter.carburant) params = params.set('carburant', filter.carburant);
+    if (filter.transmission) params = params.set('transmission', filter.transmission);
+    if (filter.brandId !== undefined && filter.brandId !== null) {
+      params = params.set('brandId', filter.brandId.toString());
     }
+    if (filter.categoryId !== undefined && filter.categoryId !== null) {
+      params = params.set('categoryId', filter.categoryId.toString());
+    }
+    if (filter.dateDebut) params = params.set('dateDebut', filter.dateDebut);
+    if (filter.dateFin) params = params.set('dateFin', filter.dateFin);
+    if (filter.prixMin !== undefined && filter.prixMin !== null) {
+      params = params.set('prixMin', filter.prixMin.toString());
+    }
+    if (filter.prixMax !== undefined && filter.prixMax !== null) {
+      params = params.set('prixMax', filter.prixMax.toString());
+    }
+    if (filter.page !== undefined && filter.page !== null) {
+      params = params.set('page', filter.page.toString());
+    }
+    if (filter.size !== undefined && filter.size !== null) {
+      params = params.set('size', filter.size.toString());
+    }
+    if (filter.sort) params = params.set('sort', filter.sort);
 
     return this.http.get<RawVehiclePageApi>(API_URL, { params }).pipe(
-      map((res) => {
-        const content = (res?.content ?? []).map((item) => this.normalizeVehicle(item));
-        const size = res?.page?.size ?? res?.size ?? filter.size ?? 12;
-        const number = res?.page?.number ?? res?.number ?? filter.page ?? 0;
-        const totalElements = res?.page?.totalElements ?? res?.totalElements ?? content.length;
-        const totalPages =
-          res?.page?.totalPages ??
-          res?.totalPages ??
-          (size > 0 ? Math.ceil(totalElements / size) : 0);
+      map((response) => {
+        const rawList = response.content ?? [];
+        const content = rawList.map((item) => this.normalizeVehicle(item));
+        const totalElements = response.totalElements ?? response.page?.totalElements ?? content.length;
+        const totalPages = response.totalPages ?? response.page?.totalPages ?? 1;
+        const size = response.size ?? response.page?.size ?? (content.length || 12);
+        const number = response.number ?? response.page?.number ?? 0;
 
         return {
           content,
@@ -96,10 +96,19 @@ export class VehicleService {
     );
   }
 
-  getById(id: number): Observable<Vehicle> {
+  getVehicleById(id: number): Observable<Vehicle> {
     return this.http
       .get<RawVehicleApi>(`${API_URL}/${id}`)
       .pipe(map((item) => this.normalizeVehicle(item)));
+  }
+
+  getPhotos(vehicleId: number): Observable<VehiclePhoto[]> {
+    return this.http.get<VehiclePhoto[]>(`${API_URL}/${vehicleId}/photos`);
+  }
+
+  getAvailability(vehicleId: number, from: string, to: string): Observable<AvailabilityResponse> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get<AvailabilityResponse>(`${API_URL}/${vehicleId}/availability`, { params });
   }
 
   create(request: VehicleCreateRequest): Observable<Vehicle> {
@@ -149,8 +158,7 @@ export class VehicleService {
   }
 
   private normalizeVehicle(item: RawVehicleApi): Vehicle {
-    const primaryPhoto: VehiclePhoto | undefined =
-      item.photos?.find((p) => p.isPrimary) ?? item.photos?.[0];
+    const primaryPhoto = item.photos?.find((p) => p.isPrimary);
     const resolvedPhotoUrl =
       item.photoUrl ??
       item.primaryPhotoUrl ??
@@ -158,9 +166,22 @@ export class VehicleService {
       primaryPhoto?.url ??
       null;
 
+    let photos = item.photos ?? [];
+    if (photos.length === 0 && resolvedPhotoUrl) {
+      photos = [
+        {
+          id: 1,
+          vehicleId: item.id,
+          url: resolvedPhotoUrl,
+          isPrimary: true,
+        },
+      ];
+    }
+
     return {
       ...item,
       photoUrl: resolvedPhotoUrl,
+      photos,
       isFavorite: item.isFavorite ?? this.isFavorite(item.id),
     };
   }

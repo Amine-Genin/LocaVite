@@ -1,0 +1,165 @@
+.contact-dialog {
+  padding: 1.5rem;
+  max-width: 540px;
+  width: 100%;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+}
+
+.dialog-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.dialog-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0.25rem 0 0 0;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.375rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #334155;
+    background: #f1f5f9;
+  }
+}
+
+.dialog-content {
+  padding: 0;
+  overflow-y: auto;
+  max-height: 75vh;
+}
+
+.quick-contact-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+
+  .box-text {
+    display: flex;
+    flex-direction: column;
+
+    strong {
+      color: #166534;
+      font-size: 0.95rem;
+    }
+
+    span {
+      color: #15803d;
+      font-size: 0.8rem;
+    }
+  }
+
+  .whatsapp-btn {
+    background-color: #25d366;
+    color: #ffffff;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+
+    &:hover {
+      background-color: #1ebd5a;
+    }
+  }
+
+  @media (max-width: 500px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.25rem 0;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  span {
+    padding: 0 0.75rem;
+  }
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.form-row {
+  display: flex;
+  gap: 0.75rem;
+
+  .w-half {
+    flex: 1;
+  }
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.success-alert {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  gap: 1rem;
+
+  p {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #065f46;
+    max-width: 360px;
+    margin: 0;
+  }
+}
+

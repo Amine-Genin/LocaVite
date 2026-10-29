@@ -30,6 +30,10 @@ export interface Vehicle {
   matricule?: string;
   statut?: VehicleStatus;
   agenceId?: number;
+  agenceNom?: string;
+  agenceTelephone?: string;
+  agenceEmail?: string;
+  agenceAdresse?: string;
   photoUrl?: string | null;
   photos?: VehiclePhoto[];
   isFavorite?: boolean;
@@ -66,6 +70,22 @@ export interface UploadedPhotoItem {
   ordre?: number;
   name?: string;
   size?: number;
+}
+
+export interface AvailabilityPeriod {
+  from: string;
+  to: string;
+}
+
+export interface UnavailablePeriod {
+  from: string;
+  to: string;
+  reason?: string;
+}
+
+export interface AvailabilityResponse {
+  available: AvailabilityPeriod[];
+  unavailable: UnavailablePeriod[];
 }
 
 export interface VehicleFilter {
