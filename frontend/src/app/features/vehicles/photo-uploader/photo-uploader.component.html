@@ -1,0 +1,221 @@
+<div class="photo-uploader-container" data-cy="photo-uploader">
+  <!-- Drop Zone -->
+  <div
+    class="drop-zone"
+    [class.dragging]="isDragging"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave($event)"
+    (drop)="onDrop($event)"
+    (click)="triggerFileInput()"
+    (keydown.enter)="triggerFileInput()"
+    (keydown.space)="$event.preventDefault(); triggerFileInput()"
+    tabindex="0"
+    role="button"
+    aria-label="Zone de dépôt des photos du véhicule"
+    data-cy="drop-zone"
+  >
+    <label class="visually-hidden" for="vehicle-photo-files">{{
+      'VEHICLES.ADMIN.FORM.PHOTOS.TITLE' | translate
+    }}</label>
+    <input
+      #fileInput
+      id="vehicle-photo-files"
+      type="file"
+      multiple
+      accept="image/png,image/jpeg,image/webp"
+      (change)="onFilesSelected($event)"
+      class="visually-hidden"
+      data-cy="file-input"
+    />
+
+    <div class="drop-content">
+      <div class="drop-icon-wrapper">
+        <svg
+          class="upload-icon"
+          width="40"
+          height="40"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+      </div>
+
+      <p class="drop-main-text">
+        <span>{{ 'VEHICLES.ADMIN.FORM.PHOTOS.DROP_TEXT' | translate }}</span>
+        <button
+          type="button"
+          mat-stroked-button
+          color="primary"
+          class="browse-btn"
+          (click)="$event.stopPropagation(); triggerFileInput()"
+          data-cy="browse-files-btn"
+        >
+          {{ 'VEHICLES.ADMIN.FORM.PHOTOS.BROWSE' | translate }}
+        </button>
+      </p>
+
+      <span class="drop-hint">{{ 'VEHICLES.ADMIN.FORM.PHOTOS.HINT' | translate }}</span>
+    </div>
+  </div>
+
+  @if (errorMessage) {
+    <div class="error-banner" data-cy="upload-error-message">
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+  <!-- Previews Grid -->
+  @if (photos.length > 0) {
+    <div class="photos-preview-section" data-cy="photo-preview-grid">
+      <div class="photos-preview-header">
+        <span class="photos-count">{{ photos.length }} photo(s) ajoutée(s)</span>
+        <span class="primary-info">
+          {{ 'VEHICLES.ADMIN.FORM.PHOTOS.PRIMARY_HINT' | translate }}
+        </span>
+      </div>
+
+      <div class="previews-grid">
+        @for (item of photos; track $index) {
+          <div class="photo-card" [class.is-primary]="item.isPrimary" data-cy="photo-preview">
+            <div class="image-wrapper">
+              <img [src]="item.previewUrl" [alt]="item.name || 'Photo véhicule'" />
+
+              <!-- Star badge for Primary Photo -->
+              @if (item.isPrimary) {
+                <span class="primary-badge" data-cy="primary-badge">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="#fbbf24"
+                    stroke="#d97706"
+                    stroke-width="2"
+                  >
+                    <polygon
+                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                    ></polygon>
+                  </svg>
+                  <span>{{ 'VEHICLES.ADMIN.FORM.PHOTOS.PRIMARY_BADGE' | translate }}</span>
+                </span>
+              }
+
+              <!-- Overlay action buttons -->
+              <div class="card-overlay">
+                <!-- Set as Primary Button (Star) -->
+                <button
+                  type="button"
+                  class="action-icon-btn star-btn"
+                  [class.active]="item.isPrimary"
+                  [attr.aria-label]="'VEHICLES.ADMIN.FORM.PHOTOS.SET_PRIMARY' | translate"
+                  (click)="setPrimary($index)"
+                  data-cy="set-primary-btn"
+                >
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    [attr.fill]="item.isPrimary ? '#fbbf24' : 'none'"
+                    [attr.stroke]="item.isPrimary ? '#d97706' : '#ffffff'"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    data-cy="primary-star"
+                  >
+                    <polygon
+                      points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                    ></polygon>
+                  </svg>
+                </button>
+
+                <!-- Reorder buttons -->
+                <div class="reorder-btns">
+                  @if ($index > 0) {
+                    <button
+                      type="button"
+                      class="action-icon-btn"
+                      aria-label="Monter"
+                      (click)="move($index, 'up')"
+                      data-cy="move-up-btn"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#ffffff"
+                        stroke-width="2.5"
+                      >
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                      </svg>
+                    </button>
+                  }
+
+                  @if ($index < photos.length - 1) {
+                    <button
+                      type="button"
+                      class="action-icon-btn"
+                      aria-label="Descendre"
+                      (click)="move($index, 'down')"
+                      data-cy="move-down-btn"
+                    >
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#ffffff"
+                        stroke-width="2.5"
+                      >
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </button>
+                  }
+                </div>
+
+                <!-- Delete button -->
+                <button
+                  type="button"
+                  class="action-icon-btn delete-btn"
+                  aria-label="Supprimer la photo"
+                  (click)="remove($index)"
+                  data-cy="remove-photo-btn"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#ffffff"
+                    stroke-width="2"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>

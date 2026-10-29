@@ -1,0 +1,362 @@
+<div class="vehicle-form-page" data-cy="vehicle-form-page">
+  <div class="form-header">
+    <div class="header-titles">
+      <h1 data-cy="page-title">{{ 'VEHICLES.ADMIN.FORM.PAGE_TITLE' | translate }}</h1>
+      <p class="subtitle">{{ 'VEHICLES.ADMIN.FORM.SUBTITLE' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <a mat-button routerLink="/admin/vehicles" data-cy="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'VEHICLES.ADMIN.FORM.ACTIONS.CANCEL' | translate }}
+      </a>
+    </div>
+  </div>
+
+  @if (errorMessage) {
+    <div class="server-error-banner" data-cy="form-error-banner">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ errorMessage }}</span>
+    </div>
+  }
+
+  <form [formGroup]="form" class="form-container" (ngSubmit)="$event.preventDefault()">
+    <!-- Section 1 : Identité du véhicule -->
+    <mat-card class="form-section-card" data-cy="section-identity">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">drive_eta</mat-icon>
+          {{ 'VEHICLES.ADMIN.FORM.SECTIONS.IDENTITY' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="section-content">
+        <div class="form-grid">
+          <!-- Marque avec Autocomplete -->
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'VEHICLES.ADMIN.FORM.FIELDS.BRAND' | translate }} *</mat-label>
+            <input
+              type="text"
+              matInput
+              [formControl]="brandSearchControl"
+              [matAutocomplete]="brandAuto"
+              placeholder="Ex: Renault, Dacia..."
+              data-cy="brand-input"
+            />
+            <mat-autocomplete
+              #brandAuto="matAutocomplete"
+              (optionSelected)="onBrandSelected($event)"
+              data-cy="brand-autocomplete"
+            >
+              @for (brand of filteredBrands$ | async; track brand.id) {
+                <mat-option [value]="brand" data-cy="brand-option">
+                  {{ brand.name }}
+                </mat-option>
+              }
+            </mat-autocomplete>
+            @if (form.get('brandId')?.touched && form.get('brandId')?.invalid) {
+              <mat-error data-cy="brand-error">
+                {{ 'VEHICLES.ADMIN.FORM.VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Modèle -->
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'VEHICLES.ADMIN.FORM.FIELDS.MODEL' | translate }} *</mat-label>
+            <input
+              matInput
+              formControlName="modele"
+              placeholder="Ex: Clio 5, Duster..."
+              data-cy="modele-input"
+            />
+            @if (form.get('modele')?.touched && form.get('modele')?.invalid) {
+              <mat-error data-cy="modele-error">
+                {{ 'VEHICLES.ADMIN.FORM.VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Année -->
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'VEHICLES.ADMIN.FORM.FIELDS.YEAR' | translate }} *</mat-label>
+            <mat-select formControlName="annee" data-cy="annee-select">
+              @for (year of years; track year) {
+                <mat-option [value]="year" data-cy="annee-option">{{ year }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('annee')?.touched && form.get('annee')?.invalid) {
+              <mat-error data-cy="annee-error">
+                {{ 'VEHICLES.ADMIN.FORM.VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Catégorie -->
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'VEHICLES.ADMIN.FORM.FIELDS.CATEGORY' | translate }} *</mat-label>
+            <mat-select formControlName="categoryId" data-cy="category-select">
+              @for (cat of categories; track cat.id) {
+                <mat-option [value]="cat.id" data-cy="category-option">{{ cat.name }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('categoryId')?.touched && form.get('categoryId')?.invalid) {
+              <mat-error data-cy="category-error">
+                {{ 'VEHICLES.ADMIN.FORM.VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Section 2 : Caractéristiques techniques -->
+    <mat-card class="form-section-card" data-cy="section-features">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">tune</mat-icon>
+          {{ 'VEHICLES.ADMIN.FORM.SECTIONS.FEATURES' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="section-content">
+        <div class="radios-row">
+          <!-- Carburant -->
+          <fieldset class="radio-field-group">
+            <legend class="group-label">
+              {{ 'VEHICLES.ADMIN.FORM.FIELDS.FUEL' | translate }} *
+            </legend>
+            <mat-radio-group
+              formControlName="carburant"
+              class="radio-group"
+              data-cy="carburant-radio-group"
+            >
+              <mat-radio-button value="ESSENCE" data-cy="carburant-radio-essence">
+                {{ 'VEHICLES.ADMIN.FORM.RADIO.ESSENCE' | translate }}
+              </mat-radio-button>
+              <mat-radio-button value="DIESEL" data-cy="carburant-radio-diesel">
+                {{ 'VEHICLES.ADMIN.FORM.RADIO.DIESEL' | translate }}
+              </mat-radio-button>
+              <mat-radio-button value="HYBRIDE" data-cy="carburant-radio-hybride">
+                {{ 'VEHICLES.ADMIN.FORM.RADIO.HYBRIDE' | translate }}
+              </mat-radio-button>
+              <mat-radio-button value="ELECTRIQUE" data-cy="carburant-radio-electrique">
+                {{ 'VEHICLES.ADMIN.FORM.RADIO.ELECTRIQUE' | translate }}
+              </mat-radio-button>
+            </mat-radio-group>
+          </fieldset>
+
+          <!-- Transmission -->
+          <fieldset class="radio-field-group">
+            <legend class="group-label">
+              {{ 'VEHICLES.ADMIN.FORM.FIELDS.TRANSMISSION' | translate }} *
+            </legend>
+            <mat-radio-group
+              formControlName="transmission"
+              class="radio-group"
+              data-cy="transmission-radio-group"
+            >
+              <mat-radio-button value="MANUELLE" data-cy="transmission-radio-manuelle">
+                {{ 'VEHICLES.ADMIN.FORM.RADIO.MANUELLE' | translate }}
+              </mat-radio-button>
+              <mat-radio-button value="AUTOMATIQUE" data-cy="transmission-radio-automatique">
+                {{ 'VEHICLES.ADMIN.FORM.RADIO.AUTOMATIQUE' | translate }}
+              </mat-radio-button>
+            </mat-radio-group>
+          </fieldset>
+        </div>
+
+        <div class="form-grid">
+          <!-- Places -->
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'VEHICLES.ADMIN.FORM.FIELDS.SEATS' | translate }} (2-9) *</mat-label>
+            <input
+              type="number"
+              matInput
+              min="2"
+              max="9"
+              formControlName="places"
+              data-cy="places-input"
+            />
+            @if (form.get('places')?.touched && form.get('places')?.invalid) {
+              <mat-error data-cy="places-error">
+                {{ 'VEHICLES.ADMIN.FORM.VALIDATION.SEATS_RANGE' | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Matricule -->
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'VEHICLES.ADMIN.FORM.FIELDS.LICENSE_PLATE' | translate }} *</mat-label>
+            <input
+              matInput
+              formControlName="matricule"
+              placeholder="Ex: 12345-A-1"
+              data-cy="matricule-input"
+            />
+            @if (form.get('matricule')?.touched && form.get('matricule')?.invalid) {
+              <mat-error data-cy="matricule-error">
+                {{ 'VEHICLES.ADMIN.FORM.VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Description -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ 'VEHICLES.ADMIN.FORM.FIELDS.DESCRIPTION' | translate }} *</mat-label>
+          <textarea
+            matInput
+            rows="4"
+            formControlName="description"
+            placeholder="État général, options, confort, conditions..."
+            data-cy="description-input"
+          ></textarea>
+          @if (form.get('description')?.touched && form.get('description')?.invalid) {
+            <mat-error data-cy="description-error">
+              {{ 'VEHICLES.ADMIN.FORM.VALIDATION.REQUIRED' | translate }}
+            </mat-error>
+          }
+        </mat-form-field>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Section 3 : Prix & Tarification -->
+    <mat-card class="form-section-card" data-cy="section-pricing">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">payments</mat-icon>
+          {{ 'VEHICLES.ADMIN.FORM.SECTIONS.PRICING' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="section-content">
+        <div class="form-grid">
+          <!-- Prix par jour (location) -->
+          <mat-form-field appearance="outline" class="field">
+            <mat-label
+              >{{ 'VEHICLES.ADMIN.FORM.FIELDS.PRICE_PER_DAY' | translate }} (MAD) *</mat-label
+            >
+            <input
+              type="number"
+              matInput
+              min="1"
+              formControlName="prixJour"
+              placeholder="Ex: 350"
+              data-cy="prix-jour-input"
+            />
+            <span matTextSuffix>MAD/j</span>
+            @if (form.get('prixJour')?.touched && form.get('prixJour')?.invalid) {
+              <mat-error data-cy="prix-jour-error">
+                {{ 'VEHICLES.ADMIN.FORM.VALIDATION.POSITIVE' | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Prix de vente -->
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'VEHICLES.ADMIN.FORM.FIELDS.SALE_PRICE' | translate }} (MAD) *</mat-label>
+            <input
+              type="number"
+              matInput
+              min="1"
+              formControlName="prixVente"
+              placeholder="Ex: 140000"
+              data-cy="prix-vente-input"
+            />
+            <span matTextSuffix>MAD</span>
+            @if (form.get('prixVente')?.touched && form.get('prixVente')?.invalid) {
+              <mat-error data-cy="prix-vente-error">
+                {{ 'VEHICLES.ADMIN.FORM.VALIDATION.POSITIVE' | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Section 4 : Localisation -->
+    <mat-card class="form-section-card" data-cy="section-location">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">location_on</mat-icon>
+          {{ 'VEHICLES.ADMIN.FORM.SECTIONS.LOCATION' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="section-content">
+        <div class="form-grid single-col">
+          <!-- Ville -->
+          <mat-form-field appearance="outline" class="field">
+            <mat-label>{{ 'VEHICLES.ADMIN.FORM.FIELDS.CITY' | translate }} *</mat-label>
+            <mat-select formControlName="ville" data-cy="ville-select">
+              @for (city of cities; track city) {
+                <mat-option [value]="city" data-cy="ville-option">{{ city }}</mat-option>
+              }
+            </mat-select>
+            @if (form.get('ville')?.touched && form.get('ville')?.invalid) {
+              <mat-error data-cy="ville-error">
+                {{ 'VEHICLES.ADMIN.FORM.VALIDATION.REQUIRED' | translate }}
+              </mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Section 5 : Photos -->
+    <mat-card class="form-section-card" data-cy="section-photos">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon class="section-icon">photo_camera</mat-icon>
+          {{ 'VEHICLES.ADMIN.FORM.SECTIONS.PHOTOS' | translate }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="section-content">
+        <app-photo-uploader
+          [photos]="photos"
+          (photosChange)="onPhotosChange($event)"
+        ></app-photo-uploader>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Barre d'actions -->
+    <div class="form-actions-bar" data-cy="form-actions-bar">
+      <a
+        mat-stroked-button
+        routerLink="/admin/vehicles"
+        [disabled]="isSubmitting"
+        data-cy="cancel-button"
+      >
+        {{ 'VEHICLES.ADMIN.FORM.ACTIONS.CANCEL' | translate }}
+      </a>
+
+      <div class="submit-actions">
+        <!-- Bouton Sauvegarder Brouillon -->
+        <button
+          type="button"
+          mat-stroked-button
+          color="accent"
+          [disabled]="form.invalid || isSubmitting"
+          (click)="onSubmit('DRAFT')"
+          data-cy="draft-button"
+        >
+          <mat-icon>save_as</mat-icon>
+          {{ 'VEHICLES.ADMIN.FORM.ACTIONS.SAVE_DRAFT' | translate }}
+        </button>
+
+        <!-- Bouton Publier -->
+        <button
+          type="button"
+          mat-raised-button
+          color="primary"
+          [disabled]="form.invalid || isSubmitting"
+          (click)="onSubmit('PUBLISHED')"
+          data-cy="publish-button"
+        >
+          @if (isSubmitting) {
+            <mat-spinner diameter="20" class="spinner"></mat-spinner>
+          } @else {
+            <mat-icon>publish</mat-icon>
+          }
+          {{ 'VEHICLES.ADMIN.FORM.ACTIONS.PUBLISH' | translate }}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>

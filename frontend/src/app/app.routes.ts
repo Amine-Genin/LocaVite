@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth/auth.guard';
+import { roleGuard } from './core/auth/role.guard';
 
 export const routes: Routes = [
   {
@@ -22,6 +23,24 @@ export const routes: Routes = [
       import(
         './features/vehicles/reservation-placeholder/reservation-placeholder.component'
       ).then((m) => m.ReservationPlaceholderComponent),
+  },
+  {
+    path: 'admin/vehicles/new',
+    canActivate: [roleGuard],
+    data: { roles: ['AGENCE', 'ADMIN'] },
+    loadComponent: () =>
+      import('./features/vehicles/vehicle-form/vehicle-form.component').then(
+        (m) => m.VehicleFormComponent,
+      ),
+  },
+  {
+    path: 'admin/vehicles',
+    canActivate: [roleGuard],
+    data: { roles: ['AGENCE', 'ADMIN'] },
+    loadComponent: () =>
+      import(
+        './features/vehicles/admin-vehicle-list-placeholder/admin-vehicle-list-placeholder.component'
+      ).then((m) => m.AdminVehicleListPlaceholderComponent),
   },
   {
     path: 'login',

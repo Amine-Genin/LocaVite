@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { Title, Meta } from '@angular/platform-browser';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { BehaviorSubject, of, throwError } from 'rxjs';
@@ -102,7 +102,7 @@ describe('VehicleDetailComponent', () => {
     dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
     dialogSpy.open.and.returnValue({
       afterClosed: () => of(true),
-    } as any);
+    } as MatDialogRef<unknown>);
 
     await TestBed.configureTestingModule({
       imports: [VehicleDetailComponent, NoopAnimationsModule, TranslateModule.forRoot()],
