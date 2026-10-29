@@ -1,21 +1,26 @@
 package ma.locavite.vehicle.controller;
 
 import jakarta.validation.Valid;
+import ma.locavite.vehicle.dto.AvailabilityResponse;
 import ma.locavite.vehicle.dto.VehicleFilter;
 import ma.locavite.vehicle.dto.VehicleRequest;
 import ma.locavite.vehicle.dto.VehicleResponse;
+import ma.locavite.vehicle.service.AvailabilityService;
 import ma.locavite.vehicle.service.VehicleService;
 import ma.locavite.vehicle.service.VehicleSearchService;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedModel;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/vehicles")
@@ -23,10 +28,15 @@ public class VehicleController {
 
     private final VehicleService vehicleService;
     private final VehicleSearchService vehicleSearchService;
+    private final AvailabilityService availabilityService;
 
-    public VehicleController(VehicleService vehicleService, VehicleSearchService vehicleSearchService) {
+    public VehicleController(
+            VehicleService vehicleService,
+            VehicleSearchService vehicleSearchService,
+            AvailabilityService availabilityService) {
         this.vehicleService = vehicleService;
         this.vehicleSearchService = vehicleSearchService;
+        this.availabilityService = availabilityService;
     }
 
     @PostMapping
@@ -53,11 +63,19 @@ public class VehicleController {
     }
 
     @GetMapping("/search")
-    public org.springframework.data.domain.Page<VehicleResponse> searchVehicles(
+    public Page<VehicleResponse> searchVehicles(
             @RequestParam String ville,
             VehicleFilter filter,
             @PageableDefault(size = 20, sort = "prixJour", direction = Sort.Direction.ASC) Pageable pageable) {
         return vehicleSearchService.search(filter.withVille(ville), pageable);
+    }
+
+    @GetMapping("/{id}/availability")
+    public AvailabilityResponse getAvailability(
+            @PathVariable Long id,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        return availabilityService.getAvailability(id, from, to);
     }
 
     @PutMapping("/{id}")
