@@ -1,0 +1,116 @@
+.availability-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.calendar-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 1rem;
+}
+
+.calendar-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+}
+
+.calendar-subtitle {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #334155;
+}
+
+.legend-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+
+  &.dot-available {
+    background-color: #10b981;
+  }
+
+  &.dot-unavailable {
+    background-color: #ef4444;
+  }
+}
+
+.calendar-container {
+  max-width: 380px;
+  margin: 0 auto;
+  width: 100%;
+
+  ::ng-deep mat-calendar {
+    width: 100%;
+    border-radius: 0.75rem;
+    overflow: hidden;
+
+    .mat-calendar-body-cell.calendar-date-available .mat-calendar-body-cell-content {
+      background-color: #ecfdf5 !important;
+      color: #065f46 !important;
+      font-weight: 600;
+      border-radius: 9999px;
+
+      &:hover {
+        background-color: #d1fae5 !important;
+      }
+    }
+
+    .mat-calendar-body-cell.calendar-date-unavailable .mat-calendar-body-cell-content {
+      background-color: #fef2f2 !important;
+      color: #b91c1c !important;
+      text-decoration: line-through;
+      border-radius: 9999px;
+      opacity: 0.8;
+    }
+  }
+}
+
+.selected-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  &.status-available {
+    background-color: #ecfdf5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+
+  &.status-unavailable {
+    background-color: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+  }
+}
+

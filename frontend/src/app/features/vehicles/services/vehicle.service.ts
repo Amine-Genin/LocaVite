@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 
 import {
+  AvailabilityResponse,
   PageMetadata,
   Vehicle,
   VehicleFilter,
@@ -98,6 +99,15 @@ export class VehicleService {
       .pipe(map((item) => this.normalizeVehicle(item)));
   }
 
+  getPhotos(vehicleId: number): Observable<VehiclePhoto[]> {
+    return this.http.get<VehiclePhoto[]>(`${API_URL}/${vehicleId}/photos`);
+  }
+
+  getAvailability(vehicleId: number, from: string, to: string): Observable<AvailabilityResponse> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get<AvailabilityResponse>(`${API_URL}/${vehicleId}/availability`, { params });
+  }
+
   isFavorite(vehicleId: number): boolean {
     return this.favoritesSubject.value.has(vehicleId);
   }
@@ -126,9 +136,22 @@ export class VehicleService {
       primaryPhoto?.url ??
       null;
 
+    let photos = item.photos ?? [];
+    if (photos.length === 0 && resolvedPhotoUrl) {
+      photos = [
+        {
+          id: 1,
+          vehicleId: item.id,
+          url: resolvedPhotoUrl,
+          isPrimary: true,
+        },
+      ];
+    }
+
     return {
       ...item,
       photoUrl: resolvedPhotoUrl,
+      photos,
       isFavorite: item.isFavorite ?? this.isFavorite(item.id),
     };
   }
