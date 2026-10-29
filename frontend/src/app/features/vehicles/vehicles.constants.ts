@@ -87,6 +87,7 @@ export const VEHICLE_FALLBACK_TRANSLATIONS = {
       YEAR: 'Année récente', POPULARITY: 'Popularité',
       FUELS: { ESSENCE: 'Essence', DIESEL: 'Diesel', HYBRIDE: 'Hybride', ELECTRIQUE: 'Électrique' },
       TRANSMISSIONS: { MANUELLE: 'Manuelle', AUTOMATIQUE: 'Automatique' },
+    },
     ADMIN: {
       FORM: {
         TITLE: 'Ajouter un véhicule',
