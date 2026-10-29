@@ -145,5 +145,32 @@
     "CITIES": "Casablanca · Marrakech · Agadir · Tanger · Oujda",
     "CONTACT": "WhatsApp +212 522 000 000 · Aide · Conditions · Confidentialité",
     "COPYRIGHT": "© 2027 LOCAVITE · Démonstration — données fictives · Prix en DH / MAD"
+  },
+  "VEHICLES": {
+    "TITLE": "Véhicules disponibles",
+    "SUBTITLE": "Parcourez notre sélection de véhicules vérifiés partout au Maroc",
+    "RESULTS_COUNT": "{{count}} véhicule(s) disponible(s)",
+    "SEARCH_CITY_PLACEHOLDER": "Filtrer par ville (ex. Casablanca, Marrakech…)",
+    "ALL_CITIES": "Toutes les villes",
+    "ALL_CATEGORIES": "Toutes les catégories",
+    "RESET_FILTERS": "Réinitialiser les filtres",
+    "LOADING": "Chargement des véhicules…",
+    "EMPTY_TITLE": "Aucun véhicule disponible",
+    "EMPTY_MESSAGE": "Aucun résultat ne correspond à votre recherche. Essayez de modifier vos critères.",
+    "ERROR_MESSAGE": "Impossible de charger la liste des véhicules.",
+    "PER_DAY": "/ jour",
+    "YEAR": "Année",
+    "CITY": "Ville",
+    "CATEGORY": "Catégorie",
+    "DETAILS": "Détails",
+    "ADD_FAVORITE": "Ajouter aux favoris",
+    "REMOVE_FAVORITE": "Retirer des favoris",
+    "PAGINATION": {
+      "ITEMS_PER_PAGE": "Véhicules par page :",
+      "NEXT_PAGE": "Page suivante",
+      "PREV_PAGE": "Page précédente",
+      "FIRST_PAGE": "Première page",
+      "LAST_PAGE": "Dernière page"
+    }
   }
 }
