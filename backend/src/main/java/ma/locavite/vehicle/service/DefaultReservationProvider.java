@@ -1,7 +1,6 @@
 package ma.locavite.vehicle.service;
 
 import ma.locavite.vehicle.dto.UnavailablePeriod;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -13,7 +12,6 @@ import java.util.List;
  * Sera complété / substitué au Sprint 3 lors du branchement du module Réservation.
  */
 @Component
-@ConditionalOnMissingBean(ReservationProvider.class)
 public class DefaultReservationProvider implements ReservationProvider {
 
     @Override
@@ -21,4 +19,3 @@ public class DefaultReservationProvider implements ReservationProvider {
         return Collections.emptyList();
     }
 }
-

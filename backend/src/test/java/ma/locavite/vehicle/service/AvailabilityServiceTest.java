@@ -93,26 +93,38 @@ class AvailabilityServiceTest {
     }
 
     @Test
-    @DisplayName("Test : réservation débutant le premier jour de la recherche")
-    void getAvailability_whenReservationStartsAtBeginning() {
+    @DisplayName("Test : fusion de réservations contiguës ou chevauchantes et bornage")
+    void getAvailability_mergesOverlappingAndClipsOutOfRangePeriods() {
         Long vehicleId = 1L;
-        LocalDate from = LocalDate.of(2026, 1, 1);
-        LocalDate to = LocalDate.of(2026, 1, 31);
+        LocalDate from = LocalDate.of(2026, 3, 1);
+        LocalDate to = LocalDate.of(2026, 3, 31);
 
         when(vehicleRepository.findById(vehicleId))
                 .thenReturn(Optional.of(sampleVehicle(vehicleId, VehicleStatus.PUBLISHED)));
         when(reservationProvider.getUnavailablePeriods(vehicleId, from, to))
-                .thenReturn(List.of(new UnavailablePeriod(
-                        LocalDate.of(2026, 1, 1),
-                        LocalDate.of(2026, 1, 10),
-                        "MAINTENANCE"
-                )));
+                .thenReturn(List.of(
+                        // Hors période avant -> ignorée
+                        new UnavailablePeriod(LocalDate.of(2026, 2, 1), LocalDate.of(2026, 2, 10), "RESERVATION"),
+                        // Déborde au début + reason null
+                        new UnavailablePeriod(LocalDate.of(2026, 2, 25), LocalDate.of(2026, 3, 5), null),
+                        // Chevauche la précédente
+                        new UnavailablePeriod(LocalDate.of(2026, 3, 4), LocalDate.of(2026, 3, 10), "RESERVATION"),
+                        // Contiguë
+                        new UnavailablePeriod(LocalDate.of(2026, 3, 11), LocalDate.of(2026, 3, 15), "MAINTENANCE"),
+                        // Séparée et déborde à la fin
+                        new UnavailablePeriod(LocalDate.of(2026, 3, 25), LocalDate.of(2026, 4, 5), "RESERVATION"),
+                        // Hors période après -> ignorée
+                        new UnavailablePeriod(LocalDate.of(2026, 5, 1), LocalDate.of(2026, 5, 10), "RESERVATION")
+                ));
 
         AvailabilityResponse response = availabilityService.getAvailability(vehicleId, from, to);
 
-        assertThat(response.unavailable()).hasSize(1);
+        assertThat(response.unavailable()).containsExactly(
+                new UnavailablePeriod(LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 15), "RESERVATION"),
+                new UnavailablePeriod(LocalDate.of(2026, 3, 25), LocalDate.of(2026, 3, 31), "RESERVATION")
+        );
         assertThat(response.available()).containsExactly(
-                new Period(LocalDate.of(2026, 1, 11), LocalDate.of(2026, 1, 31))
+                new Period(LocalDate.of(2026, 3, 16), LocalDate.of(2026, 3, 24))
         );
     }
 
@@ -134,6 +146,26 @@ class AvailabilityServiceTest {
         assertThat(response.unavailable()).containsExactly(
                 new UnavailablePeriod(from, to, "RESERVATION")
         );
+    }
+
+    @Test
+    @DisplayName("Test : réservations toutes hors de la période demandée → tout disponible")
+    void getAvailability_whenAllReservationsOutsideRange_returnsFullPeriod() {
+        Long vehicleId = 1L;
+        LocalDate from = LocalDate.of(2026, 6, 1);
+        LocalDate to = LocalDate.of(2026, 6, 30);
+
+        when(vehicleRepository.findById(vehicleId))
+                .thenReturn(Optional.of(sampleVehicle(vehicleId, VehicleStatus.PUBLISHED)));
+        when(reservationProvider.getUnavailablePeriods(vehicleId, from, to))
+                .thenReturn(List.of(
+                        new UnavailablePeriod(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 1, 10), "RESERVATION")
+                ));
+
+        AvailabilityResponse response = availabilityService.getAvailability(vehicleId, from, to);
+
+        assertThat(response.unavailable()).isEmpty();
+        assertThat(response.available()).containsExactly(new Period(from, to));
     }
 
     @Test
@@ -168,11 +200,19 @@ class AvailabilityServiceTest {
     }
 
     @Test
-    @DisplayName("Test : dates invalides (to < from) → IllegalArgumentException")
-    void getAvailability_whenEndBeforeStart_throwsException() {
+    @DisplayName("Test : dates invalides (to < from ou nulles) → IllegalArgumentException")
+    void getAvailability_whenInvalidDates_throwsException() {
         Long vehicleId = 1L;
         LocalDate from = LocalDate.of(2026, 12, 31);
         LocalDate to = LocalDate.of(2026, 1, 1);
+
+        assertThatThrownBy(() -> availabilityService.getAvailability(vehicleId, null, to))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("La date de début 'from' est obligatoire");
+
+        assertThatThrownBy(() -> availabilityService.getAvailability(vehicleId, from, null))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("La date de fin 'to' est obligatoire");
 
         assertThatThrownBy(() -> availabilityService.getAvailability(vehicleId, from, to))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -182,14 +222,28 @@ class AvailabilityServiceTest {
     }
 
     @Test
-    @DisplayName("Test : gestion de l'événement ReservationCreatedEvent")
-    void onReservationCreated_handlesEventCleanly() {
+    @DisplayName("Test : gestion de l'événement ReservationCreatedEvent et invalidation manuelle")
+    void onReservationCreated_andInvalidateCache() {
         ReservationCreatedEvent event = new ReservationCreatedEvent(
                 100L, 1L, LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 10)
         );
 
+        assertThat(event.reservationId()).isEqualTo(100L);
+        assertThat(event.vehicleId()).isEqualTo(1L);
+        assertThat(event.from()).isEqualTo(LocalDate.of(2026, 7, 1));
+        assertThat(event.to()).isEqualTo(LocalDate.of(2026, 7, 10));
+
         availabilityService.onReservationCreated(event);
-        // Méthode annotée avec @CacheEvict pour vider le cache
+        availabilityService.invalidateCache();
+    }
+
+    @Test
+    @DisplayName("Test : DefaultReservationProvider retourne liste vide par défaut (Sprint 2)")
+    void defaultReservationProvider_returnsEmptyList() {
+        DefaultReservationProvider defaultProvider = new DefaultReservationProvider();
+        List<UnavailablePeriod> result = defaultProvider.getUnavailablePeriods(
+                1L, LocalDate.of(2026, 1, 1), LocalDate.of(2026, 12, 31)
+        );
+        assertThat(result).isEmpty();
     }
 }
-
