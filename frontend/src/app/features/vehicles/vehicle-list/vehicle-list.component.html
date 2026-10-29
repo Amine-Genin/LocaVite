@@ -1,0 +1,90 @@
+<app-auth-header></app-auth-header>
+
+<main class="container vehicles-page" data-cy="vehicles-page">
+  <header class="page-header">
+    <div>
+      <h1 data-cy="vehicles-title">{{ 'VEHICLES.TITLE' | translate }}</h1>
+      <p class="subtitle">{{ 'VEHICLES.SUBTITLE' | translate }}</p>
+    </div>
+
+    @if (!loading() && totalElements() > 0) {
+      <span class="results-badge" data-cy="results-count">
+        {{ 'VEHICLES.RESULTS_COUNT' | translate: { count: totalElements() } }}
+      </span>
+    }
+  </header>
+
+  @if (loading()) {
+    <section class="loading-section" aria-live="polite" data-cy="loading-state">
+      <div class="spinner-wrapper">
+        <mat-progress-spinner
+          mode="indeterminate"
+          [diameter]="48"
+          data-cy="loading-spinner"
+        ></mat-progress-spinner>
+        <p class="loading-text">{{ 'VEHICLES.LOADING' | translate }}</p>
+      </div>
+
+      <div class="vehicles-grid skeleton-grid" data-cy="skeleton-grid">
+        @for (item of skeletonItems; track item) {
+          <mat-card class="skeleton-card" data-cy="skeleton-card">
+            <div class="skeleton-media"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line title"></div>
+              <div class="skeleton-line meta"></div>
+              <div class="skeleton-line footer"></div>
+            </div>
+          </mat-card>
+        }
+      </div>
+    </section>
+  } @else if (vehicles().length === 0) {
+    <section class="empty-state card" aria-live="polite" data-cy="empty-state">
+      <svg
+        class="empty-icon"
+        width="56"
+        height="56"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <h2 data-cy="empty-title">{{ 'VEHICLES.EMPTY_TITLE' | translate }}</h2>
+      <p data-cy="empty-message">
+        {{ (error() ? 'VEHICLES.ERROR_MESSAGE' : 'VEHICLES.EMPTY_MESSAGE') | translate }}
+      </p>
+      <button type="button" mat-stroked-button (click)="resetFilters()" data-cy="reset-filters-btn">
+        {{ 'VEHICLES.RESET_FILTERS' | translate }}
+      </button>
+    </section>
+  } @else {
+    <section class="vehicles-grid" data-cy="vehicles-grid">
+      @for (vehicle of vehicles(); track vehicle.id) {
+        <app-vehicle-card
+          [vehicle]="vehicle"
+          [isFavorite]="isVehicleFavorite(vehicle)"
+          (favoriteToggle)="onFavoriteToggle($event)"
+        ></app-vehicle-card>
+      }
+    </section>
+
+    <div class="pagination-wrapper">
+      <mat-paginator
+        class="vehicles-paginator"
+        [length]="totalElements()"
+        [pageIndex]="pageIndex()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizeOptions"
+        [showFirstLastButtons]="true"
+        (page)="onPageChange($event)"
+        data-cy="vehicles-paginator"
+      ></mat-paginator>
+    </div>
+  }
+</main>
+
+<app-auth-footer></app-auth-footer>
