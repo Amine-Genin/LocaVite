@@ -14,13 +14,17 @@
     aria-label="Zone de dépôt des photos du véhicule"
     data-cy="drop-zone"
   >
+    <label class="visually-hidden" for="vehicle-photo-files">{{
+      'VEHICLES.ADMIN.FORM.PHOTOS.TITLE' | translate
+    }}</label>
     <input
       #fileInput
+      id="vehicle-photo-files"
       type="file"
       multiple
       accept="image/png,image/jpeg,image/webp"
       (change)="onFilesSelected($event)"
-      style="display: none"
+      class="visually-hidden"
       data-cy="file-input"
     />
 

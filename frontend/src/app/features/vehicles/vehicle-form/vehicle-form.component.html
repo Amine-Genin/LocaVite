@@ -119,8 +119,10 @@
       <mat-card-content class="section-content">
         <div class="radios-row">
           <!-- Carburant -->
-          <div class="radio-field-group">
-            <label class="group-label">{{ 'VEHICLES.ADMIN.FORM.FIELDS.FUEL' | translate }} *</label>
+          <fieldset class="radio-field-group">
+            <legend class="group-label">
+              {{ 'VEHICLES.ADMIN.FORM.FIELDS.FUEL' | translate }} *
+            </legend>
             <mat-radio-group
               formControlName="carburant"
               class="radio-group"
@@ -139,13 +141,13 @@
                 {{ 'VEHICLES.ADMIN.FORM.RADIO.ELECTRIQUE' | translate }}
               </mat-radio-button>
             </mat-radio-group>
-          </div>
+          </fieldset>
 
           <!-- Transmission -->
-          <div class="radio-field-group">
-            <label class="group-label"
-              >{{ 'VEHICLES.ADMIN.FORM.FIELDS.TRANSMISSION' | translate }} *</label
-            >
+          <fieldset class="radio-field-group">
+            <legend class="group-label">
+              {{ 'VEHICLES.ADMIN.FORM.FIELDS.TRANSMISSION' | translate }} *
+            </legend>
             <mat-radio-group
               formControlName="transmission"
               class="radio-group"
@@ -158,7 +160,7 @@
                 {{ 'VEHICLES.ADMIN.FORM.RADIO.AUTOMATIQUE' | translate }}
               </mat-radio-button>
             </mat-radio-group>
-          </div>
+          </fieldset>
         </div>
 
         <div class="form-grid">

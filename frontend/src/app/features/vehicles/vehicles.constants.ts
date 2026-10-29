@@ -29,6 +29,26 @@ export function generateYearsList(startYear = 1990, endYear = 2026): number[] {
   return years;
 }
 
+export const FALLBACK_BRANDS = [
+  { id: 1, name: 'Renault' },
+  { id: 2, name: 'Dacia' },
+  { id: 3, name: 'Peugeot' },
+  { id: 4, name: 'Volkswagen' },
+  { id: 5, name: 'Toyota' },
+  { id: 6, name: 'Hyundai' },
+  { id: 7, name: 'Mercedes-Benz' },
+  { id: 8, name: 'BMW' },
+];
+
+export const FALLBACK_CATEGORIES = [
+  { id: 1, name: 'Économique' },
+  { id: 2, name: 'Berline' },
+  { id: 3, name: 'SUV' },
+  { id: 4, name: 'Compacte' },
+  { id: 5, name: 'Luxe' },
+  { id: 6, name: 'Utilitaire' },
+];
+
 export const VEHICLE_FALLBACK_TRANSLATIONS = {
   COMMON: {
     CURRENCY_MAD: 'DH',

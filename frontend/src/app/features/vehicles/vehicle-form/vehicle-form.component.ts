@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
@@ -22,7 +23,7 @@ import {
 import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -35,6 +36,8 @@ import {
 import { VehicleService } from '../services/vehicle.service';
 import { PhotoUploaderComponent } from '../photo-uploader/photo-uploader.component';
 import {
+  FALLBACK_BRANDS,
+  FALLBACK_CATEGORIES,
   MOROCCAN_CITIES,
   generateYearsList,
   setupFallbackTranslations,
@@ -68,6 +71,7 @@ export class VehicleFormComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly translate = inject(TranslateService, { optional: true });
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly cities = MOROCCAN_CITIES;
   readonly years = generateYearsList();
@@ -123,19 +127,20 @@ export class VehicleFormComponent implements OnInit {
       }),
     );
 
-    // Keep form brandId in sync if user types full brand name or clears
-    this.brandSearchControl.valueChanges.subscribe((val) => {
-      if (typeof val === 'string') {
-        const matchingBrand = this.brands.find(
-          (b) => b.name.toLowerCase() === val.trim().toLowerCase(),
-        );
-        if (matchingBrand) {
-          this.form.get('brandId')?.setValue(matchingBrand.id);
-        } else if (!val.trim()) {
-          this.form.get('brandId')?.setValue(null);
+    this.brandSearchControl.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((val) => {
+        if (typeof val === 'string') {
+          const matchingBrand = this.brands.find(
+            (b) => b.name.toLowerCase() === val.trim().toLowerCase(),
+          );
+          if (matchingBrand) {
+            this.form.get('brandId')?.setValue(matchingBrand.id);
+          } else if (!val.trim()) {
+            this.form.get('brandId')?.setValue(null);
+          }
         }
-      }
-    });
+      });
   }
 
   loadMetadata(): void {
@@ -144,18 +149,8 @@ export class VehicleFormComponent implements OnInit {
     this.vehicleService
       .getBrands()
       .pipe(
-        catchError(() =>
-          of([
-            { id: 1, name: 'Renault' },
-            { id: 2, name: 'Dacia' },
-            { id: 3, name: 'Peugeot' },
-            { id: 4, name: 'Volkswagen' },
-            { id: 5, name: 'Toyota' },
-            { id: 6, name: 'Hyundai' },
-            { id: 7, name: 'Mercedes-Benz' },
-            { id: 8, name: 'BMW' },
-          ]),
-        ),
+        catchError(() => of(FALLBACK_BRANDS)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((brands) => {
         this.brands = brands;
@@ -165,16 +160,8 @@ export class VehicleFormComponent implements OnInit {
     this.vehicleService
       .getCategories()
       .pipe(
-        catchError(() =>
-          of([
-            { id: 1, name: 'Économique' },
-            { id: 2, name: 'Berline' },
-            { id: 3, name: 'SUV' },
-            { id: 4, name: 'Compacte' },
-            { id: 5, name: 'Luxe' },
-            { id: 6, name: 'Utilitaire' },
-          ]),
-        ),
+        catchError(() => of(FALLBACK_CATEGORIES)),
+        takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((categories) => {
         this.categories = categories;
@@ -274,15 +261,16 @@ export class VehicleFormComponent implements OnInit {
               ? 'Véhicule publié avec succès'
               : 'Brouillon enregistré avec succès';
           this.snackBar.open(msg, 'Fermer', { duration: 3000 });
-          this.router.navigate(['/admin/vehicles']);
+          void this.router.navigate(['/admin/vehicles']);
         },
         error: (err) => {
           this.isSubmitting = false;
-          this.errorMessage =
+          const message =
             err?.error?.message ||
             err?.message ||
             'Une erreur est survenue lors de la création du véhicule.';
-          this.snackBar.open(this.errorMessage!, 'Fermer', { duration: 5000 });
+          this.errorMessage = message;
+          this.snackBar.open(message, 'Fermer', { duration: 5000 });
         },
       });
   }

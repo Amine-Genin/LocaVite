@@ -110,11 +110,17 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
 
     .group-label {
       font-size: 0.875rem;
       font-weight: 600;
       color: #334155;
+      padding: 0;
+      float: none;
     }
 
     .radio-group {
@@ -145,4 +151,3 @@
     margin-right: 6px;
   }
 }
-

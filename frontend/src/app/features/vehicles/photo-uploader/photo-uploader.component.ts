@@ -157,4 +157,3 @@ export class PhotoUploaderComponent {
     this.photosChange.emit(this.photos);
   }
 }
-

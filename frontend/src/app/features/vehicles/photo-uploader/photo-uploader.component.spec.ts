@@ -144,4 +144,3 @@ describe('PhotoUploaderComponent', () => {
     expect(component.isDragging).toBeFalse();
   });
 });
-

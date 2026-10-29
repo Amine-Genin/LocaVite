@@ -6,7 +6,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of, throwError } from 'rxjs';
-import { Vehicle, VehiclePhoto } from '../models/vehicle.model';
+import { CatalogEntry, Vehicle, VehiclePhoto } from '../models/vehicle.model';
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 
 describe('VehicleFormComponent', () => {
   let component: VehicleFormComponent;
@@ -109,7 +110,7 @@ describe('VehicleFormComponent', () => {
   });
 
   it('should filter brands autocomplete list based on input', fakeAsync(() => {
-    let filtered: any[] = [];
+    let filtered: CatalogEntry[] = [];
     component.filteredBrands$.subscribe((list) => (filtered = list));
 
     component.brandSearchControl.setValue('ren');
@@ -123,7 +124,7 @@ describe('VehicleFormComponent', () => {
     const selectedBrand = { id: 1, name: 'Renault' };
     component.onBrandSelected({
       option: { value: selectedBrand },
-    } as any);
+    } as MatAutocompleteSelectedEvent);
 
     expect(component.form.get('brandId')?.value).toBe(1);
     expect(component.brandSearchControl.value).toBe('Renault');
