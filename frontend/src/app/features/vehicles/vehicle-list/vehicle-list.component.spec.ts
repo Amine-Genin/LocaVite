@@ -1,4 +1,5 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, flushMicrotasks, tick } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
@@ -9,6 +10,8 @@ import { VehicleListComponent } from './vehicle-list.component';
 import { VehicleService } from '../services/vehicle.service';
 import { Vehicle, VehiclePageResponse } from '../models/vehicle.model';
 import { LanguageService } from '../../../core/i18n/language.service';
+import { Router } from '@angular/router';
+import { VehicleFiltersComponent } from '../vehicle-filters/vehicle-filters.component';
 
 describe('VehicleListComponent', () => {
   let component: VehicleListComponent;
@@ -65,12 +68,16 @@ describe('VehicleListComponent', () => {
   beforeEach(async () => {
     vehicleServiceSpy = jasmine.createSpyObj('VehicleService', [
       'search',
+      'getBrands',
+      'getCategories',
       'updateFilters',
       'resetFilters',
       'isFavorite',
       'toggleFavorite',
     ]);
     vehicleServiceSpy.search.and.returnValue(of(mockPage0));
+    vehicleServiceSpy.getBrands.and.returnValue(of([]));
+    vehicleServiceSpy.getCategories.and.returnValue(of([]));
     vehicleServiceSpy.isFavorite.and.returnValue(false);
     vehicleServiceSpy.toggleFavorite.and.returnValue(true);
 
@@ -240,6 +247,31 @@ describe('VehicleListComponent', () => {
     });
     expect(component.pageIndex()).toBe(0);
   });
+
+  it('should update results and URL after a debounced filter change', fakeAsync(() => {
+    fixture.detectChanges();
+    tick(300);
+    flushMicrotasks();
+
+    const filters = fixture.debugElement.query(By.directive(VehicleFiltersComponent))
+      .componentInstance as VehicleFiltersComponent;
+    const emitSpy = spyOn(filters.filtersChange, 'emit').and.callThrough();
+    filters.form.controls.ville.setValue('Casablanca');
+    expect(filters.form.controls.ville.value).toBe('Casablanca');
+    fixture.detectChanges();
+    tick(300);
+    flushMicrotasks();
+    fixture.detectChanges();
+
+    expect(vehicleServiceSpy.search).toHaveBeenCalledWith(jasmine.objectContaining({
+      page: 0,
+      size: 12,
+      ville: 'Casablanca',
+    }));
+    expect(TestBed.inject(Router).url).toContain('ville=Casablanca');
+    expect(emitSpy).toHaveBeenCalledWith(jasmine.objectContaining({ ville: 'Casablanca' }));
+    discardPeriodicTasks();
+  }));
 
   it('should reset filters and trigger search', () => {
     fixture.detectChanges();

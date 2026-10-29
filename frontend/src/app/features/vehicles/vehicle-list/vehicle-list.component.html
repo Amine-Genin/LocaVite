@@ -1,13 +1,15 @@
 <app-auth-header></app-auth-header>
 
 <main class="container vehicles-page" data-cy="vehicles-page">
+  <app-vehicle-filters #vehicleFilters (filtersChange)="onFiltersChange($event)"></app-vehicle-filters>
+
   <header class="page-header">
     <div>
       <h1 data-cy="vehicles-title">{{ 'VEHICLES.TITLE' | translate }}</h1>
       <p class="subtitle">{{ 'VEHICLES.SUBTITLE' | translate }}</p>
     </div>
 
-    @if (!loading() && totalElements() > 0) {
+    @if (!loading()) {
       <span class="results-badge" data-cy="results-count">
         {{ 'VEHICLES.RESULTS_COUNT' | translate: { count: totalElements() } }}
       </span>
@@ -57,7 +59,7 @@
       <p data-cy="empty-message">
         {{ (error() ? 'VEHICLES.ERROR_MESSAGE' : 'VEHICLES.EMPTY_MESSAGE') | translate }}
       </p>
-      <button type="button" mat-stroked-button (click)="resetFilters()" data-cy="reset-filters-btn">
+      <button type="button" mat-stroked-button (click)="vehicleFilters.reset()" data-cy="empty-reset-filters-btn">
         {{ 'VEHICLES.RESET_FILTERS' | translate }}
       </button>
     </section>

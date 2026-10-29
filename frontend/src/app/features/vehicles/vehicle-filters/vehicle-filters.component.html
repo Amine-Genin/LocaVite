@@ -1,0 +1,105 @@
+<section class="filters" [attr.aria-label]="'VEHICLES.FILTERS.TITLE' | translate" data-cy="vehicle-filters">
+  <div class="filters-heading">
+    <h2>{{ 'VEHICLES.FILTERS.TITLE' | translate }}</h2>
+    <button mat-stroked-button type="button" class="mobile-filter-toggle" (click)="toggleDrawer()">
+      {{ (drawerOpen ? 'VEHICLES.FILTERS.CLOSE' : 'VEHICLES.FILTERS.OPEN') | translate }}
+    </button>
+  </div>
+
+  @if (drawerOpen) {
+    <button class="drawer-backdrop" type="button" [attr.aria-label]="'VEHICLES.FILTERS.CLOSE' | translate" (click)="toggleDrawer()"></button>
+  }
+
+  <form class="filters-panel" [class.drawer-open]="drawerOpen" [formGroup]="form" data-cy="filters-form">
+    <div class="drawer-title">
+      <h2>{{ 'VEHICLES.FILTERS.TITLE' | translate }}</h2>
+      <button mat-button type="button" (click)="toggleDrawer()">{{ 'VEHICLES.FILTERS.CLOSE' | translate }}</button>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'VEHICLES.FILTERS.CITY' | translate }}</mat-label>
+      <input matInput formControlName="ville" placeholder="Casablanca" data-cy="filter-city" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'VEHICLES.FILTERS.CATEGORY' | translate }}</mat-label>
+      <mat-select formControlName="categorie" data-cy="filter-category">
+        <mat-option value="">{{ 'VEHICLES.FILTERS.ALL' | translate }}</mat-option>
+        @for (category of categories$ | async; track category.id) {
+          <mat-option [value]="category.name">{{ category.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'VEHICLES.FILTERS.BRAND' | translate }}</mat-label>
+      <mat-select formControlName="marque" data-cy="filter-brand">
+        <mat-option value="">{{ 'VEHICLES.FILTERS.ALL' | translate }}</mat-option>
+        @for (brand of brands$ | async; track brand.id) {
+          <mat-option [value]="brand.name">{{ brand.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'VEHICLES.FILTERS.FUEL' | translate }}</mat-label>
+      <mat-select formControlName="carburant" data-cy="filter-fuel">
+        <mat-option value="">{{ 'VEHICLES.FILTERS.ALL' | translate }}</mat-option>
+        @for (fuel of fuels; track fuel) {
+          <mat-option [value]="fuel">{{ ('VEHICLES.FILTERS.FUELS.' + fuel) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'VEHICLES.FILTERS.TRANSMISSION' | translate }}</mat-label>
+      <mat-select formControlName="transmission" data-cy="filter-transmission">
+        <mat-option value="">{{ 'VEHICLES.FILTERS.ALL' | translate }}</mat-option>
+        @for (transmission of transmissions; track transmission) {
+          <mat-option [value]="transmission">{{ ('VEHICLES.FILTERS.TRANSMISSIONS.' + transmission) | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'VEHICLES.FILTERS.START_DATE' | translate }}</mat-label>
+      <input matInput [matDatepicker]="startPicker" formControlName="dateDebut" data-cy="filter-start-date" />
+      <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'VEHICLES.FILTERS.END_DATE' | translate }}</mat-label>
+      <input matInput [matDatepicker]="endPicker" formControlName="dateFin" data-cy="filter-end-date" />
+      <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+    </mat-form-field>
+
+    <div class="price-filter">
+      <span class="price-label">{{ 'VEHICLES.FILTERS.PRICE' | translate }} (DH)</span>
+      <mat-slider min="0" max="5000" step="50" discrete showTickMarks>
+        <input matSliderStartThumb [value]="form.controls.prixMin.value ?? 0" (valueChange)="form.controls.prixMin.setValue($event)" [attr.aria-label]="'VEHICLES.FILTERS.MIN_PRICE' | translate" />
+        <input matSliderEndThumb [value]="form.controls.prixMax.value ?? 5000" (valueChange)="form.controls.prixMax.setValue($event)" [attr.aria-label]="'VEHICLES.FILTERS.MAX_PRICE' | translate" />
+      </mat-slider>
+      <div class="price-values">
+        <span>{{ 'VEHICLES.FILTERS.MIN_PRICE' | translate }}: {{ form.controls.prixMin.value ?? 0 }} DH</span>
+        <span>{{ 'VEHICLES.FILTERS.MAX_PRICE' | translate }}: {{ form.controls.prixMax.value ?? 5000 }} DH</span>
+      </div>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'VEHICLES.FILTERS.SORT' | translate }}</mat-label>
+      <mat-select formControlName="sort" data-cy="filter-sort">
+        <mat-option value="">{{ 'VEHICLES.FILTERS.DEFAULT_SORT' | translate }}</mat-option>
+        <mat-option value="prixJour,asc">{{ 'VEHICLES.FILTERS.PRICE_ASC' | translate }}</mat-option>
+        <mat-option value="prixJour,desc">{{ 'VEHICLES.FILTERS.PRICE_DESC' | translate }}</mat-option>
+        <mat-option value="annee,desc">{{ 'VEHICLES.FILTERS.YEAR' | translate }}</mat-option>
+        <mat-option value="popularite,desc">{{ 'VEHICLES.FILTERS.POPULARITY' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button mat-stroked-button type="button" class="reset-button" (click)="reset()" data-cy="reset-filters-btn">
+      {{ 'VEHICLES.RESET_FILTERS' | translate }}
+    </button>
+  </form>
+</section>
