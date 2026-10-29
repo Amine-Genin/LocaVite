@@ -67,16 +67,18 @@ export class PhotoGalleryComponent implements OnChanges {
   }
 
   onTouchStart(event: TouchEvent): void {
-    if (event.touches.length > 0) {
-      this.touchStartX = event.touches[0].clientX;
-      this.touchStartY = event.touches[0].clientY;
+    const touch = event.touches[0];
+    if (touch) {
+      this.touchStartX = touch.clientX;
+      this.touchStartY = touch.clientY;
     }
   }
 
   onTouchEnd(event: TouchEvent): void {
-    if (event.changedTouches.length === 0) return;
-    const deltaX = event.changedTouches[0].clientX - this.touchStartX;
-    const deltaY = event.changedTouches[0].clientY - this.touchStartY;
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+    const deltaX = touch.clientX - this.touchStartX;
+    const deltaY = touch.clientY - this.touchStartY;
 
     // Detect horizontal swipe if deltaX is sufficiently larger than vertical movement
     if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY)) {

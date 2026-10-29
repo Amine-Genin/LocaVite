@@ -69,8 +69,8 @@ export class VehicleDetailComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((params) => {
           const idStr = params.get('id');
-          const id = idStr ? Number(idStr) : NaN;
-          if (isNaN(id)) {
+          const id = idStr ? Number(idStr) : Number.NaN;
+          if (Number.isNaN(id)) {
             this.error.set(true);
             this.loading.set(false);
             return of(null);
@@ -150,7 +150,7 @@ export class VehicleDetailComponent implements OnInit, OnDestroy {
   onReserve(): void {
     const current = this.vehicle();
     if (current) {
-      this.router.navigate(['/reservation', current.id]);
+      void this.router.navigate(['/reservation', current.id]);
     }
   }
 
