@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 
 import {
+  CatalogEntry,
   PageMetadata,
   Vehicle,
   VehicleFilter,
@@ -52,6 +53,14 @@ export class VehicleService {
 
   resetFilters(size = 12): void {
     this.filterSubject.next({ page: 0, size });
+  }
+
+  getBrands(): Observable<CatalogEntry[]> {
+    return this.http.get<CatalogEntry[]>('/api/brands');
+  }
+
+  getCategories(): Observable<CatalogEntry[]> {
+    return this.http.get<CatalogEntry[]>('/api/categories');
   }
 
   search(filter: VehicleFilter = {}): Observable<VehiclePageResponse> {

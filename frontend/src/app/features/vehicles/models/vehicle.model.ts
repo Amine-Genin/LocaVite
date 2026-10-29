@@ -2,6 +2,11 @@ export type FuelType = 'ESSENCE' | 'DIESEL' | 'HYBRIDE' | 'ELECTRIQUE';
 export type TransmissionType = 'MANUELLE' | 'AUTOMATIQUE';
 export type VehicleStatus = 'DRAFT' | 'PUBLISHED' | 'RENTED' | 'SOLD' | 'ARCHIVED';
 
+export interface CatalogEntry {
+  id: number;
+  name: string;
+}
+
 export interface VehiclePhoto {
   id: number;
   vehicleId: number;

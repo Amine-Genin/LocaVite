@@ -9,6 +9,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Vehicle, VehicleFilter } from '../models/vehicle.model';
 import { VehicleService } from '../services/vehicle.service';
 import { VehicleCardComponent } from '../vehicle-card/vehicle-card.component';
+import { VehicleFiltersComponent } from '../vehicle-filters/vehicle-filters.component';
 import { AuthHeaderComponent } from '../../../shared/components/auth-header/auth-header.component';
 import { AuthFooterComponent } from '../../../shared/components/auth-footer/auth-footer.component';
 import { setupFallbackTranslations } from '../vehicles.constants';
@@ -23,6 +24,7 @@ import { setupFallbackTranslations } from '../vehicles.constants';
     MatButtonModule,
     TranslateModule,
     VehicleCardComponent,
+    VehicleFiltersComponent,
     AuthHeaderComponent,
     AuthFooterComponent,
   ],
@@ -98,6 +100,10 @@ export class VehicleListComponent implements OnInit, OnDestroy {
     };
     this.vehicleService.resetFilters?.(this.pageSize());
     this.filters$.next(reset);
+  }
+
+  onFiltersChange(filters: Partial<VehicleFilter>): void {
+    this.applyFilter(filters);
   }
 
   onFavoriteToggle(vehicle: Vehicle): void {
