@@ -306,6 +306,36 @@ describe('VehicleService', () => {
     expect(service.isFavorite(10)).toBeFalse();
   });
 
+  it('should expose getVehicles as an alias of search', () => {
+    service.getVehicles({ ville: 'Rabat', size: 5 }).subscribe((res) => {
+      expect(res.content.length).toBe(0);
+      expect(res.totalElements).toBe(0);
+    });
+
+    const req = httpTesting.expectOne(
+      (r) => r.url === '/api/vehicles' && r.params.get('ville') === 'Rabat',
+    );
+    req.flush({ content: [], totalElements: 0, totalPages: 0, size: 5, number: 0 });
+  });
+
+  it('should expose getVehicleById as an alias of getById', () => {
+    service.getVehicleById(7).subscribe((res) => {
+      expect(res.id).toBe(7);
+      expect(res.modele).toBe('Clio');
+    });
+
+    const req = httpTesting.expectOne('/api/vehicles/7');
+    req.flush({
+      id: 7,
+      marque: 'Renault',
+      modele: 'Clio',
+      annee: 2022,
+      categorie: 'Citadine',
+      ville: 'Rabat',
+      prixJour: 300,
+    });
+  });
+
   it('should handle malformed JSON in localStorage gracefully without throwing', () => {
     localStorage.setItem(FAVORITES_STORAGE_KEY, 'not-valid-json');
     const newService = TestBed.inject(VehicleService);

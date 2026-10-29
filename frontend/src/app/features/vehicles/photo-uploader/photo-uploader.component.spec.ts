@@ -143,4 +143,67 @@ describe('PhotoUploaderComponent', () => {
     component.onDragLeave(leaveEvent);
     expect(component.isDragging).toBeFalse();
   });
+
+  it('should add dropped image files and reset the dragging state', () => {
+    const file = new File(['img'], 'drop.jpg', { type: 'image/jpeg' });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    const event = new DragEvent('drop');
+    Object.defineProperty(event, 'dataTransfer', { value: dataTransfer });
+
+    component.isDragging = true;
+    component.onDrop(event);
+
+    expect(component.isDragging).toBeFalse();
+    expect(component.photos.length).toBe(1);
+    expect(component.photos[0].name).toBe('drop.jpg');
+  });
+
+  it('should handle file input selection and reset the input value', () => {
+    const file = new File(['img'], 'pick.png', { type: 'image/png' });
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(file);
+    const input = document.createElement('input');
+    Object.defineProperty(input, 'files', { value: dataTransfer.files });
+    input.value = 'C:\\fakepath\\pick.png';
+
+    component.onFilesSelected({ target: input } as unknown as Event);
+
+    expect(component.photos.length).toBe(1);
+    expect(input.value).toBe('');
+  });
+
+  it('should trigger the hidden file input', () => {
+    const clickSpy = jasmine.createSpy('click');
+    component.fileInputRef = {
+      nativeElement: { click: clickSpy },
+    } as unknown as typeof component.fileInputRef;
+
+    component.triggerFileInput();
+    expect(clickSpy).toHaveBeenCalled();
+  });
+
+  it('should ignore invalid primary and reorder indexes', () => {
+    component.photos = [
+      { previewUrl: 'blob:1', name: 'p1.jpg', size: 100, isPrimary: true, ordre: 0 },
+    ];
+
+    component.setPrimary(-1);
+    component.move(0, 'up');
+    component.remove(-1);
+
+    expect(component.photos.length).toBe(1);
+    expect(component.photos[0].isPrimary).toBeTrue();
+  });
+
+  it('should revoke blob URLs when a photo is removed', () => {
+    component.photos = [
+      { previewUrl: 'blob:to-revoke', name: 'p1.jpg', size: 100, isPrimary: true, ordre: 0 },
+    ];
+
+    component.remove(0);
+
+    expect(component.photos.length).toBe(0);
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:to-revoke');
+  });
 });

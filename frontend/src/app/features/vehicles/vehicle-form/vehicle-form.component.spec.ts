@@ -297,4 +297,146 @@ describe('VehicleFormComponent', () => {
       jasmine.any(Object),
     );
   });
+
+  it('should not submit when the form is invalid', () => {
+    component.onSubmit('PUBLISHED');
+    expect(vehicleServiceSpy.create).not.toHaveBeenCalled();
+    expect(component.form.get('modele')?.touched).toBeTrue();
+  });
+
+  it('should format brand display values', () => {
+    expect(component.displayBrand('Renault')).toBe('Renault');
+    expect(component.displayBrand({ id: 1, name: 'Dacia' })).toBe('Dacia');
+    expect(component.displayBrand('')).toBe('');
+  });
+
+  it('should keep local photos in sync with the uploader', () => {
+    const photos = [{ previewUrl: 'blob:1', name: 'p1.jpg', size: 10, isPrimary: true, ordre: 0 }];
+    component.onPhotosChange(photos);
+    expect(component.photos).toEqual(photos);
+  });
+
+  it('should sync brandId when the user types a known brand name', () => {
+    component.brandSearchControl.setValue('Renault');
+    expect(component.form.get('brandId')?.value).toBe(1);
+
+    component.brandSearchControl.setValue('');
+    expect(component.form.get('brandId')?.value).toBeNull();
+  });
+
+  it('should use fallback catalogs when brand and category APIs fail', () => {
+    vehicleServiceSpy.getBrands.and.returnValue(throwError(() => new Error('brands')));
+    vehicleServiceSpy.getCategories.and.returnValue(throwError(() => new Error('categories')));
+
+    component.loadMetadata();
+
+    expect(component.brands.length).toBe(8);
+    expect(component.categories.length).toBe(6);
+    expect(component.isLoadingMetadata).toBeFalse();
+  });
+
+  it('should still redirect when photo upload fails after vehicle creation', () => {
+    spyOn(console, 'error');
+    vehicleServiceSpy.uploadPhotos.and.returnValue(throwError(() => new Error('upload')));
+
+    component.form.patchValue({
+      brandId: 1,
+      modele: 'Clio 5',
+      annee: 2022,
+      categoryId: 1,
+      carburant: 'ESSENCE',
+      transmission: 'MANUELLE',
+      places: 5,
+      matricule: '12345-A-1',
+      description: 'Superbe',
+      prixJour: 350,
+      prixVente: 140000,
+      ville: 'Casablanca',
+    });
+    component.photos = [
+      {
+        file: new File(['f1'], 'p1.jpg', { type: 'image/jpeg' }),
+        previewUrl: 'blob:1',
+        name: 'p1.jpg',
+        size: 100,
+        isPrimary: true,
+        ordre: 0,
+      },
+    ];
+
+    component.onSubmit('PUBLISHED');
+
+    expect(vehicleServiceSpy.create).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/admin/vehicles']);
+  });
+
+  it('should still redirect when setting the primary photo fails', () => {
+    vehicleServiceSpy.setPrimaryPhoto.and.returnValue(throwError(() => new Error('primary')));
+
+    component.form.patchValue({
+      brandId: 1,
+      modele: 'Clio 5',
+      annee: 2022,
+      categoryId: 1,
+      carburant: 'ESSENCE',
+      transmission: 'MANUELLE',
+      places: 5,
+      matricule: '12345-A-1',
+      description: 'Superbe',
+      prixJour: 350,
+      prixVente: 140000,
+      ville: 'Casablanca',
+    });
+    component.photos = [
+      {
+        file: new File(['f1'], 'p1.jpg', { type: 'image/jpeg' }),
+        previewUrl: 'blob:1',
+        name: 'p1.jpg',
+        size: 100,
+        isPrimary: false,
+        ordre: 0,
+      },
+      {
+        file: new File(['f2'], 'p2.jpg', { type: 'image/jpeg' }),
+        previewUrl: 'blob:2',
+        name: 'p2.jpg',
+        size: 100,
+        isPrimary: true,
+        ordre: 1,
+      },
+    ];
+
+    component.onSubmit('DRAFT');
+
+    expect(vehicleServiceSpy.setPrimaryPhoto).toHaveBeenCalled();
+    expect(router.navigate).toHaveBeenCalledWith(['/admin/vehicles']);
+    expect(snackBarSpy.open).toHaveBeenCalledWith(
+      'Brouillon enregistré avec succès',
+      'Fermer',
+      jasmine.any(Object),
+    );
+  });
+
+  it('should surface a generic error message when the backend payload has none', () => {
+    vehicleServiceSpy.create.and.returnValue(throwError(() => ({ message: 'timeout' })));
+
+    component.form.patchValue({
+      brandId: 1,
+      modele: 'Clio 5',
+      annee: 2022,
+      categoryId: 1,
+      carburant: 'ESSENCE',
+      transmission: 'MANUELLE',
+      places: 5,
+      matricule: '12345-A-1',
+      description: 'Superbe',
+      prixJour: 350,
+      prixVente: 140000,
+      ville: 'Casablanca',
+    });
+
+    component.onSubmit('PUBLISHED');
+
+    expect(component.errorMessage).toBe('timeout');
+  });
 });
