@@ -10,6 +10,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'vehicles/:id',
+    loadComponent: () =>
+      import('./features/vehicles/vehicle-detail/vehicle-detail.component').then(
+        (m) => m.VehicleDetailComponent,
+      ),
+  },
+  {
+    path: 'reservation/:id',
+    loadComponent: () =>
+      import(
+        './features/vehicles/reservation-placeholder/reservation-placeholder.component'
+      ).then((m) => m.ReservationPlaceholderComponent),
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./features/auth/login/login.component').then((m) => m.LoginComponent),

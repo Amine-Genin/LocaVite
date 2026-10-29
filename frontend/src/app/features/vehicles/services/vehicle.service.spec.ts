@@ -118,11 +118,13 @@ describe('VehicleService', () => {
     });
   });
 
-  it('should get vehicle by ID from /api/vehicles/:id', () => {
+  it('should get vehicle by ID from /api/vehicles/:id and populate default photos', () => {
     service.getById(42).subscribe((res) => {
       expect(res.id).toBe(42);
       expect(res.marque).toBe('Mercedes');
       expect(res.modele).toBe('Classe A');
+      expect(res.photos?.length).toBe(1);
+      expect(res.photos?.[0].url).toBe('https://example.com/merc.jpg');
     });
 
     const req = httpTesting.expectOne('/api/vehicles/42');
@@ -135,6 +137,41 @@ describe('VehicleService', () => {
       categorie: 'Berline',
       ville: 'Rabat',
       prixJour: 700,
+      photoUrl: 'https://example.com/merc.jpg',
+    });
+  });
+
+  it('should get photos for vehicle from /api/vehicles/:id/photos', () => {
+    service.getPhotos(10).subscribe((photos) => {
+      expect(photos.length).toBe(2);
+      expect(photos[0].id).toBe(1);
+    });
+
+    const req = httpTesting.expectOne('/api/vehicles/10/photos');
+    expect(req.request.method).toBe('GET');
+    req.flush([
+      { id: 1, vehicleId: 10, url: 'https://example.com/p1.jpg', isPrimary: true },
+      { id: 2, vehicleId: 10, url: 'https://example.com/p2.jpg', isPrimary: false },
+    ]);
+  });
+
+  it('should get availability from /api/vehicles/:id/availability', () => {
+    service.getAvailability(10, '2026-11-01', '2026-11-30').subscribe((res) => {
+      expect(res.available.length).toBe(1);
+      expect(res.unavailable.length).toBe(1);
+      expect(res.unavailable[0].reason).toBe('RESERVED');
+    });
+
+    const req = httpTesting.expectOne(
+      (r) =>
+        r.url === '/api/vehicles/10/availability' &&
+        r.params.get('from') === '2026-11-01' &&
+        r.params.get('to') === '2026-11-30',
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      available: [{ from: '2026-11-01', to: '2026-11-10' }],
+      unavailable: [{ from: '2026-11-11', to: '2026-11-15', reason: 'RESERVED' }],
     });
   });
 
