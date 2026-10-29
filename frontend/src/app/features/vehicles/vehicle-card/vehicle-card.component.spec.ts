@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 
 import { DEFAULT_VEHICLE_PHOTO, VehicleCardComponent } from './vehicle-card.component';
 import { Vehicle } from '../models/vehicle.model';
+import { setupFallbackTranslations } from '../vehicles.constants';
 
 describe('VehicleCardComponent', () => {
   let component: VehicleCardComponent;
@@ -56,6 +57,10 @@ describe('VehicleCardComponent', () => {
     fixture.detectChanges();
 
     expect(component.photoSrc).toBe(DEFAULT_VEHICLE_PHOTO);
+
+    component.onImageError();
+    expect(component.imageBroken).toBeTrue();
+    expect(component.photoSrc).toBe(DEFAULT_VEHICLE_PHOTO);
   });
 
   it('should toggle favorite button (heart) and emit favoriteToggle event', () => {
@@ -71,5 +76,30 @@ describe('VehicleCardComponent', () => {
 
     expect(favBtn.classList.contains('active')).toBeTrue();
     expect(component.favoriteToggle.emit).toHaveBeenCalledWith(component.vehicle);
+  });
+
+  it('should emit detailsClick event when Details button is clicked', () => {
+    spyOn(component.detailsClick, 'emit');
+    const detailsBtn = fixture.nativeElement.querySelector(
+      '[data-cy="details-btn"]',
+    ) as HTMLButtonElement;
+
+    detailsBtn.click();
+    expect(component.detailsClick.emit).toHaveBeenCalledWith(component.vehicle);
+  });
+
+  it('should respect isFavorite input override', () => {
+    component.isFavorite = true;
+    fixture.detectChanges();
+    expect(component.favoriteState).toBeTrue();
+
+    component.isFavorite = false;
+    fixture.detectChanges();
+    expect(component.favoriteState).toBeFalse();
+  });
+
+  it('should safely handle setupFallbackTranslations with null/undefined translate service', () => {
+    expect(() => setupFallbackTranslations(null)).not.toThrow();
+    expect(() => setupFallbackTranslations(undefined)).not.toThrow();
   });
 });

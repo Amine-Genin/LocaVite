@@ -45,6 +45,7 @@ describe('VehicleService', () => {
       expect(res.number).toBe(1);
       expect(res.size).toBe(12);
       expect(res.content[0].marque).toBe('Dacia');
+      expect(res.content[0].photoUrl).toBe('https://example.com/duster.jpg');
     });
 
     const req = httpTesting.expectOne(
@@ -67,6 +68,9 @@ describe('VehicleService', () => {
           categorie: 'SUV',
           ville: 'Casablanca',
           prixJour: 350,
+          photos: [
+            { id: 101, vehicleId: 1, url: 'https://example.com/duster.jpg', isPrimary: true },
+          ],
         },
         {
           id: 2,
@@ -76,6 +80,7 @@ describe('VehicleService', () => {
           categorie: 'SUV',
           ville: 'Casablanca',
           prixJour: 500,
+          photoUrl: 'https://example.com/peugeot.jpg',
         },
       ],
       page: {
@@ -87,11 +92,60 @@ describe('VehicleService', () => {
     });
   });
 
+  it('should handle search response without page metadata and empty filters', () => {
+    service.search({}).subscribe((res) => {
+      expect(res.content.length).toBe(1);
+      expect(res.totalElements).toBe(1);
+      expect(res.totalPages).toBe(1);
+      expect(res.size).toBe(12);
+      expect(res.number).toBe(0);
+    });
+
+    const req = httpTesting.expectOne('/api/vehicles');
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      content: [
+        {
+          id: 3,
+          marque: 'Renault',
+          modele: 'Clio',
+          annee: 2022,
+          categorie: 'Citadine',
+          ville: 'Agadir',
+          prixJour: 250,
+        },
+      ],
+    });
+  });
+
+  it('should get vehicle by ID from /api/vehicles/:id', () => {
+    service.getById(42).subscribe((res) => {
+      expect(res.id).toBe(42);
+      expect(res.marque).toBe('Mercedes');
+      expect(res.modele).toBe('Classe A');
+    });
+
+    const req = httpTesting.expectOne('/api/vehicles/42');
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      id: 42,
+      marque: 'Mercedes',
+      modele: 'Classe A',
+      annee: 2024,
+      categorie: 'Berline',
+      ville: 'Rabat',
+      prixJour: 700,
+    });
+  });
+
   it('should update and reset filters BehaviorSubject', () => {
     service.updateFilters({ ville: 'Marrakech', page: 2 });
     expect(service.currentFilters).toEqual({ page: 2, size: 12, ville: 'Marrakech' });
 
     service.resetFilters(12);
+    expect(service.currentFilters).toEqual({ page: 0, size: 12 });
+
+    service.resetFilters();
     expect(service.currentFilters).toEqual({ page: 0, size: 12 });
   });
 
@@ -105,5 +159,11 @@ describe('VehicleService', () => {
     const removed = service.toggleFavorite(10);
     expect(removed).toBeFalse();
     expect(service.isFavorite(10)).toBeFalse();
+  });
+
+  it('should handle malformed JSON in localStorage gracefully without throwing', () => {
+    localStorage.setItem(FAVORITES_STORAGE_KEY, 'not-valid-json');
+    const newService = TestBed.inject(VehicleService);
+    expect(newService.isFavorite(99)).toBeFalse();
   });
 });

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { PageEvent } from '@angular/material/paginator';
-import { Subject, of } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { VehicleListComponent } from './vehicle-list.component';
@@ -194,5 +194,59 @@ describe('VehicleListComponent', () => {
     expect(emptyState).toBeTruthy();
     expect(emptyState?.textContent).toContain('Aucun véhicule disponible');
     expect(el.querySelectorAll('app-vehicle-card').length).toBe(0);
+  });
+
+  it('should handle error when search fails', () => {
+    vehicleServiceSpy.search.and.returnValue(throwError(() => new Error('Server error')));
+
+    fixture.detectChanges();
+
+    expect(component.loading()).toBeFalse();
+    expect(component.error()).toBeTrue();
+    expect(component.vehicles().length).toBe(0);
+    expect(component.totalElements()).toBe(0);
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('[data-cy="empty-state"]')).toBeTruthy();
+  });
+
+  it('should toggle favorite status on favoriteToggle event', () => {
+    fixture.detectChanges();
+
+    vehicleServiceSpy.toggleFavorite.and.returnValue(true);
+    component.onFavoriteToggle(mockVehicles[0]);
+
+    expect(vehicleServiceSpy.toggleFavorite).toHaveBeenCalledWith(1);
+    expect(component.vehicles()[0].isFavorite).toBeTrue();
+  });
+
+  it('should check if vehicle is favorite via isVehicleFavorite', () => {
+    vehicleServiceSpy.isFavorite.and.returnValue(true);
+    expect(component.isVehicleFavorite(mockVehicles[0])).toBeTrue();
+
+    vehicleServiceSpy.isFavorite.and.returnValue(false);
+    expect(component.isVehicleFavorite({ ...mockVehicles[0], isFavorite: true })).toBeTrue();
+  });
+
+  it('should apply partial filters and reset page to 0', () => {
+    fixture.detectChanges();
+
+    component.applyFilter({ ville: 'Casablanca' });
+
+    expect(vehicleServiceSpy.updateFilters).toHaveBeenCalledWith({
+      page: 0,
+      size: 12,
+      ville: 'Casablanca',
+    });
+    expect(component.pageIndex()).toBe(0);
+  });
+
+  it('should reset filters and trigger search', () => {
+    fixture.detectChanges();
+
+    component.resetFilters();
+
+    expect(vehicleServiceSpy.resetFilters).toHaveBeenCalledWith(12);
+    expect(component.pageIndex()).toBe(0);
   });
 });

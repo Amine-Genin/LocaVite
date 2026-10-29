@@ -11,34 +11,7 @@ import { VehicleService } from '../services/vehicle.service';
 import { VehicleCardComponent } from '../vehicle-card/vehicle-card.component';
 import { AuthHeaderComponent } from '../../../shared/components/auth-header/auth-header.component';
 import { AuthFooterComponent } from '../../../shared/components/auth-footer/auth-footer.component';
-
-const FALLBACK_FR_LIST_TRANSLATIONS = {
-  COMMON: {
-    CURRENCY_MAD: 'DH',
-    RETRY: 'Réessayer',
-  },
-  VEHICLES: {
-    TITLE: 'Véhicules disponibles',
-    SUBTITLE: 'Parcourez notre sélection de véhicules vérifiés partout au Maroc',
-    RESULTS_COUNT: '{{count}} véhicule(s) disponible(s)',
-    SEARCH_CITY_PLACEHOLDER: 'Filtrer par ville (ex. Casablanca, Marrakech…)',
-    ALL_CITIES: 'Toutes les villes',
-    ALL_CATEGORIES: 'Toutes les catégories',
-    RESET_FILTERS: 'Réinitialiser les filtres',
-    LOADING: 'Chargement des véhicules…',
-    EMPTY_TITLE: 'Aucun véhicule disponible',
-    EMPTY_MESSAGE:
-      'Aucun résultat ne correspond à votre recherche. Essayez de modifier vos critères.',
-    ERROR_MESSAGE: 'Impossible de charger la liste des véhicules.',
-    PER_DAY: '/ jour',
-    YEAR: 'Année',
-    CITY: 'Ville',
-    CATEGORY: 'Catégorie',
-    DETAILS: 'Détails',
-    ADD_FAVORITE: 'Ajouter aux favoris',
-    REMOVE_FAVORITE: 'Retirer des favoris',
-  },
-};
+import { setupFallbackTranslations } from '../vehicles.constants';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -79,7 +52,7 @@ export class VehicleListComponent implements OnInit, OnDestroy {
   private requestSub?: Subscription;
 
   constructor() {
-    this.ensureFallbackTranslations();
+    setupFallbackTranslations(this.translate);
   }
 
   ngOnInit(): void {
@@ -170,15 +143,5 @@ export class VehicleListComponent implements OnInit, OnDestroy {
         this.error.set(true);
       },
     });
-  }
-
-  private ensureFallbackTranslations(): void {
-    if (!this.translate) return;
-    if (this.translate.instant('VEHICLES.TITLE') === 'VEHICLES.TITLE') {
-      this.translate.setTranslation('fr', FALLBACK_FR_LIST_TRANSLATIONS, true);
-      if (!this.translate.currentLang) {
-        this.translate.use('fr');
-      }
-    }
   }
 }
