@@ -3,14 +3,18 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 
 import {
+  CatalogEntry,
   PageMetadata,
   Vehicle,
+  VehicleCreateRequest,
   VehicleFilter,
   VehiclePageResponse,
   VehiclePhoto,
 } from '../models/vehicle.model';
 
 const API_URL = '/api/vehicles';
+const BRANDS_API_URL = '/api/brands';
+const CATEGORIES_API_URL = '/api/categories';
 export const FAVORITES_STORAGE_KEY = 'locavite_favorite_vehicles';
 
 interface RawVehicleApi extends Vehicle {
@@ -96,6 +100,34 @@ export class VehicleService {
     return this.http
       .get<RawVehicleApi>(`${API_URL}/${id}`)
       .pipe(map((item) => this.normalizeVehicle(item)));
+  }
+
+  create(request: VehicleCreateRequest): Observable<Vehicle> {
+    return this.http
+      .post<RawVehicleApi>(API_URL, request)
+      .pipe(map((item) => this.normalizeVehicle(item)));
+  }
+
+  uploadPhotos(vehicleId: number, files: File[]): Observable<VehiclePhoto[]> {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file));
+    return this.http.post<VehiclePhoto[]>(`${API_URL}/${vehicleId}/photos`, formData);
+  }
+
+  setPrimaryPhoto(vehicleId: number, photoId: number): Observable<VehiclePhoto> {
+    return this.http.put<VehiclePhoto>(`${API_URL}/${vehicleId}/photos/${photoId}/primary`, {});
+  }
+
+  deletePhoto(vehicleId: number, photoId: number): Observable<void> {
+    return this.http.delete<void>(`${API_URL}/${vehicleId}/photos/${photoId}`);
+  }
+
+  getBrands(): Observable<CatalogEntry[]> {
+    return this.http.get<CatalogEntry[]>(BRANDS_API_URL);
+  }
+
+  getCategories(): Observable<CatalogEntry[]> {
+    return this.http.get<CatalogEntry[]>(CATEGORIES_API_URL);
   }
 
   isFavorite(vehicleId: number): boolean {

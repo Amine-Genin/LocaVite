@@ -171,6 +171,69 @@
       "PREV_PAGE": "Previous page",
       "FIRST_PAGE": "First page",
       "LAST_PAGE": "Last page"
+    },
+    "ADMIN": {
+      "FORM": {
+        "TITLE": "Add a vehicle",
+        "SUBTITLE": "Fill in the details to add a vehicle to the LocaVite catalog",
+        "BACK_TO_LIST": "Back to vehicle list",
+        "SECTIONS": {
+          "IDENTITY": "Vehicle Identity",
+          "SPECS": "Technical Specifications",
+          "PRICING": "Pricing",
+          "LOCATION": "Location",
+          "PHOTOS": "Photo Gallery"
+        },
+        "FIELDS": {
+          "BRAND": "Brand",
+          "BRAND_PLACEHOLDER": "Search brand (e.g. Dacia, Renault...)",
+          "MODEL": "Model",
+          "MODEL_PLACEHOLDER": "E.g. Duster, Clio 5...",
+          "YEAR": "Year",
+          "YEAR_PLACEHOLDER": "Select a year",
+          "CATEGORY": "Category",
+          "CATEGORY_PLACEHOLDER": "Select a category",
+          "MATRICULE": "Registration number",
+          "MATRICULE_PLACEHOLDER": "E.g. 12345-A-1",
+          "FUEL": "Fuel",
+          "TRANSMISSION": "Transmission",
+          "SEATS": "Seats (2 to 9)",
+          "DESCRIPTION": "Detailed description",
+          "DESCRIPTION_PLACEHOLDER": "Describe condition, features and key advantages...",
+          "RENT_PRICE": "Rental price per day (DH)",
+          "SALE_PRICE": "Sale price (DH)",
+          "CITY": "City of availability",
+          "CITY_PLACEHOLDER": "Select a city"
+        },
+        "PHOTOS": {
+          "TITLE": "Vehicle photos",
+          "SUBTITLE": "Add one or more photos. Mark the primary photo with the star.",
+          "DROP_TEXT": "Drag & drop photos here or",
+          "BROWSE": "Browse files",
+          "HINT": "Formats: JPG, PNG, WEBP (Max 5MB per file)",
+          "PRIMARY_BADGE": "Primary photo",
+          "SET_PRIMARY": "Set as primary photo",
+          "MOVE_UP": "Move left / earlier",
+          "MOVE_DOWN": "Move right / later",
+          "DELETE": "Remove"
+        },
+        "ACTIONS": {
+          "SAVE_DRAFT": "Save as draft",
+          "PUBLISH": "Publish vehicle",
+          "SUBMITTING": "Saving..."
+        },
+        "ERRORS": {
+          "REQUIRED": "This field is required.",
+          "MIN_YEAR": "Year must be 1990 or later.",
+          "SEATS_RANGE": "Seats count must be between 2 and 9.",
+          "PRICE_POSITIVE": "Price must be greater than 0.",
+          "SAVE_ERROR": "An error occurred while saving vehicle."
+        },
+        "SUCCESS": {
+          "CREATED_PUBLISHED": "Vehicle published successfully!",
+          "CREATED_DRAFT": "Draft saved successfully!"
+        }
+      }
     }
   }
 }

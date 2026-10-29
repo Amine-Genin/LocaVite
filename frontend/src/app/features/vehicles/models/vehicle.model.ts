@@ -37,6 +37,37 @@ export interface Vehicle {
   updatedAt?: string;
 }
 
+export interface VehicleCreateRequest {
+  brandId: number;
+  modele: string;
+  annee: number;
+  categoryId: number;
+  ville: string;
+  prixJour: number;
+  prixVente: number;
+  carburant: FuelType;
+  transmission: TransmissionType;
+  places: number;
+  description: string;
+  matricule: string;
+  statut?: VehicleStatus;
+}
+
+export interface CatalogEntry {
+  id: number;
+  name: string;
+}
+
+export interface UploadedPhotoItem {
+  id?: number;
+  file?: File;
+  previewUrl: string;
+  isPrimary: boolean;
+  ordre?: number;
+  name?: string;
+  size?: number;
+}
+
 export interface VehicleFilter {
   marque?: string;
   categorie?: string;
