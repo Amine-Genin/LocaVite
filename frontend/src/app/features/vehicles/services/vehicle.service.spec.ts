@@ -3,7 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
 import { FAVORITES_STORAGE_KEY, VehicleService } from './vehicle.service';
-import { VehicleFilter } from '../models/vehicle.model';
+import { VehicleCreateRequest, VehicleFilter } from '../models/vehicle.model';
 
 describe('VehicleService', () => {
   let service: VehicleService;
@@ -118,11 +118,13 @@ describe('VehicleService', () => {
     });
   });
 
-  it('should get vehicle by ID from /api/vehicles/:id', () => {
+  it('should get vehicle by ID from /api/vehicles/:id and populate default photos', () => {
     service.getById(42).subscribe((res) => {
       expect(res.id).toBe(42);
       expect(res.marque).toBe('Mercedes');
       expect(res.modele).toBe('Classe A');
+      expect(res.photos?.length).toBe(1);
+      expect(res.photos?.[0].url).toBe('https://example.com/merc.jpg');
     });
 
     const req = httpTesting.expectOne('/api/vehicles/42');
@@ -135,7 +137,150 @@ describe('VehicleService', () => {
       categorie: 'Berline',
       ville: 'Rabat',
       prixJour: 700,
+      photoUrl: 'https://example.com/merc.jpg',
     });
+  });
+
+  it('should get photos for vehicle from /api/vehicles/:id/photos', () => {
+    service.getPhotos(10).subscribe((photos) => {
+      expect(photos.length).toBe(2);
+      expect(photos[0].id).toBe(1);
+    });
+
+    const req = httpTesting.expectOne('/api/vehicles/10/photos');
+    expect(req.request.method).toBe('GET');
+    req.flush([
+      { id: 1, vehicleId: 10, url: 'https://example.com/p1.jpg', isPrimary: true },
+      { id: 2, vehicleId: 10, url: 'https://example.com/p2.jpg', isPrimary: false },
+    ]);
+  });
+
+  it('should get availability from /api/vehicles/:id/availability', () => {
+    service.getAvailability(10, '2026-11-01', '2026-11-30').subscribe((res) => {
+      expect(res.available.length).toBe(1);
+      expect(res.unavailable.length).toBe(1);
+      expect(res.unavailable[0].reason).toBe('RESERVED');
+    });
+
+    const req = httpTesting.expectOne(
+      (r) =>
+        r.url === '/api/vehicles/10/availability' &&
+        r.params.get('from') === '2026-11-01' &&
+        r.params.get('to') === '2026-11-30',
+    );
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      available: [{ from: '2026-11-01', to: '2026-11-10' }],
+      unavailable: [{ from: '2026-11-11', to: '2026-11-15', reason: 'RESERVED' }],
+    });
+  });
+
+  it('should create vehicle via POST /api/vehicles', () => {
+    const payload: VehicleCreateRequest = {
+      brandId: 1,
+      modele: 'Sandero',
+      annee: 2024,
+      categoryId: 2,
+      ville: 'Casablanca',
+      prixJour: 250,
+      prixVente: 140000,
+      carburant: 'ESSENCE',
+      transmission: 'MANUELLE',
+      places: 5,
+      description: 'Très bon état',
+      matricule: '99999-B-1',
+      statut: 'PUBLISHED',
+    };
+
+    service.create(payload).subscribe((res) => {
+      expect(res.id).toBe(100);
+      expect(res.modele).toBe('Sandero');
+      expect(res.statut).toBe('PUBLISHED');
+    });
+
+    const req = httpTesting.expectOne('/api/vehicles');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(payload);
+    req.flush({
+      id: 100,
+      brandId: 1,
+      marque: 'Dacia',
+      modele: 'Sandero',
+      annee: 2024,
+      categoryId: 2,
+      categorie: 'Citadine',
+      ville: 'Casablanca',
+      prixJour: 250,
+      prixVente: 140000,
+      carburant: 'ESSENCE',
+      transmission: 'MANUELLE',
+      places: 5,
+      description: 'Très bon état',
+      matricule: '99999-B-1',
+      statut: 'PUBLISHED',
+    });
+  });
+
+  it('should upload photos via POST /api/vehicles/:id/photos with FormData', () => {
+    const fakeFile = new File(['dummy'], 'photo.jpg', { type: 'image/jpeg' });
+
+    service.uploadPhotos(100, [fakeFile]).subscribe((photos) => {
+      expect(photos.length).toBe(1);
+      expect(photos[0].id).toBe(1);
+      expect(photos[0].isPrimary).toBeTrue();
+    });
+
+    const req = httpTesting.expectOne('/api/vehicles/100/photos');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body instanceof FormData).toBeTrue();
+    req.flush([{ id: 1, vehicleId: 100, url: 'https://example.com/p1.jpg', isPrimary: true }]);
+  });
+
+  it('should set primary photo via PUT /api/vehicles/:vehicleId/photos/:photoId/primary', () => {
+    service.setPrimaryPhoto(100, 2).subscribe((res) => {
+      expect(res.id).toBe(2);
+      expect(res.isPrimary).toBeTrue();
+    });
+
+    const req = httpTesting.expectOne('/api/vehicles/100/photos/2/primary');
+    expect(req.request.method).toBe('PUT');
+    req.flush({ id: 2, vehicleId: 100, url: 'https://example.com/p2.jpg', isPrimary: true });
+  });
+
+  it('should delete photo via DELETE /api/vehicles/:vehicleId/photos/:photoId', () => {
+    service.deletePhoto(100, 2).subscribe();
+
+    const req = httpTesting.expectOne('/api/vehicles/100/photos/2');
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
+  });
+
+  it('should fetch brands via GET /api/brands', () => {
+    service.getBrands().subscribe((brands) => {
+      expect(brands.length).toBe(2);
+      expect(brands[0].name).toBe('Dacia');
+    });
+
+    const req = httpTesting.expectOne('/api/brands');
+    expect(req.request.method).toBe('GET');
+    req.flush([
+      { id: 1, name: 'Dacia' },
+      { id: 2, name: 'Renault' },
+    ]);
+  });
+
+  it('should fetch categories via GET /api/categories', () => {
+    service.getCategories().subscribe((cats) => {
+      expect(cats.length).toBe(2);
+      expect(cats[0].name).toBe('SUV');
+    });
+
+    const req = httpTesting.expectOne('/api/categories');
+    expect(req.request.method).toBe('GET');
+    req.flush([
+      { id: 1, name: 'SUV' },
+      { id: 2, name: 'Citadine' },
+    ]);
   });
 
   it('should update and reset filters BehaviorSubject', () => {
@@ -159,6 +304,36 @@ describe('VehicleService', () => {
     const removed = service.toggleFavorite(10);
     expect(removed).toBeFalse();
     expect(service.isFavorite(10)).toBeFalse();
+  });
+
+  it('should expose getVehicles as an alias of search', () => {
+    service.getVehicles({ ville: 'Rabat', size: 5 }).subscribe((res) => {
+      expect(res.content.length).toBe(0);
+      expect(res.totalElements).toBe(0);
+    });
+
+    const req = httpTesting.expectOne(
+      (r) => r.url === '/api/vehicles' && r.params.get('ville') === 'Rabat',
+    );
+    req.flush({ content: [], totalElements: 0, totalPages: 0, size: 5, number: 0 });
+  });
+
+  it('should expose getVehicleById as an alias of getById', () => {
+    service.getVehicleById(7).subscribe((res) => {
+      expect(res.id).toBe(7);
+      expect(res.modele).toBe('Clio');
+    });
+
+    const req = httpTesting.expectOne('/api/vehicles/7');
+    req.flush({
+      id: 7,
+      marque: 'Renault',
+      modele: 'Clio',
+      annee: 2022,
+      categorie: 'Citadine',
+      ville: 'Rabat',
+      prixJour: 300,
+    });
   });
 
   it('should handle malformed JSON in localStorage gracefully without throwing', () => {

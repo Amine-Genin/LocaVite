@@ -1,0 +1,106 @@
+<div
+  class="photo-gallery"
+  data-cy="photo-gallery"
+  role="region"
+  aria-label="Galerie de photos du véhicule"
+  (touchstart)="onTouchStart($event)"
+  (touchend)="onTouchEnd($event)"
+>
+  <!-- Main Display Stage -->
+  <div class="gallery-stage" data-cy="gallery-stage">
+    <img
+      class="gallery-image"
+      [src]="currentPhotoUrl"
+      [alt]="alt + ' - Photo ' + (currentIndex + 1)"
+      (error)="onImageError($event)"
+      data-cy="gallery-active-image"
+    />
+
+    <!-- Navigation Buttons -->
+    @if (totalPhotos > 1) {
+      <button
+        type="button"
+        class="nav-btn prev"
+        aria-label="Photo précédente"
+        (click)="prev()"
+        data-cy="gallery-prev"
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <button
+        type="button"
+        class="nav-btn next"
+        aria-label="Photo suivante"
+        (click)="next()"
+        data-cy="gallery-next"
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+
+      <!-- Counter Badge -->
+      <span class="gallery-counter" data-cy="gallery-counter">
+        {{ currentIndex + 1 }} / {{ totalPhotos }}
+      </span>
+
+      <!-- Dots Indicators -->
+      <div class="gallery-dots" data-cy="gallery-dots">
+        @for (item of normalizedPhotos; track $index) {
+          <button
+            type="button"
+            class="dot-indicator"
+            [class.active]="$index === currentIndex"
+            [attr.aria-label]="'Aller à la photo ' + ($index + 1)"
+            (click)="select($index)"
+            data-cy="gallery-dot"
+          ></button>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Thumbnails Row -->
+  @if (totalPhotos > 1) {
+    <div class="thumbnails-track" data-cy="gallery-thumbnails">
+      @for (item of normalizedPhotos; track $index) {
+        <button
+          type="button"
+          class="thumbnail-btn"
+          [class.active]="$index === currentIndex"
+          (click)="select($index)"
+          [attr.aria-label]="'Miniature ' + ($index + 1)"
+          data-cy="gallery-thumbnail"
+        >
+          <img
+            [src]="item"
+            [alt]="alt + ' miniature ' + ($index + 1)"
+            (error)="onImageError($event)"
+            loading="lazy"
+          />
+        </button>
+      }
+    </div>
+  }
+</div>

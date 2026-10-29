@@ -1,6 +1,6 @@
 # LocaVite 🚗
 
-![Statut](https://img.shields.io/badge/statut-en%20développement-orange)
+![Statut](https://img.shields.io/badge/statut-Sprint%202%20en%20cours-blue)
 ![Projet](https://img.shields.io/badge/projet-académique-blue)
 ![Licence](https://img.shields.io/badge/licence-MIT-green)
 [![Backend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml)
@@ -78,17 +78,36 @@ L'analyse de la qualité du code est intégrée aux pipelines CI/CD de GitHub Ac
   ```
   Console accessible sur [http://localhost:9000](http://localhost:9000) (admin / admin).
 
+## 📌 État actuel (Sprint 2)
+
+Le projet est **en cours de Sprint 2** (gestion des véhicules et catalogue).
+
+| Sprint | Statut | Contenu livré |
+|---|---|---|
+| Sprint 0 | Fait | Dépôt, architecture, CI GitHub Actions, SonarCloud, Docker Compose |
+| Sprint 1 | Fait | Inscription, connexion JWT, profil, rôles `CLIENT` / `AGENCE` / `ADMIN` |
+| Sprint 2 | **En cours** | Liste véhicules, fiche détaillée, calendrier de disponibilité, **formulaire d’ajout admin** |
+| Sprint 3 | À venir | Parcours de réservation (aujourd’hui : placeholder `/reservation/:id`) |
+
+Routes frontend utiles :
+
+| URL | Accès |
+|---|---|
+| http://localhost:4200/login | Public |
+| http://localhost:4200/vehicles | Catalogue public |
+| http://localhost:4200/vehicles/:id | Fiche véhicule |
+| http://localhost:4200/admin/vehicles | Flotte (rôles `AGENCE` ou `ADMIN`) |
+| http://localhost:4200/admin/vehicles/new | Formulaire d’ajout (rôles `AGENCE` ou `ADMIN`) |
+
 ## 🚀 Démarrage rapide
 
 ### Prérequis
 
 - Git
-- Java 21 ou version compatible avec Spring Boot 3
+- Java 21
 - Maven 3.9+
 - Node.js 20+ et npm
-- Angular CLI 18
 - Docker et Docker Compose
-- Un accès à PostgreSQL, Redis et MinIO (local ou conteneurisé)
 
 ### Installation
 
@@ -97,13 +116,93 @@ git clone https://github.com/Amine-Genin/LocaVite.git
 cd LocaVite
 ```
 
-Les commandes de lancement du backend, du frontend et de l'infrastructure seront ajoutées au fur et à mesure de l'implémentation des modules.
+### 1. Infrastructure (PostgreSQL, Redis, MinIO, MailHog)
+
+```bash
+docker compose -f infra/docker/docker-compose.yml up -d
+docker compose -f infra/docker/docker-compose.yml ps
+```
+
+PostgreSQL est exposé sur le port **5433** (aligné avec `backend/src/main/resources/application.yml`).
+
+### 2. Backend (port 8081)
+
+Si `mvn spring-boot:run` échoue sur Windows (chemin avec accents, `ClassNotFoundException`), lancer le JAR :
+
+```bash
+cd backend
+mvn -DskipTests package
+java -jar target/locavite-backend-0.1.0-SNAPSHOT.jar --spring.profiles.active=dev
+```
+
+Le profil `dev` crée le compte admin local :
+
+- **Email** : `admin.dev@locavite.ma`
+- **Mot de passe** : `AdminDev2026!`
+
+Swagger : http://localhost:8081/swagger-ui.html
+
+### 3. Frontend (port 4200)
+
+```bash
+cd frontend
+npm ci
+npm start
+```
+
+L’app Angular proxy `/api` vers `http://localhost:8081`.
+
+## 🧪 Tests
+
+### Frontend (PowerShell, depuis `frontend/`)
+
+```powershell
+npm run lint
+npm run test
+npm run build
+```
+
+E2E Cypress (le front doit tourner sur le port 4200) :
+
+```powershell
+npx cypress run --spec cypress/e2e/vehicle-create.cy.js
+npx cypress run --spec cypress/e2e/vehicle-detail.cy.js
+# ou interactif :
+npx cypress open
+```
+
+### Backend (depuis `backend/`)
+
+```powershell
+mvn -q test
+```
+
+### Checklist manuelle — formulaire ajout véhicule (DGL-47)
+
+1. Démarrer Docker + backend (`dev`) + frontend.
+2. Ouvrir http://localhost:4200/admin/vehicles/new **sans** être connecté → redirection `/login`.
+3. Se connecter en `CLIENT` (inscription) puis ouvrir `/admin/vehicles/new` → redirection `/login`.
+4. Se connecter avec `admin.dev@locavite.ma` / `AdminDev2026!`.
+5. Aller sur http://localhost:4200/admin/vehicles puis **Ajouter un véhicule**.
+6. Vérifier les 5 sections : Identité, Caractéristiques, Prix, Localisation, Photos.
+7. Laisser le formulaire incomplet → **Publier** et **Brouillon** restent désactivés.
+8. Remplir marque (autocomplete), modèle, année, catégorie, carburant, transmission, places (2–9), matricule, description, prix/jour, prix de vente, ville.
+9. Glisser 2–3 photos (JPG/PNG/WEBP, max 5 Mo), choisir la photo principale (étoile), réordonner, supprimer une photo.
+10. **Publier le véhicule** → notification de succès + redirection `/admin/vehicles`.
+11. Recommencer et **Enregistrer en brouillon**.
+12. Contrôler le véhicule créé dans le catalogue public `/vehicles` et la fiche `/vehicles/:id`.
+
+### Checklist manuelle — fiche véhicule (DGL-46)
+
+1. http://localhost:4200/vehicles → cliquer une carte.
+2. Galerie, caractéristiques, prix, calendrier, Réserver (`/reservation/:id`), Contacter l’agence, favori, véhicules similaires.
+3. URL inconnue `/vehicles/999999` → état introuvable.
 
 ## 🗺️ Roadmap
 
-- [ ] **Sprint 0** — Initialisation du dépôt, cadrage, architecture et outillage
-- [ ] **Sprint 1** — Authentification, utilisateurs et rôles
-- [ ] **Sprint 2** — Gestion des véhicules et catalogue
+- [x] **Sprint 0** — Initialisation du dépôt, cadrage, architecture et outillage
+- [x] **Sprint 1** — Authentification, utilisateurs et rôles
+- [ ] **Sprint 2** — Gestion des véhicules et catalogue *(en cours)*
 - [ ] **Sprint 3** — Réservations et disponibilités
 - [ ] **Sprint 4** — Paiement et facturation
 - [ ] **Sprint 5** — Vente de véhicules

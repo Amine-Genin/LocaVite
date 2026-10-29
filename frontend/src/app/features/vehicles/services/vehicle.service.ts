@@ -3,15 +3,19 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 
 import {
+  AvailabilityResponse,
   CatalogEntry,
   PageMetadata,
   Vehicle,
+  VehicleCreateRequest,
   VehicleFilter,
   VehiclePageResponse,
   VehiclePhoto,
 } from '../models/vehicle.model';
 
 const API_URL = '/api/vehicles';
+const BRANDS_API_URL = '/api/brands';
+const CATEGORIES_API_URL = '/api/categories';
 export const FAVORITES_STORAGE_KEY = 'locavite_favorite_vehicles';
 
 interface RawVehicleApi extends Vehicle {
@@ -55,14 +59,6 @@ export class VehicleService {
     this.filterSubject.next({ page: 0, size });
   }
 
-  getBrands(): Observable<CatalogEntry[]> {
-    return this.http.get<CatalogEntry[]>('/api/brands');
-  }
-
-  getCategories(): Observable<CatalogEntry[]> {
-    return this.http.get<CatalogEntry[]>('/api/categories');
-  }
-
   search(filter: VehicleFilter = {}): Observable<VehiclePageResponse> {
     let params = new HttpParams();
 
@@ -101,10 +97,55 @@ export class VehicleService {
     );
   }
 
+  getVehicles(filter: VehicleFilter = {}): Observable<VehiclePageResponse> {
+    return this.search(filter);
+  }
+
   getById(id: number): Observable<Vehicle> {
     return this.http
       .get<RawVehicleApi>(`${API_URL}/${id}`)
       .pipe(map((item) => this.normalizeVehicle(item)));
+  }
+
+  getVehicleById(id: number): Observable<Vehicle> {
+    return this.getById(id);
+  }
+
+  getPhotos(vehicleId: number): Observable<VehiclePhoto[]> {
+    return this.http.get<VehiclePhoto[]>(`${API_URL}/${vehicleId}/photos`);
+  }
+
+  getAvailability(vehicleId: number, from: string, to: string): Observable<AvailabilityResponse> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get<AvailabilityResponse>(`${API_URL}/${vehicleId}/availability`, { params });
+  }
+
+  create(request: VehicleCreateRequest): Observable<Vehicle> {
+    return this.http
+      .post<RawVehicleApi>(API_URL, request)
+      .pipe(map((item) => this.normalizeVehicle(item)));
+  }
+
+  uploadPhotos(vehicleId: number, files: File[]): Observable<VehiclePhoto[]> {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file));
+    return this.http.post<VehiclePhoto[]>(`${API_URL}/${vehicleId}/photos`, formData);
+  }
+
+  setPrimaryPhoto(vehicleId: number, photoId: number): Observable<VehiclePhoto> {
+    return this.http.put<VehiclePhoto>(`${API_URL}/${vehicleId}/photos/${photoId}/primary`, {});
+  }
+
+  deletePhoto(vehicleId: number, photoId: number): Observable<void> {
+    return this.http.delete<void>(`${API_URL}/${vehicleId}/photos/${photoId}`);
+  }
+
+  getBrands(): Observable<CatalogEntry[]> {
+    return this.http.get<CatalogEntry[]>(BRANDS_API_URL);
+  }
+
+  getCategories(): Observable<CatalogEntry[]> {
+    return this.http.get<CatalogEntry[]>(CATEGORIES_API_URL);
   }
 
   isFavorite(vehicleId: number): boolean {
@@ -135,9 +176,22 @@ export class VehicleService {
       primaryPhoto?.url ??
       null;
 
+    let photos = item.photos ?? [];
+    if (photos.length === 0 && resolvedPhotoUrl) {
+      photos = [
+        {
+          id: 1,
+          vehicleId: item.id,
+          url: resolvedPhotoUrl,
+          isPrimary: true,
+        },
+      ];
+    }
+
     return {
       ...item,
       photoUrl: resolvedPhotoUrl,
+      photos,
       isFavorite: item.isFavorite ?? this.isFavorite(item.id),
     };
   }
