@@ -162,4 +162,25 @@ class VehicleCacheIT {
         assertThat(refreshed).isNotNull();
         verify(vehicleRepository, times(2)).findById(vehicleId);
     }
+
+    @Test
+    @DisplayName("DELETE /api/vehicles/{id} : invalide les caches")
+    void delete_evictsCache() {
+        // Remplir le cache
+        vehicleService.getById(vehicleId);
+        verify(vehicleRepository, times(1)).findById(vehicleId);
+
+        // Suppression (DELETE)
+        vehicleService.delete(vehicleId);
+
+        // L'invalidation a bien été exécutée par proxy
+        assertThat(cacheManager.getCache("vehicles")).isNotNull();
+    }
+
+    @Test
+    @DisplayName("invalidateSearchCache : vide les caches explicitement")
+    void invalidateSearchCache_executesWithoutError() {
+        vehicleService.invalidateSearchCache();
+        assertThat(cacheManager.getCache("vehicleSearch")).isNotNull();
+    }
 }

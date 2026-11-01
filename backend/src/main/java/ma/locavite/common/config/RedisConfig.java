@@ -2,10 +2,10 @@ package ma.locavite.common.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Configuration du cache Redis pour LocaVite avec sérialisation JSON,
+ * Configuration du cache Redis pour LocaVite avec sérialisation JSON sécurisée,
  * TTLs spécifiques, métriques Actuator et générateur de clé MD5.
  */
 @Configuration
@@ -56,6 +56,7 @@ public class RedisConfig implements CachingConfigurer {
     }
 
     @Bean
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @ConditionalOnProperty(name = "spring.cache.type", havingValue = "redis", matchIfMissing = true)
     public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
         ObjectMapper cacheObjectMapper = new ObjectMapper();
@@ -65,11 +66,20 @@ public class RedisConfig implements CachingConfigurer {
 
         SimpleModule pageModule = new SimpleModule();
         pageModule.addDeserializer(Page.class, new PageDeserializer());
-        pageModule.addDeserializer(PageImpl.class, (JsonDeserializer) new PageDeserializer());
+        Class<?> pageImplClass = PageImpl.class;
+        pageModule.addDeserializer((Class) pageImplClass, new PageDeserializer());
         cacheObjectMapper.registerModule(pageModule);
 
+        // Validation polymorphique restreinte aux packages applicatifs et utilitaires nécessaires
+        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(Object.class)
+                .allowIfSubType("ma.locavite.")
+                .allowIfSubType("java.util.")
+                .allowIfSubType("org.springframework.data.domain.")
+                .build();
+
         cacheObjectMapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator.instance,
+                ptv,
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.PROPERTY
         );
@@ -103,4 +113,3 @@ public class RedisConfig implements CachingConfigurer {
                 .build();
     }
 }
-

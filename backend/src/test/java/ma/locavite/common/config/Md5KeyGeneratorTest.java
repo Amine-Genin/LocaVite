@@ -25,6 +25,26 @@ class Md5KeyGeneratorTest {
     }
 
     @Test
+    @DisplayName("Génère un hash avec tableau params null")
+    void generate_withNullParamsArray_producesHash() throws NoSuchMethodException {
+        Method method = Object.class.getMethod("toString");
+        Object key = keyGenerator.generate(new Object(), method, (Object[]) null);
+
+        assertThat(key).isNotNull();
+        assertThat(key.toString()).matches("^[a-f0-9]{32}$");
+    }
+
+    @Test
+    @DisplayName("Génère un hash prenant en compte un argument null")
+    void generate_withSingleNullParam_producesHash() throws NoSuchMethodException {
+        Method method = Object.class.getMethod("equals", Object.class);
+        Object key = keyGenerator.generate(new Object(), method, new Object[]{null});
+
+        assertThat(key).isNotNull();
+        assertThat(key.toString()).matches("^[a-f0-9]{32}$");
+    }
+
+    @Test
     @DisplayName("Génère des clés identiques pour des paramètres identiques")
     void generate_sameParams_producesIdenticalKeys() throws NoSuchMethodException {
         Method method = Object.class.getMethod("equals", Object.class);
@@ -62,4 +82,3 @@ class Md5KeyGeneratorTest {
         assertThat(key2.toString()).matches("^[a-f0-9]{32}$");
     }
 }
-

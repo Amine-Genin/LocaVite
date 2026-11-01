@@ -9,10 +9,13 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Générateur de clé de cache basé sur le hash MD5 des paramètres de méthode.
+ * MD5 est employé ici comme fonction de dispersion rapide et non à des fins cryptographiques.
  */
+@SuppressWarnings({"java:S4790", "squid:S4790"})
 public class Md5KeyGenerator implements KeyGenerator {
 
     @Override
+    @SuppressWarnings({"java:S4790", "squid:S4790"})
     public Object generate(Object target, Method method, Object... params) {
         if (params == null || params.length == 0) {
             return DigestUtils.md5DigestAsHex(method.getName().getBytes(StandardCharsets.UTF_8));
@@ -34,4 +37,3 @@ public class Md5KeyGenerator implements KeyGenerator {
         return DigestUtils.md5DigestAsHex(sb.toString().getBytes(StandardCharsets.UTF_8));
     }
 }
-
