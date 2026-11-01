@@ -175,11 +175,11 @@
               }
             }
           },
-          "403" : {
-            "description" : "Accès refusé"
-          },
           "401" : {
             "description" : "Non authentifié (token JWT manquant ou invalide)"
+          },
+          "403" : {
+            "description" : "Accès refusé"
           }
         },
         "security" : [ {
@@ -202,9 +202,6 @@
           "required" : true
         },
         "responses" : {
-          "403" : {
-            "description" : "Accès refusé"
-          },
           "400" : {
             "description" : "Données de formulaire invalides"
           },
@@ -220,6 +217,9 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Accès refusé"
           }
         },
         "security" : [ {
@@ -254,12 +254,6 @@
           "required" : true
         },
         "responses" : {
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Utilisateur introuvable"
-          },
           "200" : {
             "description" : "Rôles mis à jour avec succès",
             "content" : {
@@ -270,11 +264,17 @@
               }
             }
           },
+          "400" : {
+            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
+          },
           "401" : {
             "description" : "Non authentifié"
           },
-          "400" : {
-            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Utilisateur introuvable"
           }
         },
         "security" : [ {
@@ -309,11 +309,11 @@
           "required" : true
         },
         "responses" : {
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
+          "400" : {
+            "description" : "Requête invalide (statut non supporté)"
           },
-          "404" : {
-            "description" : "Document introuvable"
+          "401" : {
+            "description" : "Non authentifié"
           },
           "200" : {
             "description" : "Document vérifié avec succès",
@@ -325,11 +325,11 @@
               }
             }
           },
-          "400" : {
-            "description" : "Requête invalide (statut non supporté)"
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "404" : {
+            "description" : "Document introuvable"
           }
         },
         "security" : [ {
@@ -579,6 +579,9 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Données d'inscription invalides ou email déjà utilisé"
+          },
           "201" : {
             "description" : "Utilisateur créé avec succès",
             "content" : {
@@ -588,9 +591,6 @@
                 }
               }
             }
-          },
-          "400" : {
-            "description" : "Données d'inscription invalides ou email déjà utilisé"
           }
         }
       }
@@ -612,6 +612,12 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Requête invalide"
+          },
+          "401" : {
+            "description" : "Refresh token invalide ou expiré"
+          },
           "200" : {
             "description" : "Tokens rafraîchis avec succès",
             "content" : {
@@ -621,12 +627,6 @@
                 }
               }
             }
-          },
-          "400" : {
-            "description" : "Requête invalide"
-          },
-          "401" : {
-            "description" : "Refresh token invalide ou expiré"
           }
         }
       }
@@ -680,11 +680,11 @@
               }
             }
           },
-          "401" : {
-            "description" : "Email ou mot de passe incorrect"
-          },
           "400" : {
             "description" : "Format de la requête invalide"
+          },
+          "401" : {
+            "description" : "Email ou mot de passe incorrect"
           }
         }
       }
@@ -745,6 +745,89 @@
         }
       }
     },
+    "/api/vehicles/{id}/availability" : {
+      "get" : {
+        "tags" : [ "vehicle-controller" ],
+        "operationId" : "getAvailability",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "from",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }, {
+          "name" : "to",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AvailabilityResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vehicles/search" : {
+      "get" : {
+        "tags" : [ "vehicle-controller" ],
+        "operationId" : "searchVehicles",
+        "parameters" : [ {
+          "name" : "ville",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "filter",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/VehicleFilter"
+          }
+        }, {
+          "name" : "pageable",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageVehicleResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users/me/documents/{id}" : {
       "get" : {
         "tags" : [ "Documents" ],
@@ -762,11 +845,11 @@
           }
         } ],
         "responses" : {
-          "404" : {
-            "description" : "Document introuvable"
-          },
           "403" : {
             "description" : "Accès non autorisé à ce document"
+          },
+          "401" : {
+            "description" : "Non authentifié"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -778,8 +861,8 @@
               }
             }
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "404" : {
+            "description" : "Document introuvable"
           }
         },
         "security" : [ {
@@ -805,14 +888,14 @@
           "204" : {
             "description" : "Document supprimé avec succès"
           },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "403" : {
             "description" : "Accès non autorisé"
           },
           "404" : {
             "description" : "Document introuvable"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -878,9 +961,6 @@
           }
         } ],
         "responses" : {
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
-          },
           "401" : {
             "description" : "Non authentifié"
           },
@@ -893,6 +973,9 @@
                 }
               }
             }
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
           }
         },
         "security" : [ {
@@ -917,11 +1000,8 @@
           }
         } ],
         "responses" : {
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Document introuvable"
+          "401" : {
+            "description" : "Non authentifié"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -933,8 +1013,11 @@
               }
             }
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Document introuvable"
           }
         },
         "security" : [ {
@@ -1437,6 +1520,20 @@
           "categoryId" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "prixMin" : {
+            "type" : "number"
+          },
+          "prixMax" : {
+            "type" : "number"
           }
         }
       },
@@ -1496,28 +1593,64 @@
           }
         }
       },
-      "PageUserResponse" : {
+      "AvailabilityResponse" : {
         "type" : "object",
         "properties" : {
-          "totalElements" : {
-            "type" : "integer",
-            "format" : "int64"
+          "available" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/Period"
+            }
           },
+          "unavailable" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/UnavailablePeriod"
+            }
+          }
+        }
+      },
+      "Period" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "to" : {
+            "type" : "string",
+            "format" : "date"
+          }
+        }
+      },
+      "UnavailablePeriod" : {
+        "type" : "object",
+        "properties" : {
+          "from" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "to" : {
+            "type" : "string",
+            "format" : "date"
+          },
+          "reason" : {
+            "type" : "string"
+          }
+        }
+      },
+      "PageVehicleResponse" : {
+        "type" : "object",
+        "properties" : {
           "totalPages" : {
             "type" : "integer",
             "format" : "int32"
           },
-          "size" : {
+          "totalElements" : {
             "type" : "integer",
-            "format" : "int32"
+            "format" : "int64"
           },
-          "content" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/UserResponse"
-            }
-          },
-          "number" : {
+          "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
           },
@@ -1527,18 +1660,28 @@
           "last" : {
             "type" : "boolean"
           },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/VehicleResponse"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "sort" : {
             "type" : "array",
             "items" : {
               "$ref" : "#/components/schemas/SortObject"
             }
-          },
-          "pageable" : {
-            "$ref" : "#/components/schemas/PageableObject"
-          },
-          "numberOfElements" : {
-            "type" : "integer",
-            "format" : "int32"
           },
           "empty" : {
             "type" : "boolean"
@@ -1548,6 +1691,20 @@
       "PageableObject" : {
         "type" : "object",
         "properties" : {
+          "paged" : {
+            "type" : "boolean"
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "offset" : {
             "type" : "integer",
             "format" : "int64"
@@ -1557,20 +1714,6 @@
             "items" : {
               "$ref" : "#/components/schemas/SortObject"
             }
-          },
-          "pageSize" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "pageNumber" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "unpaged" : {
-            "type" : "boolean"
-          },
-          "paged" : {
-            "type" : "boolean"
           }
         }
       },
@@ -1590,6 +1733,55 @@
             "type" : "string"
           },
           "ignoreCase" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PageUserResponse" : {
+        "type" : "object",
+        "properties" : {
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/UserResponse"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
+          },
+          "empty" : {
             "type" : "boolean"
           }
         }
