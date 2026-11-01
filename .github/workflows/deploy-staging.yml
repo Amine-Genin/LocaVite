@@ -1,0 +1,225 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      custom_tag:
+        description: 'Tag Docker personnalisé (optionnel, défaut: staging-{sha})'
+        required: false
+        default: ''
+
+concurrency:
+  group: staging-deployment
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE_NAME: amine-genin/locavite-backend
+  FRONTEND_IMAGE_NAME: amine-genin/locavite-frontend
+
+jobs:
+  build-and-push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.tag_step.outputs.tag }}
+      backend_image: ${{ steps.tag_step.outputs.backend_image }}
+      frontend_image: ${{ steps.tag_step.outputs.frontend_image }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Determine image tag
+        id: tag_step
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          TAG="${{ github.event.inputs.custom_tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="staging-${SHORT_SHA}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "backend_image=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${TAG}" >> $GITHUB_OUTPUT
+          echo "frontend_image=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${TAG}" >> $GITHUB_OUTPUT
+          echo "Tag retenu pour le staging : $TAG"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (ghcr.io)
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push Backend Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:staging-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build & Push Frontend Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:staging-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-staging:
+    name: Deploy to Staging & Health Check
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository for compose file
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose.staging.yml to Staging Server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER || 'deploy' }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT || 22 }}
+          source: "infra/docker/docker-compose.staging.yml"
+          target: "/opt/locavite/staging/"
+          strip_components: 2
+
+      - name: Deploy to Staging via SSH & Rollback on failure
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          BACKEND_IMAGE: ${{ needs.build-and-push.outputs.backend_image }}
+          FRONTEND_IMAGE: ${{ needs.build-and-push.outputs.frontend_image }}
+          REGISTRY: ${{ env.REGISTRY }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER || 'deploy' }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: ${{ secrets.STAGING_PORT || 22 }}
+          envs: TAG,BACKEND_IMAGE,FRONTEND_IMAGE,REGISTRY,GHCR_USER,GHCR_TOKEN
+          script: |
+            set -e
+            APP_DIR="/opt/locavite/staging"
+            mkdir -p "$APP_DIR"
+            cd "$APP_DIR"
+
+            echo "=== [1/6] Sauvegarde de la version précédente pour le rollback ==="
+            PREVIOUS_TAG=$(cat current_tag.txt 2>/dev/null || echo "staging-latest")
+            echo "Version active actuelle : $PREVIOUS_TAG"
+            echo "$TAG" > candidate_tag.txt
+
+            echo "=== [2/6] Authentification GHCR et téléchargement des images ==="
+            echo "$GHCR_TOKEN" | docker login "$REGISTRY" -u "$GHCR_USER" --password-stdin
+            docker pull "$BACKEND_IMAGE"
+            docker pull "$FRONTEND_IMAGE"
+
+            echo "=== [3/6] Déploiement de la stack Staging ==="
+            export BACKEND_IMAGE="$BACKEND_IMAGE"
+            export FRONTEND_IMAGE="$FRONTEND_IMAGE"
+            export TAG="$TAG"
+
+            docker compose -f docker-compose.staging.yml up -d --remove-orphans
+
+            echo "=== [4/6] Health check post-déploiement ==="
+            HEALTHY=false
+            MAX_ATTEMPTS=12
+            DELAY_SECONDS=5
+
+            for attempt in $(seq 1 $MAX_ATTEMPTS); do
+              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/actuator/health || true)
+              echo "Vérification santé Backend (essai $attempt/$MAX_ATTEMPTS) : HTTP $HTTP_STATUS"
+              if [ "$HTTP_STATUS" = "200" ]; then
+                HEALTHY=true
+                break
+              fi
+              sleep $DELAY_SECONDS
+            done
+
+            FRONTEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/healthz || true)
+            echo "Vérification santé Frontend : HTTP $FRONTEND_STATUS"
+
+            if [ "$HEALTHY" != "true" ]; then
+              echo "❌ ERREUR : Le Health Check Backend a échoué après $MAX_ATTEMPTS tentatives !"
+              echo "=== [5/6] ROLLBACK AUTOMATIQUE VERS LA VERSION $PREVIOUS_TAG ==="
+              export BACKEND_IMAGE="ghcr.io/amine-genin/locavite-backend:$PREVIOUS_TAG"
+              export FRONTEND_IMAGE="ghcr.io/amine-genin/locavite-frontend:$PREVIOUS_TAG"
+              docker compose -f docker-compose.staging.yml up -d --remove-orphans
+              echo "Rollback terminé. La version stable $PREVIOUS_TAG a été rétablie."
+              exit 1
+            fi
+
+            echo "=== [5/6] Validation du déploiement ==="
+            mv candidate_tag.txt current_tag.txt
+            echo "✅ Déploiement staging réussi avec le tag $TAG !"
+
+            echo "=== [6/6] Nettoyage des anciennes images Docker ==="
+            docker image prune -f || true
+
+  notify:
+    name: Slack / Discord Notification
+    needs: [build-and-push, deploy-staging]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          DEPLOY_STATUS: ${{ needs.deploy-staging.result }}
+          TAG: ${{ needs.build-and-push.outputs.image_tag }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK" ]; then
+            echo "SLACK_WEBHOOK non configuré, notification ignorée."
+            exit 0
+          fi
+
+          if [ "$DEPLOY_STATUS" = "success" ]; then
+            COLOR="#2EB67D"
+            TITLE="✅ Déploiement Staging RÉUSSI"
+            MESSAGE="Le déploiement sur staging de LocaVite a abouti avec succès."
+          else
+            COLOR="#E01E5A"
+            TITLE="🚨 Déploiement Staging ÉCHOUÉ (Rollback déclenché)"
+            MESSAGE="Le déploiement sur staging a échoué lors du health check. Le rollback automatique a été exécuté."
+          fi
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "attachments": [
+              {
+                "color": "$COLOR",
+                "title": "$TITLE",
+                "text": "$MESSAGE",
+                "fields": [
+                  { "title": "Tag Docker", "value": "\`$TAG\`", "short": true },
+                  { "title": "Branche", "value": "\`${{ github.ref_name }}\`", "short": true },
+                  { "title": "Commit", "value": "\`${{ github.sha }}\`", "short": true },
+                  { "title": "Auteur", "value": "${{ github.actor }}", "short": true },
+                  { "title": "Workflow Run", "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}", "short": false }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+
+          curl -X POST -H 'Content-type: application/json' --data "$PAYLOAD" "$SLACK_WEBHOOK" || echo "Erreur webhook notification"
