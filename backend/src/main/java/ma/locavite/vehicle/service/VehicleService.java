@@ -13,8 +13,10 @@ import ma.locavite.vehicle.exception.MatriculeAlreadyExistsException;
 import ma.locavite.vehicle.exception.VehicleNotFoundException;
 import ma.locavite.vehicle.mapper.VehicleMapper;
 import ma.locavite.vehicle.repository.VehicleRepository;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -47,7 +49,10 @@ public class VehicleService {
     }
 
     @Transactional
-    @CacheEvict(value = "vehicleSearch", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "vehicleSearch", allEntries = true),
+            @CacheEvict(value = "vehicles", allEntries = true)
+    })
     public VehicleResponse create(VehicleRequest request) {
         Long agenceId = currentUser.getCurrentUserId()
                 .orElseThrow(() -> new AccessDeniedException("Utilisateur non authentifié"));
@@ -67,6 +72,7 @@ public class VehicleService {
         return mapper.toResponse(saveOrConflict(vehicle, matricule));
     }
 
+    @Cacheable(value = "vehicles", keyGenerator = "md5KeyGenerator")
     public VehicleResponse getById(Long id) {
         Vehicle vehicle = repository.findById(id).orElseThrow(() -> new VehicleNotFoundException(id));
         if (vehicle.getStatut() == VehicleStatus.ARCHIVED) {
@@ -85,7 +91,10 @@ public class VehicleService {
     }
 
     @Transactional
-    @CacheEvict(value = "vehicleSearch", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "vehicleSearch", allEntries = true),
+            @CacheEvict(value = "vehicles", allEntries = true)
+    })
     public VehicleResponse update(Long id, VehicleRequest request) {
         Vehicle vehicle = findManageable(id);
 
@@ -108,7 +117,10 @@ public class VehicleService {
 
     /** Soft delete : le véhicule passe en ARCHIVED. */
     @Transactional
-    @CacheEvict(value = "vehicleSearch", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "vehicleSearch", allEntries = true),
+            @CacheEvict(value = "vehicles", allEntries = true)
+    })
     public void delete(Long id) {
         Vehicle vehicle = findManageable(id);
         vehicle.setStatut(VehicleStatus.ARCHIVED);
@@ -118,7 +130,10 @@ public class VehicleService {
     /**
      * À appeler par le module réservation lorsqu'une réservation est confirmée.
      */
-    @CacheEvict(value = "vehicleSearch", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "vehicleSearch", allEntries = true),
+            @CacheEvict(value = "vehicles", allEntries = true)
+    })
     public void invalidateSearchCache() {
         // L'invalidation est portée par l'annotation afin de rester atomique avec le proxy Spring.
     }
