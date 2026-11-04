@@ -10,7 +10,7 @@ RUN mvn -B -DskipTests clean package
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-COPY --from=build --chown=appuser:appgroup /app/target/locavite-backend-*.jar app.jar
+COPY --from=build /app/target/locavite-backend-*.jar app.jar
 USER appuser
 EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]

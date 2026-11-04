@@ -9,8 +9,8 @@ RUN npm run build -- --configuration production
 # Stage 2: Serve with Nginx (non-root user)
 FROM nginx:1.27-alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build --chown=nginx:nginx /app/dist/locavite/browser /usr/share/nginx/html
-RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx /etc/nginx/conf.d \
+COPY --from=build /app/dist/locavite/browser /usr/share/nginx/html
+RUN chown -R nginx:nginx /var/cache/nginx /var/log/nginx \
     && touch /var/run/nginx.pid \
     && chown -R nginx:nginx /var/run/nginx.pid
 USER nginx
