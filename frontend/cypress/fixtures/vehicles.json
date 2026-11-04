@@ -1,0 +1,215 @@
+{
+  "brands": [
+    { "id": 1, "name": "Renault" },
+    { "id": 2, "name": "Dacia" },
+    { "id": 3, "name": "Peugeot" },
+    { "id": 4, "name": "Volkswagen" },
+    { "id": 5, "name": "Hyundai" }
+  ],
+  "categories": [
+    { "id": 1, "name": "Économique" },
+    { "id": 2, "name": "SUV" },
+    { "id": 3, "name": "Berline" },
+    { "id": 4, "name": "Citadine" }
+  ],
+  "page0": {
+    "content": [
+      {
+        "id": 1,
+        "marque": "Dacia",
+        "modele": "Duster",
+        "annee": 2024,
+        "categorie": "SUV",
+        "ville": "Casablanca",
+        "carburant": "DIESEL",
+        "transmission": "MANUELLE",
+        "prixJour": 350,
+        "photoUrl": "https://i.pinimg.com/736x/2f/1a/ee/2f1aee7afb71437d5dd163a57376fe52.jpg"
+      },
+      {
+        "id": 2,
+        "marque": "Renault",
+        "modele": "Clio 5",
+        "annee": 2023,
+        "categorie": "Citadine",
+        "ville": "Marrakech",
+        "carburant": "ESSENCE",
+        "transmission": "MANUELLE",
+        "prixJour": 280,
+        "photoUrl": "https://i.pinimg.com/1200x/14/80/96/14809667e1c08210cceb6d5854ceb4dd.jpg"
+      },
+      {
+        "id": 3,
+        "marque": "Peugeot",
+        "modele": "208",
+        "annee": 2024,
+        "categorie": "Citadine",
+        "ville": "Rabat",
+        "carburant": "ESSENCE",
+        "transmission": "AUTOMATIQUE",
+        "prixJour": 300,
+        "photoUrl": "https://i.pinimg.com/236x/68/ee/45/68ee45106e43b2be87ad130d09e034e0.jpg"
+      }
+    ],
+    "page": {
+      "size": 12,
+      "number": 0,
+      "totalElements": 15,
+      "totalPages": 2
+    }
+  },
+  "page1": {
+    "content": [
+      {
+        "id": 13,
+        "marque": "Volkswagen",
+        "modele": "Golf 8",
+        "annee": 2024,
+        "categorie": "Berline",
+        "ville": "Tanger",
+        "carburant": "DIESEL",
+        "transmission": "AUTOMATIQUE",
+        "prixJour": 450,
+        "photoUrl": "https://i.pinimg.com/236x/24/79/3a/24793a8a341db2c204a0f1acac9614e1.jpg"
+      }
+    ],
+    "page": {
+      "size": 12,
+      "number": 1,
+      "totalElements": 15,
+      "totalPages": 2
+    }
+  },
+  "emptyPage": {
+    "content": [],
+    "page": {
+      "size": 12,
+      "number": 0,
+      "totalElements": 0,
+      "totalPages": 0
+    }
+  },
+  "vehicleDetail": {
+    "id": 1,
+    "brandId": 2,
+    "marque": "Dacia",
+    "modele": "Duster",
+    "annee": 2024,
+    "categoryId": 2,
+    "categorie": "SUV",
+    "ville": "Casablanca",
+    "prixJour": 350,
+    "prixVente": 195000,
+    "carburant": "DIESEL",
+    "transmission": "MANUELLE",
+    "places": 5,
+    "description": "SUV compact économique, polyvalent, parfait pour vos déplacements en ville et sur autoroute au Maroc.",
+    "matricule": "78945-A-1",
+    "statut": "PUBLISHED",
+    "agenceId": 101,
+    "agenceNom": "LocaVite Casablanca Marina",
+    "agenceTelephone": "+212600000014",
+    "photoUrl": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d",
+    "photos": [
+      {
+        "id": 1,
+        "vehicleId": 1,
+        "url": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d",
+        "isPrimary": true
+      },
+      {
+        "id": 2,
+        "vehicleId": 1,
+        "url": "https://images.unsplash.com/photo-1503376780353-7e6692767b70",
+        "isPrimary": false
+      },
+      {
+        "id": 3,
+        "vehicleId": 1,
+        "url": "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf",
+        "isPrimary": false
+      }
+    ]
+  },
+  "availability": {
+    "available": [
+      { "from": "2026-11-01", "to": "2026-11-15" }
+    ],
+    "unavailable": [
+      { "from": "2026-11-16", "to": "2026-11-20", "reason": "RESERVED" }
+    ]
+  },
+  "similarVehicles": {
+    "content": [
+      {
+        "id": 1,
+        "marque": "Dacia",
+        "modele": "Duster",
+        "annee": 2024,
+        "categorie": "SUV",
+        "ville": "Casablanca",
+        "prixJour": 350
+      },
+      {
+        "id": 2,
+        "marque": "Renault",
+        "modele": "Captur",
+        "annee": 2023,
+        "categorie": "SUV",
+        "ville": "Casablanca",
+        "prixJour": 400,
+        "photoUrl": "https://i.pinimg.com/1200x/26/62/02/266202410115fecb45fdbf496a0641ff.jpg"
+      },
+      {
+        "id": 3,
+        "marque": "Peugeot",
+        "modele": "2008",
+        "annee": 2024,
+        "categorie": "SUV",
+        "ville": "Rabat",
+        "prixJour": 420,
+        "photoUrl": "https://i.pinimg.com/1200x/e8/bf/ec/e8bfecfbf5c2efbc82641671f29f6831.jpg"
+      },
+      {
+        "id": 4,
+        "marque": "Hyundai",
+        "modele": "Tucson",
+        "annee": 2024,
+        "categorie": "SUV",
+        "ville": "Marrakech",
+        "prixJour": 600,
+        "photoUrl": "https://i.pinimg.com/236x/b6/16/4d/b6164da3f922663a16b4dd8384192aba.jpg"
+      }
+    ],
+    "page": {
+      "size": 10,
+      "number": 0,
+      "totalElements": 4,
+      "totalPages": 1
+    },
+    "totalElements": 4,
+    "totalPages": 1,
+    "size": 10,
+    "number": 0
+  },
+  "newVehicle": {
+    "id": 99,
+    "brandId": 1,
+    "marque": "Renault",
+    "modele": "Clio 5",
+    "annee": 2023,
+    "categoryId": 1,
+    "categorie": "Économique",
+    "ville": "Casablanca",
+    "prixJour": 350,
+    "prixVente": 145000,
+    "carburant": "ESSENCE",
+    "transmission": "MANUELLE",
+    "places": 5,
+    "description": "Superbe citadine très bien entretenue",
+    "matricule": "12345-A-1",
+    "statut": "PUBLISHED",
+    "agenceId": 1,
+    "photos": []
+  }
+}

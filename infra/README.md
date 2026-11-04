@@ -6,7 +6,7 @@ Le dossier `infra/` regroupe l'ensemble des ressources nécessaires au développ
 
 | Dossier | Contenu |
 |---|---|
-| `docker/` | Configurations Docker Compose pour l'environnement de développement local |
+| `docker/` | Configurations Docker Compose pour l'environnement de développement local et staging E2E |
 | `kubernetes/` | Manifests, namespaces, services, ingress et déploiements |
 | `terraform/` | Provisionnement déclaratif de l'infrastructure cloud |
 | `ansible/` | Automatisation de la configuration des serveurs |
@@ -17,12 +17,13 @@ Le dossier `infra/` regroupe l'ensemble des ressources nécessaires au développ
 ## 🐳 Environnement local (Docker Compose)
 
 Le fichier `infra/docker/docker-compose.yml` permet de démarrer l'ensemble des dépendances d'infrastructure nécessaires au backend en local.
+Le fichier `infra/docker/docker-compose.staging.yml` déploie l'environnement staging complet (PostgreSQL, Redis, MinIO, MailHog, Backend Spring Boot et Frontend Angular sur le port `4200`) pour l'exécution des tests E2E Cypress.
 
 ### 📦 Services inclus
 
 | Service | Image | Port hôte | Rôle | Healthcheck |
 |---|---|---|---|---|
-| **PostgreSQL** | `postgres:16-alpine` | `5432` | Base de données relationnelle | `pg_isready` |
+| **PostgreSQL** | `postgres:16-alpine` | `5433` | Base de données relationnelle | `pg_isready` |
 | **Redis** | `redis:7-alpine` | `6379` | Cache et sessions applicatives | `redis-cli ping` |
 | **MinIO** | `minio/minio` | `9000` (API) / `9001` (Console) | Stockage objet compatible S3 (documents, CIN, permis) | `mc ready local` |
 | **MailHog** | `mailhog/mailhog:v1.0.1` | `1025` (SMTP) / `8025` (UI Web) | Serveur SMTP de test pour les e-mails | Port HTTP |
@@ -36,11 +37,14 @@ Tous les services communiquent au sein d'un réseau bridge dédié : `locavite-n
 Depuis la racine du projet :
 
 ```bash
-# 1. Démarrer tous les services en arrière-plan
+# 1. Démarrer tous les services d'infrastructure en arrière-plan
 docker compose -f infra/docker/docker-compose.yml up -d
 
 # 2. Vérifier l'état et les healthchecks des conteneurs
 docker compose -f infra/docker/docker-compose.yml ps
+
+# 3. Démarrer l'environnement staging complet (Backend + Frontend + Infra) pour les tests E2E
+docker compose -f infra/docker/docker-compose.staging.yml up -d --build
 ```
 
 ---
@@ -59,7 +63,7 @@ cp infra/docker/.env.example infra/docker/.env
 | `POSTGRES_DB` | `locavite` | Nom de la base de données |
 | `POSTGRES_USER` | `locavite` | Utilisateur PostgreSQL |
 | `POSTGRES_PASSWORD` | `locavite_dev_password` | Mot de passe PostgreSQL |
-| `POSTGRES_PORT` | `5432` | Port d'exposition PostgreSQL |
+| `POSTGRES_PORT` | `5433` | Port d'exposition PostgreSQL |
 | `REDIS_PORT` | `6379` | Port d'exposition Redis |
 | `MINIO_ROOT_USER` | `locavite` | Utilisateur administrateur MinIO |
 | `MINIO_ROOT_PASSWORD` | `locavite_dev_password` | Mot de passe administrateur MinIO |
@@ -74,11 +78,11 @@ cp infra/docker/.env.example infra/docker/.env
 
 #### 1. PostgreSQL (DBeaver, pgAdmin, IntelliJ, etc.)
 * **Hôte** : `localhost`
-* **Port** : `5432`
+* **Port** : `5433`
 * **Base de données** : `locavite`
 * **Utilisateur** : `locavite`
 * **Mot de passe** : `locavite_dev_password`
-* **URL JDBC** : `jdbc:postgresql://localhost:5432/locavite`
+* **URL JDBC** : `jdbc:postgresql://localhost:5433/locavite`
 
 #### 2. Console MinIO
 * **URL** : [http://localhost:9001](http://localhost:9001)
