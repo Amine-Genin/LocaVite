@@ -1,0 +1,120 @@
+# Environnement staging local complet pour les tests E2E Cypress
+# Inclut : PostgreSQL, Redis, MinIO, MailHog, Backend Spring Boot (8081) et Frontend Angular (4200)
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: locavite-staging-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-locavite}
+      POSTGRES_USER: ${POSTGRES_USER:-locavite}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-locavite_dev_password}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    networks:
+      - locavite-staging-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-locavite} -d ${POSTGRES_DB:-locavite}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: locavite-staging-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - locavite-staging-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  minio:
+    image: ${MINIO_IMAGE:-2821568820/minio:RELEASE.2024-10-13T13-34-11Z}
+    container_name: locavite-staging-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-locavite}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-locavite_dev_password}
+    ports:
+      - "${MINIO_PORT:-9000}:9000"
+      - "${MINIO_CONSOLE_PORT:-9001}:9001"
+    networks:
+      - locavite-staging-network
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    container_name: locavite-staging-mailhog
+    restart: unless-stopped
+    ports:
+      - "${MAILHOG_SMTP_PORT:-1025}:1025"
+      - "${MAILHOG_UI_PORT:-8025}:8025"
+    networks:
+      - locavite-staging-network
+
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    container_name: locavite-staging-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      PORT: 8081
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-locavite}
+      DB_USER: ${POSTGRES_USER:-locavite}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-locavite_dev_password}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-locavite}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-locavite_dev_password}
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+    ports:
+      - "8081:8081"
+    networks:
+      - locavite-staging-network
+
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    container_name: locavite-staging-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+    networks:
+      - locavite-staging-network
+
+networks:
+  locavite-staging-network:
+    name: locavite-staging-network
+    driver: bridge
+

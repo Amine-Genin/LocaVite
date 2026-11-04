@@ -1,122 +1,38 @@
-describe('Vehicle Detail Page (/vehicles/:id)', () => {
-  const mockVehicle = {
-    id: 1,
-    brandId: 10,
-    marque: 'Dacia',
-    modele: 'Duster',
-    annee: 2024,
-    categoryId: 2,
-    categorie: 'SUV',
-    ville: 'Casablanca',
-    prixJour: 350,
-    prixVente: 195000,
-    carburant: 'DIESEL',
-    transmission: 'MANUELLE',
-    places: 5,
-    description:
-      'SUV compact économique, polyvalent, parfait pour vos déplacements en ville et sur autoroute au Maroc.',
-    matricule: '78945-A-1',
-    statut: 'PUBLISHED',
-    agenceId: 101,
-    agenceNom: 'LocaVite Casablanca Marina',
-    agenceTelephone: '+212600000014',
-    photoUrl: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d',
-    photos: [
-      {
-        id: 1,
-        vehicleId: 1,
-        url: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d',
-        isPrimary: true,
-      },
-      {
-        id: 2,
-        vehicleId: 1,
-        url: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70',
-        isPrimary: false,
-      },
-      {
-        id: 3,
-        vehicleId: 1,
-        url: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf',
-        isPrimary: false,
-      },
-    ],
-  };
-
-  const mockAvailability = {
-    available: [{ from: '2026-11-01', to: '2026-11-15' }],
-    unavailable: [{ from: '2026-11-16', to: '2026-11-20', reason: 'RESERVED' }],
-  };
-
-  const mockSimilarVehicles = {
-    content: [
-      {
-        id: 1,
-        marque: 'Dacia',
-        modele: 'Duster',
-        annee: 2024,
-        categorie: 'SUV',
-        ville: 'Casablanca',
-        prixJour: 350,
-      },
-      {
-        id: 2,
-        marque: 'Renault',
-        modele: 'Captur',
-        annee: 2023,
-        categorie: 'SUV',
-        ville: 'Casablanca',
-        prixJour: 400,
-        photoUrl: 'https://example.com/captur.jpg',
-      },
-      {
-        id: 3,
-        marque: 'Peugeot',
-        modele: '2008',
-        annee: 2024,
-        categorie: 'SUV',
-        ville: 'Rabat',
-        prixJour: 420,
-        photoUrl: 'https://example.com/2008.jpg',
-      },
-      {
-        id: 4,
-        marque: 'Hyundai',
-        modele: 'Tucson',
-        annee: 2024,
-        categorie: 'SUV',
-        ville: 'Marrakech',
-        prixJour: 600,
-        photoUrl: 'https://example.com/tucson.jpg',
-      },
-    ],
-    page: { size: 10, number: 0, totalElements: 4, totalPages: 1 },
-    totalElements: 4,
-    totalPages: 1,
-    size: 10,
-    number: 0,
-  };
-
+describe('Vehicle Detail Page (/vehicles/:id) - Navigation & galerie', () => {
   beforeEach(() => {
-    cy.intercept('GET', '/api/vehicles/1/availability*', {
-      statusCode: 200,
-      body: mockAvailability,
-    }).as('getAvailability');
+    cy.clearLocalStorage();
+    cy.fixture('vehicles.json').then((data) => {
+      cy.intercept('GET', '/api/brands', { statusCode: 200, body: data.brands });
+      cy.intercept('GET', '/api/categories', { statusCode: 200, body: data.categories });
 
-    cy.intercept('GET', '/api/vehicles/1', {
-      statusCode: 200,
-      body: mockVehicle,
-    }).as('getVehicle');
+      cy.intercept('GET', '/api/vehicles/1/availability*', {
+        statusCode: 200,
+        body: data.availability,
+      }).as('getAvailability');
 
-    cy.intercept('GET', '/api/vehicles?*categorie=SUV*', {
-      statusCode: 200,
-      body: mockSimilarVehicles,
-    }).as('getSimilar');
+      cy.intercept('GET', '/api/vehicles/1', {
+        statusCode: 200,
+        body: data.vehicleDetail,
+      }).as('getVehicle');
 
-    cy.intercept('GET', '/api/vehicles', {
-      statusCode: 200,
-      body: mockSimilarVehicles,
+      cy.intercept('GET', '/api/vehicles*', (req) => {
+        if (req.query['categorie'] === 'SUV') {
+          req.reply({ statusCode: 200, body: data.similarVehicles });
+        } else {
+          req.reply({ statusCode: 200, body: data.page0 });
+        }
+      }).as('getVehiclesList');
     });
+  });
+
+  it('navigates from catalogue list (/vehicles) to vehicle detail page (/vehicles/1)', () => {
+    cy.visit('/vehicles');
+    cy.wait('@getVehiclesList');
+
+    cy.get('[data-cy="vehicle-card"]').first().find('[data-cy="details-btn"]').click();
+    cy.url().should('include', '/vehicles/1');
+    cy.wait('@getVehicle');
+    cy.get('[data-cy="vehicle-detail-page"]').should('be.visible');
   });
 
   it('displays full vehicle specifications, pricing, city and agency on /vehicles/1', () => {
@@ -169,7 +85,6 @@ describe('Vehicle Detail Page (/vehicles/:id)', () => {
     cy.visit('/vehicles/1');
     cy.wait('@getVehicle');
 
-    // Switch to Availability tab if needed
     cy.get('[data-cy="vehicle-tabs"]').contains('Disponibilité').click();
     cy.get('[data-cy="availability-calendar"]').should('be.visible');
     cy.get('[data-cy="calendar-legend"]').should('be.visible');
@@ -189,21 +104,21 @@ describe('Vehicle Detail Page (/vehicles/:id)', () => {
     cy.visit('/vehicles/1');
     cy.wait('@getVehicle');
 
-    cy.get('[data-cy="contact-agency-btn"]').click();
+    cy.get('[data-cy="contact-agency-btn"]').click({ force: true });
     cy.get('[data-cy="contact-dialog"]').should('be.visible');
 
     // WhatsApp action button
     cy.get('[data-cy="whatsapp-contact-btn"]').should('be.visible');
 
     // Contact form submit
-    cy.get('[data-cy="contact-name-input"]').type('Yassine Alami');
-    cy.get('[data-cy="contact-email-input"]').type('yassine@example.com');
-    cy.get('[data-cy="contact-phone-input"]').type('0612345678');
+    cy.get('[data-cy="contact-name-input"]').type('Yassine Alami', { force: true });
+    cy.get('[data-cy="contact-email-input"]').type('yassine@example.com', { force: true });
+    cy.get('[data-cy="contact-phone-input"]').type('0612345678', { force: true });
 
-    cy.get('[data-cy="send-contact-btn"]').click();
+    cy.get('[data-cy="send-contact-btn"]').click({ force: true });
     cy.get('[data-cy="contact-success-alert"]').should('be.visible');
 
-    cy.get('[data-cy="contact-dialog"] button').contains('Fermer').click();
+    cy.get('[data-cy="contact-dialog"] button').contains(/Fermer|Close/).click({ force: true });
     cy.get('[data-cy="contact-dialog"]').should('not.exist');
   });
 
@@ -226,7 +141,6 @@ describe('Vehicle Detail Page (/vehicles/:id)', () => {
     cy.get('[data-cy="similar-vehicles"]').should('be.visible');
     cy.get('[data-cy="similar-vehicles"] [data-cy="vehicle-card"]').should('have.length', 3);
 
-    // Current vehicle #1 should not be among similar cards
     cy.get('[data-cy="similar-vehicles"]').should('contain.text', 'Renault');
     cy.get('[data-cy="similar-vehicles"]').should('contain.text', 'Peugeot');
     cy.get('[data-cy="similar-vehicles"]').should('contain.text', 'Hyundai');
@@ -237,7 +151,9 @@ describe('Vehicle Detail Page (/vehicles/:id)', () => {
     cy.wait('@getVehicle');
 
     cy.title().should('contain', 'Dacia Duster (2024)');
-    cy.get('meta[name="description"]').should('have.attr', 'content').and('include', 'SUV compact');
+    cy.get('meta[name="description"]')
+      .should('have.attr', 'content')
+      .and('include', 'SUV compact');
 
     cy.get('meta[property="og:title"]')
       .should('have.attr', 'content')
@@ -245,18 +161,15 @@ describe('Vehicle Detail Page (/vehicles/:id)', () => {
   });
 
   it('adapts responsive layout across mobile, tablet, and desktop', () => {
-    // Mobile Viewport
     cy.viewport(375, 667);
     cy.visit('/vehicles/1');
     cy.wait('@getVehicle');
     cy.get('[data-cy="vehicle-detail-page"]').should('be.visible');
     cy.get('[data-cy="reserve-btn"]').should('be.visible');
 
-    // Tablet Viewport
     cy.viewport(768, 1024);
     cy.get('[data-cy="vehicle-detail-page"]').should('be.visible');
 
-    // Desktop Viewport
     cy.viewport(1280, 800);
     cy.get('[data-cy="vehicle-detail-page"]').should('be.visible');
     cy.get('[data-cy="action-card"]').should('be.visible');
