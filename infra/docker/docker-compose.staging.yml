@@ -109,7 +109,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "4200:80"
+      - "4200:8080"
     networks:
       - locavite-staging-network
 

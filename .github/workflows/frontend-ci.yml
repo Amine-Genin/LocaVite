@@ -40,7 +40,7 @@ jobs:
           cache-dependency-path: 'frontend/package-lock.json'
 
       - name: Install dependencies (npm ci)
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run linter (npm run lint)
         run: npm run lint
@@ -94,7 +94,7 @@ jobs:
 
       - name: Install dependencies (npm ci)
         working-directory: frontend
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run Cypress E2E tests (npm run e2e:ci)
         working-directory: frontend

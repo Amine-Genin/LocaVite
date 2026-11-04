@@ -71,17 +71,13 @@ async function isServerUp(url) {
   return false;
 }
 
-function killProcessTree(child) {
+function stopServerProcess(child) {
   if (!child || !child.pid) return;
   try {
-    if (process.platform === 'win32') {
-      spawnSync('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
-    } else {
-      process.kill(-child.pid, 'SIGTERM');
-    }
+    child.kill('SIGTERM');
   } catch {
     try {
-      child.kill('SIGTERM');
+      process.kill(child.pid);
     } catch {
       // Ignore cleanup errors
     }
@@ -112,7 +108,6 @@ async function main() {
       {
         stdio: ['ignore', 'pipe', 'pipe'],
         env: process.env,
-        detached: process.platform !== 'win32',
       },
     );
 
@@ -140,7 +135,7 @@ async function main() {
 
     if (!ready) {
       console.error(`[e2e:ci] Timed out waiting for ${baseUrl}`);
-      killProcessTree(serverProcess);
+      stopServerProcess(serverProcess);
       process.exit(1);
     }
     await new Promise((r) => setTimeout(r, 1500));
@@ -157,7 +152,7 @@ async function main() {
 
   if (serverProcess) {
     console.log('[e2e:ci] Stopping Angular dev server...');
-    killProcessTree(serverProcess);
+    stopServerProcess(serverProcess);
   }
 
   process.exit(result.status ?? 1);
