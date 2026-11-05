@@ -77,6 +77,12 @@ class VehicleServiceTest {
 
     // ==================== HELPERS ====================
 
+    private VehicleFilter sampleFilter() {
+        return new VehicleFilter(
+                null, null, null, null, null, null, null, null, null, null, null
+        );
+    }
+
     private VehicleRequest sampleRequest() {
         return new VehicleRequest(
                 1L, "Corolla", 2022,
@@ -330,7 +336,7 @@ class VehicleServiceTest {
     @Test
     void search_shouldReturnPagedVehicles() {
         Pageable pageable = PageRequest.of(0, 10);
-        VehicleFilter filter = mock(VehicleFilter.class);
+        VehicleFilter filter = sampleFilter();
         Vehicle vehicle =
                 sampleVehicle(1L, 7L, VehicleStatus.PUBLISHED);
 
@@ -356,7 +362,7 @@ class VehicleServiceTest {
     @Test
     void search_shouldReturnEmptyPage() {
         Pageable pageable = PageRequest.of(0, 10);
-        VehicleFilter filter = mock(VehicleFilter.class);
+        VehicleFilter filter = sampleFilter();
 
         when(repository.findAll(
                 org.mockito.ArgumentMatchers
