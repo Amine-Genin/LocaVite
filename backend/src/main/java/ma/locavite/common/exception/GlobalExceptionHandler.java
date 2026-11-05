@@ -3,6 +3,11 @@ package ma.locavite.common.exception;
 import ma.locavite.auth.exception.EmailAlreadyExistsException;
 import ma.locavite.auth.exception.InvalidTokenException;
 import ma.locavite.catalog.exception.DuplicateCatalogEntryException;
+import ma.locavite.reservation.exception.ClientDocumentsNotValidatedException;
+import ma.locavite.reservation.exception.InvalidReservationDatesException;
+import ma.locavite.reservation.exception.InvalidReservationStatusException;
+import ma.locavite.reservation.exception.ReservationNotFoundException;
+import ma.locavite.reservation.exception.VehicleNotAvailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,8 +36,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
-    @ExceptionHandler(DuplicateCatalogEntryException.class)
-    public ResponseEntity<Map<String, Object>> handleDuplicateCatalogEntry(DuplicateCatalogEntryException ex) {
+    @ExceptionHandler({DuplicateCatalogEntryException.class, VehicleNotAvailableException.class})
+    public ResponseEntity<Map<String, Object>> handleDuplicateCatalogEntry(RuntimeException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", HttpStatus.CONFLICT.value());
@@ -41,7 +46,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
-    @ExceptionHandler({InvalidRoleException.class, SelfRoleModificationException.class, IllegalArgumentException.class})
+    @ExceptionHandler({
+            InvalidRoleException.class,
+            SelfRoleModificationException.class,
+            IllegalArgumentException.class,
+            IllegalStateException.class,
+            InvalidReservationDatesException.class,
+            InvalidReservationStatusException.class
+    })
     public ResponseEntity<Map<String, Object>> handleBadRequestExceptions(RuntimeException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
@@ -55,7 +67,8 @@ public class GlobalExceptionHandler {
             UserNotFoundException.class,
             ma.locavite.document.exception.DocumentNotFoundException.class,
             ma.locavite.vehicle.exception.VehicleNotFoundException.class,
-            ma.locavite.vehicle.exception.VehiclePhotoNotFoundException.class
+            ma.locavite.vehicle.exception.VehiclePhotoNotFoundException.class,
+            ReservationNotFoundException.class
     })
     public ResponseEntity<Map<String, Object>> handleUserNotFound(RuntimeException ex) {
         Map<String, Object> body = new HashMap<>();
@@ -89,7 +102,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(body);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler({AccessDeniedException.class, ClientDocumentsNotValidatedException.class})
     public ResponseEntity<Map<String, Object>> handleAccessDenied(AccessDeniedException ex) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
