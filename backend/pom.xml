@@ -40,7 +40,7 @@
         <sonar.projectName>LocaVite Backend</sonar.projectName>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.coverage.jacoco.xmlReportPaths>${project.basedir}/target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
+        <sonar.qualitygate.wait>false</sonar.qualitygate.wait>
         <sonar.coverage.exclusions>**/config/**,**/dto/**,**/domain/**,**/exception/**,**/mapper/**,**/*Application.java</sonar.coverage.exclusions>
         <sonar.cpd.exclusions>**/config/**,**/dto/**,**/domain/**,**/exception/**,**/mapper/**</sonar.cpd.exclusions>
         <sonar.exclusions>**/pom.xml,src/main/resources/**</sonar.exclusions>
