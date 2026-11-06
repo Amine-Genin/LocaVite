@@ -24,6 +24,9 @@
     "name" : "Vehicle photos",
     "description" : "Gestion des photos des véhicules"
   }, {
+    "name" : "Reservations",
+    "description" : "Endpoints de gestion et réservation de véhicules"
+  }, {
     "name" : "Documents",
     "description" : "Endpoints d'administration et de validation des documents utilisateurs"
   }, {
@@ -165,6 +168,9 @@
         "description" : "Retourne les informations du profil de l'utilisateur actuellement authentifié via JWT.",
         "operationId" : "getMe",
         "responses" : {
+          "403" : {
+            "description" : "Accès refusé"
+          },
           "200" : {
             "description" : "Profil récupéré avec succès",
             "content" : {
@@ -177,9 +183,6 @@
           },
           "401" : {
             "description" : "Non authentifié (token JWT manquant ou invalide)"
-          },
-          "403" : {
-            "description" : "Accès refusé"
           }
         },
         "security" : [ {
@@ -202,6 +205,9 @@
           "required" : true
         },
         "responses" : {
+          "403" : {
+            "description" : "Accès refusé"
+          },
           "400" : {
             "description" : "Données de formulaire invalides"
           },
@@ -217,9 +223,170 @@
                 }
               }
             }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/reservations/{id}" : {
+      "get" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Consulter une réservation par ID",
+        "description" : "Accessible par le propriétaire, l'agence propriétaire du véhicule ou un administrateur.",
+        "operationId" : "getById_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "403" : {
+            "description" : "Accès non autorisé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Réservation non trouvée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Détails de la réservation",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Modifier une réservation",
+        "description" : "Modifiable par le propriétaire uniquement si la réservation est en statut PENDING.",
+        "operationId" : "update_1",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReservationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Réservation modifiée avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Accès refusé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Réservation non trouvée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Statut non modifiable ou dates invalides",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Véhicule non disponible sur la nouvelle période",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Annuler une réservation",
+        "description" : "Passe le statut de la réservation à CANCELLED.",
+        "operationId" : "cancel",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "400" : {
+            "description" : "Réservation déjà terminée ou annulée"
           },
           "403" : {
             "description" : "Accès refusé"
+          },
+          "204" : {
+            "description" : "Réservation annulée avec succès"
+          },
+          "404" : {
+            "description" : "Réservation non trouvée"
           }
         },
         "security" : [ {
@@ -264,11 +431,11 @@
               }
             }
           },
-          "400" : {
-            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
-          },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "400" : {
+            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
           },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
@@ -309,12 +476,6 @@
           "required" : true
         },
         "responses" : {
-          "400" : {
-            "description" : "Requête invalide (statut non supporté)"
-          },
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "200" : {
             "description" : "Document vérifié avec succès",
             "content" : {
@@ -324,6 +485,12 @@
                 }
               }
             }
+          },
+          "400" : {
+            "description" : "Requête invalide (statut non supporté)"
+          },
+          "401" : {
+            "description" : "Non authentifié"
           },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
@@ -540,6 +707,12 @@
           }
         },
         "responses" : {
+          "400" : {
+            "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "201" : {
             "description" : "Document téléversé avec succès",
             "content" : {
@@ -549,12 +722,115 @@
                 }
               }
             }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/reservations" : {
+      "get" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Lister toutes les réservations (AGENCE / ADMIN)",
+        "description" : "Retourne toutes les réservations pour un ADMIN, ou uniquement celles de ses véhicules pour une AGENCE.",
+        "operationId" : "getAll",
+        "parameters" : [ {
+          "name" : "filter",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/ReservationFilter"
+          }
+        }, {
+          "name" : "pageable",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageReservationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Créer une réservation (CLIENT)",
+        "description" : "Crée une nouvelle réservation avec vérification des dates, de la disponibilité et des documents client.",
+        "operationId" : "create_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReservationRequest"
+              }
+            }
           },
+          "required" : true
+        },
+        "responses" : {
           "400" : {
-            "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
+            "description" : "Dates invalides ou données manquantes",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "201" : {
+            "description" : "Réservation créée avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Documents client non validés",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Véhicule non trouvé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Véhicule déjà réservé sur la période",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
           }
         },
         "security" : [ {
@@ -579,9 +855,6 @@
           "required" : true
         },
         "responses" : {
-          "400" : {
-            "description" : "Données d'inscription invalides ou email déjà utilisé"
-          },
           "201" : {
             "description" : "Utilisateur créé avec succès",
             "content" : {
@@ -591,6 +864,9 @@
                 }
               }
             }
+          },
+          "400" : {
+            "description" : "Données d'inscription invalides ou email déjà utilisé"
           }
         }
       }
@@ -670,6 +946,12 @@
           "required" : true
         },
         "responses" : {
+          "401" : {
+            "description" : "Email ou mot de passe incorrect"
+          },
+          "400" : {
+            "description" : "Format de la requête invalide"
+          },
           "200" : {
             "description" : "Authentification réussie",
             "content" : {
@@ -679,12 +961,6 @@
                 }
               }
             }
-          },
-          "400" : {
-            "description" : "Format de la requête invalide"
-          },
-          "401" : {
-            "description" : "Email ou mot de passe incorrect"
           }
         }
       }
@@ -743,6 +1019,70 @@
             }
           }
         }
+      }
+    },
+    "/api/reservations/{id}/confirm" : {
+      "patch" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Confirmer une réservation",
+        "description" : "Passe le statut à CONFIRMED.",
+        "operationId" : "confirm",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/reservations/{id}/complete" : {
+      "patch" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Terminer une réservation",
+        "description" : "Passe le statut à COMPLETED.",
+        "operationId" : "complete",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
       }
     },
     "/api/vehicles/{id}/availability" : {
@@ -848,9 +1188,6 @@
           "403" : {
             "description" : "Accès non autorisé à ce document"
           },
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "200" : {
             "description" : "Document récupéré avec succès",
             "content" : {
@@ -860,6 +1197,9 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Non authentifié"
           },
           "404" : {
             "description" : "Document introuvable"
@@ -896,6 +1236,37 @@
           },
           "404" : {
             "description" : "Document introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/reservations/me" : {
+      "get" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Lister mes réservations (CLIENT)",
+        "description" : "Retourne la liste paginée des réservations du client connecté.",
+        "operationId" : "getMyReservations",
+        "parameters" : [ {
+          "name" : "pageable",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PageReservationResponse"
+                }
+              }
+            }
           }
         },
         "security" : [ {
@@ -964,6 +1335,9 @@
           "401" : {
             "description" : "Non authentifié"
           },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
           "200" : {
             "description" : "Liste paginée des utilisateurs récupérée",
             "content" : {
@@ -973,9 +1347,6 @@
                 }
               }
             }
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
           }
         },
         "security" : [ {
@@ -1000,9 +1371,6 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "200" : {
             "description" : "Document récupéré avec succès",
             "content" : {
@@ -1012,6 +1380,9 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Non authentifié"
           },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
@@ -1295,6 +1666,136 @@
           }
         },
         "description" : "Représentation publique d'un utilisateur sans mot de passe"
+      },
+      "ReservationRequest" : {
+        "required" : [ "dateDebut", "dateFin", "lieuPriseEnCharge", "lieuRetour", "vehicleId" ],
+        "type" : "object",
+        "properties" : {
+          "vehicleId" : {
+            "type" : "integer",
+            "description" : "Identifiant du véhicule",
+            "format" : "int64",
+            "example" : 1
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "description" : "Date de début de réservation (format YYYY-MM-DD)",
+            "format" : "date",
+            "example" : "2026-11-10"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "description" : "Date de fin de réservation (format YYYY-MM-DD)",
+            "format" : "date",
+            "example" : "2026-11-15"
+          },
+          "lieuPriseEnCharge" : {
+            "type" : "string",
+            "description" : "Lieu de prise en charge du véhicule",
+            "example" : "Aéroport Mohammed V, Casablanca"
+          },
+          "lieuRetour" : {
+            "type" : "string",
+            "description" : "Lieu de retour du véhicule",
+            "example" : "Aéroport Mohammed V, Casablanca"
+          },
+          "options" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Options sélectionnées (GPS, BABY_SEAT, EXTRA_DRIVER)",
+            "items" : {
+              "type" : "string",
+              "description" : "Options sélectionnées (GPS, BABY_SEAT, EXTRA_DRIVER)",
+              "enum" : [ "GPS", "BABY_SEAT", "EXTRA_DRIVER" ]
+            }
+          }
+        }
+      },
+      "ReservationResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "description" : "Identifiant unique de la réservation",
+            "format" : "int64",
+            "example" : 1
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Code unique de réservation au format LV-XXXXXX",
+            "example" : "LV-A1B2C3"
+          },
+          "userId" : {
+            "type" : "integer",
+            "description" : "Identifiant de l'utilisateur ayant réservé",
+            "format" : "int64",
+            "example" : 42
+          },
+          "vehicleId" : {
+            "type" : "integer",
+            "description" : "Identifiant du véhicule réservé",
+            "format" : "int64",
+            "example" : 10
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "description" : "Date de début",
+            "format" : "date",
+            "example" : "2026-11-10"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "description" : "Date de fin",
+            "format" : "date",
+            "example" : "2026-11-15"
+          },
+          "lieuPriseEnCharge" : {
+            "type" : "string",
+            "description" : "Lieu de prise en charge",
+            "example" : "Aéroport Mohammed V, Casablanca"
+          },
+          "lieuRetour" : {
+            "type" : "string",
+            "description" : "Lieu de retour",
+            "example" : "Aéroport Mohammed V, Casablanca"
+          },
+          "prixTotal" : {
+            "type" : "number",
+            "description" : "Prix total de la réservation",
+            "example" : 1500.0
+          },
+          "caution" : {
+            "type" : "number",
+            "description" : "Montant de la caution",
+            "example" : 3000.0
+          },
+          "statut" : {
+            "type" : "string",
+            "description" : "Statut de la réservation",
+            "example" : "PENDING",
+            "enum" : [ "PENDING", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED" ]
+          },
+          "options" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Options de la réservation",
+            "items" : {
+              "type" : "string",
+              "description" : "Options de la réservation",
+              "enum" : [ "GPS", "BABY_SEAT", "EXTRA_DRIVER" ]
+            }
+          },
+          "createdAt" : {
+            "type" : "string",
+            "description" : "Date et heure de création",
+            "format" : "date-time"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "description" : "Date et heure de dernière mise à jour",
+            "format" : "date-time"
+          }
+        }
       },
       "AssignRolesRequest" : {
         "required" : [ "roles" ],
@@ -1650,19 +2151,6 @@
             "type" : "integer",
             "format" : "int64"
           },
-          "numberOfElements" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "first" : {
-            "type" : "boolean"
-          },
-          "last" : {
-            "type" : "boolean"
-          },
-          "pageable" : {
-            "$ref" : "#/components/schemas/PageableObject"
-          },
           "size" : {
             "type" : "integer",
             "format" : "int32"
@@ -1683,6 +2171,19 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
           "empty" : {
             "type" : "boolean"
           }
@@ -1691,20 +2192,6 @@
       "PageableObject" : {
         "type" : "object",
         "properties" : {
-          "paged" : {
-            "type" : "boolean"
-          },
-          "unpaged" : {
-            "type" : "boolean"
-          },
-          "pageNumber" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "pageSize" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "offset" : {
             "type" : "integer",
             "format" : "int64"
@@ -1714,6 +2201,20 @@
             "items" : {
               "$ref" : "#/components/schemas/SortObject"
             }
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          },
+          "paged" : {
+            "type" : "boolean"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
           }
         }
       },
@@ -1737,7 +2238,41 @@
           }
         }
       },
-      "PageUserResponse" : {
+      "ReservationFilter" : {
+        "type" : "object",
+        "properties" : {
+          "userId" : {
+            "type" : "integer",
+            "description" : "Filtrer par identifiant utilisateur",
+            "format" : "int64"
+          },
+          "vehicleId" : {
+            "type" : "integer",
+            "description" : "Filtrer par identifiant véhicule",
+            "format" : "int64"
+          },
+          "statut" : {
+            "type" : "string",
+            "description" : "Filtrer par statut de réservation",
+            "enum" : [ "PENDING", "CONFIRMED", "ACTIVE", "COMPLETED", "CANCELLED" ]
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Filtrer par code de réservation"
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "description" : "Date début minimale",
+            "format" : "date"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "description" : "Date fin maximale",
+            "format" : "date"
+          }
+        }
+      },
+      "PageReservationResponse" : {
         "type" : "object",
         "properties" : {
           "totalPages" : {
@@ -1747,6 +2282,26 @@
           "totalElements" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/ReservationResponse"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
           },
           "numberOfElements" : {
             "type" : "integer",
@@ -1760,6 +2315,22 @@
           },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PageUserResponse" : {
+        "type" : "object",
+        "properties" : {
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
           },
           "size" : {
             "type" : "integer",
@@ -1780,6 +2351,19 @@
             "items" : {
               "$ref" : "#/components/schemas/SortObject"
             }
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
           },
           "empty" : {
             "type" : "boolean"

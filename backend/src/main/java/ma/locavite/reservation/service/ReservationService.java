@@ -445,6 +445,9 @@ public class ReservationService {
     }
 
     public boolean isAgence() {
+        if (currentUserService != null && currentUserService.isAgence()) {
+            return true;
+        }
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
             return false;

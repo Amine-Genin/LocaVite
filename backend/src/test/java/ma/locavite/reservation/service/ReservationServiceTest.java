@@ -40,6 +40,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -415,6 +416,15 @@ class ReservationServiceTest {
         assertThatThrownBy(() -> reservationService.update(100L, updateReq))
                 .isInstanceOf(InvalidReservationStatusException.class)
                 .hasMessageContaining("PENDING");
+    }
+
+    @Test
+    @DisplayName("Test : une agence reconnue par CurrentUserService est bien détectée")
+    void isAgence_whenCurrentUserServiceReportsAgency_returnsTrue() {
+        SecurityContextHolder.clearContext();
+        when(currentUserService.isAgence()).thenReturn(true);
+
+        assertThat(reservationService.isAgence()).isTrue();
     }
 
     @Test
