@@ -1,3 +1,11 @@
 <div [dir]="langService.direction()">
+  @if (!networkService.isOnline()) {
+    <div class="offline-top-bar" role="alert">
+      <span class="offline-bar-icon">⚠️</span>
+      <span>{{ 'OFFLINE.BANNER_MSG' | translate }}</span>
+      <a routerLink="/offline" class="offline-bar-link">{{ 'OFFLINE.LEARN_MORE' | translate }}</a>
+    </div>
+  }
   <router-outlet />
+  <app-pwa-install-prompt />
 </div>

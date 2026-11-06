@@ -298,5 +298,21 @@
       "NOT_FOUND_TITLE": "Vehicle not found",
       "NOT_FOUND_MSG": "The requested vehicle does not exist or has been deactivated."
     }
+  },
+  "PWA": {
+    "INSTALL_TITLE": "Install LocaVite App",
+    "INSTALL_DESC": "Install the app on your device for fast access and offline experience.",
+    "INSTALL_BTN": "Install",
+    "LATER": "Later"
+  },
+  "OFFLINE": {
+    "TITLE": "You are offline",
+    "DESC": "No internet connection detected. Cached data remains accessible. You can resume browsing once your connection is restored.",
+    "BACK_ONLINE_TITLE": "Back online!",
+    "BACK_ONLINE_DESC": "Your internet connection has been restored.",
+    "RETRY_BTN": "Try again",
+    "HOME_BTN": "Back to home",
+    "BANNER_MSG": "You are currently offline.",
+    "LEARN_MORE": "Learn more"
   }
 }
