@@ -100,8 +100,9 @@ public class ReservationService {
         // 2. Validation dates : dateDebut < dateFin, dateDebut >= aujourd'hui
         validateDates(request.dateDebut(), request.dateFin());
 
-        // 3. Vérification existence et disponibilité véhicule
-        Vehicle vehicle = vehicleRepository.findById(request.vehicleId())
+        // 3. Vérification existence et disponibilité véhicule (verrou pessimiste pour concurrence)
+        Vehicle vehicle = vehicleRepository.findByIdWithLock(request.vehicleId())
+                .or(() -> vehicleRepository.findById(request.vehicleId()))
                 .orElseThrow(() -> new VehicleNotFoundException(request.vehicleId()));
 
         if (vehicle.getStatut() == VehicleStatus.ARCHIVED) {
@@ -364,7 +365,51 @@ public class ReservationService {
         }
     }
 
+    /**
+     * Vérifie la disponibilité d'un véhicule sur une période donnée [dateDebut, dateFin[.
+     *
+     * @param vehicleId identifiant du véhicule
+     * @param dateDebut date de début souhaitée
+     * @param dateFin   date de fin souhaitée
+     * @return true si le véhicule est disponible, false sinon
+     */
+    @Transactional(readOnly = true)
+    public boolean isAvailable(Long vehicleId, LocalDate dateDebut, LocalDate dateFin) {
+        if (vehicleId == null || dateDebut == null || dateFin == null) {
+            return false;
+        }
+        if (!dateDebut.isBefore(dateFin)) {
+            return false;
+        }
+        Optional<Vehicle> vehicleOpt = vehicleRepository.findById(vehicleId);
+        if (vehicleOpt.isEmpty()) {
+            return false;
+        }
+        Vehicle vehicle = vehicleOpt.get();
+        if (vehicle.getStatut() == VehicleStatus.ARCHIVED || vehicle.getStatut() == VehicleStatus.SOLD) {
+            return false;
+        }
+
+        long count = reservationRepository.countOverlapping(vehicleId, dateDebut, dateFin, null);
+        if (count > 0) {
+            return false;
+        }
+
+        List<Reservation> conflicts = reservationRepository.findOverlappingReservations(
+                vehicleId,
+                dateDebut,
+                dateFin,
+                BLOCKING_STATUSES,
+                null
+        );
+        return conflicts.isEmpty();
+    }
+
     private void checkVehicleAvailability(Long vehicleId, LocalDate dateDebut, LocalDate dateFin, Long excludedId) {
+        long count = reservationRepository.countOverlapping(vehicleId, dateDebut, dateFin, excludedId);
+        if (count > 0) {
+            throw new VehicleNotAvailableException("Le véhicule est déjà réservé sur la période sélectionnée");
+        }
         List<Reservation> conflicts = reservationRepository.findOverlappingReservations(
                 vehicleId,
                 dateDebut,

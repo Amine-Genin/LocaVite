@@ -446,4 +446,144 @@ class ReservationServiceTest {
         assertThat(cancelled.statut()).isEqualTo(ReservationStatus.CANCELLED);
         verify(availabilityService).invalidateCache();
     }
+
+    @Test
+    @DisplayName("DGL-55 Test : véhicule libre → true")
+    void isAvailable_whenVehicleFree_returnsTrue() {
+        LocalDate debut = LocalDate.now().plusDays(2);
+        LocalDate fin = LocalDate.now().plusDays(5);
+        Vehicle vehicle = createVehicle(VEHICLE_ID, AGENCE_ID, new BigDecimal("400.00"));
+
+        when(vehicleRepository.findById(VEHICLE_ID)).thenReturn(Optional.of(vehicle));
+        when(reservationRepository.countOverlapping(VEHICLE_ID, debut, fin, null)).thenReturn(0L);
+        when(reservationRepository.findOverlappingReservations(eq(VEHICLE_ID), eq(debut), eq(fin), any(), eq(null)))
+                .thenReturn(Collections.emptyList());
+
+        boolean available = reservationService.isAvailable(VEHICLE_ID, debut, fin);
+
+        assertThat(available).isTrue();
+    }
+
+    @Test
+    @DisplayName("DGL-55 Test : chevauchement exact → false")
+    void isAvailable_whenExactOverlap_returnsFalse() {
+        LocalDate debut = LocalDate.now().plusDays(2);
+        LocalDate fin = LocalDate.now().plusDays(5);
+        Vehicle vehicle = createVehicle(VEHICLE_ID, AGENCE_ID, new BigDecimal("400.00"));
+
+        when(vehicleRepository.findById(VEHICLE_ID)).thenReturn(Optional.of(vehicle));
+        when(reservationRepository.countOverlapping(VEHICLE_ID, debut, fin, null)).thenReturn(1L);
+
+        boolean available = reservationService.isAvailable(VEHICLE_ID, debut, fin);
+
+        assertThat(available).isFalse();
+    }
+
+    @Test
+    @DisplayName("DGL-55 Test : chevauchement partiel → false")
+    void isAvailable_whenPartialOverlap_returnsFalse() {
+        LocalDate debut = LocalDate.now().plusDays(3);
+        LocalDate fin = LocalDate.now().plusDays(7);
+        Vehicle vehicle = createVehicle(VEHICLE_ID, AGENCE_ID, new BigDecimal("400.00"));
+
+        when(vehicleRepository.findById(VEHICLE_ID)).thenReturn(Optional.of(vehicle));
+        when(reservationRepository.countOverlapping(VEHICLE_ID, debut, fin, null)).thenReturn(1L);
+
+        boolean available = reservationService.isAvailable(VEHICLE_ID, debut, fin);
+
+        assertThat(available).isFalse();
+    }
+
+    @Test
+    @DisplayName("DGL-55 Test : après annulation → redevenu disponible")
+    void isAvailable_afterCancellation_returnsTrue() {
+        LocalDate debut = LocalDate.now().plusDays(2);
+        LocalDate fin = LocalDate.now().plusDays(5);
+        Vehicle vehicle = createVehicle(VEHICLE_ID, AGENCE_ID, new BigDecimal("400.00"));
+
+        when(currentUserService.getCurrentUserId()).thenReturn(Optional.of(CLIENT_ID));
+        when(currentUserService.isAdmin()).thenReturn(false);
+
+        Reservation res = new Reservation();
+        res.setId(100L);
+        res.setUserId(CLIENT_ID);
+        res.setVehicleId(VEHICLE_ID);
+        res.setDateDebut(debut);
+        res.setDateFin(fin);
+        res.setStatut(ReservationStatus.PENDING);
+
+        when(reservationRepository.findById(100L)).thenReturn(Optional.of(res));
+        when(reservationRepository.save(any(Reservation.class))).thenAnswer(i -> i.getArgument(0));
+
+        // 1. Annulation
+        reservationService.cancel(100L);
+        verify(availabilityService).invalidateCache();
+
+        // 2. Vérification disponibilité : la requête countOverlapping exclut le statut CANCELLED
+        when(vehicleRepository.findById(VEHICLE_ID)).thenReturn(Optional.of(vehicle));
+        when(reservationRepository.countOverlapping(VEHICLE_ID, debut, fin, null)).thenReturn(0L);
+        when(reservationRepository.findOverlappingReservations(eq(VEHICLE_ID), eq(debut), eq(fin), any(), eq(null)))
+                .thenReturn(Collections.emptyList());
+
+        boolean available = reservationService.isAvailable(VEHICLE_ID, debut, fin);
+        assertThat(available).isTrue();
+    }
+
+    @Test
+    @DisplayName("DGL-55 Test : 2 créations concurrentes → 1 seule réussit")
+    void create_concurrentRequests_onlyOneSucceeds() throws Exception {
+        mockClientWithValidatedDocs(CLIENT_ID);
+
+        LocalDate debut = LocalDate.now().plusDays(2);
+        LocalDate fin = LocalDate.now().plusDays(5);
+        Vehicle vehicle = createVehicle(VEHICLE_ID, AGENCE_ID, new BigDecimal("400.00"));
+
+        when(vehicleRepository.findByIdWithLock(VEHICLE_ID)).thenReturn(Optional.of(vehicle));
+        when(reservationRepository.existsByCode(anyString())).thenReturn(false);
+
+        // Premier appel : disponible (0 conflit). Deuxième appel : indisponible (1 conflit)
+        java.util.concurrent.atomic.AtomicInteger callCount = new java.util.concurrent.atomic.AtomicInteger(0);
+        when(reservationRepository.countOverlapping(eq(VEHICLE_ID), eq(debut), eq(fin), eq(null)))
+                .thenAnswer(inv -> callCount.getAndIncrement() == 0 ? 0L : 1L);
+
+        when(reservationRepository.save(any(Reservation.class))).thenAnswer(invocation -> {
+            Reservation r = invocation.getArgument(0);
+            r.setId(100L);
+            return r;
+        });
+
+        ReservationRequest request = new ReservationRequest(
+                VEHICLE_ID, debut, fin, "Aéroport Casablanca", "Aéroport Casablanca", null
+        );
+
+        java.util.concurrent.atomic.AtomicInteger successCount = new java.util.concurrent.atomic.AtomicInteger(0);
+        java.util.concurrent.atomic.AtomicInteger failureCount = new java.util.concurrent.atomic.AtomicInteger(0);
+
+        java.util.concurrent.CountDownLatch startLatch = new java.util.concurrent.CountDownLatch(1);
+        java.util.concurrent.CountDownLatch doneLatch = new java.util.concurrent.CountDownLatch(2);
+        java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2);
+
+        for (int i = 0; i < 2; i++) {
+            executor.submit(() -> {
+                try {
+                    startLatch.await();
+                    reservationService.create(request);
+                    successCount.incrementAndGet();
+                } catch (VehicleNotAvailableException expected) {
+                    failureCount.incrementAndGet();
+                } catch (Exception e) {
+                    // unexpected
+                } finally {
+                    doneLatch.countDown();
+                }
+            });
+        }
+
+        startLatch.countDown();
+        doneLatch.await(5, java.util.concurrent.TimeUnit.SECONDS);
+        executor.shutdown();
+
+        assertThat(successCount.get()).isEqualTo(1);
+        assertThat(failureCount.get()).isEqualTo(1);
+    }
 }

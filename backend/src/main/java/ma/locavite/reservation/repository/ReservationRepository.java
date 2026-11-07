@@ -25,6 +25,48 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     Page<Reservation> findByUserId(Long userId, Pageable pageable);
 
     @Query("""
+        SELECT COUNT(r) FROM Reservation r
+        WHERE r.vehicleId = :vehicleId
+          AND r.statut IN (ma.locavite.reservation.domain.ReservationStatus.PENDING,
+                           ma.locavite.reservation.domain.ReservationStatus.CONFIRMED,
+                           ma.locavite.reservation.domain.ReservationStatus.ACTIVE)
+          AND r.dateDebut < :dateFin
+          AND r.dateFin > :dateDebut
+          AND (:excludedId IS NULL OR r.id <> :excludedId)
+    """)
+    long countOverlapping(
+            @Param("vehicleId") Long vehicleId,
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin,
+            @Param("excludedId") Long excludedId
+    );
+
+    default long countOverlapping(Long vehicleId, LocalDate dateDebut, LocalDate dateFin) {
+        return countOverlapping(vehicleId, dateDebut, dateFin, null);
+    }
+
+    @Query("""
+        SELECT r FROM Reservation r
+        WHERE r.vehicleId = :vehicleId
+          AND r.statut IN (ma.locavite.reservation.domain.ReservationStatus.PENDING,
+                           ma.locavite.reservation.domain.ReservationStatus.CONFIRMED,
+                           ma.locavite.reservation.domain.ReservationStatus.ACTIVE)
+          AND r.dateDebut < :dateFin
+          AND r.dateFin > :dateDebut
+          AND (:excludedId IS NULL OR r.id <> :excludedId)
+    """)
+    List<Reservation> findOverlapping(
+            @Param("vehicleId") Long vehicleId,
+            @Param("dateDebut") LocalDate dateDebut,
+            @Param("dateFin") LocalDate dateFin,
+            @Param("excludedId") Long excludedId
+    );
+
+    default List<Reservation> findOverlapping(Long vehicleId, LocalDate dateDebut, LocalDate dateFin) {
+        return findOverlapping(vehicleId, dateDebut, dateFin, null);
+    }
+
+    @Query("""
         SELECT r FROM Reservation r
         WHERE r.vehicleId = :vehicleId
           AND r.statut IN (:statuses)

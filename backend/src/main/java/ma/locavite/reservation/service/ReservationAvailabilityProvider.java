@@ -28,13 +28,21 @@ public class ReservationAvailabilityProvider implements ReservationProvider {
                 ReservationStatus.CONFIRMED,
                 ReservationStatus.ACTIVE
         );
-        List<Reservation> overlapping = reservationRepository.findOverlappingReservations(
+        List<Reservation> overlapping = reservationRepository.findOverlapping(
                 vehicleId,
                 from,
                 to,
-                activeStatuses,
                 null
         );
+        if (overlapping.isEmpty()) {
+            overlapping = reservationRepository.findOverlappingReservations(
+                    vehicleId,
+                    from,
+                    to,
+                    activeStatuses,
+                    null
+            );
+        }
 
         return overlapping.stream()
                 .map(r -> new UnavailablePeriod(r.getDateDebut(), r.getDateFin(), "RESERVATION"))
