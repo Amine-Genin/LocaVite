@@ -1,0 +1,88 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 6,
+    "passes": 6,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-11-04T10:07:33.630Z",
+    "end": "2026-11-04T10:07:42.105Z",
+    "duration": 8475,
+    "passPercent": 100
+  },
+  "results": [
+    {
+      "file": "cypress\\e2e\\login.cy.js",
+      "suites": [
+        {
+          "title": "Page de connexion (Login)",
+          "tests": [
+            {
+              "title": "affiche tous les éléments du formulaire de connexion",
+              "fullTitle": "Page de connexion (Login) affiche tous les éléments du formulaire de connexion",
+              "duration": 2632,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "désactive le bouton de soumission si le formulaire est invalide",
+              "fullTitle": "Page de connexion (Login) désactive le bouton de soumission si le formulaire est invalide",
+              "duration": 1529,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche un message derreur lors dun échec de connexion (mauvais identifiants)",
+              "fullTitle": "Page de connexion (Login) affiche un message derreur lors dun échec de connexion (mauvais identifiants)",
+              "duration": 1270,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "se connecte avec succès, stocke le JWT et redirige",
+              "fullTitle": "Page de connexion (Login) se connecte avec succès, stocke le JWT et redirige",
+              "duration": 1375,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "prend en charge le support multilingue (FR / AR / EN)",
+              "fullTitle": "Page de connexion (Login) prend en charge le support multilingue (FR / AR / EN)",
+              "duration": 814,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "navigue vers la page dinscription via le lien",
+              "fullTitle": "Page de connexion (Login) navigue vers la page dinscription via le lien",
+              "duration": 486,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 6,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    }
+  ]
+}

@@ -9,11 +9,11 @@ WORKDIR /build
 
 # Mise en cache des dépendances Maven
 COPY pom.xml ./
-RUN mvn dependency:go-offline -B || true
+RUN mvn dependency:go-offline -B -Daether.remoteRepositoryFilter.prefixes=false -Dmaven.wagon.http.retryHandler.count=3 || true
 
 # Copie des sources et packaging de l'exécutable Spring Boot
 COPY src ./src
-RUN mvn clean package -DskipTests -B
+RUN mvn clean package -DskipTests -B -Daether.remoteRepositoryFilter.prefixes=false -Dmaven.wagon.http.retryHandler.count=3
 
 # --- Stage 2 : Image d'exécution minimale JRE 21 Alpine ---
 FROM eclipse-temurin:21-jre-alpine

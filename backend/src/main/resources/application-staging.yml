@@ -1,0 +1,36 @@
+# ==============================================================================
+# Configuration Spring Boot - Profil Staging (LocaVite)
+# ==============================================================================
+
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  health:
+    mail:
+      enabled: false
+    db:
+      enabled: true
+    redis:
+      enabled: true
+
+logging:
+  level:
+    root: INFO
+    ma.locavite: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN

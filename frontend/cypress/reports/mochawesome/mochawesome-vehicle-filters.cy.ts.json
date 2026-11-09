@@ -1,0 +1,68 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 4,
+    "passes": 4,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-11-04T10:08:28.520Z",
+    "end": "2026-11-04T10:08:33.652Z",
+    "duration": 5132,
+    "passPercent": 100
+  },
+  "results": [
+    {
+      "file": "cypress\\e2e\\vehicle-filters.cy.ts",
+      "suites": [
+        {
+          "title": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL",
+          "tests": [
+            {
+              "title": "filters the vehicle list by city and keeps the filter synchronized in the URL",
+              "fullTitle": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL filters the vehicle list by city and keeps the filter synchronized in the URL",
+              "duration": 2055,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "applies category, brand, and sort filters and resets all filters cleanly",
+              "fullTitle": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL applies category, brand, and sort filters and resets all filters cleanly",
+              "duration": 2012,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "hydrates filter controls from initial URL query parameters",
+              "fullTitle": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL hydrates filter controls from initial URL query parameters",
+              "duration": 396,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "opens and closes the filter drawer on mobile viewport",
+              "fullTitle": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL opens and closes the filter drawer on mobile viewport",
+              "duration": 525,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 4,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    }
+  ]
+}
