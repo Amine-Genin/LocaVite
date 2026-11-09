@@ -19,6 +19,7 @@ import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.ReservationStatus;
 import ma.locavite.reservation.dto.ReservationRequest;
+import ma.locavite.reservation.dto.QuoteRequest;
 import ma.locavite.reservation.repository.ReservationRepository;
 import ma.locavite.vehicle.domain.FuelType;
 import ma.locavite.vehicle.domain.TransmissionType;
@@ -216,8 +217,8 @@ class ReservationControllerIT {
                 .andExpect(jsonPath("$.statut").value("PENDING"))
                 .andExpect(jsonPath("$.vehicleId").value(vehicleAgence1.getId()))
                 .andExpect(jsonPath("$.userId").value(clientWithDocs.getId()))
-                // 4 jours * 400 = 1600 + GPS (50) + EXTRA_DRIVER (100) = 1750.00
-                .andExpect(jsonPath("$.prixTotal").value(1750.0))
+                // 4 jours * 400 + 4 jours d'options + caution = 5200.00
+                .andExpect(jsonPath("$.prixTotal").value(5200.0))
                 .andExpect(jsonPath("$.caution").value(3000.0));
     }
 
@@ -467,8 +468,47 @@ class ReservationControllerIT {
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.lieuPriseEnCharge").value("Gare Oasis"))
-                // 3 * 400 + 50 (GPS) = 1250.00
-                .andExpect(jsonPath("$.prixTotal").value(1250.0));
+                // 3 * 400 + 3 jours de GPS + caution = 4350.00
+                .andExpect(jsonPath("$.prixTotal").value(4350.0));
+    }
+
+    @Test
+    @DisplayName("Test : devis public sans création de réservation")
+    void quote_returnsPriceBreakdownWithoutCreatingReservation() throws Exception {
+        QuoteRequest request = new QuoteRequest(
+                vehicleAgence1.getId(),
+                LocalDate.now().plusDays(2),
+                LocalDate.now().plusDays(5),
+                Set.of(ReservationOption.GPS)
+        );
+
+        mockMvc.perform(post("/api/reservations/quote")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sousTotal").value(1200.0))
+                .andExpect(jsonPath("$.options").value(150.0))
+                .andExpect(jsonPath("$.remise").value(0.0))
+                .andExpect(jsonPath("$.caution").value(3000.0))
+                .andExpect(jsonPath("$.tva").value(0.0))
+                .andExpect(jsonPath("$.total").value(4350.0));
+
+        org.assertj.core.api.Assertions.assertThat(reservationRepository.count()).isZero();
+
+        ReservationRequest reservationRequest = new ReservationRequest(
+                vehicleAgence1.getId(),
+                request.dateDebut(),
+                request.dateFin(),
+                "Aéroport Med V",
+                "Aéroport Med V",
+                request.options()
+        );
+        mockMvc.perform(post("/api/reservations")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientWithDocsToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservationRequest)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.prixTotal").value(4350.0));
     }
 
     @Test

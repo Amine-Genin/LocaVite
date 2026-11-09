@@ -42,6 +42,7 @@ public class RedisConfig implements CachingConfigurer {
     public static final String CACHE_VEHICLE_SEARCH = "vehicleSearch";
     public static final String CACHE_VEHICLES = "vehicles";
     public static final String CACHE_VEHICLE_AVAILABILITY = "vehicleAvailability";
+    public static final String CACHE_SEASONS = "seasons";
 
     @Bean
     @Primary
@@ -104,11 +105,13 @@ public class RedisConfig implements CachingConfigurer {
         configurations.put("vehicleById", defaultConfig.entryTtl(Duration.ofMinutes(10)));
         // Disponibilité véhicule (TTL 1 min)
         configurations.put(CACHE_VEHICLE_AVAILABILITY, defaultConfig.entryTtl(Duration.ofMinutes(1)));
+        // Tarifs saisonniers (TTL 24h)
+        configurations.put(CACHE_SEASONS, defaultConfig.entryTtl(Duration.ofHours(24)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(configurations)
-                .initialCacheNames(Set.of(CACHE_BRANDS, CACHE_CATEGORIES, CACHE_VEHICLE_SEARCH, CACHE_VEHICLES, CACHE_VEHICLE_AVAILABILITY))
+                .initialCacheNames(Set.of(CACHE_BRANDS, CACHE_CATEGORIES, CACHE_VEHICLE_SEARCH, CACHE_VEHICLES, CACHE_VEHICLE_AVAILABILITY, CACHE_SEASONS))
                 .enableStatistics()
                 .build();
     }

@@ -30,7 +30,7 @@ class RedisCacheActuatorIT {
     void cacheManager_isConfiguredWithRequiredCaches() {
         assertThat(cacheManager).isNotNull();
         // Vérifie la présence des caches définis dans la spécification
-        assertThat(cacheManager.getCacheNames()).contains("brands", "categories", "vehicleSearch", "vehicles");
+        assertThat(cacheManager.getCacheNames()).contains("brands", "categories", "vehicleSearch", "vehicles", "seasons");
     }
 
     @Test

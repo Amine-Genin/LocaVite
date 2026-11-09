@@ -11,6 +11,8 @@ import ma.locavite.reservation.domain.ReservationStatus;
 import ma.locavite.reservation.dto.ReservationFilter;
 import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.ReservationResponse;
+import ma.locavite.reservation.dto.QuoteRequest;
+import ma.locavite.reservation.dto.PriceQuoteResponse;
 import ma.locavite.reservation.exception.ClientDocumentsNotValidatedException;
 import ma.locavite.reservation.exception.InvalidReservationDatesException;
 import ma.locavite.reservation.exception.InvalidReservationStatusException;
@@ -38,11 +40,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -70,6 +69,7 @@ public class ReservationService {
     private final ReservationMapper reservationMapper;
     private final ApplicationEventPublisher eventPublisher;
     private final AvailabilityService availabilityService;
+    private final PricingService pricingService;
 
     public ReservationService(
             ReservationRepository reservationRepository,
@@ -79,7 +79,8 @@ public class ReservationService {
             CurrentUserService currentUserService,
             ReservationMapper reservationMapper,
             ApplicationEventPublisher eventPublisher,
-            AvailabilityService availabilityService) {
+            AvailabilityService availabilityService,
+            PricingService pricingService) {
         this.reservationRepository = reservationRepository;
         this.vehicleRepository = vehicleRepository;
         this.documentRepository = documentRepository;
@@ -88,6 +89,15 @@ public class ReservationService {
         this.reservationMapper = reservationMapper;
         this.eventPublisher = eventPublisher;
         this.availabilityService = availabilityService;
+        this.pricingService = pricingService;
+    }
+
+    @Transactional(readOnly = true)
+    public PriceQuoteResponse quote(QuoteRequest request) {
+        validateDates(request.dateDebut(), request.dateFin());
+        Vehicle vehicle = vehicleRepository.findById(request.vehicleId())
+                .orElseThrow(() -> new VehicleNotFoundException(request.vehicleId()));
+        return pricingService.calculate(vehicle, request.dateDebut(), request.dateFin(), request.options());
     }
 
     @Transactional
@@ -112,10 +122,9 @@ public class ReservationService {
         // 4. Vérification chevauchement de réservations
         checkVehicleAvailability(vehicle.getId(), request.dateDebut(), request.dateFin(), null);
 
-        // 5. Calcul automatique du prix total (jours x prix/jour + options) et de la caution
-        long jours = ChronoUnit.DAYS.between(request.dateDebut(), request.dateFin());
-        BigDecimal prixTotal = calculateTotalPrice(vehicle.getPrixJour(), jours, request.options());
-        BigDecimal caution = calculateCaution(vehicle.getPrixJour());
+        // 5. Calcul du prix et de la caution avec les mêmes règles que le devis
+        PriceQuoteResponse quote = pricingService.calculate(
+                vehicle, request.dateDebut(), request.dateFin(), request.options());
 
         // 6. Génération d'un code de réservation unique (format LV-XXXXXX)
         String code = generateUniqueCode();
@@ -129,8 +138,8 @@ public class ReservationService {
         reservation.setDateFin(request.dateFin());
         reservation.setLieuPriseEnCharge(request.lieuPriseEnCharge());
         reservation.setLieuRetour(request.lieuRetour());
-        reservation.setPrixTotal(prixTotal);
-        reservation.setCaution(caution);
+        reservation.setPrixTotal(quote.total());
+        reservation.setCaution(quote.caution());
         reservation.setStatut(ReservationStatus.PENDING);
         reservation.setOptions(request.options() != null ? new HashSet<>(request.options()) : new HashSet<>());
 
@@ -177,18 +186,17 @@ public class ReservationService {
         // Vérification de la disponibilité (en excluant la réservation actuelle)
         checkVehicleAvailability(vehicle.getId(), request.dateDebut(), request.dateFin(), reservation.getId());
 
-        // Recalcul du prix total
-        long jours = ChronoUnit.DAYS.between(request.dateDebut(), request.dateFin());
-        BigDecimal prixTotal = calculateTotalPrice(vehicle.getPrixJour(), jours, request.options());
-        BigDecimal caution = calculateCaution(vehicle.getPrixJour());
+        // Recalcul du prix et de la caution avec les mêmes règles que le devis
+        PriceQuoteResponse quote = pricingService.calculate(
+                vehicle, request.dateDebut(), request.dateFin(), request.options());
 
         reservation.setVehicleId(vehicle.getId());
         reservation.setDateDebut(request.dateDebut());
         reservation.setDateFin(request.dateFin());
         reservation.setLieuPriseEnCharge(request.lieuPriseEnCharge());
         reservation.setLieuRetour(request.lieuRetour());
-        reservation.setPrixTotal(prixTotal);
-        reservation.setCaution(caution);
+        reservation.setPrixTotal(quote.total());
+        reservation.setCaution(quote.caution());
         reservation.setOptions(request.options() != null ? new HashSet<>(request.options()) : new HashSet<>());
 
         Reservation updated = reservationRepository.save(reservation);
@@ -420,25 +428,6 @@ public class ReservationService {
         if (!conflicts.isEmpty()) {
             throw new VehicleNotAvailableException("Le véhicule est déjà réservé sur la période sélectionnée");
         }
-    }
-
-    private BigDecimal calculateTotalPrice(BigDecimal prixJour, long jours, Set<ReservationOption> options) {
-        BigDecimal vehicleCost = prixJour.multiply(BigDecimal.valueOf(jours));
-        BigDecimal optionsCost = BigDecimal.ZERO;
-        if (options != null) {
-            for (ReservationOption opt : options) {
-                optionsCost = optionsCost.add(opt.getPrice());
-            }
-        }
-        return vehicleCost.add(optionsCost).setScale(2, RoundingMode.HALF_UP);
-    }
-
-    private BigDecimal calculateCaution(BigDecimal prixJour) {
-        BigDecimal caution = prixJour.multiply(BigDecimal.valueOf(5));
-        if (caution.compareTo(new BigDecimal("3000.00")) < 0) {
-            caution = new BigDecimal("3000.00");
-        }
-        return caution.setScale(2, RoundingMode.HALF_UP);
     }
 
     private String generateUniqueCode() {
