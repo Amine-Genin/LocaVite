@@ -145,5 +145,21 @@
     "CITIES": "Casablanca · Marrakech · Agadir · Tanger · Oujda",
     "CONTACT": "WhatsApp +212 522 000 000 · Aide · Conditions · Confidentialité",
     "COPYRIGHT": "© 2027 LOCAVITE · Démonstration — données fictives · Prix en DH / MAD"
+  },
+  "PWA": {
+    "INSTALL_TITLE": "Installer l'application LocaVite",
+    "INSTALL_DESC": "Installez l'application sur votre appareil pour un accès rapide et une utilisation hors-ligne.",
+    "INSTALL_BTN": "Installer",
+    "LATER": "Plus tard"
+  },
+  "OFFLINE": {
+    "TITLE": "Vous êtes hors ligne",
+    "DESC": "Aucune connexion Internet détectée. Vos données en cache restent accessibles. Vous pourrez reprendre la navigation dès que votre connexion sera rétablie.",
+    "BACK_ONLINE_TITLE": "Connexion rétablie !",
+    "BACK_ONLINE_DESC": "Vous êtes de nouveau connecté à Internet.",
+    "RETRY_BTN": "Réessayer",
+    "HOME_BTN": "Retour à l'accueil",
+    "BANNER_MSG": "Vous êtes actuellement hors ligne.",
+    "LEARN_MORE": "En savoir plus"
   }
 }

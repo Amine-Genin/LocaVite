@@ -298,5 +298,21 @@
       "NOT_FOUND_TITLE": "Véhicule introuvable",
       "NOT_FOUND_MSG": "Le véhicule demandé n’existe pas ou a été désactivé."
     }
+  },
+  "PWA": {
+    "INSTALL_TITLE": "تثبيت تطبيق LocaVite",
+    "INSTALL_DESC": "قم بتثبيت التطبيق على جهازك للوصول السريع والتجربة دون اتصال.",
+    "INSTALL_BTN": "تثبيت",
+    "LATER": "لاحقاً"
+  },
+  "OFFLINE": {
+    "TITLE": "أنت غير متصل بالإنترنت",
+    "DESC": "لم يتم العثور على اتصال بالإنترنت. البيانات المخزنة مؤقتًا لا تزال متاحة.",
+    "BACK_ONLINE_TITLE": "تمت استعادة الاتصال!",
+    "BACK_ONLINE_DESC": "أنت متصل بالإنترنت مجدداً.",
+    "RETRY_BTN": "إعادة المحاولة",
+    "HOME_BTN": "العودة للرئيسية",
+    "BANNER_MSG": "أنت حالياً في وضع عدم الاتصال.",
+    "LEARN_MORE": "معرفة المزيد"
   }
 }

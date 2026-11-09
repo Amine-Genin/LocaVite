@@ -1,12 +1,17 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { AppComponent } from './app.component';
 import { LanguageService } from './core/i18n/language.service';
+import { NetworkService } from './core/services/network.service';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent, TranslateModule.forRoot()],
       providers: [
+        provideRouter([]),
+        NetworkService,
         {
           provide: LanguageService,
           useValue: {

@@ -63,6 +63,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/profile/profile.component').then((m) => m.ProfileComponent),
   },
+  {
+    path: 'offline',
+    loadComponent: () =>
+      import('./features/offline/offline.component').then((m) => m.OfflineComponent),
+  },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' },
 ];

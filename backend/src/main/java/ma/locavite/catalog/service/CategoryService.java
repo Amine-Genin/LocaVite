@@ -20,7 +20,7 @@ public class CategoryService extends AbstractCatalogService<Category> {
         super(repository);
     }
 
-    @Cacheable("categories")
+    @Cacheable(value = "categories", keyGenerator = "md5KeyGenerator")
     public List<CatalogEntryResponse> getAll() {
         return getEntries();
     }

@@ -11,6 +11,8 @@ import ma.locavite.vehicle.repository.VehiclePhotoRepository;
 import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -51,6 +53,10 @@ public class VehiclePhotoService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "vehicleSearch", allEntries = true),
+            @CacheEvict(value = "vehicles", allEntries = true)
+    })
     public List<VehiclePhotoResponse> upload(Long vehicleId, User currentUser, List<MultipartFile> files) {
         requireUser(currentUser);
         lockAndCheckVehicleOwner(vehicleId, currentUser, true);
@@ -107,6 +113,10 @@ public class VehiclePhotoService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "vehicleSearch", allEntries = true),
+            @CacheEvict(value = "vehicles", allEntries = true)
+    })
     public void delete(Long vehicleId, Long photoId, User currentUser) {
         requireUser(currentUser);
         lockAndCheckVehicleOwner(vehicleId, currentUser, true);
@@ -129,6 +139,10 @@ public class VehiclePhotoService {
     }
 
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "vehicleSearch", allEntries = true),
+            @CacheEvict(value = "vehicles", allEntries = true)
+    })
     public VehiclePhotoResponse setPrimary(Long vehicleId, Long photoId, User currentUser) {
         requireUser(currentUser);
         lockAndCheckVehicleOwner(vehicleId, currentUser, true);

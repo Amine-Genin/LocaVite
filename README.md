@@ -5,6 +5,7 @@
 ![Licence](https://img.shields.io/badge/licence-MIT-green)
 [![Backend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml)
 [![Frontend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
+[![Cypress E2E](https://img.shields.io/badge/Cypress%20E2E-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 
 ### Qualité du code Backend (SonarCloud)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-backend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-backend)
@@ -86,7 +87,7 @@ Le projet est **en cours de Sprint 2** (gestion des véhicules et catalogue).
 |---|---|---|
 | Sprint 0 | Fait | Dépôt, architecture, CI GitHub Actions, SonarCloud, Docker Compose |
 | Sprint 1 | Fait | Inscription, connexion JWT, profil, rôles `CLIENT` / `AGENCE` / `ADMIN` |
-| Sprint 2 | **En cours** | Liste véhicules, fiche détaillée, calendrier de disponibilité, **formulaire d’ajout admin** |
+| Sprint 2 | **En cours** | Liste véhicules, fiche détaillée, calendrier de disponibilité, **formulaire d’ajout admin**, **tests E2E Cypress catalogue** |
 | Sprint 3 | À venir | Parcours de réservation (aujourd’hui : placeholder `/reservation/:id`) |
 
 Routes frontend utiles :
@@ -162,11 +163,36 @@ npm run test
 npm run build
 ```
 
-E2E Cypress (le front doit tourner sur le port 4200) :
+### Tests E2E Cypress (Catalogue & Authentification)
+
+Les tests E2E Cypress (`Cypress 13+`) couvrent le parcours catalogue complet dans `frontend/cypress/e2e/` :
+- `vehicle-list.cy.ts` : affichage liste + pagination
+- `vehicle-detail.cy.ts` : navigation + galerie
+- `vehicle-filters.cy.ts` : filtres + synchronisation URL
+- `vehicle-create.cy.ts` : ajout véhicule (admin) avec les commandes custom `cy.login()` et `cy.createVehicle()`
+
+Exécution complète en mode CI (démarre automatiquement le serveur sur `http://localhost:4200` s'il n'est pas déjà lancé et génère le rapport HTML Mochawesome dans `frontend/cypress/reports/mochawesome/index.html`) :
 
 ```powershell
-npx cypress run --spec cypress/e2e/vehicle-create.cy.js
-npx cypress run --spec cypress/e2e/vehicle-detail.cy.js
+cd frontend
+npm run e2e:ci
+```
+
+Exécution sur environnement staging local (`docker-compose`) :
+
+```powershell
+docker compose -f infra/docker/docker-compose.staging.yml up -d --build
+cd frontend
+npm run e2e:ci
+```
+
+Exécution d'un spec spécifique ou en mode interactif :
+
+```powershell
+npx cypress run --spec cypress/e2e/vehicle-list.cy.ts
+npx cypress run --spec cypress/e2e/vehicle-detail.cy.ts
+npx cypress run --spec cypress/e2e/vehicle-filters.cy.ts
+npx cypress run --spec cypress/e2e/vehicle-create.cy.ts
 # ou interactif :
 npx cypress open
 ```

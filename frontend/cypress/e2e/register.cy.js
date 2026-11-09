@@ -113,7 +113,7 @@ describe("Page d'inscription (Register)", () => {
     // Passer en anglais
     cy.contains('EN').click();
     cy.get('html').should('have.attr', 'dir', 'ltr');
-    cy.contains('Create account').should('be.visible');
+    cy.contains(/Create( my)? account/).should('be.visible');
 
     // Revenir en français
     cy.contains('FR').click();
