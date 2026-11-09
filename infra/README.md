@@ -6,95 +6,176 @@ Le dossier `infra/` regroupe l'ensemble des ressources nécessaires au développ
 
 | Dossier | Contenu |
 |---|---|
-| `docker/` | Configurations Docker Compose pour l'environnement de développement local et staging E2E |
-| `kubernetes/` | Manifests, namespaces, services, ingress et déploiements |
-| `terraform/` | Provisionnement déclaratif de l'infrastructure cloud |
-| `ansible/` | Automatisation de la configuration des serveurs |
-| `monitoring/` | Supervision, métriques, journaux et alertes (Prometheus / Grafana) |
+| `docker/` | Configurations Docker Compose pour le développement local (`docker-compose.yml`), SonarQube (`docker-compose.sonar.yml`) et le staging (`docker-compose.staging.yml`) |
+| `kubernetes/` | Manifests Kubernetes / K3s (`staging-deployment.yaml`) : Namespace, Deployments, Services, Probes et Ingress |
+| `scripts/` | Scripts d'automatisation et de test du health check / rollback (`test-staging-rollback.sh`) |
 
 ---
 
 ## 🐳 Environnement local (Docker Compose)
 
 Le fichier `infra/docker/docker-compose.yml` permet de démarrer l'ensemble des dépendances d'infrastructure nécessaires au backend en local.
-Le fichier `infra/docker/docker-compose.staging.yml` déploie l'environnement staging complet (PostgreSQL, Redis, MinIO, MailHog, Backend Spring Boot et Frontend Angular sur le port `4200`) pour l'exécution des tests E2E Cypress.
 
 ### 📦 Services inclus
 
 | Service | Image | Port hôte | Rôle | Healthcheck |
 |---|---|---|---|---|
-| **PostgreSQL** | `postgres:16-alpine` | `5433` | Base de données relationnelle | `pg_isready` |
+| **PostgreSQL** | `postgres:16-alpine` | `5433` (ou `5432`) | Base de données relationnelle | `pg_isready` |
 | **Redis** | `redis:7-alpine` | `6379` | Cache et sessions applicatives | `redis-cli ping` |
-| **MinIO** | `minio/minio` | `9000` (API) / `9001` (Console) | Stockage objet compatible S3 (documents, CIN, permis) | `mc ready local` |
+| **MinIO** | `minio/minio` | `9000` (API) / `9001` (Console) | Stockage objet compatible S3 (documents, CIN, permis, véhicules) | `mc ready local` |
 | **MailHog** | `mailhog/mailhog:v1.0.1` | `1025` (SMTP) / `8025` (UI Web) | Serveur SMTP de test pour les e-mails | Port HTTP |
 
 Tous les services communiquent au sein d'un réseau bridge dédié : `locavite-network`.
 
----
-
-### 🚀 Démarrage rapide
+### 🚀 Démarrage rapide en local
 
 Depuis la racine du projet :
 
 ```bash
-# 1. Démarrer tous les services d'infrastructure en arrière-plan
+# 1. Démarrer tous les services en arrière-plan
 docker compose -f infra/docker/docker-compose.yml up -d
 
 # 2. Vérifier l'état et les healthchecks des conteneurs
 docker compose -f infra/docker/docker-compose.yml ps
-
-# 3. Démarrer l'environnement staging complet (Backend + Frontend + Infra) pour les tests E2E
-docker compose -f infra/docker/docker-compose.staging.yml up -d --build
 ```
 
 ---
 
-### ⚙️ Variables d'environnement
+## 🚀 Pipeline de Déploiement Continu Staging (CD)
 
-Les variables sont paramétrables via le fichier `infra/docker/.env`. Un modèle prêt à l'emploi est fourni dans `infra/docker/.env.example` :
+Le workflow [`.github/workflows/deploy-staging.yml`](../.github/workflows/deploy-staging.yml) orchestre le déploiement automatique sur l'environnement de staging après chaque merge/push sur `main` une fois la CI verte.
+
+### 🔄 Schéma du Cycle de Déploiement
+
+```text
+[Push sur main / Merge PR]
+           │
+           ▼
+[Job 1 : verify-ci (Wait & Verify CI Green)]
+  - Vérifie que Backend CI & Frontend CI sont au vert sur le commit
+           │
+           ▼
+[Job 2 : build-and-push (Build Docker Backend & Frontend)]
+  - Tag: staging-{sha} (court + complet) & staging-latest
+  - Multi-stage builds optimisés avec cache GitHub Actions
+           │
+           ▼
+[Push vers GitHub Container Registry (ghcr.io)]
+  - ghcr.io/amine-genin/locavite-backend:staging-{sha}
+  - ghcr.io/amine-genin/locavite-frontend:staging-{sha}
+           │
+           ▼
+[Job 3 : deploy-staging (Déploiement SSH sur Serveur Staging)]
+  - SCP infra/docker/docker-compose.staging.yml -> /opt/locavite/staging/
+  - Sauvegarde du tag actif (current_tag.txt) & candidat (candidate_tag.txt)
+  - docker pull & docker compose up -d --remove-orphans
+           │
+           ▼
+[Health Check Post-Déploiement]
+  - Boucle de vérification curl http://localhost:8081/actuator/health (12 essais x 5s)
+  - Vérification Frontend curl http://localhost:80/healthz (6 essais x 3s)
+           │
+     ┌─────┴─────┐
+     ▼           ▼
+[Succès]      [Échec du Health Check]
+  - Valider tag   - ROLLBACK AUTOMATIQUE
+  - Prune images    vers le tag précédent (current_tag.txt)
+  - Notify Slack  - Rétablissement conteneurs stables
+                  - Alerte Slack / Discord (Erreur)
+```
+
+### 🔐 Secrets GitHub Actions Requis
+
+Pour activer le déploiement sur le serveur staging, configurez les secrets suivants dans votre dépôt GitHub (`Settings > Secrets and variables > Actions`) :
+
+| Nom du Secret | Description | Exemple |
+|---|---|---|
+| `STAGING_HOST` | IP ou nom de domaine FQDN du serveur staging | `staging.locavite.ma` ou `198.51.100.42` |
+| `STAGING_USER` | Utilisateur Linux disposant des droits Docker (optionnel, défaut `deploy`) | `deploy` ou `ubuntu` |
+| `STAGING_SSH_KEY` | Clé privée SSH (OpenSSH Ed25519 ou RSA) | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
+| `STAGING_PORT` | Port SSH du serveur distant (optionnel, défaut `22`) | `22` |
+| `SLACK_WEBHOOK` | Webhook Slack ou Discord pour les notifications | `https://hooks.slack.com/services/...` |
+| `GITHUB_TOKEN` | Fourni automatiquement par GitHub Actions | Utilisé pour l'API CI et `ghcr.io` |
+
+---
+
+### 📦 Option A : Déploiement sur VPS via SSH & Docker Compose
+
+Si vous devez intervenir directement sur le serveur staging VPS :
 
 ```bash
-# Copier le fichier d'exemple
-cp infra/docker/.env.example infra/docker/.env
+# 1. Se connecter au serveur
+ssh deploy@staging.locavite.ma
+
+# 2. Se positionner dans le répertoire applicatif
+cd /opt/locavite/staging
+
+# 3. Authentifier Docker auprès de GHCR
+echo $CR_PAT | docker login ghcr.io -u <votre-github-user> --password-stdin
+
+# 4. Télécharger les dernières images
+docker pull ghcr.io/amine-genin/locavite-backend:staging-latest
+docker pull ghcr.io/amine-genin/locavite-frontend:staging-latest
+
+# 5. Démarrer ou mettre à jour la stack
+docker compose -f docker-compose.staging.yml up -d
+
+# 6. Vérifier la santé du backend et du frontend
+curl -f http://localhost:8081/actuator/health
+curl -f http://localhost:80/healthz
 ```
 
-| Variable | Valeur par défaut | Description |
-|---|---|---|
-| `POSTGRES_DB` | `locavite` | Nom de la base de données |
-| `POSTGRES_USER` | `locavite` | Utilisateur PostgreSQL |
-| `POSTGRES_PASSWORD` | `locavite_dev_password` | Mot de passe PostgreSQL |
-| `POSTGRES_PORT` | `5433` | Port d'exposition PostgreSQL |
-| `REDIS_PORT` | `6379` | Port d'exposition Redis |
-| `MINIO_ROOT_USER` | `locavite` | Utilisateur administrateur MinIO |
-| `MINIO_ROOT_PASSWORD` | `locavite_dev_password` | Mot de passe administrateur MinIO |
-| `MINIO_PORT` | `9000` | Port API S3 MinIO |
-| `MINIO_CONSOLE_PORT` | `9001` | Port de la Console Web MinIO |
-| `MAILHOG_SMTP_PORT` | `1025` | Port SMTP de MailHog |
-| `MAILHOG_UI_PORT` | `8025` | Port Web UI de MailHog |
+### ☸️ Option B : Déploiement sur K3s / Kubernetes managé
+
+Les manifests Kubernetes pour un cluster K3s ou Kubernetes managé sont disponibles dans [`infra/kubernetes/staging-deployment.yaml`](kubernetes/staging-deployment.yaml) :
+
+```bash
+# 1. Appliquer le namespace, les déploiements, services et ingress
+kubectl apply -f infra/kubernetes/staging-deployment.yaml
+
+# 2. Mettre à jour l'image vers un tag spécifique staging-{sha}
+kubectl -n locavite-staging set image deployment/locavite-backend \
+  backend=ghcr.io/amine-genin/locavite-backend:staging-${SHA}
+kubectl -n locavite-staging set image deployment/locavite-frontend \
+  frontend=ghcr.io/amine-genin/locavite-frontend:staging-${SHA}
+
+# 3. Vérifier le rollout (Health check via readinessProbe /actuator/health/readiness)
+kubectl -n locavite-staging rollout status deployment/locavite-backend --timeout=90s
+
+# 4. En cas d'échec, rollback Kubernetes instantané
+kubectl -n locavite-staging rollout undo deployment/locavite-backend
+kubectl -n locavite-staging rollout undo deployment/locavite-frontend
+```
 
 ---
 
-### 🔌 Connexion aux services
+### 🛡️ Procédure de Rollback & Tests de Validation
 
-#### 1. PostgreSQL (DBeaver, pgAdmin, IntelliJ, etc.)
-* **Hôte** : `localhost`
-* **Port** : `5433`
-* **Base de données** : `locavite`
-* **Utilisateur** : `locavite`
-* **Mot de passe** : `locavite_dev_password`
-* **URL JDBC** : `jdbc:postgresql://localhost:5433/locavite`
+Le rollback est **automatique** dans le pipeline CI/CD si le Health Check (`/actuator/health` ou `/healthz`) échoue.
 
-#### 2. Console MinIO
-* **URL** : [http://localhost:9001](http://localhost:9001)
-* **Access Key / User** : `locavite`
-* **Secret Key / Password** : `locavite_dev_password`
+Pour déclencher un rollback **manuellement** sur le serveur VPS :
 
-#### 3. Interface MailHog
-* **URL** : [http://localhost:8025](http://localhost:8025)
+```bash
+cd /opt/locavite/staging
+
+# Consulter le tag précédent enregistré
+PREVIOUS_TAG=$(cat current_tag.txt)
+
+# Rétablir la version précédente
+BACKEND_IMAGE="ghcr.io/amine-genin/locavite-backend:${PREVIOUS_TAG}" \
+FRONTEND_IMAGE="ghcr.io/amine-genin/locavite-frontend:${PREVIOUS_TAG}" \
+docker compose -f docker-compose.staging.yml up -d --remove-orphans
+```
+
+Pour tester le mécanisme de Health Check et de Rollback automatique localement :
+
+```bash
+bash infra/scripts/test-staging-rollback.sh
+```
 
 ---
 
-### 🛑 Arrêt et maintenance
+### 🛑 Arrêt et maintenance locale
 
 ```bash
 # Arrêter les conteneurs (données conservées dans les volumes)

@@ -1,0 +1,88 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 6,
+    "passes": 6,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-11-04T10:08:04.286Z",
+    "end": "2026-11-04T10:08:13.737Z",
+    "duration": 9451,
+    "passPercent": 100
+  },
+  "results": [
+    {
+      "file": "cypress\\e2e\\vehicle-create.cy.ts",
+      "suites": [
+        {
+          "title": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new)",
+          "tests": [
+            {
+              "title": "redirection vers /login si non authentifié",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) redirection vers /login si non authentifié",
+              "duration": 761,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "redirection vers /login si rôle non autorisé (CLIENT)",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) redirection vers /login si rôle non autorisé (CLIENT)",
+              "duration": 438,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "accès autorisé pour rôle AGENCE/ADMIN et affichage de toutes les sections",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) accès autorisé pour rôle AGENCE/ADMIN et affichage de toutes les sections",
+              "duration": 690,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "upload de 3 photos, prévisualisation, réorganisation et sélection photo principale",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) upload de 3 photos, prévisualisation, réorganisation et sélection photo principale",
+              "duration": 685,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "remplissage complet via cy.createVehicle(), publication et redirection vers /admin/vehicles",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) remplissage complet via cy.createVehicle(), publication et redirection vers /admin/vehicles",
+              "duration": 3371,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "sauvegarde en tant que brouillon (statut DRAFT) via cy.createVehicle()",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) sauvegarde en tant que brouillon (statut DRAFT) via cy.createVehicle()",
+              "duration": 3184,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 6,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    }
+  ]
+}

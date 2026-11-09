@@ -1,0 +1,368 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      custom_tag:
+        description: 'Tag Docker personnalisé (optionnel, défaut: staging-{sha})'
+        required: false
+        default: ''
+
+concurrency:
+  group: staging-deployment
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE_NAME: amine-genin/locavite-backend
+  FRONTEND_IMAGE_NAME: amine-genin/locavite-frontend
+
+jobs:
+  verify-ci:
+    name: Wait & Verify CI Green
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Wait for Backend CI & Frontend CI to pass on commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COMMIT_SHA: ${{ github.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          echo "🔍 Vérification de l'état des pipelines CI pour le commit $COMMIT_SHA..."
+          sleep 10
+
+          MAX_WAIT_ITERATIONS=60
+          SLEEP_INTERVAL=15
+
+          for i in $(seq 1 $MAX_WAIT_ITERATIONS); do
+            RUNS_JSON=$(gh api "repos/$REPO/actions/runs?head_sha=$COMMIT_SHA" --jq '.workflow_runs | map(select(.name == "Backend CI" or .name == "Frontend CI"))')
+            TOTAL_RUNS=$(echo "$RUNS_JSON" | jq 'length')
+
+            if [ "$TOTAL_RUNS" -eq 0 ]; then
+              echo "ℹ️ Aucun workflow CI séparé déclenché sur ce commit (ou exécution directe). Passage à l'étape suivante."
+              break
+            fi
+
+            IN_PROGRESS=$(echo "$RUNS_JSON" | jq '[.[] | select(.status != "completed")] | length')
+            FAILED=$(echo "$RUNS_JSON" | jq '[.[] | select(.status == "completed" and .conclusion != "success" and .conclusion != "skipped")] | length')
+
+            if [ "$FAILED" -gt 0 ]; then
+              echo "❌ Un ou plusieurs workflows CI ont échoué sur le commit $COMMIT_SHA :"
+              echo "$RUNS_JSON" | jq -r '.[] | " - \(.name): status=\(.status), conclusion=\(.conclusion)"'
+              exit 1
+            fi
+
+            if [ "$IN_PROGRESS" -eq 0 ]; then
+              echo "✅ Tous les workflows CI ($TOTAL_RUNS) sont terminés avec succès (CI vert) !"
+              echo "$RUNS_JSON" | jq -r '.[] | " - \(.name): \(.conclusion)"'
+              break
+            fi
+
+            echo "⏳ $IN_PROGRESS workflow(s) CI encore en cours (attente $i/$MAX_WAIT_ITERATIONS)..."
+            sleep $SLEEP_INTERVAL
+          done
+
+  build-and-push:
+    name: Build & Push Docker Images
+    needs: verify-ci
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_tag: ${{ steps.tag_step.outputs.tag }}
+      full_sha_tag: ${{ steps.tag_step.outputs.full_sha_tag }}
+      backend_image: ${{ steps.tag_step.outputs.backend_image }}
+      frontend_image: ${{ steps.tag_step.outputs.frontend_image }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Determine image tag
+        id: tag_step
+        run: |
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          FULL_SHA_TAG="staging-${{ github.sha }}"
+          TAG="${{ github.event.inputs.custom_tag }}"
+          if [ -z "$TAG" ]; then
+            TAG="staging-${SHORT_SHA}"
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "full_sha_tag=$FULL_SHA_TAG" >> $GITHUB_OUTPUT
+          echo "backend_image=${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${TAG}" >> $GITHUB_OUTPUT
+          echo "frontend_image=${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${TAG}" >> $GITHUB_OUTPUT
+          echo "Tag retenu pour le staging : $TAG (et $FULL_SHA_TAG)"
+
+      - name: Set up Docker Buildx
+        run: |
+          docker buildx create --name staging-builder --driver docker-container --use
+          docker buildx inspect --bootstrap
+
+      - name: Log in to GitHub Container Registry (ghcr.io)
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | docker login "${{ env.REGISTRY }}" -u "${{ github.actor }}" --password-stdin
+
+      - name: Build & Push Backend Docker Image
+        run: |
+          docker buildx build \
+            --file ./backend/Dockerfile \
+            --tag "${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.tag }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.full_sha_tag }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:staging-latest" \
+            --push \
+            ./backend
+
+      - name: Build & Push Frontend Docker Image
+        run: |
+          docker buildx build \
+            --file ./frontend/Dockerfile \
+            --tag "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.tag }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.full_sha_tag }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:staging-latest" \
+            --push \
+            ./frontend
+
+  deploy-staging:
+    name: Deploy to Staging & Health Check
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository for compose file
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Deploy to Staging via SSH & Rollback on failure
+        if: ${{ secrets.STAGING_HOST != '' && secrets.STAGING_SSH_KEY != '' }}
+        env:
+          STAGING_HOST: ${{ secrets.STAGING_HOST }}
+          STAGING_USER: ${{ secrets.STAGING_USER || 'deploy' }}
+          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          STAGING_PORT: ${{ secrets.STAGING_PORT || '22' }}
+          TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          BACKEND_IMAGE: ${{ needs.build-and-push.outputs.backend_image }}
+          FRONTEND_IMAGE: ${{ needs.build-and-push.outputs.frontend_image }}
+          REGISTRY: ${{ env.REGISTRY }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          echo "$STAGING_SSH_KEY" > ~/.ssh/staging_key
+          chmod 600 ~/.ssh/staging_key
+          SSH_OPTS="-i ~/.ssh/staging_key -p $STAGING_PORT -o StrictHostKeyChecking=accept-new"
+
+          ssh $SSH_OPTS "$STAGING_USER@$STAGING_HOST" "mkdir -p /opt/locavite/staging"
+          scp -P "$STAGING_PORT" -i ~/.ssh/staging_key -o StrictHostKeyChecking=accept-new \
+            infra/docker/docker-compose.staging.yml "$STAGING_USER@$STAGING_HOST:/opt/locavite/staging/docker-compose.staging.yml"
+
+          ssh $SSH_OPTS "$STAGING_USER@$STAGING_HOST" \
+            "TAG='$TAG' BACKEND_IMAGE='$BACKEND_IMAGE' FRONTEND_IMAGE='$FRONTEND_IMAGE' REGISTRY='$REGISTRY' GHCR_USER='$GHCR_USER' GHCR_TOKEN='$GHCR_TOKEN' bash -s" << 'EOF'
+            set -e
+            APP_DIR="/opt/locavite/staging"
+            cd "$APP_DIR"
+
+            echo "=== [1/6] Sauvegarde de la version précédente pour le rollback ==="
+            PREVIOUS_TAG=$(cat current_tag.txt 2>/dev/null || echo "staging-latest")
+            echo "Version active actuelle : $PREVIOUS_TAG"
+            echo "$TAG" > candidate_tag.txt
+
+            echo "=== [2/6] Authentification GHCR et téléchargement des images ==="
+            echo "$GHCR_TOKEN" | docker login "$REGISTRY" -u "$GHCR_USER" --password-stdin
+            docker pull "$BACKEND_IMAGE"
+            docker pull "$FRONTEND_IMAGE"
+
+            echo "=== [3/6] Déploiement de la stack Staging ==="
+            export BACKEND_IMAGE="$BACKEND_IMAGE"
+            export FRONTEND_IMAGE="$FRONTEND_IMAGE"
+            export TAG="$TAG"
+
+            docker compose -f docker-compose.staging.yml up -d --remove-orphans
+
+            echo "=== [4/6] Health check post-déploiement ==="
+            BACKEND_HEALTHY=false
+            FRONTEND_HEALTHY=false
+            MAX_ATTEMPTS=12
+            DELAY_SECONDS=5
+
+            for attempt in $(seq 1 $MAX_ATTEMPTS); do
+              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/actuator/health || true)
+              echo "Vérification santé Backend /actuator/health (essai $attempt/$MAX_ATTEMPTS) : HTTP $HTTP_STATUS"
+              if [ "$HTTP_STATUS" = "200" ]; then
+                BACKEND_HEALTHY=true
+                break
+              fi
+              sleep $DELAY_SECONDS
+            done
+
+            for attempt in $(seq 1 6); do
+              FRONTEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/healthz || true)
+              echo "Vérification santé Frontend /healthz (essai $attempt/6) : HTTP $FRONTEND_STATUS"
+              if [ "$FRONTEND_STATUS" = "200" ]; then
+                FRONTEND_HEALTHY=true
+                break
+              fi
+              sleep 3
+            done
+
+            if [ "$BACKEND_HEALTHY" != "true" ] || [ "$FRONTEND_HEALTHY" != "true" ]; then
+              echo "❌ ERREUR : Le Health Check post-déploiement a échoué (Backend=$BACKEND_HEALTHY, Frontend=$FRONTEND_HEALTHY) !"
+              echo "=== [5/6] ROLLBACK AUTOMATIQUE VERS LA VERSION $PREVIOUS_TAG ==="
+              rm -f candidate_tag.txt
+              export BACKEND_IMAGE="ghcr.io/amine-genin/locavite-backend:$PREVIOUS_TAG"
+              export FRONTEND_IMAGE="ghcr.io/amine-genin/locavite-frontend:$PREVIOUS_TAG"
+              docker compose -f docker-compose.staging.yml up -d --remove-orphans
+              echo "Rollback terminé. La version stable $PREVIOUS_TAG a été rétablie."
+              exit 1
+            fi
+
+            echo "=== [5/6] Validation du déploiement ==="
+            mv candidate_tag.txt current_tag.txt
+            echo "✅ Déploiement staging réussi avec le tag $TAG !"
+
+            echo "=== [6/6] Nettoyage des anciennes images Docker ==="
+            docker image prune -f || true
+          EOF
+          rm -f ~/.ssh/staging_key
+
+      - name: Deploy & Verify Staging Stack on Runner (Fallback when SSH secrets are not set)
+        if: ${{ secrets.STAGING_HOST == '' || secrets.STAGING_SSH_KEY == '' }}
+        env:
+          TAG: ${{ needs.build-and-push.outputs.image_tag }}
+          BACKEND_IMAGE: ${{ needs.build-and-push.outputs.backend_image }}
+          FRONTEND_IMAGE: ${{ needs.build-and-push.outputs.frontend_image }}
+          REGISTRY: ${{ env.REGISTRY }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          echo "ℹ️ STAGING_HOST / STAGING_SSH_KEY non configurés : exécution du déploiement Staging et du Health Check dans l'environnement éphémère."
+          APP_DIR="$RUNNER_TEMP/locavite-staging"
+          mkdir -p "$APP_DIR"
+          cp infra/docker/docker-compose.staging.yml "$APP_DIR/docker-compose.staging.yml"
+          cd "$APP_DIR"
+
+          PREVIOUS_TAG=$(cat current_tag.txt 2>/dev/null || echo "staging-latest")
+          echo "$TAG" > candidate_tag.txt
+
+          echo "$GHCR_TOKEN" | docker login "$REGISTRY" -u "$GHCR_USER" --password-stdin
+          docker pull "$BACKEND_IMAGE"
+          docker pull "$FRONTEND_IMAGE"
+
+          export BACKEND_IMAGE="$BACKEND_IMAGE"
+          export FRONTEND_IMAGE="$FRONTEND_IMAGE"
+          export TAG="$TAG"
+
+          docker compose -f docker-compose.staging.yml up -d --remove-orphans
+
+          BACKEND_HEALTHY=false
+          FRONTEND_HEALTHY=false
+          MAX_ATTEMPTS=18
+          DELAY_SECONDS=5
+
+          for attempt in $(seq 1 $MAX_ATTEMPTS); do
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/actuator/health || true)
+            echo "Vérification santé Backend /actuator/health (essai $attempt/$MAX_ATTEMPTS) : HTTP $HTTP_STATUS"
+            if [ "$HTTP_STATUS" = "200" ]; then
+              BACKEND_HEALTHY=true
+              break
+            fi
+            sleep $DELAY_SECONDS
+          done
+
+          for attempt in $(seq 1 6); do
+            FRONTEND_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:80/healthz || true)
+            echo "Vérification santé Frontend /healthz (essai $attempt/6) : HTTP $FRONTEND_STATUS"
+            if [ "$FRONTEND_STATUS" = "200" ]; then
+              FRONTEND_HEALTHY=true
+              break
+            fi
+            sleep 3
+          done
+
+          if [ "$BACKEND_HEALTHY" != "true" ] || [ "$FRONTEND_HEALTHY" != "true" ]; then
+            echo "❌ ERREUR : Health Check échoué -> Rollback vers $PREVIOUS_TAG"
+            docker compose -f docker-compose.staging.yml logs backend || true
+            rm -f candidate_tag.txt
+            export BACKEND_IMAGE="ghcr.io/amine-genin/locavite-backend:$PREVIOUS_TAG"
+            export FRONTEND_IMAGE="ghcr.io/amine-genin/locavite-frontend:$PREVIOUS_TAG"
+            docker compose -f docker-compose.staging.yml up -d --remove-orphans || true
+            docker compose -f docker-compose.staging.yml down -v || true
+            exit 1
+          fi
+
+          mv candidate_tag.txt current_tag.txt
+          echo "✅ Déploiement staging et Health Check (/actuator/health & /healthz) validés avec succès (tag: $TAG) !"
+          docker compose -f docker-compose.staging.yml down -v
+
+  notify:
+    name: Slack / Discord Notification
+    needs: [verify-ci, build-and-push, deploy-staging]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Notification on Failure or Success
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          CI_STATUS: ${{ needs.verify-ci.result }}
+          BUILD_STATUS: ${{ needs.build-and-push.result }}
+          DEPLOY_STATUS: ${{ needs.deploy-staging.result }}
+          TAG: ${{ needs.build-and-push.outputs.image_tag || 'staging-unknown' }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK" ]; then
+            echo "SLACK_WEBHOOK non configuré, notification ignorée."
+            exit 0
+          fi
+
+          WEBHOOK_URL="$SLACK_WEBHOOK"
+          if echo "$WEBHOOK_URL" | grep -Eq "discord(app)?\.com/api/webhooks/" && ! echo "$WEBHOOK_URL" | grep -q "/slack$"; then
+            WEBHOOK_URL="${WEBHOOK_URL}/slack"
+          fi
+
+          if [ "$DEPLOY_STATUS" = "success" ]; then
+            COLOR="#2EB67D"
+            TITLE="✅ Déploiement Staging RÉUSSI"
+            MESSAGE="Le déploiement sur staging de LocaVite a abouti avec succès."
+          elif [ "$CI_STATUS" != "success" ]; then
+            COLOR="#E01E5A"
+            TITLE="🚨 Déploiement Staging ANNULÉ (CI en échec)"
+            MESSAGE="Le pipeline CI n'est pas vert sur main. Le déploiement sur staging a été bloqué."
+          elif [ "$BUILD_STATUS" != "success" ]; then
+            COLOR="#E01E5A"
+            TITLE="🚨 Déploiement Staging ÉCHOUÉ (Build Docker)"
+            MESSAGE="La construction ou la publication des images Docker sur GHCR a échoué."
+          else
+            COLOR="#E01E5A"
+            TITLE="🚨 Déploiement Staging ÉCHOUÉ (Rollback déclenché)"
+            MESSAGE="Le déploiement sur staging a échoué lors du health check (/actuator/health). Le rollback automatique a été exécuté."
+          fi
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "text": "$TITLE - $MESSAGE",
+            "attachments": [
+              {
+                "color": "$COLOR",
+                "title": "$TITLE",
+                "text": "$MESSAGE",
+                "fields": [
+                  { "title": "Tag Docker", "value": "\`$TAG\`", "short": true },
+                  { "title": "Branche", "value": "\`${{ github.ref_name }}\`", "short": true },
+                  { "title": "Commit", "value": "\`${{ github.sha }}\`", "short": true },
+                  { "title": "Auteur", "value": "${{ github.actor }}", "short": true },
+                  { "title": "Workflow Run", "value": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}", "short": false }
+                ]
+              }
+            ]
+          }
+          EOF
+          )
+
+          curl -sS -X POST -H 'Content-type: application/json' --data "$PAYLOAD" "$WEBHOOK_URL" || echo "Erreur webhook notification"

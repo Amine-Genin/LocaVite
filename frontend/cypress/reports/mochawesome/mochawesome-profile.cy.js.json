@@ -1,0 +1,68 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 4,
+    "passes": 4,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-11-04T10:07:45.239Z",
+    "end": "2026-11-04T10:07:49.885Z",
+    "duration": 4646,
+    "passPercent": 100
+  },
+  "results": [
+    {
+      "file": "cypress\\e2e\\profile.cy.js",
+      "suites": [
+        {
+          "title": "Profil client (Angular)",
+          "tests": [
+            {
+              "title": "redirection vers /login si non authentifié",
+              "fullTitle": "Profil client (Angular) redirection vers /login si non authentifié",
+              "duration": 1221,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "connexion et affichage complet du profil client",
+              "fullTitle": "Profil client (Angular) connexion et affichage complet du profil client",
+              "duration": 1676,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "modification du profil avec message de succès",
+              "fullTitle": "Profil client (Angular) modification du profil avec message de succès",
+              "duration": 1183,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "déconnexion",
+              "fullTitle": "Profil client (Angular) déconnexion",
+              "duration": 386,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 4,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    }
+  ]
+}
