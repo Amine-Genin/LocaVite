@@ -83,7 +83,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Determine image tag
         id: tag_step
@@ -101,40 +101,35 @@ jobs:
           echo "Tag retenu pour le staging : $TAG (et $FULL_SHA_TAG)"
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        run: |
+          docker buildx create --name staging-builder --driver docker-container --use
+          docker buildx inspect --bootstrap
 
       - name: Log in to GitHub Container Registry (ghcr.io)
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "$GHCR_TOKEN" | docker login "${{ env.REGISTRY }}" -u "${{ github.actor }}" --password-stdin
 
       - name: Build & Push Backend Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.full_sha_tag }}
-            ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:staging-latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          docker buildx build \
+            --file ./backend/Dockerfile \
+            --tag "${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.tag }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.full_sha_tag }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:staging-latest" \
+            --push \
+            ./backend
 
       - name: Build & Push Frontend Docker Image
-        uses: docker/build-push-action@v6
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile
-          push: true
-          tags: |
-            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.full_sha_tag }}
-            ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:staging-latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        run: |
+          docker buildx build \
+            --file ./frontend/Dockerfile \
+            --tag "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.tag }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.tag_step.outputs.full_sha_tag }}" \
+            --tag "${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:staging-latest" \
+            --push \
+            ./frontend
 
   deploy-staging:
     name: Deploy to Staging & Health Check
@@ -142,40 +137,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository for compose file
-        uses: actions/checkout@v4
-
-      - name: Copy docker-compose.staging.yml to Staging Server (SSH)
-        if: ${{ secrets.STAGING_HOST != '' && secrets.STAGING_SSH_KEY != '' }}
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER || 'deploy' }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          port: ${{ secrets.STAGING_PORT || 22 }}
-          source: "infra/docker/docker-compose.staging.yml"
-          target: "/opt/locavite/staging/"
-          strip_components: 2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Deploy to Staging via SSH & Rollback on failure
         if: ${{ secrets.STAGING_HOST != '' && secrets.STAGING_SSH_KEY != '' }}
-        uses: appleboy/ssh-action@v1.2.0
         env:
+          STAGING_HOST: ${{ secrets.STAGING_HOST }}
+          STAGING_USER: ${{ secrets.STAGING_USER || 'deploy' }}
+          STAGING_SSH_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          STAGING_PORT: ${{ secrets.STAGING_PORT || '22' }}
           TAG: ${{ needs.build-and-push.outputs.image_tag }}
           BACKEND_IMAGE: ${{ needs.build-and-push.outputs.backend_image }}
           FRONTEND_IMAGE: ${{ needs.build-and-push.outputs.frontend_image }}
           REGISTRY: ${{ env.REGISTRY }}
           GHCR_USER: ${{ github.actor }}
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          username: ${{ secrets.STAGING_USER || 'deploy' }}
-          key: ${{ secrets.STAGING_SSH_KEY }}
-          port: ${{ secrets.STAGING_PORT || 22 }}
-          envs: TAG,BACKEND_IMAGE,FRONTEND_IMAGE,REGISTRY,GHCR_USER,GHCR_TOKEN
-          script: |
+        run: |
+          set -e
+          mkdir -p ~/.ssh
+          echo "$STAGING_SSH_KEY" > ~/.ssh/staging_key
+          chmod 600 ~/.ssh/staging_key
+          SSH_OPTS="-i ~/.ssh/staging_key -p $STAGING_PORT -o StrictHostKeyChecking=accept-new"
+
+          ssh $SSH_OPTS "$STAGING_USER@$STAGING_HOST" "mkdir -p /opt/locavite/staging"
+          scp -P "$STAGING_PORT" -i ~/.ssh/staging_key -o StrictHostKeyChecking=accept-new \
+            infra/docker/docker-compose.staging.yml "$STAGING_USER@$STAGING_HOST:/opt/locavite/staging/docker-compose.staging.yml"
+
+          ssh $SSH_OPTS "$STAGING_USER@$STAGING_HOST" \
+            "TAG='$TAG' BACKEND_IMAGE='$BACKEND_IMAGE' FRONTEND_IMAGE='$FRONTEND_IMAGE' REGISTRY='$REGISTRY' GHCR_USER='$GHCR_USER' GHCR_TOKEN='$GHCR_TOKEN' bash -s" << 'EOF'
             set -e
             APP_DIR="/opt/locavite/staging"
-            mkdir -p "$APP_DIR"
             cd "$APP_DIR"
 
             echo "=== [1/6] Sauvegarde de la version précédente pour le rollback ==="
@@ -238,6 +229,8 @@ jobs:
 
             echo "=== [6/6] Nettoyage des anciennes images Docker ==="
             docker image prune -f || true
+          EOF
+          rm -f ~/.ssh/staging_key
 
       - name: Deploy & Verify Staging Stack on Runner (Fallback when SSH secrets are not set)
         if: ${{ secrets.STAGING_HOST == '' || secrets.STAGING_SSH_KEY == '' }}
