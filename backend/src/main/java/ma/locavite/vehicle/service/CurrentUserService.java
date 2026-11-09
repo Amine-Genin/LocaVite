@@ -38,8 +38,21 @@ public class CurrentUserService {
         if (auth == null) {
             return false;
         }
+        return hasAuthority(auth, "ROLE_ADMIN", "ADMIN");
+    }
+
+    public boolean isAgence() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null) {
+            return false;
+        }
+        return hasAuthority(auth, "ROLE_AGENCE", "AGENCE");
+    }
+
+    private boolean hasAuthority(Authentication auth, String... expectedAuthorities) {
         return auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .anyMatch(a -> a.equals("ROLE_ADMIN") || a.equals("ADMIN"));
+                .anyMatch(authority -> java.util.Arrays.stream(expectedAuthorities)
+                        .anyMatch(expected -> expected.equals(authority)));
     }
 }

@@ -7,6 +7,7 @@ import ma.locavite.vehicle.repository.VehicleRepository;
 import ma.locavite.vehicle.spec.VehicleSpecifications;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class VehicleSearchService {
      * Si les dates sont fournies, elles sont validées (exclusion des véhicules réservés au Sprint 3).
      * Si les dates sont absentes, retourne tous les véhicules PUBLISHED de la ville correspondant aux critères.
      */
-    @Cacheable(value = "vehicleSearch", key = "#filter.cacheKey(#pageable)")
+    @Cacheable(value = "vehicleSearch", keyGenerator = "md5KeyGenerator")
     @Transactional(readOnly = true)
     public Page<VehicleResponse> search(VehicleFilter filter, Pageable pageable) {
         validateFilter(filter);
@@ -37,12 +38,15 @@ public class VehicleSearchService {
     }
 
     /**
-     * Invalide le cache de recherche de véhicules.
+     * Invalide le cache de recherche de véhicules et le cache de détail des véhicules.
      * Doit être appelé à chaque réservation confirmée (Sprint 3) ainsi qu'en cas de modification de véhicule.
      */
-    @CacheEvict(value = "vehicleSearch", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "vehicleSearch", allEntries = true),
+            @CacheEvict(value = "vehicles", allEntries = true)
+    })
     public void invalidateCache() {
-        // Appelé lors de la confirmation d'une réservation pour vider le cache de recherche.
+        // Appelé lors de la confirmation d'une réservation ou modification pour vider le cache.
     }
 
     private static void validateFilter(VehicleFilter filter) {

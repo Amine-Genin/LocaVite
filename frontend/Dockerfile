@@ -9,7 +9,7 @@ WORKDIR /app
 
 # Copie des manifestes de dépendances pour tirer parti du cache Docker
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 
 # Copie des sources et compilation de production
 COPY . .
@@ -42,4 +42,3 @@ HEALTHCHECK --interval=15s --timeout=5s --retries=3 --start-period=5s \
     CMD wget --quiet --tries=1 --spider http://localhost/healthz || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
-

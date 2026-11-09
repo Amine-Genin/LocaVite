@@ -9,6 +9,7 @@ WORKDIR /build
 
 # Mise en cache des dépendances Maven
 COPY pom.xml ./
+COPY module-common ./module-common
 RUN mvn dependency:go-offline -B -Daether.remoteRepositoryFilter.prefixes=false -Dmaven.wagon.http.retryHandler.count=3 || true
 
 # Copie des sources et packaging de l'exécutable Spring Boot
@@ -47,4 +48,3 @@ HEALTHCHECK --interval=15s --timeout=5s --retries=5 --start-period=30s \
     CMD curl -f http://localhost:${PORT}/actuator/health || exit 1
 
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
-

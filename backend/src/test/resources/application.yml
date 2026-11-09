@@ -47,3 +47,13 @@ minio:
   secret-key: test-secret
   bucket: locavite-documents
   init-bucket: false
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    metrics:
+      enabled: true

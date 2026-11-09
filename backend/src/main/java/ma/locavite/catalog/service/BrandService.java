@@ -20,7 +20,7 @@ public class BrandService extends AbstractCatalogService<Brand> {
         super(repository);
     }
 
-    @Cacheable("brands")
+    @Cacheable(value = "brands", keyGenerator = "md5KeyGenerator")
     public List<CatalogEntryResponse> getAll() {
         return getEntries();
     }
