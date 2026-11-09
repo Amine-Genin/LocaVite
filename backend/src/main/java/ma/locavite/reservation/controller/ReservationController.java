@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import ma.locavite.reservation.dto.ReservationFilter;
 import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.ReservationResponse;
+import ma.locavite.reservation.dto.QuoteRequest;
+import ma.locavite.reservation.dto.PriceQuoteResponse;
 import ma.locavite.reservation.service.ReservationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +26,6 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/reservations")
 @Tag(name = "Reservations", description = "Endpoints de gestion et réservation de véhicules")
-@SecurityRequirement(name = "BearerAuth")
 public class ReservationController {
 
     private final ReservationService reservationService;
@@ -33,7 +34,19 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    @PostMapping("/quote")
+    @Operation(summary = "Obtenir un devis de réservation", description = "Calcule le détail du prix sans créer de réservation.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Devis calculé"),
+            @ApiResponse(responseCode = "400", description = "Dates invalides ou TVA non configurée"),
+            @ApiResponse(responseCode = "404", description = "Véhicule non trouvé")
+    })
+    public ResponseEntity<PriceQuoteResponse> quote(@Valid @RequestBody QuoteRequest request) {
+        return ResponseEntity.ok(reservationService.quote(request));
+    }
+
     @PostMapping
+    @SecurityRequirement(name = "BearerAuth")
     @PreAuthorize("hasRole('CLIENT')")
     @Operation(summary = "Créer une réservation (CLIENT)", description = "Crée une nouvelle réservation avec vérification des dates, de la disponibilité et des documents client.")
     @ApiResponses({
@@ -53,6 +66,7 @@ public class ReservationController {
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "BearerAuth")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Consulter une réservation par ID", description = "Accessible par le propriétaire, l'agence propriétaire du véhicule ou un administrateur.")
     @ApiResponses({
@@ -65,6 +79,7 @@ public class ReservationController {
     }
 
     @GetMapping("/me")
+    @SecurityRequirement(name = "BearerAuth")
     @PreAuthorize("hasRole('CLIENT')")
     @Operation(summary = "Lister mes réservations (CLIENT)", description = "Retourne la liste paginée des réservations du client connecté.")
     public ResponseEntity<Page<ReservationResponse>> getMyReservations(
@@ -73,6 +88,7 @@ public class ReservationController {
     }
 
     @GetMapping
+    @SecurityRequirement(name = "BearerAuth")
     @PreAuthorize("hasAnyRole('AGENCE', 'ADMIN')")
     @Operation(summary = "Lister toutes les réservations (AGENCE / ADMIN)", description = "Retourne toutes les réservations pour un ADMIN, ou uniquement celles de ses véhicules pour une AGENCE.")
     public ResponseEntity<Page<ReservationResponse>> getAll(
@@ -82,6 +98,7 @@ public class ReservationController {
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "BearerAuth")
     @PreAuthorize("hasRole('CLIENT')")
     @Operation(summary = "Modifier une réservation", description = "Modifiable par le propriétaire uniquement si la réservation est en statut PENDING.")
     @ApiResponses({
@@ -98,6 +115,7 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "BearerAuth")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Annuler une réservation", description = "Passe le statut de la réservation à CANCELLED.")
     @ApiResponses({
@@ -112,6 +130,7 @@ public class ReservationController {
     }
 
     @PatchMapping("/{id}/confirm")
+    @SecurityRequirement(name = "BearerAuth")
     @PreAuthorize("hasAnyRole('AGENCE', 'ADMIN')")
     @Operation(summary = "Confirmer une réservation", description = "Passe le statut à CONFIRMED.")
     public ResponseEntity<ReservationResponse> confirm(@PathVariable Long id) {
@@ -119,6 +138,7 @@ public class ReservationController {
     }
 
     @PatchMapping("/{id}/complete")
+    @SecurityRequirement(name = "BearerAuth")
     @PreAuthorize("hasAnyRole('AGENCE', 'ADMIN')")
     @Operation(summary = "Terminer une réservation", description = "Passe le statut à COMPLETED.")
     public ResponseEntity<ReservationResponse> complete(@PathVariable Long id) {

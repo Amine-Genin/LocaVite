@@ -4,12 +4,15 @@ import ma.locavite.auth.domain.Role;
 import ma.locavite.auth.domain.RoleType;
 import ma.locavite.auth.domain.User;
 import ma.locavite.auth.repository.UserRepository;
+import ma.locavite.catalog.domain.Category;
 import ma.locavite.document.domain.DocumentStatus;
 import ma.locavite.document.domain.DocumentType;
 import ma.locavite.document.repository.DocumentRepository;
 import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.ReservationOption;
+import ma.locavite.reservation.domain.OptionPrice;
 import ma.locavite.reservation.domain.ReservationStatus;
+import ma.locavite.reservation.config.PricingProperties;
 import ma.locavite.reservation.dto.ReservationFilter;
 import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.ReservationResponse;
@@ -19,6 +22,7 @@ import ma.locavite.reservation.exception.InvalidReservationStatusException;
 import ma.locavite.reservation.exception.VehicleNotAvailableException;
 import ma.locavite.reservation.mapper.ReservationMapper;
 import ma.locavite.reservation.repository.ReservationRepository;
+import ma.locavite.reservation.repository.OptionPriceRepository;
 import ma.locavite.vehicle.domain.Vehicle;
 import ma.locavite.vehicle.domain.VehicleStatus;
 import ma.locavite.vehicle.event.ReservationCreatedEvent;
@@ -54,6 +58,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class ReservationServiceTest {
@@ -79,6 +84,12 @@ class ReservationServiceTest {
     @Mock
     private AvailabilityService availabilityService;
 
+    @Mock
+    private SeasonService seasonService;
+
+    @Mock
+    private OptionPriceRepository optionPriceRepository;
+
     private final ReservationMapper reservationMapper = Mappers.getMapper(ReservationMapper.class);
 
     private ReservationService reservationService;
@@ -90,6 +101,15 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
+        PricingProperties pricingProperties = new PricingProperties();
+        pricingProperties.setVatRate(BigDecimal.ZERO);
+        lenient().when(seasonService.getAll()).thenReturn(List.of());
+        lenient().when(optionPriceRepository.findAll()).thenReturn(List.of(
+                optionPrice(ReservationOption.GPS, "50.00"),
+                optionPrice(ReservationOption.BABY_SEAT, "30.00"),
+                optionPrice(ReservationOption.EXTRA_DRIVER, "100.00")
+        ));
+        PricingService pricingService = new PricingService(seasonService, optionPriceRepository, pricingProperties);
         reservationService = new ReservationService(
                 reservationRepository,
                 vehicleRepository,
@@ -98,8 +118,16 @@ class ReservationServiceTest {
                 currentUserService,
                 reservationMapper,
                 eventPublisher,
-                availabilityService
+                availabilityService,
+                pricingService
         );
+    }
+
+    private OptionPrice optionPrice(ReservationOption option, String price) {
+        OptionPrice optionPrice = new OptionPrice();
+        optionPrice.setType(option);
+        optionPrice.setPrixJour(new BigDecimal(price));
+        return optionPrice;
     }
 
     private Vehicle createVehicle(Long id, Long agenceId, BigDecimal prixJour) {
@@ -108,6 +136,9 @@ class ReservationServiceTest {
         v.setAgenceId(agenceId);
         v.setPrixJour(prixJour);
         v.setStatut(VehicleStatus.PUBLISHED);
+        Category category = new Category();
+        category.setCaution(new BigDecimal("3000.00"));
+        v.setCategory(category);
         return v;
     }
 
@@ -157,9 +188,8 @@ class ReservationServiceTest {
         assertThat(response.statut()).isEqualTo(ReservationStatus.PENDING);
         assertThat(response.userId()).isEqualTo(CLIENT_ID);
         assertThat(response.vehicleId()).isEqualTo(VEHICLE_ID);
-        // Prix: 3 jours * 400 = 1200 + GPS (50) + BABY_SEAT (50) = 1300.00
-        assertThat(response.prixTotal()).isEqualByComparingTo(new BigDecimal("1300.00"));
-        // Caution: max(3000, 400 * 5 = 2000) = 3000.00
+        // 3 * 400 + 3 * (50 GPS + 30 siège bébé) + 3000 caution = 4440.00
+        assertThat(response.prixTotal()).isEqualByComparingTo(new BigDecimal("4440.00"));
         assertThat(response.caution()).isEqualByComparingTo(new BigDecimal("3000.00"));
 
         verify(eventPublisher).publishEvent(any(ReservationCreatedEvent.class));
@@ -393,8 +423,8 @@ class ReservationServiceTest {
 
         assertThat(updated).isNotNull();
         assertThat(updated.lieuPriseEnCharge()).isEqualTo("Gare Rabat");
-        // 3 jours * 500 = 1500 + GPS (50) = 1550.00
-        assertThat(updated.prixTotal()).isEqualByComparingTo(new BigDecimal("1550.00"));
+        // 3 * 500 + 3 * 50 GPS + 3000 caution = 4650.00
+        assertThat(updated.prixTotal()).isEqualByComparingTo(new BigDecimal("4650.00"));
     }
 
     @Test

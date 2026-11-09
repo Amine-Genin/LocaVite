@@ -168,9 +168,6 @@
         "description" : "Retourne les informations du profil de l'utilisateur actuellement authentifié via JWT.",
         "operationId" : "getMe",
         "responses" : {
-          "403" : {
-            "description" : "Accès refusé"
-          },
           "200" : {
             "description" : "Profil récupéré avec succès",
             "content" : {
@@ -183,6 +180,9 @@
           },
           "401" : {
             "description" : "Non authentifié (token JWT manquant ou invalide)"
+          },
+          "403" : {
+            "description" : "Accès refusé"
           }
         },
         "security" : [ {
@@ -205,15 +205,6 @@
           "required" : true
         },
         "responses" : {
-          "403" : {
-            "description" : "Accès refusé"
-          },
-          "400" : {
-            "description" : "Données de formulaire invalides"
-          },
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "200" : {
             "description" : "Profil mis à jour avec succès",
             "content" : {
@@ -223,6 +214,15 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès refusé"
+          },
+          "400" : {
+            "description" : "Données de formulaire invalides"
           }
         },
         "security" : [ {
@@ -421,6 +421,12 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
+          },
+          "404" : {
+            "description" : "Utilisateur introuvable"
+          },
           "200" : {
             "description" : "Rôles mis à jour avec succès",
             "content" : {
@@ -434,14 +440,8 @@
           "401" : {
             "description" : "Non authentifié"
           },
-          "400" : {
-            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
-          },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Utilisateur introuvable"
           }
         },
         "security" : [ {
@@ -486,8 +486,8 @@
               }
             }
           },
-          "400" : {
-            "description" : "Requête invalide (statut non supporté)"
+          "404" : {
+            "description" : "Document introuvable"
           },
           "401" : {
             "description" : "Non authentifié"
@@ -495,8 +495,8 @@
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
           },
-          "404" : {
-            "description" : "Document introuvable"
+          "400" : {
+            "description" : "Requête invalide (statut non supporté)"
           }
         },
         "security" : [ {
@@ -707,12 +707,6 @@
           }
         },
         "responses" : {
-          "400" : {
-            "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
-          },
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "201" : {
             "description" : "Document téléversé avec succès",
             "content" : {
@@ -722,6 +716,12 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "400" : {
+            "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
           }
         },
         "security" : [ {
@@ -838,6 +838,56 @@
         } ]
       }
     },
+    "/api/reservations/quote" : {
+      "post" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Obtenir un devis de réservation",
+        "description" : "Calcule le détail du prix sans créer de réservation.",
+        "operationId" : "quote",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/QuoteRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Devis calculé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PriceQuoteResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Dates invalides ou TVA non configurée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PriceQuoteResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Véhicule non trouvé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PriceQuoteResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/auth/register" : {
       "post" : {
         "tags" : [ "Auth" ],
@@ -855,6 +905,9 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Données d'inscription invalides ou email déjà utilisé"
+          },
           "201" : {
             "description" : "Utilisateur créé avec succès",
             "content" : {
@@ -864,9 +917,6 @@
                 }
               }
             }
-          },
-          "400" : {
-            "description" : "Données d'inscription invalides ou email déjà utilisé"
           }
         }
       }
@@ -888,12 +938,6 @@
           "required" : true
         },
         "responses" : {
-          "400" : {
-            "description" : "Requête invalide"
-          },
-          "401" : {
-            "description" : "Refresh token invalide ou expiré"
-          },
           "200" : {
             "description" : "Tokens rafraîchis avec succès",
             "content" : {
@@ -903,6 +947,12 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Refresh token invalide ou expiré"
+          },
+          "400" : {
+            "description" : "Requête invalide"
           }
         }
       }
@@ -946,9 +996,6 @@
           "required" : true
         },
         "responses" : {
-          "401" : {
-            "description" : "Email ou mot de passe incorrect"
-          },
           "400" : {
             "description" : "Format de la requête invalide"
           },
@@ -961,6 +1008,9 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Email ou mot de passe incorrect"
           }
         }
       }
@@ -1185,8 +1235,8 @@
           }
         } ],
         "responses" : {
-          "403" : {
-            "description" : "Accès non autorisé à ce document"
+          "404" : {
+            "description" : "Document introuvable"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -1201,8 +1251,8 @@
           "401" : {
             "description" : "Non authentifié"
           },
-          "404" : {
-            "description" : "Document introuvable"
+          "403" : {
+            "description" : "Accès non autorisé à ce document"
           }
         },
         "security" : [ {
@@ -1228,14 +1278,14 @@
           "204" : {
             "description" : "Document supprimé avec succès"
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "404" : {
+            "description" : "Document introuvable"
           },
           "403" : {
             "description" : "Accès non autorisé"
           },
-          "404" : {
-            "description" : "Document introuvable"
+          "401" : {
+            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -1371,6 +1421,9 @@
           }
         } ],
         "responses" : {
+          "404" : {
+            "description" : "Document introuvable"
+          },
           "200" : {
             "description" : "Document récupéré avec succès",
             "content" : {
@@ -1386,9 +1439,6 @@
           },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Document introuvable"
           }
         },
         "security" : [ {
@@ -1884,6 +1934,75 @@
         },
         "description" : "Détails d'un document justificatif téléversé"
       },
+      "QuoteRequest" : {
+        "required" : [ "dateDebut", "dateFin", "vehicleId" ],
+        "type" : "object",
+        "properties" : {
+          "vehicleId" : {
+            "type" : "integer",
+            "description" : "Identifiant du véhicule",
+            "format" : "int64",
+            "example" : 1
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "description" : "Date de début (incluse)",
+            "format" : "date",
+            "example" : "2026-11-10"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "description" : "Date de fin (exclue)",
+            "format" : "date",
+            "example" : "2026-11-15"
+          },
+          "options" : {
+            "uniqueItems" : true,
+            "type" : "array",
+            "description" : "Options sélectionnées",
+            "items" : {
+              "type" : "string",
+              "description" : "Options sélectionnées",
+              "enum" : [ "GPS", "BABY_SEAT", "EXTRA_DRIVER" ]
+            }
+          }
+        }
+      },
+      "PriceQuoteResponse" : {
+        "type" : "object",
+        "properties" : {
+          "sousTotal" : {
+            "type" : "number",
+            "description" : "Prix du véhicule avant remise et options"
+          },
+          "options" : {
+            "type" : "number",
+            "description" : "Total des options pour la durée de location"
+          },
+          "remise" : {
+            "type" : "number",
+            "description" : "Remise de longue durée"
+          },
+          "caution" : {
+            "type" : "number",
+            "description" : "Caution selon la catégorie du véhicule"
+          },
+          "tva" : {
+            "type" : "number",
+            "description" : "TVA appliquée au montant locatif après remise, hors caution"
+          },
+          "total" : {
+            "type" : "number",
+            "description" : "Montant total payable, caution comprise"
+          },
+          "jours" : {
+            "type" : "integer",
+            "description" : "Durée de location en jours",
+            "format" : "int64"
+          }
+        },
+        "description" : "Détail du devis de réservation, en MAD"
+      },
       "RegisterRequest" : {
         "required" : [ "email", "nom", "password", "prenom", "telephone" ],
         "type" : "object",
@@ -2165,21 +2284,21 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "sort" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/SortObject"
-            }
-          },
-          "numberOfElements" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "first" : {
             "type" : "boolean"
           },
           "last" : {
             "type" : "boolean"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
           },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
@@ -2205,16 +2324,16 @@
           "unpaged" : {
             "type" : "boolean"
           },
-          "paged" : {
-            "type" : "boolean"
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "pageSize" : {
             "type" : "integer",
             "format" : "int32"
           },
-          "pageNumber" : {
-            "type" : "integer",
-            "format" : "int32"
+          "paged" : {
+            "type" : "boolean"
           }
         }
       },
@@ -2297,21 +2416,21 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "sort" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/SortObject"
-            }
-          },
-          "numberOfElements" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "first" : {
             "type" : "boolean"
           },
           "last" : {
             "type" : "boolean"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
           },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
@@ -2346,21 +2465,21 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "sort" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/SortObject"
-            }
-          },
-          "numberOfElements" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "first" : {
             "type" : "boolean"
           },
           "last" : {
             "type" : "boolean"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
           },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
