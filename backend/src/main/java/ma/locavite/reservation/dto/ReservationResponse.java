@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.ReservationStatus;
+import ma.locavite.reservation.domain.CautionStatus;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -42,6 +43,9 @@ public record ReservationResponse(
 
         @Schema(description = "Montant de la caution", example = "3000.00")
         BigDecimal caution,
+
+        @Schema(description = "Statut de la caution", example = "PENDING")
+        CautionStatus cautionStatut,
 
         @Schema(description = "Statut de la réservation", example = "PENDING")
         ReservationStatus statut,

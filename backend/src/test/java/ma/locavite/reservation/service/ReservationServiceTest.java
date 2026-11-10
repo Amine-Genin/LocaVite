@@ -12,6 +12,7 @@ import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.OptionPrice;
 import ma.locavite.reservation.domain.ReservationStatus;
+import ma.locavite.reservation.domain.CautionStatus;
 import ma.locavite.reservation.config.PricingProperties;
 import ma.locavite.reservation.dto.ReservationFilter;
 import ma.locavite.reservation.dto.ReservationRequest;
@@ -408,7 +409,7 @@ class ReservationServiceTest {
         res.setDateFin(LocalDate.now().plusDays(4));
         res.setStatut(ReservationStatus.PENDING);
 
-        when(reservationRepository.findById(100L)).thenReturn(Optional.of(res));
+        when(reservationRepository.findByIdForUpdate(100L)).thenReturn(Optional.of(res));
 
         LocalDate newDebut = LocalDate.now().plusDays(3);
         LocalDate newFin = LocalDate.now().plusDays(6);
@@ -441,7 +442,7 @@ class ReservationServiceTest {
         res.setUserId(CLIENT_ID);
         res.setStatut(ReservationStatus.CONFIRMED);
 
-        when(reservationRepository.findById(100L)).thenReturn(Optional.of(res));
+        when(reservationRepository.findByIdForUpdate(100L)).thenReturn(Optional.of(res));
 
         ReservationRequest updateReq = new ReservationRequest(
                 VEHICLE_ID, LocalDate.now().plusDays(3), LocalDate.now().plusDays(6), "Casa", "Casa", null
@@ -450,6 +451,27 @@ class ReservationServiceTest {
         assertThatThrownBy(() -> reservationService.update(100L, updateReq))
                 .isInstanceOf(InvalidReservationStatusException.class)
                 .hasMessageContaining("PENDING");
+    }
+
+    @Test
+    @DisplayName("Modification rejetée lorsque la caution a déjà été bloquée")
+    void update_whenCautionIsHeld_throwsInvalidReservationStatusException() {
+        when(currentUserService.getCurrentUserId()).thenReturn(Optional.of(CLIENT_ID));
+
+        Reservation res = new Reservation();
+        res.setId(100L);
+        res.setUserId(CLIENT_ID);
+        res.setStatut(ReservationStatus.PENDING);
+        res.setCautionStatut(CautionStatus.HELD);
+        when(reservationRepository.findByIdForUpdate(100L)).thenReturn(Optional.of(res));
+
+        ReservationRequest updateReq = new ReservationRequest(
+                VEHICLE_ID, LocalDate.now().plusDays(3), LocalDate.now().plusDays(6), "Casa", "Casa", null
+        );
+
+        assertThatThrownBy(() -> reservationService.update(100L, updateReq))
+                .isInstanceOf(InvalidReservationStatusException.class)
+                .hasMessageContaining("caution");
     }
 
     @Test

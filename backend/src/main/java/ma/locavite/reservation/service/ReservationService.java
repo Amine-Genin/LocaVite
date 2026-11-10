@@ -6,6 +6,7 @@ import ma.locavite.document.domain.DocumentStatus;
 import ma.locavite.document.domain.DocumentType;
 import ma.locavite.document.repository.DocumentRepository;
 import ma.locavite.reservation.domain.Reservation;
+import ma.locavite.reservation.domain.CautionStatus;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.ReservationStatus;
 import ma.locavite.reservation.dto.ReservationFilter;
@@ -168,7 +169,7 @@ public class ReservationService {
     public ReservationResponse update(Long id, ReservationRequest request) {
         Long currentUserId = getCurrentUserId();
 
-        Reservation reservation = reservationRepository.findById(id)
+        Reservation reservation = reservationRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new ReservationNotFoundException(id));
 
         // Seul le propriétaire peut modifier sa réservation
@@ -179,6 +180,10 @@ public class ReservationService {
         // Modification autorisée uniquement si statut PENDING
         if (reservation.getStatut() != ReservationStatus.PENDING) {
             throw new InvalidReservationStatusException("Seules les réservations en attente (PENDING) peuvent être modifiées");
+        }
+        if (reservation.getCautionStatut() != CautionStatus.PENDING) {
+            throw new InvalidReservationStatusException(
+                    "Une réservation dont la caution a été traitée ne peut plus être modifiée");
         }
 
         // Validation des nouvelles dates

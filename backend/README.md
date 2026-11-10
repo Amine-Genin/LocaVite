@@ -40,3 +40,9 @@ curl -L -H "Authorization: Bearer <JWT>" \
 ```
 
 Le contrat contient le client et le statut de ses pièces d'identité, le véhicule, les dates et lieux, le détail du prix, un QR code, ainsi que les zones de signature. Les numéros de CIN et de permis ne sont pas disponibles dans le modèle actuel et ne sont donc pas imprimés. Les conditions incluses sont un modèle provisoire qui doit être validé juridiquement avant utilisation réelle. Configurez `LOCA_VITE_PUBLIC_BASE_URL` pour que le QR code pointe vers l'URL publique de l'API; `CONTRACT_FONT_PATH` permet de préciser le chemin d'une police Unicode si aucune police prise en charge n'est installée. L'e-mail requiert un serveur SMTP, configurable avec `MAIL_HOST` et `MAIL_PORT`.
+
+## Gestion des cautions
+
+Chaque réservation possède un montant de caution et un statut initial `PENDING`. Une agence (propriétaire du véhicule de la réservation) ou un administrateur peut gérer les mouvements avec `PUT /api/admin/reservations/{id}/caution`, en envoyant `type` (`HOLD`, `RELEASE` ou `CAPTURE`), `montant` et une `note` facultative. Le blocage porte sur le montant total configuré; une libération peut être partielle ou totale. Avant une capture de dommages, la part non retenue doit être libérée : le montant capturé correspond donc au solde restant. Chaque mouvement conserve son statut résultant dans le journal.
+
+L'historique est disponible avec `GET /api/admin/clients/{clientId}/cautions` (limité aux véhicules de l'agence connectée) et le reçu PDF avec `GET /api/admin/reservations/{id}/caution/receipt`.

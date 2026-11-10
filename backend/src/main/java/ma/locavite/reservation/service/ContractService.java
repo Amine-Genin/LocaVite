@@ -62,8 +62,6 @@ import java.awt.color.ICC_Profile;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -89,6 +87,7 @@ public class ContractService {
     private final MinioService minioService;
     private final JavaMailSender mailSender;
     private final ContractProperties properties;
+    private final PdfFontPathResolver fontPathResolver;
 
     public ContractService(
             ReservationRepository reservationRepository,
@@ -99,7 +98,8 @@ public class ContractService {
             PricingService pricingService,
             MinioService minioService,
             JavaMailSender mailSender,
-            ContractProperties properties) {
+            ContractProperties properties,
+            PdfFontPathResolver fontPathResolver) {
         this.reservationRepository = reservationRepository;
         this.contractRepository = contractRepository;
         this.userRepository = userRepository;
@@ -109,6 +109,7 @@ public class ContractService {
         this.minioService = minioService;
         this.mailSender = mailSender;
         this.properties = properties;
+        this.fontPathResolver = fontPathResolver;
     }
 
     @Transactional
@@ -244,7 +245,7 @@ public class ContractService {
 
             Document document = new Document(pdf, PageSize.A4);
             PdfFont font = PdfFontFactory.createFont(
-                    resolveFontPath(), PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
+                    fontPathResolver.resolve(), PdfEncodings.IDENTITY_H, PdfFontFactory.EmbeddingStrategy.FORCE_EMBEDDED);
             document.setFont(font);
             document.setFontSize(10);
             drawBrandHeader(pdf, font);
@@ -420,27 +421,6 @@ public class ContractService {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         ImageIO.write(image, "png", output);
         return output.toByteArray();
-    }
-
-    private String resolveFontPath() {
-        String configuredPath = properties.getFontPath();
-        if (configuredPath != null && !configuredPath.isBlank()) {
-            if (Files.isRegularFile(Path.of(configuredPath))) {
-                return configuredPath;
-            }
-            throw new IllegalStateException("Le fichier CONTRACT_FONT_PATH configuré est introuvable");
-        }
-        for (String candidate : List.of(
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-                "/usr/share/fonts/ttf-dejavu/DejaVuSans.ttf",
-                "C:/Windows/Fonts/arial.ttf",
-                "C:/Windows/Fonts/Arial.ttf")) {
-            if (Files.isRegularFile(Path.of(candidate))) {
-                return candidate;
-            }
-        }
-        throw new IllegalStateException(
-                "Police Unicode introuvable. Installez DejaVu Sans ou configurez CONTRACT_FONT_PATH");
     }
 
     private String createAccessToken() {
