@@ -76,12 +76,18 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
 
-
 management:
   endpoints:
     web:
+      base-path: /actuator
       exposure:
         include: health,info,metrics
   endpoint:
+    health:
+      probes:
+        enabled: true
     metrics:
       enabled: true
+  health:
+    mail:
+      enabled: false

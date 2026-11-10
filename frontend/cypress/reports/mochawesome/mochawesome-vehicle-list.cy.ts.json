@@ -1,0 +1,78 @@
+{
+  "stats": {
+    "suites": 1,
+    "tests": 5,
+    "passes": 5,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-11-04T10:08:35.848Z",
+    "end": "2026-11-04T10:08:39.961Z",
+    "duration": 4113,
+    "passPercent": 100
+  },
+  "results": [
+    {
+      "file": "cypress\\e2e\\vehicle-list.cy.ts",
+      "suites": [
+        {
+          "title": "Vehicle List Page (/vehicles) - Affichage liste & pagination",
+          "tests": [
+            {
+              "title": "displays the vehicle grid with cards, lazy-loaded photos, and details on /vehicles",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination displays the vehicle grid with cards, lazy-loaded photos, and details on /vehicles",
+              "duration": 1455,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "toggles the favorite (heart) button on a vehicle card",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination toggles the favorite (heart) button on a vehicle card",
+              "duration": 732,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "changes page using MatPaginator (next and previous page)",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination changes page using MatPaginator (next and previous page)",
+              "duration": 753,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "displays an empty state message when no vehicles match",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination displays an empty state message when no vehicles match",
+              "duration": 512,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "adapts responsive grid across mobile, tablet, and desktop viewports",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination adapts responsive grid across mobile, tablet, and desktop viewports",
+              "duration": 433,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 5,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    }
+  ]
+}
