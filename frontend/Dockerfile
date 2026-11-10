@@ -35,6 +35,13 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Déploiement des artefacts compilés
 COPY --from=builder /public /usr/share/nginx/html
 
+# Permissions pour l'exécution avec l'utilisateur non-root nginx
+RUN chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/log/nginx /etc/nginx/conf.d && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid
+
+USER nginx
+
 EXPOSE 80
 
 # Health check HTTP
