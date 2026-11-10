@@ -85,6 +85,9 @@ class ReservationServiceTest {
     private AvailabilityService availabilityService;
 
     @Mock
+    private ContractService contractService;
+
+    @Mock
     private SeasonService seasonService;
 
     @Mock
@@ -119,7 +122,8 @@ class ReservationServiceTest {
                 reservationMapper,
                 eventPublisher,
                 availabilityService,
-                pricingService
+                pricingService,
+                contractService
         );
     }
 

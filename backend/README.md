@@ -26,3 +26,17 @@ La migration `V8__create_seasons_options.sql` initialise les options GPS (50 MAD
 La caution se règle sur chaque ligne de `categories` dans `caution` (2 000 à 5 000 MAD, 3 000 MAD par défaut). Le total du devis comprend la caution. La TVA s'applique au prix du véhicule après remise et aux options, hors caution; la remise de longue durée porte sur le prix du véhicule.
 
 Le devis est disponible sans authentification via `POST /api/reservations/quote` avec `vehicleId`, `dateDebut`, `dateFin` et `options`. Ce calcul est également utilisé à la création et à la modification d'une réservation.
+
+## Contrats de location PDF
+
+La confirmation d'une réservation génère son contrat PDF/A en français, le stocke dans le bucket MinIO `locavite-contracts` et déclenche son envoi par courriel au client. Les versions arabe et anglaise sont générées à leur première demande. Le bucket est créé au démarrage lorsque `MINIO_INIT_BUCKET=true`; son nom peut être remplacé avec `MINIO_CONTRACTS_BUCKET`.
+
+Le client authentifié propriétaire de la réservation peut télécharger son contrat avec `GET /api/reservations/{id}/contract`. Le paramètre `lang` accepte `FR` (défaut), `AR` ou `EN`. L'API répond par une redirection vers une URL MinIO pré-signée valable 24 heures. Les autres clients reçoivent `403`; une réservation non confirmée ne possède pas encore de contrat téléchargeable.
+
+```sh
+curl -L -H "Authorization: Bearer <JWT>" \
+  "http://localhost:8081/api/reservations/123/contract?lang=FR" \
+  --output contrat.pdf
+```
+
+Le contrat contient le client et le statut de ses pièces d'identité, le véhicule, les dates et lieux, le détail du prix, un QR code, ainsi que les zones de signature. Les numéros de CIN et de permis ne sont pas disponibles dans le modèle actuel et ne sont donc pas imprimés. Les conditions incluses sont un modèle provisoire qui doit être validé juridiquement avant utilisation réelle. Configurez `LOCA_VITE_PUBLIC_BASE_URL` pour que le QR code pointe vers l'URL publique de l'API; `CONTRACT_FONT_PATH` permet de préciser le chemin d'une police Unicode si aucune police prise en charge n'est installée. L'e-mail requiert un serveur SMTP, configurable avec `MAIL_HOST` et `MAIL_PORT`.

@@ -50,6 +50,9 @@ spring:
 locavite:
   pricing:
     vat-rate: "${PRICING_VAT_RATE:}"
+  contract:
+    public-base-url: ${LOCA_VITE_PUBLIC_BASE_URL:http://localhost:8081}
+    font-path: ${CONTRACT_FONT_PATH:}
 
 security:
   jwt:
@@ -65,6 +68,7 @@ minio:
   bucket: ${MINIO_BUCKET:locavite-documents}
   init-bucket: ${MINIO_INIT_BUCKET:true}
   vehicles-bucket: ${MINIO_VEHICLES_BUCKET:locavite-vehicles}
+  contracts-bucket: ${MINIO_CONTRACTS_BUCKET:locavite-contracts}
 
 springdoc:
   api-docs:

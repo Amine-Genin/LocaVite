@@ -9,6 +9,7 @@ RUN mvn -B -DskipTests clean package
 # Stage 2: Runtime (non-root user)
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+RUN apk add --no-cache fontconfig ttf-dejavu
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=build /app/target/locavite-backend-*.jar app.jar
 USER appuser

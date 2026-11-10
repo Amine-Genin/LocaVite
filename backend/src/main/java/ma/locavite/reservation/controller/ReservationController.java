@@ -11,15 +11,21 @@ import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.ReservationResponse;
 import ma.locavite.reservation.dto.QuoteRequest;
 import ma.locavite.reservation.dto.PriceQuoteResponse;
+import ma.locavite.reservation.domain.ContractLanguage;
 import ma.locavite.reservation.service.ReservationService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import ma.locavite.auth.domain.User;
+import ma.locavite.reservation.service.ContractService;
 
 import java.net.URI;
 
@@ -29,9 +35,11 @@ import java.net.URI;
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final ContractService contractService;
 
-    public ReservationController(ReservationService reservationService) {
+    public ReservationController(ReservationService reservationService, ContractService contractService) {
         this.reservationService = reservationService;
+        this.contractService = contractService;
     }
 
     @PostMapping("/quote")
@@ -143,5 +151,44 @@ public class ReservationController {
     @Operation(summary = "Terminer une réservation", description = "Passe le statut à COMPLETED.")
     public ResponseEntity<ReservationResponse> complete(@PathVariable Long id) {
         return ResponseEntity.ok(reservationService.complete(id));
+    }
+
+    @GetMapping("/{id}/contract")
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Télécharger le contrat de location", description = "Redirige le propriétaire vers un lien MinIO signé, valide 24 heures.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "302", description = "Lien de téléchargement PDF pré-signé"),
+            @ApiResponse(responseCode = "403", description = "Le contrat appartient à un autre client"),
+            @ApiResponse(responseCode = "404", description = "Réservation introuvable"),
+            @ApiResponse(responseCode = "400", description = "La réservation n'est pas encore confirmée")
+    })
+    public ResponseEntity<Void> downloadContract(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "FR") String lang,
+            @AuthenticationPrincipal User currentUser) {
+        Long currentUserId = currentUser != null
+                ? currentUser.getId()
+                : reservationService.getCurrentUserId();
+        String url = contractService.getDownloadUrl(id, currentUserId, ContractLanguage.from(lang));
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, url)
+                .build();
+    }
+
+    @GetMapping("/{id}/contract/digital")
+    @Operation(summary = "Accéder à la version numérique d'un contrat via QR code")
+    @ApiResponses({
+            @ApiResponse(responseCode = "302", description = "Lien MinIO pré-signé"),
+            @ApiResponse(responseCode = "403", description = "Jeton numérique invalide")
+    })
+    public ResponseEntity<Void> downloadDigitalContract(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "FR") String lang,
+            @RequestParam String token) {
+        String url = contractService.getDigitalDownloadUrl(id, ContractLanguage.from(lang), token);
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .header(HttpHeaders.LOCATION, url)
+                .build();
     }
 }

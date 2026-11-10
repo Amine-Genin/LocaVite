@@ -46,6 +46,18 @@ public class Reservation {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal caution;
 
+    @Column(name = "prix_sous_total", precision = 12, scale = 2)
+    private BigDecimal prixSousTotal;
+
+    @Column(name = "prix_options", precision = 12, scale = 2)
+    private BigDecimal prixOptions;
+
+    @Column(name = "prix_remise", precision = 12, scale = 2)
+    private BigDecimal prixRemise;
+
+    @Column(name = "prix_tva", precision = 12, scale = 2)
+    private BigDecimal prixTva;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ReservationStatus statut = ReservationStatus.PENDING;
@@ -146,6 +158,15 @@ public class Reservation {
     public void setCaution(BigDecimal caution) {
         this.caution = caution;
     }
+
+    public BigDecimal getPrixSousTotal() { return prixSousTotal; }
+    public void setPrixSousTotal(BigDecimal prixSousTotal) { this.prixSousTotal = prixSousTotal; }
+    public BigDecimal getPrixOptions() { return prixOptions; }
+    public void setPrixOptions(BigDecimal prixOptions) { this.prixOptions = prixOptions; }
+    public BigDecimal getPrixRemise() { return prixRemise; }
+    public void setPrixRemise(BigDecimal prixRemise) { this.prixRemise = prixRemise; }
+    public BigDecimal getPrixTva() { return prixTva; }
+    public void setPrixTva(BigDecimal prixTva) { this.prixTva = prixTva; }
 
     public ReservationStatus getStatut() {
         return statut;
