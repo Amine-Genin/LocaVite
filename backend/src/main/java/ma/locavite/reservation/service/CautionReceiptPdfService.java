@@ -38,21 +38,24 @@ public class CautionReceiptPdfService {
                     + reservation.getCaution().toPlainString() + " MAD"));
             document.add(new Paragraph("Statut : " + reservation.getCautionStatut()));
 
-            Table table = new Table(UnitValue.createPercentArray(new float[]{18, 18, 18, 23, 23}))
+            Table table = new Table(UnitValue.createPercentArray(new float[]{25, 25, 20, 30}))
                     .useAllAvailableWidth();
             table.addHeaderCell("Date");
             table.addHeaderCell("Operation");
             table.addHeaderCell("Statut");
             table.addHeaderCell("Montant (MAD)");
-            table.addHeaderCell("Note");
             for (CautionTransaction transaction : transactions) {
                 table.addCell(transaction.getDate().toString());
                 table.addCell(transaction.getType().name());
                 table.addCell(transaction.getStatut().name());
                 table.addCell(transaction.getMontant().toPlainString());
-                table.addCell(transaction.getNote() == null ? "" : transaction.getNote());
             }
             document.add(table);
+            for (CautionTransaction transaction : transactions) {
+                if (transaction.getNote() != null && !transaction.getNote().isBlank()) {
+                    document.add(new Paragraph("Note : " + transaction.getNote()));
+                }
+            }
             document.close();
             return output.toByteArray();
         } catch (Exception exception) {
