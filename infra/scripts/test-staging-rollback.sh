@@ -26,7 +26,7 @@ echo "🚀 Test de déploiement avec le tag candidat : $CANDIDATE_TAG"
 echo "🔍 Exécution du Health Check sur $BACKEND_HEALTH_URL ..."
 HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BACKEND_HEALTH_URL" || true)
 
-if [ "$HTTP_STATUS" != "200" ]; then
+if [[ "$HTTP_STATUS" != "200" ]]; then
   echo "❌ Health check échoué (HTTP $HTTP_STATUS) -> Déclenchement du ROLLBACK automatique !"
   rm -f candidate_tag.txt
   RESTORED_TAG=$(cat current_tag.txt)
