@@ -18,6 +18,7 @@ import ma.locavite.reservation.exception.InvalidReservationDatesException;
 import ma.locavite.reservation.exception.InvalidReservationStatusException;
 import ma.locavite.reservation.exception.ReservationNotFoundException;
 import ma.locavite.reservation.exception.VehicleNotAvailableException;
+import ma.locavite.reservation.event.ReservationConfirmedEvent;
 import ma.locavite.reservation.mapper.ReservationMapper;
 import ma.locavite.reservation.repository.ReservationRepository;
 import ma.locavite.reservation.repository.ReservationSpecifications;
@@ -70,6 +71,7 @@ public class ReservationService {
     private final ApplicationEventPublisher eventPublisher;
     private final AvailabilityService availabilityService;
     private final PricingService pricingService;
+    private final ContractService contractService;
 
     public ReservationService(
             ReservationRepository reservationRepository,
@@ -80,7 +82,8 @@ public class ReservationService {
             ReservationMapper reservationMapper,
             ApplicationEventPublisher eventPublisher,
             AvailabilityService availabilityService,
-            PricingService pricingService) {
+            PricingService pricingService,
+            ContractService contractService) {
         this.reservationRepository = reservationRepository;
         this.vehicleRepository = vehicleRepository;
         this.documentRepository = documentRepository;
@@ -90,6 +93,7 @@ public class ReservationService {
         this.eventPublisher = eventPublisher;
         this.availabilityService = availabilityService;
         this.pricingService = pricingService;
+        this.contractService = contractService;
     }
 
     @Transactional(readOnly = true)
@@ -140,6 +144,10 @@ public class ReservationService {
         reservation.setLieuRetour(request.lieuRetour());
         reservation.setPrixTotal(quote.total());
         reservation.setCaution(quote.caution());
+        reservation.setPrixSousTotal(quote.sousTotal());
+        reservation.setPrixOptions(quote.options());
+        reservation.setPrixRemise(quote.remise());
+        reservation.setPrixTva(quote.tva());
         reservation.setStatut(ReservationStatus.PENDING);
         reservation.setOptions(request.options() != null ? new HashSet<>(request.options()) : new HashSet<>());
 
@@ -197,6 +205,10 @@ public class ReservationService {
         reservation.setLieuRetour(request.lieuRetour());
         reservation.setPrixTotal(quote.total());
         reservation.setCaution(quote.caution());
+        reservation.setPrixSousTotal(quote.sousTotal());
+        reservation.setPrixOptions(quote.options());
+        reservation.setPrixRemise(quote.remise());
+        reservation.setPrixTva(quote.tva());
         reservation.setOptions(request.options() != null ? new HashSet<>(request.options()) : new HashSet<>());
 
         Reservation updated = reservationRepository.save(reservation);
@@ -263,6 +275,10 @@ public class ReservationService {
 
         reservation.setStatut(ReservationStatus.CONFIRMED);
         Reservation saved = reservationRepository.save(reservation);
+
+        ma.locavite.reservation.domain.ReservationContract contract = contractService.generate(
+                saved, ma.locavite.reservation.domain.ContractLanguage.FR);
+        eventPublisher.publishEvent(new ReservationConfirmedEvent(saved, contract));
 
         availabilityService.invalidateCache();
 

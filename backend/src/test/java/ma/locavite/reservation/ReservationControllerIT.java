@@ -21,6 +21,9 @@ import ma.locavite.reservation.domain.ReservationStatus;
 import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.QuoteRequest;
 import ma.locavite.reservation.repository.ReservationRepository;
+import ma.locavite.reservation.domain.ContractLanguage;
+import ma.locavite.reservation.domain.ReservationContract;
+import ma.locavite.reservation.service.ContractService;
 import ma.locavite.vehicle.domain.FuelType;
 import ma.locavite.vehicle.domain.TransmissionType;
 import ma.locavite.vehicle.domain.Vehicle;
@@ -35,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -45,6 +49,8 @@ import java.util.Set;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest(properties = "spring.cache.type=none")
 @AutoConfigureMockMvc
@@ -83,6 +89,9 @@ class ReservationControllerIT {
     @Autowired
     private JwtService jwtService;
 
+    @MockBean
+    private ContractService contractService;
+
     private User clientWithDocs;
     private User clientWithoutDocs;
     private User agence1;
@@ -100,6 +109,7 @@ class ReservationControllerIT {
 
     @BeforeEach
     void setUp() {
+        reset(contractService);
         reservationRepository.deleteAll();
         documentRepository.deleteAll();
         vehicleRepository.deleteAll();
@@ -150,6 +160,70 @@ class ReservationControllerIT {
 
         vehicleAgence1 = createVehicle(brand, category, "1111-A-1", agence1.getId(), new BigDecimal("400.00"));
         vehicleAgence2 = createVehicle(brand, category, "2222-B-2", agence2.getId(), new BigDecimal("600.00"));
+    }
+
+    @Test
+    @DisplayName("Confirmation génère le contrat français et déclenche son envoi après validation")
+    void confirm_generatesFrenchContractAndPublishesEmailEvent() throws Exception {
+        Reservation reservation = new Reservation();
+        reservation.setCode("LV-CONTR1");
+        reservation.setUserId(clientWithDocs.getId());
+        reservation.setVehicleId(vehicleAgence1.getId());
+        reservation.setDateDebut(LocalDate.now().plusDays(5));
+        reservation.setDateFin(LocalDate.now().plusDays(8));
+        reservation.setLieuPriseEnCharge("Aéroport");
+        reservation.setLieuRetour("Aéroport");
+        reservation.setPrixTotal(new BigDecimal("4200.00"));
+        reservation.setCaution(new BigDecimal("3000.00"));
+        reservation.setStatut(ReservationStatus.PENDING);
+        reservation = reservationRepository.save(reservation);
+
+        Long reservationId = reservation.getId();
+        when(contractService.generate(org.mockito.ArgumentMatchers.any(Reservation.class), eq(ContractLanguage.FR)))
+                .thenReturn(new ReservationContract());
+
+        mockMvc.perform(patch("/api/reservations/" + reservationId + "/confirm")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agence1Token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("CONFIRMED"));
+
+        verify(contractService).generate(org.mockito.ArgumentMatchers.any(Reservation.class), eq(ContractLanguage.FR));
+    }
+
+    @Test
+    @DisplayName("Le contrat est téléchargeable par son propriétaire et refusé aux autres utilisateurs")
+    void getContract_authorizesOnlyReservationOwner() throws Exception {
+        Reservation reservation = new Reservation();
+        reservation.setCode("LV-OWNER");
+        reservation.setUserId(clientWithDocs.getId());
+        reservation.setVehicleId(vehicleAgence1.getId());
+        reservation.setDateDebut(LocalDate.now().plusDays(5));
+        reservation.setDateFin(LocalDate.now().plusDays(8));
+        reservation.setLieuPriseEnCharge("Aéroport");
+        reservation.setLieuRetour("Aéroport");
+        reservation.setPrixTotal(new BigDecimal("4200.00"));
+        reservation.setCaution(new BigDecimal("3000.00"));
+        reservation.setStatut(ReservationStatus.CONFIRMED);
+        reservation = reservationRepository.save(reservation);
+
+        Long reservationId = reservation.getId();
+        when(contractService.getDownloadUrl(reservationId, clientWithDocs.getId(), ContractLanguage.FR))
+                .thenReturn("http://minio.test/contract.pdf?signature=valid");
+        when(contractService.getDownloadUrl(reservationId, clientWithoutDocs.getId(), ContractLanguage.FR))
+                .thenThrow(new org.springframework.security.access.AccessDeniedException(
+                        "Accès refusé : ce contrat appartient à un autre client"));
+
+        mockMvc.perform(get("/api/reservations/" + reservationId + "/contract")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientWithDocsToken))
+                .andExpect(status().isFound())
+                .andExpect(header().string(HttpHeaders.LOCATION, "http://minio.test/contract.pdf?signature=valid"));
+
+        mockMvc.perform(get("/api/reservations/" + reservationId + "/contract")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientWithoutDocsToken))
+                .andExpect(status().isForbidden());
+
+        verify(contractService).getDownloadUrl(reservationId, clientWithDocs.getId(), ContractLanguage.FR);
+        verify(contractService).getDownloadUrl(reservationId, clientWithoutDocs.getId(), ContractLanguage.FR);
     }
 
     private User createUser(String email, String nom, String prenom, Role role) {

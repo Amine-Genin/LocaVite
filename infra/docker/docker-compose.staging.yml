@@ -139,4 +139,3 @@ networks:
   locavite-staging-network:
     name: locavite-staging-network
     driver: bridge
-
