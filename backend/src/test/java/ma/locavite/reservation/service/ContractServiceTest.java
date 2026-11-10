@@ -72,7 +72,8 @@ class ContractServiceTest {
         properties.setPublicBaseUrl("https://locavite.example");
         contractService = new ContractService(
                 reservationRepository, contractRepository, userRepository, vehicleRepository,
-                documentRepository, pricingService, minioService, mailSender, properties);
+                documentRepository, pricingService, minioService, mailSender, properties,
+                new PdfFontPathResolver(properties));
 
         reservation = new Reservation();
         reservation.setId(42L);

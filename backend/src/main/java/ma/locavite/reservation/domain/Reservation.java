@@ -46,6 +46,10 @@ public class Reservation {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal caution;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "caution_statut", nullable = false, length = 30)
+    private CautionStatus cautionStatut = CautionStatus.PENDING;
+
     @Column(name = "prix_sous_total", precision = 12, scale = 2)
     private BigDecimal prixSousTotal;
 
@@ -157,6 +161,14 @@ public class Reservation {
 
     public void setCaution(BigDecimal caution) {
         this.caution = caution;
+    }
+
+    public CautionStatus getCautionStatut() {
+        return cautionStatut;
+    }
+
+    public void setCautionStatut(CautionStatus cautionStatut) {
+        this.cautionStatut = cautionStatut;
     }
 
     public BigDecimal getPrixSousTotal() { return prixSousTotal; }
