@@ -8,15 +8,17 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [CommonModule, RouterLink, MatButtonModule],
   template: `
-    <main class="success-page">
+    <main class="success-page" data-cy="reservation-success-page">
       <section class="success-card">
         <div class="success-icon" aria-hidden="true">✓</div>
-        <h1>Réservation confirmée</h1>
-        <p>
+        <h1 data-cy="reservation-success-title">Réservation confirmée</h1>
+        <p data-cy="reservation-success-message">
           Votre réservation <strong>{{ reservationId }}</strong> a bien été enregistrée.
           Un e-mail de confirmation vous sera envoyé.
         </p>
-        <a mat-flat-button color="primary" routerLink="/vehicles">Retour au catalogue</a>
+        <a mat-flat-button color="primary" routerLink="/vehicles" data-cy="back-to-catalogue-btn">
+          Retour au catalogue
+        </a>
       </section>
     </main>
   `,

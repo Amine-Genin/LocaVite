@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { debounceTime, distinctUntilChanged, filter } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, tap } from 'rxjs';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -13,26 +13,38 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { Vehicle } from '../vehicles/models/vehicle.model';
 import { VehicleService } from '../vehicles/services/vehicle.service';
 import { UserService } from '../profile/services/user.service';
 import { User } from '../profile/models/user.model';
 import { ReservationService } from './services/reservation.service';
-import {
-  PriceQuote,
-  ReservationOption,
-  ReservationRequest,
-} from './models/reservation.model';
+import { PriceQuote, ReservationOption, ReservationRequest } from './models/reservation.model';
+import { dateRangeValidator, minTodayValidator, startOfDay } from './reservation.validators';
+import { DateRangePickerComponent } from './date-range-picker/date-range-picker.component';
+import { OptionsSelectorComponent } from './options-selector/options-selector.component';
+import { PriceSummaryComponent } from './price-summary/price-summary.component';
 
 @Component({
   selector: 'app-reservation-form',
   standalone: true,
   imports: [
-    CommonModule, RouterLink, ReactiveFormsModule, MatStepperModule, MatDatepickerModule,
-    MatNativeDateModule, MatFormFieldModule, MatInputModule, MatButtonModule,
-    MatCheckboxModule, MatRadioModule, MatProgressSpinnerModule, MatSnackBarModule,
+    CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+    MatStepperModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatProgressSpinnerModule,
+    DateRangePickerComponent,
+    OptionsSelectorComponent,
+    PriceSummaryComponent,
   ],
   templateUrl: './reservation-form.component.html',
   styleUrl: './reservation-form.component.scss',
@@ -47,7 +59,7 @@ export class ReservationFormComponent implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
 
-  readonly today = new Date();
+  readonly today = startOfDay(new Date());
   readonly vehicle = signal<Vehicle | null>(null);
   readonly user = signal<User | null>(null);
   readonly quote = signal<PriceQuote | null>(null);
@@ -58,19 +70,28 @@ export class ReservationFormComponent implements OnInit {
   readonly documentsValid = signal(true);
   readonly error = signal('');
 
-  readonly datesForm = this.fb.group({
-    dateDebut: [null as Date | null, Validators.required],
-    dateFin: [null as Date | null, Validators.required],
-  });
+  readonly datesForm = this.fb.group(
+    {
+      dateDebut: [
+        null as Date | null,
+        [Validators.required, minTodayValidator(() => this.today)],
+      ],
+      dateFin: [null as Date | null, [Validators.required]],
+    },
+    { validators: [dateRangeValidator] },
+  );
+
   readonly placesForm = this.fb.nonNullable.group({
     lieuPriseEnCharge: ['', Validators.required],
     lieuRetour: ['', Validators.required],
   });
+
   readonly optionsForm = this.fb.nonNullable.group({
     gps: false,
     babySeat: false,
     extraDriver: false,
   });
+
   readonly confirmationForm = this.fb.nonNullable.group({
     acceptedTerms: [false, Validators.requiredTrue],
   });
@@ -97,20 +118,39 @@ export class ReservationFormComponent implements OnInit {
       },
     });
 
-    this.datesForm.valueChanges.pipe(
-      debounceTime(500),
-      distinctUntilChanged((a, b) => a.dateDebut?.getTime() === b.dateDebut?.getTime()
-        && a.dateFin?.getTime() === b.dateFin?.getTime()),
-      filter(() => this.datesForm.valid),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe(() => this.refreshQuoteAndAvailability());
+    this.datesForm.valueChanges
+      .pipe(
+        tap(() => {
+          if (this.datesForm.invalid) {
+            this.available.set(null);
+            this.quote.set(null);
+          }
+        }),
+        debounceTime(500),
+        distinctUntilChanged(
+          (a, b) =>
+            a.dateDebut?.getTime() === b.dateDebut?.getTime() &&
+            a.dateFin?.getTime() === b.dateFin?.getTime(),
+        ),
+        filter(() => this.datesForm.valid),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => this.refreshQuoteAndAvailability());
 
-    this.optionsForm.valueChanges.pipe(
-      debounceTime(500),
-      takeUntilDestroyed(this.destroyRef),
-    ).subscribe(() => {
-      if (this.datesForm.valid) this.refreshQuote();
-    });
+    this.optionsForm.valueChanges
+      .pipe(debounceTime(500), takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        if (this.datesForm.valid) this.refreshQuote();
+      });
+  }
+
+  selectPickupType(option: string): void {
+    const city = this.vehicle()?.ville;
+    const formatted = city ? `${option} - ${city}` : option;
+    this.placesForm.controls.lieuPriseEnCharge.setValue(formatted);
+    if (!this.placesForm.controls.lieuRetour.value) {
+      this.placesForm.controls.lieuRetour.setValue(formatted);
+    }
   }
 
   refreshQuoteAndAvailability(): void {
@@ -133,8 +173,14 @@ export class ReservationFormComponent implements OnInit {
   }
 
   submit(): void {
-    if (this.confirmationForm.invalid || this.placesForm.invalid || this.datesForm.invalid
-      || !this.vehicle() || this.available() !== true || !this.documentsValid()) {
+    if (
+      this.confirmationForm.invalid ||
+      this.placesForm.invalid ||
+      this.datesForm.invalid ||
+      !this.vehicle() ||
+      this.available() !== true ||
+      !this.documentsValid()
+    ) {
       this.confirmationForm.markAllAsTouched();
       return;
     }
@@ -151,6 +197,11 @@ export class ReservationFormComponent implements OnInit {
     this.reservationService.create(request).subscribe({
       next: (reservation) => {
         this.submitting.set(false);
+        this.snackBar.open(
+          'Réservation confirmée ! Un e-mail de confirmation vous a été envoyé.',
+          'OK',
+          { duration: 4000 },
+        );
         void this.router.navigate(['/reservations', reservation.id]);
       },
       error: (err: { error?: { detail?: string; message?: string } }) => {
@@ -180,18 +231,26 @@ export class ReservationFormComponent implements OnInit {
   private refreshQuote(): void {
     const vehicleId = this.vehicle()?.id;
     const dates = this.dateValues();
-    if (!vehicleId || !dates) return;
-    this.reservationService.getQuote({
-      vehicleId, dateDebut: dates.from, dateFin: dates.to, options: this.selectedOptions(),
-    }).subscribe({
-      next: (quote) => this.quote.set(quote),
-      error: () => this.quote.set(null),
-    });
+    if (!vehicleId || !dates) {
+      this.quote.set(null);
+      return;
+    }
+    this.reservationService
+      .getQuote({
+        vehicleId,
+        dateDebut: dates.from,
+        dateFin: dates.to,
+        options: this.selectedOptions(),
+      })
+      .subscribe({
+        next: (quote) => this.quote.set(quote),
+        error: () => this.quote.set(null),
+      });
   }
 
   private dateValues(): { from: string; to: string } | null {
     const { dateDebut, dateFin } = this.datesForm.getRawValue();
-    if (!dateDebut || !dateFin || dateFin <= dateDebut) return null;
+    if (!dateDebut || !dateFin || startOfDay(dateFin) <= startOfDay(dateDebut)) return null;
     return { from: this.toIsoDate(dateDebut), to: this.toIsoDate(dateFin) };
   }
 
@@ -207,7 +266,9 @@ export class ReservationFormComponent implements OnInit {
       next: (user) => {
         this.user.set(user);
         const valid = ['permis', 'cin'].every((type) =>
-          user.documents.some((document) => document.type === type && document.status === 'validated'),
+          user.documents.some(
+            (document) => document.type === type && document.status === 'validated',
+          ),
         );
         this.documentsValid.set(valid);
       },
