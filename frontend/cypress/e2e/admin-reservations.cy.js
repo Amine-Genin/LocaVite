@@ -102,6 +102,17 @@ describe('Dashboard réservations admin (/admin/reservations)', () => {
   });
 
   it('filtre par statut et par code', () => {
+    cy.intercept('GET', /\/api\/reservations\?.*code=LV-ADM01.*/, {
+      statusCode: 200,
+      body: {
+        content: [mockReservations[0]],
+        totalElements: 1,
+        totalPages: 1,
+        size: 10,
+        number: 0,
+      },
+    }).as('filterByCode');
+
     cy.login('agence@locavite.ma', 'Motdepasse123!', ['AGENCE']);
     cy.visit('/admin/reservations');
     cy.wait('@getAllReservations');
@@ -109,7 +120,7 @@ describe('Dashboard réservations admin (/admin/reservations)', () => {
     cy.get('[data-testid="filter-code-input"]').type('LV-ADM01');
     cy.get('[data-testid="btn-apply-filters"]').click();
 
-    cy.wait('@getAllReservations')
+    cy.wait('@filterByCode')
       .its('request.url')
       .should('include', 'code=LV-ADM01');
   });
