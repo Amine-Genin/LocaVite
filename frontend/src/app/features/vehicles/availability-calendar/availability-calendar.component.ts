@@ -43,7 +43,7 @@ export interface DateRangeSelection {
 })
 export class AvailabilityCalendarComponent implements OnInit, OnChanges {
   private readonly translate = inject(TranslateService, { optional: true });
-  private readonly availabilityService = inject(AvailabilityService);
+  private readonly availabilityService = inject(AvailabilityService, { optional: true });
 
   @Input() vehicleId?: number;
   @Input() availability?: AvailabilityResponse;
@@ -86,7 +86,7 @@ export class AvailabilityCalendarComponent implements OnInit, OnChanges {
   }
 
   loadAvailability(): void {
-    if (!this.vehicleId) return;
+    if (!this.vehicleId || !this.availabilityService) return;
     this.availabilityService.getAvailability(this.vehicleId).subscribe({
       next: (res) => {
         this.activeAvailability = res;

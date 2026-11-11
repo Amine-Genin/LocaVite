@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 
 import { AvailabilityCalendarComponent } from './availability-calendar.component';
@@ -25,7 +26,7 @@ describe('AvailabilityCalendarComponent', () => {
     availabilityServiceSpy.getAvailability.and.returnValue(of(mockAvailability));
 
     await TestBed.configureTestingModule({
-      imports: [AvailabilityCalendarComponent, NoopAnimationsModule],
+      imports: [AvailabilityCalendarComponent, NoopAnimationsModule, TranslateModule.forRoot()],
       providers: [
         { provide: AvailabilityService, useValue: availabilityServiceSpy },
       ],
