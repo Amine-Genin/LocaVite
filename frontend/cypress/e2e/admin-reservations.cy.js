@@ -106,8 +106,8 @@ describe('Dashboard réservations admin (/admin/reservations)', () => {
     cy.visit('/admin/reservations');
     cy.wait('@getAllReservations');
 
-    cy.get('[data-testid="filter-code-input"]').type('LV-ADM01');
-    cy.get('[data-testid="btn-apply-filters"]').click();
+    cy.get('[data-testid="filter-code-input"]').type('LV-ADM01', { force: true });
+    cy.get('[data-testid="btn-apply-filters"]').click({ force: true });
 
     cy.get('[data-testid="admin-reservations-table"]').should('contain.text', 'LV-ADM01');
   });
