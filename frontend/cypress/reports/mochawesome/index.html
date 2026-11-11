@@ -138,28 +138,28 @@
       <h1>Mochawesome Report — LocaVite E2E Cypress</h1>
     </div>
     <div class="stats-bar">
-      <span class="stat-pill">Suites: 7</span>
-      <span class="stat-pill">Tests: 41</span>
-      <span class="stat-pill pass">Passes: 41</span>
+      <span class="stat-pill">Suites: 2</span>
+      <span class="stat-pill">Tests: 13</span>
+      <span class="stat-pill pass">Passes: 13</span>
       <span class="stat-pill fail">Failures: 0</span>
       <span class="stat-pill">Pass %: 100%</span>
-      <span class="stat-pill">Duration: 52.41s</span>
+      <span class="stat-pill">Duration: 65.48s</span>
     </div>
   </header>
   <main>
     
             <div class="suite-card">
               <div class="suite-header">
-                <h3>Page de connexion (Login)</h3>
-                <span class="suite-file">cypress\e2e\login.cy.js</span>
+                <h3>Formulaire de réservation (/reservation/:vehicleId)</h3>
+                <span class="suite-file">cypress\e2e\reservation.cy.js</span>
               </div>
               <ul class="test-list">
                 
                 <li class="test-item passed">
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche tous les éléments du formulaire de connexion</span>
-                    <span class="test-duration">2632 ms</span>
+                    <span class="test-title">redirige vers /login si le client n’est pas authentifié</span>
+                    <span class="test-duration">3708 ms</span>
                   </div>
                   
                 </li>
@@ -167,8 +167,8 @@
                 <li class="test-item passed">
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
-                    <span class="test-title">désactive le bouton de soumission si le formulaire est invalide</span>
-                    <span class="test-duration">1529 ms</span>
+                    <span class="test-title">affiche un message d’alerte et un lien vers /profile si les documents ne sont pas validés</span>
+                    <span class="test-duration">2358 ms</span>
                   </div>
                   
                 </li>
@@ -176,206 +176,8 @@
                 <li class="test-item passed">
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche un message derreur lors dun échec de connexion (mauvais identifiants)</span>
-                    <span class="test-duration">1270 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">se connecte avec succès, stocke le JWT et redirige</span>
-                    <span class="test-duration">1375 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">prend en charge le support multilingue (FR / AR / EN)</span>
-                    <span class="test-duration">814 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">navigue vers la page dinscription via le lien</span>
-                    <span class="test-duration">486 ms</span>
-                  </div>
-                  
-                </li>
-              </ul>
-            </div>
-
-            <div class="suite-card">
-              <div class="suite-header">
-                <h3>Profil client (Angular)</h3>
-                <span class="suite-file">cypress\e2e\profile.cy.js</span>
-              </div>
-              <ul class="test-list">
-                
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">redirection vers /login si non authentifié</span>
-                    <span class="test-duration">1221 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">connexion et affichage complet du profil client</span>
-                    <span class="test-duration">1676 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">modification du profil avec message de succès</span>
-                    <span class="test-duration">1183 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">déconnexion</span>
-                    <span class="test-duration">386 ms</span>
-                  </div>
-                  
-                </li>
-              </ul>
-            </div>
-
-            <div class="suite-card">
-              <div class="suite-header">
-                <h3>Page d&#39;inscription (Register)</h3>
-                <span class="suite-file">cypress\e2e\register.cy.js</span>
-              </div>
-              <ul class="test-list">
-                
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche tous les éléments du formulaire d&#39;inscription</span>
-                    <span class="test-duration">1092 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">valide côté client et désactive le bouton si les données sont invalides</span>
-                    <span class="test-duration">3717 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche une erreur si l&#39;email est déjà utilisé (409 Conflict)</span>
-                    <span class="test-duration">2120 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">inscrit l&#39;utilisateur avec succès et redirige vers /login avec notification</span>
-                    <span class="test-duration">2160 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">prend en charge le support multilingue (FR / AR / EN)</span>
-                    <span class="test-duration">567 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">navigue vers la page de connexion via le lien</span>
-                    <span class="test-duration">293 ms</span>
-                  </div>
-                  
-                </li>
-              </ul>
-            </div>
-
-            <div class="suite-card">
-              <div class="suite-header">
-                <h3>Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new)</h3>
-                <span class="suite-file">cypress\e2e\vehicle-create.cy.ts</span>
-              </div>
-              <ul class="test-list">
-                
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">redirection vers /login si non authentifié</span>
-                    <span class="test-duration">761 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">redirection vers /login si rôle non autorisé (CLIENT)</span>
-                    <span class="test-duration">438 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">accès autorisé pour rôle AGENCE/ADMIN et affichage de toutes les sections</span>
-                    <span class="test-duration">690 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">upload de 3 photos, prévisualisation, réorganisation et sélection photo principale</span>
-                    <span class="test-duration">685 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">remplissage complet via cy.createVehicle(), publication et redirection vers /admin/vehicles</span>
-                    <span class="test-duration">3371 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">sauvegarde en tant que brouillon (statut DRAFT) via cy.createVehicle()</span>
-                    <span class="test-duration">3184 ms</span>
+                    <span class="test-title">parcours complet de réservation (Dates -&gt; Lieux -&gt; Options -&gt; Récapitulatif -&gt; Confirmation)</span>
+                    <span class="test-duration">6134 ms</span>
                   </div>
                   
                 </li>
@@ -393,7 +195,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">navigates from catalogue list (/vehicles) to vehicle detail page (/vehicles/1)</span>
-                    <span class="test-duration">1859 ms</span>
+                    <span class="test-duration">5596 ms</span>
                   </div>
                   
                 </li>
@@ -402,7 +204,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">displays full vehicle specifications, pricing, city and agency on /vehicles/1</span>
-                    <span class="test-duration">645 ms</span>
+                    <span class="test-duration">1864 ms</span>
                   </div>
                   
                 </li>
@@ -411,7 +213,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">navigates through photo gallery with buttons and thumbnails</span>
-                    <span class="test-duration">1729 ms</span>
+                    <span class="test-duration">2983 ms</span>
                   </div>
                   
                 </li>
@@ -420,7 +222,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">displays the monthly availability calendar and highlights dates</span>
-                    <span class="test-duration">633 ms</span>
+                    <span class="test-duration">5080 ms</span>
                   </div>
                   
                 </li>
@@ -429,7 +231,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">navigates to /reservation/:id when clicking Réserver</span>
-                    <span class="test-duration">631 ms</span>
+                    <span class="test-duration">3517 ms</span>
                   </div>
                   
                 </li>
@@ -438,7 +240,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">opens contact modal with WhatsApp and contact form on clicking Contacter agence</span>
-                    <span class="test-duration">2380 ms</span>
+                    <span class="test-duration">18807 ms</span>
                   </div>
                   
                 </li>
@@ -447,7 +249,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">toggles favorite button on vehicle detail page</span>
-                    <span class="test-duration">487 ms</span>
+                    <span class="test-duration">3278 ms</span>
                   </div>
                   
                 </li>
@@ -456,7 +258,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">displays 3 similar vehicle suggestions excluding current vehicle</span>
-                    <span class="test-duration">374 ms</span>
+                    <span class="test-duration">1096 ms</span>
                   </div>
                   
                 </li>
@@ -465,7 +267,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">sets dynamic SEO title and meta tags</span>
-                    <span class="test-duration">329 ms</span>
+                    <span class="test-duration">828 ms</span>
                   </div>
                   
                 </li>
@@ -474,106 +276,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">adapts responsive layout across mobile, tablet, and desktop</span>
-                    <span class="test-duration">354 ms</span>
-                  </div>
-                  
-                </li>
-              </ul>
-            </div>
-
-            <div class="suite-card">
-              <div class="suite-header">
-                <h3>Vehicle Filters (/vehicles) - Filtres &amp; synchronisation URL</h3>
-                <span class="suite-file">cypress\e2e\vehicle-filters.cy.ts</span>
-              </div>
-              <ul class="test-list">
-                
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">filters the vehicle list by city and keeps the filter synchronized in the URL</span>
-                    <span class="test-duration">2055 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">applies category, brand, and sort filters and resets all filters cleanly</span>
-                    <span class="test-duration">2012 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">hydrates filter controls from initial URL query parameters</span>
-                    <span class="test-duration">396 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">opens and closes the filter drawer on mobile viewport</span>
-                    <span class="test-duration">525 ms</span>
-                  </div>
-                  
-                </li>
-              </ul>
-            </div>
-
-            <div class="suite-card">
-              <div class="suite-header">
-                <h3>Vehicle List Page (/vehicles) - Affichage liste &amp; pagination</h3>
-                <span class="suite-file">cypress\e2e\vehicle-list.cy.ts</span>
-              </div>
-              <ul class="test-list">
-                
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">displays the vehicle grid with cards, lazy-loaded photos, and details on /vehicles</span>
-                    <span class="test-duration">1455 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">toggles the favorite (heart) button on a vehicle card</span>
-                    <span class="test-duration">732 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">changes page using MatPaginator (next and previous page)</span>
-                    <span class="test-duration">753 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">displays an empty state message when no vehicles match</span>
-                    <span class="test-duration">512 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">adapts responsive grid across mobile, tablet, and desktop viewports</span>
-                    <span class="test-duration">433 ms</span>
+                    <span class="test-duration">866 ms</span>
                   </div>
                   
                 </li>

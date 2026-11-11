@@ -92,6 +92,27 @@ describe('Vehicle Detail Page (/vehicles/:id) - Navigation & galerie', () => {
   });
 
   it('navigates to /reservation/:id when clicking Réserver', () => {
+    cy.login('client@locavite.ma', 'ClientPass123!', ['CLIENT']);
+    cy.intercept('GET', '/api/users/me', {
+      statusCode: 200,
+      body: {
+        id: 2,
+        nom: 'Client',
+        prenom: 'Test',
+        email: 'client@locavite.ma',
+        telephone: '0612345678',
+        roles: ['CLIENT'],
+        createdAt: '2026-01-15T10:00:00',
+      },
+    });
+    cy.intercept('GET', '/api/users/me/documents', {
+      statusCode: 200,
+      body: [
+        { id: 1, type: 'PERMIS', status: 'VALIDATED', url: '/permis.pdf', uploadedAt: '2026-01-16T10:00:00' },
+        { id: 2, type: 'CIN', status: 'VALIDATED', url: '/cin.pdf', uploadedAt: '2026-01-16T11:00:00' },
+      ],
+    });
+
     cy.visit('/vehicles/1');
     cy.wait('@getVehicle');
 

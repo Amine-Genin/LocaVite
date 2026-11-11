@@ -18,11 +18,22 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'reservation/:id',
+    path: 'reservation/:vehicleId',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['CLIENT'] },
     loadComponent: () =>
       import(
-        './features/vehicles/reservation-placeholder/reservation-placeholder.component'
-      ).then((m) => m.ReservationPlaceholderComponent),
+        './features/reservations/reservation-form.component'
+      ).then((m) => m.ReservationFormComponent),
+  },
+  {
+    path: 'reservations/:id',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['CLIENT'] },
+    loadComponent: () =>
+      import('./features/reservations/reservation-success.component').then(
+        (m) => m.ReservationSuccessComponent,
+      ),
   },
   {
     path: 'admin/vehicles/new',

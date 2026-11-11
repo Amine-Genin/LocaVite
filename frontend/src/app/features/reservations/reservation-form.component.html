@@ -1,0 +1,177 @@
+<main class="reservation-page" data-cy="reservation-page">
+  <section class="reservation-shell">
+    <a class="back-link" routerLink="/vehicles" data-cy="back-to-vehicles">← Retour au catalogue</a>
+    @if (loading()) {
+      <mat-spinner diameter="42"></mat-spinner>
+    } @else if (error()) {
+      <p class="alert error" data-cy="reservation-error">{{ error() }}</p>
+    } @else if (vehicle()) {
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Réservation</p>
+          <h1 data-cy="reservation-vehicle-title">
+            {{ vehicle()!.marque }} {{ vehicle()!.modele }}
+          </h1>
+          <p>{{ vehicle()!.ville }} · {{ formatPrice(vehicle()!.prixJour) }} / jour</p>
+        </div>
+        @if (quote(); as livePrice) {
+          <div class="live-price-badge" data-cy="realtime-price-banner">
+            <span class="live-price-label">Total estimé ({{ livePrice.jours }} j)</span>
+            <strong data-cy="realtime-price-total">{{ formatPrice(livePrice.total) }}</strong>
+          </div>
+        }
+      </header>
+
+      @if (!documentsValid()) {
+        <div class="alert warning" role="alert" data-cy="documents-warning">
+          Vos documents (permis et CIN) doivent être validés avant de réserver.
+          <a routerLink="/profile" data-cy="upload-documents-link">Téléverser mes documents</a>
+        </div>
+      }
+
+      <mat-stepper linear data-cy="reservation-stepper">
+        <mat-step [stepControl]="datesForm" label="Dates">
+          <form [formGroup]="datesForm" class="step-content">
+            <h2>Choisissez vos dates</h2>
+            <app-date-range-picker
+              [form]="datesForm"
+              [minDate]="today"
+              [checking]="checking()"
+              [available]="available()"
+            ></app-date-range-picker>
+            <div class="step-actions">
+              <button
+                mat-flat-button
+                color="primary"
+                matStepperNext
+                data-cy="step-dates-next"
+                [disabled]="datesForm.invalid || available() !== true"
+              >
+                Continuer
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step [stepControl]="placesForm" label="Lieux">
+          <form [formGroup]="placesForm" class="step-content">
+            <h2>Où récupérer et restituer le véhicule ?</h2>
+            <div class="location-type-group">
+              <span class="group-label">Type de point de retrait :</span>
+              <mat-radio-group
+                class="location-radios"
+                aria-label="Type de lieu de prise en charge"
+                (change)="selectPickupType($event.value)"
+                data-cy="pickup-type-radio-group"
+              >
+                @for (option of locationOptions; track option) {
+                  <mat-radio-button [value]="option" [attr.data-cy]="'pickup-type-' + option">
+                    {{ option }}
+                  </mat-radio-button>
+                }
+              </mat-radio-group>
+            </div>
+            <mat-form-field appearance="outline">
+              <mat-label>Lieu de prise en charge</mat-label>
+              <input
+                matInput
+                formControlName="lieuPriseEnCharge"
+                placeholder="Aéroport Mohammed V, Casablanca"
+                data-cy="pickup-location-input"
+              />
+              <mat-hint>Aéroport, gare, hôtel ou agence</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Lieu de retour</mat-label>
+              <input
+                matInput
+                formControlName="lieuRetour"
+                placeholder="Agence LocaVite Casablanca"
+                data-cy="return-location-input"
+              />
+            </mat-form-field>
+            <div class="step-actions">
+              <button mat-button type="button" matStepperPrevious data-cy="step-places-prev">
+                Retour
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                matStepperNext
+                data-cy="step-places-next"
+                [disabled]="placesForm.invalid"
+              >
+                Continuer
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step label="Options">
+          <div class="step-content">
+            <h2>Personnalisez votre location</h2>
+            <app-options-selector [form]="optionsForm"></app-options-selector>
+            <div class="step-actions">
+              <button mat-button type="button" matStepperPrevious data-cy="step-options-prev">
+                Retour
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                matStepperNext
+                data-cy="step-options-next"
+              >
+                Voir le récapitulatif
+              </button>
+            </div>
+          </div>
+        </mat-step>
+
+        <mat-step label="Récapitulatif">
+          <div class="step-content">
+            <h2>Détail du prix</h2>
+            <app-price-summary [quote]="quote()"></app-price-summary>
+            <div class="step-actions">
+              <button mat-button type="button" matStepperPrevious data-cy="step-summary-prev">
+                Retour
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                matStepperNext
+                data-cy="step-summary-next"
+                [disabled]="!quote()"
+              >
+                Continuer
+              </button>
+            </div>
+          </div>
+        </mat-step>
+
+        <mat-step [stepControl]="confirmationForm" label="Confirmation">
+          <form [formGroup]="confirmationForm" class="step-content">
+            <h2>Confirmez votre réservation</h2>
+            <mat-checkbox formControlName="acceptedTerms" data-cy="accept-terms-checkbox">
+              J’accepte les CGV et les conditions de location.
+            </mat-checkbox>
+            <div class="step-actions">
+              <button mat-button type="button" matStepperPrevious data-cy="step-confirm-prev">
+                Retour
+              </button>
+              <button
+                mat-flat-button
+                color="primary"
+                type="button"
+                data-cy="confirm-reservation-btn"
+                (click)="submit()"
+                [disabled]="confirmationForm.invalid || submitting() || !documentsValid()"
+              >
+                {{ submitting() ? 'Envoi…' : 'Confirmer la réservation' }}
+              </button>
+            </div>
+          </form>
+        </mat-step>
+      </mat-stepper>
+    }
+  </section>
+</main>
