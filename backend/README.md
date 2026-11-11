@@ -46,3 +46,8 @@ Le contrat contient le client et le statut de ses pièces d'identité, le véhic
 Chaque réservation possède un montant de caution et un statut initial `PENDING`. Une agence (propriétaire du véhicule de la réservation) ou un administrateur peut gérer les mouvements avec `PUT /api/admin/reservations/{id}/caution`, en envoyant `type` (`HOLD`, `RELEASE` ou `CAPTURE`), `montant` et une `note` facultative. Le blocage porte sur le montant total configuré; une libération peut être partielle ou totale. Avant une capture de dommages, la part non retenue doit être libérée : le montant capturé correspond donc au solde restant. Chaque mouvement conserve son statut résultant dans le journal.
 
 L'historique est disponible avec `GET /api/admin/clients/{clientId}/cautions` (limité aux véhicules de l'agence connectée) et le reçu PDF avec `GET /api/admin/reservations/{id}/caution/receipt`.
+
+## Prolongation d'une réservation
+
+Un client authentifié peut prolonger sa réservation en cours (`CONFIRMED` ou `ACTIVE`) via `POST /api/reservations/{id}/extend` en fournissant `{ "newDateFin": "YYYY-MM-DD", "acceptNewPrice": true }`. L'API vérifie la disponibilité du véhicule sur la période supplémentaire, recalcule le prix global (options et remises incluses), enregistre une entrée d'historique `ReservationExtension`, génère une nouvelle version du contrat PDF et notifie l'agence via `ReservationExtendedEvent`. L'historique des prolongations est inclus dans la réservation et consultable via `GET /api/reservations/{id}/extensions`.
+

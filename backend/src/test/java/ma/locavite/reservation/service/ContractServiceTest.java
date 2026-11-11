@@ -166,4 +166,50 @@ class ContractServiceTest {
                 .isInstanceOf(AccessDeniedException.class);
         verify(minioService, times(1)).getContractPresignedUrl(anyString());
     }
+
+    @Test
+    @DisplayName("Test : nouvelle version du contrat générée lors d'une prolongation")
+    void regenerate_createsNewContractVersionWithUpdatedDatesAndPrice() throws IOException {
+        ReservationContract existingContract = new ReservationContract();
+        existingContract.setId(1L);
+        existingContract.setReservation(reservation);
+        existingContract.setLanguage(ContractLanguage.FR);
+        existingContract.setObjectPath("42/fr/contract-LV-ABC123.pdf");
+        existingContract.setAccessToken("old-token");
+        existingContract.setVersion(1);
+
+        reservation.setDateFin(LocalDate.of(2026, 12, 6));
+        reservation.setPrixSousTotal(new BigDecimal("2000.00"));
+        reservation.setPrixOptions(new BigDecimal("250.00"));
+        reservation.setPrixTva(new BigDecimal("450.00"));
+        reservation.setPrixTotal(new BigDecimal("5700.00"));
+
+        when(contractRepository.findByReservationIdAndLanguage(42L, ContractLanguage.FR))
+                .thenReturn(Optional.of(existingContract));
+        when(contractRepository.findByReservationId(42L))
+                .thenReturn(List.of(existingContract));
+        when(userRepository.findById(7L)).thenReturn(Optional.of(user));
+        when(vehicleRepository.findById(12L)).thenReturn(Optional.of(vehicle));
+        when(documentRepository.findByUserIdOrderByUploadedAtDesc(7L)).thenReturn(List.of());
+        when(pricingService.calculate(eq(vehicle), any(), any(), any()))
+                .thenReturn(new PriceQuoteResponse(
+                        new BigDecimal("2000.00"), new BigDecimal("250.00"), BigDecimal.ZERO.setScale(2),
+                        new BigDecimal("3000.00"), new BigDecimal("450.00"), new BigDecimal("5700.00"), 5));
+        when(contractRepository.save(any(ReservationContract.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ReservationContract regenerated = contractService.regenerate(reservation, ContractLanguage.FR);
+
+        assertThat(regenerated.getVersion()).isEqualTo(2);
+        assertThat(regenerated.getObjectPath()).isEqualTo("42/fr/contract-LV-ABC123-v2.pdf");
+        assertThat(regenerated.getAccessToken()).isNotEqualTo("old-token");
+
+        ArgumentCaptor<byte[]> pdfCaptor = ArgumentCaptor.forClass(byte[].class);
+        verify(minioService).putContract(eq("42/fr/contract-LV-ABC123-v2.pdf"), pdfCaptor.capture());
+
+        try (org.apache.pdfbox.pdmodel.PDDocument pdf = Loader.loadPDF(pdfCaptor.getValue())) {
+            String text = new PDFTextStripper().getText(pdf);
+            assertThat(text).contains("06/12/2026", "5700.00 MAD");
+        }
+    }
 }

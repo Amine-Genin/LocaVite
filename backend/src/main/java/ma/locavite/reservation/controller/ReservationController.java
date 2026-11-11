@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import ma.locavite.reservation.dto.ExtendReservationRequest;
+import ma.locavite.reservation.dto.ReservationExtensionResponse;
 import ma.locavite.reservation.dto.ReservationFilter;
 import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.ReservationResponse;
@@ -28,6 +30,7 @@ import ma.locavite.auth.domain.User;
 import ma.locavite.reservation.service.ContractService;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -151,6 +154,36 @@ public class ReservationController {
     @Operation(summary = "Terminer une réservation", description = "Passe le statut à COMPLETED.")
     public ResponseEntity<ReservationResponse> complete(@PathVariable Long id) {
         return ResponseEntity.ok(reservationService.complete(id));
+    }
+
+    @PostMapping("/{id}/extend")
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("hasRole('CLIENT')")
+    @Operation(summary = "Prolonger une réservation en cours (CLIENT)", description = "Prolonge une réservation CONFIRMED ou ACTIVE après vérification de la disponibilité sur la période supplémentaire, recalcule le prix, régénère le contrat PDF et notifie l'agence.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Réservation prolongée avec succès"),
+            @ApiResponse(responseCode = "400", description = "Dates invalides, prix non accepté ou statut incompatible"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé"),
+            @ApiResponse(responseCode = "404", description = "Réservation non trouvée"),
+            @ApiResponse(responseCode = "409", description = "Véhicule indisponible sur la période supplémentaire")
+    })
+    public ResponseEntity<ReservationResponse> extend(
+            @PathVariable Long id,
+            @Valid @RequestBody ExtendReservationRequest request) {
+        return ResponseEntity.ok(reservationService.extend(id, request));
+    }
+
+    @GetMapping("/{id}/extensions")
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Consulter l'historique des prolongations d'une réservation", description = "Accessible par le propriétaire, l'agence propriétaire du véhicule ou un administrateur.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Historique des prolongations"),
+            @ApiResponse(responseCode = "403", description = "Accès non autorisé"),
+            @ApiResponse(responseCode = "404", description = "Réservation non trouvée")
+    })
+    public ResponseEntity<List<ReservationExtensionResponse>> getExtensions(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.getExtensions(id));
     }
 
     @GetMapping("/{id}/contract")

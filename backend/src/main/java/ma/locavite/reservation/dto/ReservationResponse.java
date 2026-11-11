@@ -9,6 +9,7 @@ import ma.locavite.reservation.domain.CautionStatus;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 public record ReservationResponse(
@@ -52,6 +53,9 @@ public record ReservationResponse(
 
         @Schema(description = "Options de la réservation")
         Set<ReservationOption> options,
+
+        @Schema(description = "Historique des prolongations de la réservation")
+        List<ReservationExtensionResponse> extensions,
 
         @Schema(description = "Date et heure de création")
         Instant createdAt,

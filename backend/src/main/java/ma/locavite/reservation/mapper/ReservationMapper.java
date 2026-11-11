@@ -10,6 +10,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface ReservationMapper {
 
+    @Mapping(target = "extensions", expression = "java(java.util.List.of())")
     ReservationResponse toResponse(Reservation reservation);
 
     @Mapping(target = "id", ignore = true)

@@ -36,6 +36,9 @@
     "name" : "Users",
     "description" : "Endpoints de gestion du profil de l'utilisateur connecté"
   }, {
+    "name" : "Cautions",
+    "description" : "Gestion des cautions de réservation"
+  }, {
     "name" : "Auth",
     "description" : "Endpoints d'authentification, inscription, rafraîchissement de token et déconnexion"
   }, {
@@ -168,6 +171,9 @@
         "description" : "Retourne les informations du profil de l'utilisateur actuellement authentifié via JWT.",
         "operationId" : "getMe",
         "responses" : {
+          "401" : {
+            "description" : "Non authentifié (token JWT manquant ou invalide)"
+          },
           "200" : {
             "description" : "Profil récupéré avec succès",
             "content" : {
@@ -180,9 +186,6 @@
           },
           "403" : {
             "description" : "Accès refusé"
-          },
-          "401" : {
-            "description" : "Non authentifié (token JWT manquant ou invalide)"
           }
         },
         "security" : [ {
@@ -205,6 +208,9 @@
           "required" : true
         },
         "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "200" : {
             "description" : "Profil mis à jour avec succès",
             "content" : {
@@ -215,14 +221,11 @@
               }
             }
           },
-          "403" : {
-            "description" : "Accès refusé"
-          },
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "400" : {
             "description" : "Données de formulaire invalides"
+          },
+          "403" : {
+            "description" : "Accès refusé"
           }
         },
         "security" : [ {
@@ -421,6 +424,12 @@
           "required" : true
         },
         "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "400" : {
+            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
+          },
           "200" : {
             "description" : "Rôles mis à jour avec succès",
             "content" : {
@@ -431,17 +440,52 @@
               }
             }
           },
-          "400" : {
-            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
-          },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
           },
           "404" : {
             "description" : "Utilisateur introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/admin/reservations/{id}/caution" : {
+      "put" : {
+        "tags" : [ "Cautions" ],
+        "summary" : "Bloquer, libérer ou retenir la caution d'une réservation",
+        "operationId" : "update_2",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CautionRequest"
+              }
+            }
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CautionTransactionResponse"
+                }
+              }
+            }
           }
         },
         "security" : [ {
@@ -476,14 +520,14 @@
           "required" : true
         },
         "responses" : {
-          "404" : {
-            "description" : "Document introuvable"
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
+          "400" : {
+            "description" : "Requête invalide (statut non supporté)"
           },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
           },
           "200" : {
             "description" : "Document vérifié avec succès",
@@ -495,8 +539,8 @@
               }
             }
           },
-          "400" : {
-            "description" : "Requête invalide (statut non supporté)"
+          "404" : {
+            "description" : "Document introuvable"
           }
         },
         "security" : [ {
@@ -653,6 +697,9 @@
         "description" : "Retourne tous les documents téléversés par l'utilisateur connecté avec leurs URL de visualisation sécurisées.",
         "operationId" : "getUserDocuments",
         "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "200" : {
             "description" : "Liste des documents récupérée",
             "content" : {
@@ -665,9 +712,6 @@
                 }
               }
             }
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -707,6 +751,12 @@
           }
         },
         "responses" : {
+          "400" : {
+            "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "201" : {
             "description" : "Document téléversé avec succès",
             "content" : {
@@ -716,12 +766,6 @@
                 }
               }
             }
-          },
-          "401" : {
-            "description" : "Non authentifié"
-          },
-          "400" : {
-            "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
           }
         },
         "security" : [ {
@@ -838,6 +882,88 @@
         } ]
       }
     },
+    "/api/reservations/{id}/extend" : {
+      "post" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Prolonger une réservation en cours (CLIENT)",
+        "description" : "Prolonge une réservation CONFIRMED ou ACTIVE après vérification de la disponibilité sur la période supplémentaire, recalcule le prix, régénère le contrat PDF et notifie l'agence.",
+        "operationId" : "extend",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ExtendReservationRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "description" : "Dates invalides, prix non accepté ou statut incompatible",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "409" : {
+            "description" : "Véhicule indisponible sur la période supplémentaire",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Accès refusé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Réservation non trouvée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Réservation prolongée avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ReservationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
     "/api/reservations/quote" : {
       "post" : {
         "tags" : [ "Reservations" ],
@@ -905,6 +1031,9 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Données d'inscription invalides ou email déjà utilisé"
+          },
           "201" : {
             "description" : "Utilisateur créé avec succès",
             "content" : {
@@ -914,9 +1043,6 @@
                 }
               }
             }
-          },
-          "400" : {
-            "description" : "Données d'inscription invalides ou email déjà utilisé"
           }
         }
       }
@@ -938,6 +1064,12 @@
           "required" : true
         },
         "responses" : {
+          "401" : {
+            "description" : "Refresh token invalide ou expiré"
+          },
+          "400" : {
+            "description" : "Requête invalide"
+          },
           "200" : {
             "description" : "Tokens rafraîchis avec succès",
             "content" : {
@@ -947,12 +1079,6 @@
                 }
               }
             }
-          },
-          "400" : {
-            "description" : "Requête invalide"
-          },
-          "401" : {
-            "description" : "Refresh token invalide ou expiré"
           }
         }
       }
@@ -996,6 +1122,12 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Format de la requête invalide"
+          },
+          "401" : {
+            "description" : "Email ou mot de passe incorrect"
+          },
           "200" : {
             "description" : "Authentification réussie",
             "content" : {
@@ -1005,12 +1137,6 @@
                 }
               }
             }
-          },
-          "401" : {
-            "description" : "Email ou mot de passe incorrect"
-          },
-          "400" : {
-            "description" : "Format de la requête invalide"
           }
         }
       }
@@ -1245,11 +1371,11 @@
               }
             }
           },
-          "404" : {
-            "description" : "Document introuvable"
-          },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "404" : {
+            "description" : "Document introuvable"
           },
           "403" : {
             "description" : "Accès non autorisé à ce document"
@@ -1275,17 +1401,78 @@
           }
         } ],
         "responses" : {
-          "404" : {
-            "description" : "Document introuvable"
-          },
           "204" : {
             "description" : "Document supprimé avec succès"
+          },
+          "401" : {
+            "description" : "Non authentifié"
           },
           "403" : {
             "description" : "Accès non autorisé"
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "404" : {
+            "description" : "Document introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/reservations/{id}/extensions" : {
+      "get" : {
+        "tags" : [ "Reservations" ],
+        "summary" : "Consulter l'historique des prolongations d'une réservation",
+        "description" : "Accessible par le propriétaire, l'agence propriétaire du véhicule ou un administrateur.",
+        "operationId" : "getExtensions",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Historique des prolongations",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ReservationExtensionResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Accès non autorisé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ReservationExtensionResponse"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Réservation non trouvée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ReservationExtensionResponse"
+                  }
+                }
+              }
+            }
           }
         },
         "security" : [ {
@@ -1463,11 +1650,11 @@
           }
         } ],
         "responses" : {
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
-          },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
           },
           "200" : {
             "description" : "Liste paginée des utilisateurs récupérée",
@@ -1475,6 +1662,38 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/PageUserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/admin/reservations/{id}/caution/receipt" : {
+      "get" : {
+        "tags" : [ "Cautions" ],
+        "summary" : "Generer le recu PDF des mouvements de caution",
+        "operationId" : "getReceipt",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string",
+                  "format" : "byte"
                 }
               }
             }
@@ -1512,14 +1731,48 @@
               }
             }
           },
-          "404" : {
-            "description" : "Document introuvable"
+          "401" : {
+            "description" : "Non authentifié"
           },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "404" : {
+            "description" : "Document introuvable"
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/admin/clients/{clientId}/cautions" : {
+      "get" : {
+        "tags" : [ "Cautions" ],
+        "summary" : "Consulter l'historique des cautions d'un client",
+        "operationId" : "getClientHistory",
+        "parameters" : [ {
+          "name" : "clientId",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/CautionTransactionResponse"
+                  }
+                }
+              }
+            }
           }
         },
         "security" : [ {
@@ -1842,6 +2095,46 @@
           }
         }
       },
+      "ReservationExtensionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "description" : "Identifiant unique de la prolongation",
+            "format" : "int64",
+            "example" : 1
+          },
+          "reservationId" : {
+            "type" : "integer",
+            "description" : "Identifiant de la réservation",
+            "format" : "int64",
+            "example" : 42
+          },
+          "ancienneDateFin" : {
+            "type" : "string",
+            "description" : "Ancienne date de fin",
+            "format" : "date",
+            "example" : "2026-11-15"
+          },
+          "nouvelleDateFin" : {
+            "type" : "string",
+            "description" : "Nouvelle date de fin",
+            "format" : "date",
+            "example" : "2026-11-18"
+          },
+          "prixSupplementaire" : {
+            "type" : "number",
+            "description" : "Prix supplémentaire facturé pour la prolongation",
+            "example" : 1200.0
+          },
+          "createdAt" : {
+            "type" : "string",
+            "description" : "Date et heure de la prolongation",
+            "format" : "date-time"
+          }
+        },
+        "description" : "Historique des prolongations de la réservation"
+      },
       "ReservationResponse" : {
         "type" : "object",
         "properties" : {
@@ -1900,6 +2193,12 @@
             "description" : "Montant de la caution",
             "example" : 3000.0
           },
+          "cautionStatut" : {
+            "type" : "string",
+            "description" : "Statut de la caution",
+            "example" : "PENDING",
+            "enum" : [ "PENDING", "HELD", "RELEASED", "PARTIALLY_RELEASED", "CAPTURED" ]
+          },
           "statut" : {
             "type" : "string",
             "description" : "Statut de la réservation",
@@ -1914,6 +2213,13 @@
               "type" : "string",
               "description" : "Options de la réservation",
               "enum" : [ "GPS", "BABY_SEAT", "EXTRA_DRIVER" ]
+            }
+          },
+          "extensions" : {
+            "type" : "array",
+            "description" : "Historique des prolongations de la réservation",
+            "items" : {
+              "$ref" : "#/components/schemas/ReservationExtensionResponse"
             }
           },
           "createdAt" : {
@@ -1945,6 +2251,55 @@
           }
         },
         "description" : "Requête d'attribution de rôles à un utilisateur par un administrateur"
+      },
+      "CautionRequest" : {
+        "required" : [ "montant", "type" ],
+        "type" : "object",
+        "properties" : {
+          "type" : {
+            "type" : "string",
+            "enum" : [ "HOLD", "RELEASE", "CAPTURE" ]
+          },
+          "montant" : {
+            "type" : "number"
+          },
+          "note" : {
+            "maxLength" : 500,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        }
+      },
+      "CautionTransactionResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "reservationId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "montant" : {
+            "type" : "number"
+          },
+          "type" : {
+            "type" : "string",
+            "enum" : [ "HOLD", "RELEASE", "CAPTURE" ]
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "PENDING", "HELD", "RELEASED", "PARTIALLY_RELEASED", "CAPTURED" ]
+          },
+          "date" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "note" : {
+            "type" : "string"
+          }
+        }
       },
       "VerifyDocumentRequest" : {
         "required" : [ "status" ],
@@ -2014,6 +2369,23 @@
           }
         },
         "description" : "Détails d'un document justificatif téléversé"
+      },
+      "ExtendReservationRequest" : {
+        "required" : [ "acceptNewPrice", "newDateFin" ],
+        "type" : "object",
+        "properties" : {
+          "newDateFin" : {
+            "type" : "string",
+            "description" : "Nouvelle date de fin souhaitée",
+            "format" : "date",
+            "example" : "2026-11-20"
+          },
+          "acceptNewPrice" : {
+            "type" : "boolean",
+            "description" : "Acceptation explicite du nouveau prix recalculé",
+            "example" : true
+          }
+        }
       },
       "QuoteRequest" : {
         "required" : [ "dateDebut", "dateFin", "vehicleId" ],
@@ -2365,9 +2737,6 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "pageable" : {
-            "$ref" : "#/components/schemas/PageableObject"
-          },
           "sort" : {
             "type" : "array",
             "items" : {
@@ -2377,6 +2746,9 @@
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
           },
           "first" : {
             "type" : "boolean"
@@ -2396,14 +2768,6 @@
             "type" : "integer",
             "format" : "int64"
           },
-          "pageNumber" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
-          "pageSize" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "sort" : {
             "type" : "array",
             "items" : {
@@ -2412,6 +2776,14 @@
           },
           "unpaged" : {
             "type" : "boolean"
+          },
+          "pageSize" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "pageNumber" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "paged" : {
             "type" : "boolean"
@@ -2497,9 +2869,6 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "pageable" : {
-            "$ref" : "#/components/schemas/PageableObject"
-          },
           "sort" : {
             "type" : "array",
             "items" : {
@@ -2509,6 +2878,9 @@
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
           },
           "first" : {
             "type" : "boolean"
@@ -2546,9 +2918,6 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "pageable" : {
-            "$ref" : "#/components/schemas/PageableObject"
-          },
           "sort" : {
             "type" : "array",
             "items" : {
@@ -2558,6 +2927,9 @@
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
           },
           "first" : {
             "type" : "boolean"
