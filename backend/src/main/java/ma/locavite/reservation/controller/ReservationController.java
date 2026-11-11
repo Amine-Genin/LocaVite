@@ -13,6 +13,7 @@ import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.ReservationResponse;
 import ma.locavite.reservation.dto.QuoteRequest;
 import ma.locavite.reservation.dto.PriceQuoteResponse;
+import ma.locavite.reservation.dto.CancellationResponse;
 import ma.locavite.reservation.domain.ContractLanguage;
 import ma.locavite.reservation.service.ReservationService;
 import org.springframework.data.domain.Page;
@@ -138,6 +139,21 @@ public class ReservationController {
     public ResponseEntity<Void> cancel(@PathVariable Long id) {
         reservationService.cancel(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/cancel")
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("hasRole('CLIENT')")
+    @Operation(summary = "Annuler une réservation et calculer le remboursement",
+            description = "Annule la réservation, libère la caution et génère un avoir PDF.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Réservation annulée et remboursement calculé"),
+            @ApiResponse(responseCode = "400", description = "Réservation déjà terminée ou annulée"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé"),
+            @ApiResponse(responseCode = "404", description = "Réservation non trouvée")
+    })
+    public ResponseEntity<CancellationResponse> cancelWithRefund(@PathVariable Long id) {
+        return ResponseEntity.ok(reservationService.cancelWithRefund(id));
     }
 
     @PatchMapping("/{id}/confirm")

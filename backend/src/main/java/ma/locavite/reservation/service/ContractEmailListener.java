@@ -2,6 +2,7 @@ package ma.locavite.reservation.service;
 
 import ma.locavite.reservation.event.ReservationConfirmedEvent;
 import ma.locavite.reservation.event.ReservationExtendedEvent;
+import ma.locavite.reservation.event.ReservationCancelledEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -40,6 +41,16 @@ public class ContractEmailListener {
             }
         } catch (RuntimeException exception) {
             log.error("Échec du traitement après prolongation [reservationId={}]",
+                    event.reservation().getId(), exception);
+        }
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void onReservationCancelled(ReservationCancelledEvent event) {
+        try {
+            contractService.notifyAgencyOfCancellation(event.reservation(), event.refund());
+        } catch (RuntimeException exception) {
+            log.error("Échec de la notification d'annulation [reservationId={}]",
                     event.reservation().getId(), exception);
         }
     }

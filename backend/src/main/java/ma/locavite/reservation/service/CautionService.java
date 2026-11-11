@@ -120,6 +120,27 @@ public class CautionService {
         return receiptPdfService.generate(reservation, transactions);
     }
 
+    @Transactional
+    public void releaseForCancellation(Reservation reservation) {
+        if (reservation.getCautionStatut() != CautionStatus.HELD
+                && reservation.getCautionStatut() != CautionStatus.PARTIALLY_RELEASED) {
+            return;
+        }
+        BigDecimal remaining = remainingAmount(reservation.getId());
+        if (remaining.signum() <= 0) {
+            return;
+        }
+        reservation.setCautionStatut(CautionStatus.RELEASED);
+        reservationRepository.save(reservation);
+        CautionTransaction transaction = new CautionTransaction();
+        transaction.setReservation(reservation);
+        transaction.setMontant(remaining);
+        transaction.setType(CautionTransactionType.RELEASE);
+        transaction.setStatut(CautionStatus.RELEASED);
+        transaction.setNote("Libération automatique lors de l'annulation");
+        transactionRepository.save(transaction);
+    }
+
     private BigDecimal remainingAmount(Long reservationId) {
         return transactionRepository.findByReservationIdOrderByDateDesc(reservationId).stream()
                 .map(transaction -> switch (transaction.getType()) {
