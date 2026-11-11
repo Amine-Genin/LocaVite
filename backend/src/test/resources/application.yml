@@ -57,6 +57,9 @@ management:
   endpoint:
     metrics:
       enabled: true
+  health:
+    mail:
+      enabled: false
 locavite:
   pricing:
     vat-rate: 0
