@@ -1,52 +1,87 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { AvailabilityCalendarComponent } from './availability-calendar.component';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
+
+import { AvailabilityCalendarComponent } from './availability-calendar.component';
+import { AvailabilityService } from '../services/availability.service';
+import { AvailabilityResponse } from '../models/vehicle.model';
 
 describe('AvailabilityCalendarComponent', () => {
   let component: AvailabilityCalendarComponent;
   let fixture: ComponentFixture<AvailabilityCalendarComponent>;
+  let availabilityServiceSpy: jasmine.SpyObj<AvailabilityService>;
+
+  const mockAvailability: AvailabilityResponse = {
+    available: [
+      { from: '2026-12-01', to: '2026-12-10' },
+    ],
+    unavailable: [
+      { from: '2026-11-20', to: '2026-11-25', reason: 'RESERVED' },
+    ],
+  };
 
   beforeEach(async () => {
+    availabilityServiceSpy = jasmine.createSpyObj('AvailabilityService', ['getAvailability']);
+    availabilityServiceSpy.getAvailability.and.returnValue(of(mockAvailability));
+
     await TestBed.configureTestingModule({
-      imports: [AvailabilityCalendarComponent, TranslateModule.forRoot()],
+      imports: [AvailabilityCalendarComponent, NoopAnimationsModule, TranslateModule.forRoot()],
+      providers: [
+        { provide: AvailabilityService, useValue: availabilityServiceSpy },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AvailabilityCalendarComponent);
     component = fixture.componentInstance;
+    component.availability = mockAvailability;
     fixture.detectChanges();
   });
 
-  it('should create the availability calendar component', () => {
+  it('should create and initialize availability', () => {
     expect(component).toBeTruthy();
+    expect(component.activeAvailability).toEqual(mockAvailability);
   });
 
-  it('should mark dates as available or unavailable correctly', () => {
-    component.availability = {
-      available: [{ from: '2026-11-01', to: '2026-11-05' }],
-      unavailable: [{ from: '2026-11-10', to: '2026-11-15', reason: 'RESERVED' }],
-    };
-
-    const dateAvailable = new Date(2026, 10, 2); // 2026-11-02
-    const dateUnavailable = new Date(2026, 10, 12); // 2026-11-12
-
-    expect(component.dateClass(dateAvailable, 'month')).toBe('calendar-date-available');
-    expect(component.dateClass(dateUnavailable, 'month')).toBe('calendar-date-unavailable');
-    expect(component.dateClass(dateAvailable, 'year')).toBe('');
+  it('should mark unavailable days with calendar-date-unavailable', () => {
+    const unavailableDate = new Date('2026-11-22T00:00:00');
+    const className = component.dateClass(unavailableDate, 'month');
+    expect(className).toBe('calendar-date-unavailable');
   });
 
-  it('should update selected date and status on date selection', () => {
-    component.availability = {
-      available: [{ from: '2026-11-01', to: '2026-11-05' }],
-      unavailable: [{ from: '2026-11-10', to: '2026-11-15' }],
-    };
+  it('should block past dates and unavailable dates with dateFilter', () => {
+    const pastDate = new Date('2020-01-01T00:00:00');
+    expect(component.dateFilter(pastDate)).toBeFalse();
 
-    const unavailDate = new Date(2026, 10, 12);
-    component.onDateSelected(unavailDate);
+    const unavailableDate = new Date('2026-11-21T00:00:00');
+    expect(component.dateFilter(unavailableDate)).toBeFalse();
+
+    const futureAvailableDate = new Date('2026-12-05T00:00:00');
+    expect(component.dateFilter(futureAvailableDate)).toBeTrue();
+  });
+
+  it('should allow range selection and emit dateRangeChange', () => {
+    spyOn(component.dateRangeChange, 'emit');
+
+    const startDate = new Date('2026-12-02T00:00:00');
+    component.onDateSelected(startDate);
+    expect(component.selectedRange.start).toEqual(startDate);
+    expect(component.selectedRange.end).toBeNull();
+
+    const endDate = new Date('2026-12-06T00:00:00');
+    component.onDateSelected(endDate);
+    expect(component.selectedRange.end).toEqual(endDate);
+    expect(component.dateRangeChange.emit).toHaveBeenCalledWith({
+      start: startDate,
+      end: endDate,
+    });
+  });
+
+  it('should show tooltip for unavailable dates', () => {
+    const unavail = new Date('2026-11-20T00:00:00');
+    component.evaluateStatus(unavail);
+
     expect(component.selectedStatus).toBe('UNAVAILABLE');
-
-    const availDate = new Date(2026, 10, 3);
-    component.onDateSelected(availDate);
-    expect(component.selectedStatus).toBe('AVAILABLE');
+    expect(component.selectedTooltip).toContain('Indisponible (réservé du 2026-11-20 au 2026-11-25)');
   });
 });
-
