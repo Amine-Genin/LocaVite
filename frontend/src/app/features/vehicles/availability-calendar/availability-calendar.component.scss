@@ -34,6 +34,7 @@
 
 .calendar-legend {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   align-items: center;
 }
@@ -48,21 +49,28 @@
 }
 
 .legend-dot {
-  width: 0.75rem;
-  height: 0.75rem;
-  border-radius: 50%;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 4px;
+  border: 1px solid #cbd5e1;
 
   &.dot-available {
-    background-color: #10b981;
+    background-color: #ffffff; /* Fond blanc */
   }
 
   &.dot-unavailable {
-    background-color: #ef4444;
+    background-color: #ef4444; /* Fond rouge */
+    border-color: #dc2626;
+  }
+
+  &.dot-partial {
+    background-color: #f97316; /* Fond orange */
+    border-color: #ea580c;
   }
 }
 
 .calendar-container {
-  max-width: 380px;
+  max-width: 400px;
   margin: 0 auto;
   width: 100%;
 
@@ -71,46 +79,105 @@
     border-radius: 0.75rem;
     overflow: hidden;
 
+    /* Jours disponibles : fond blanc */
     .mat-calendar-body-cell.calendar-date-available .mat-calendar-body-cell-content {
-      background-color: #ecfdf5 !important;
-      color: #065f46 !important;
-      font-weight: 600;
-      border-radius: 9999px;
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
 
       &:hover {
-        background-color: #d1fae5 !important;
+        background-color: #f1f5f9 !important;
       }
     }
 
+    /* Jours indisponibles : fond rouge */
     .mat-calendar-body-cell.calendar-date-unavailable .mat-calendar-body-cell-content {
-      background-color: #fef2f2 !important;
-      color: #b91c1c !important;
+      background-color: #fee2e2 !important;
+      color: #dc2626 !important;
+      border: 1px solid #fca5a5;
+      font-weight: 600;
       text-decoration: line-through;
-      border-radius: 9999px;
-      opacity: 0.8;
+      border-radius: 6px;
+      cursor: not-allowed;
+    }
+
+    /* Jours partiellement disponibles : fond orange */
+    .mat-calendar-body-cell.calendar-date-partial .mat-calendar-body-cell-content {
+      background-color: #ffedd5 !important;
+      color: #c2410c !important;
+      border: 1px solid #fed7aa;
+      font-weight: 600;
+      border-radius: 6px;
+    }
+
+    /* Jours passés */
+    .mat-calendar-body-cell.calendar-date-past .mat-calendar-body-cell-content {
+      color: #cbd5e1 !important;
+      cursor: not-allowed;
+      border: none;
+    }
+
+    /* Plage de sélection */
+    .mat-calendar-body-cell.calendar-date-selected-range .mat-calendar-body-cell-content {
+      background-color: #dbeafe !important;
+      color: #1e40af !important;
+      border-radius: 0;
+    }
+
+    .mat-calendar-body-cell.calendar-date-selected-start .mat-calendar-body-cell-content {
+      background-color: #2563eb !important;
+      color: #ffffff !important;
+      border-radius: 6px 0 0 6px;
     }
   }
 }
 
-.selected-status-badge {
+.selection-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.range-indicator {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background-color: #f8fafc;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 
-  &.status-available {
-    background-color: #ecfdf5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
+  .range-label {
+    color: #64748b;
+    font-weight: 500;
   }
+
+  .select-end-hint {
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 0.85rem;
+  }
+}
+
+.status-tooltip-badge {
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
 
   &.status-unavailable {
     background-color: #fef2f2;
     color: #991b1b;
     border: 1px solid #fecaca;
   }
-}
 
+  &.status-available {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+  }
+}
