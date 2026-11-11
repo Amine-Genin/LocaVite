@@ -8,11 +8,13 @@ import ma.locavite.document.repository.DocumentRepository;
 import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.CautionStatus;
 import ma.locavite.reservation.domain.ContractLanguage;
+import ma.locavite.reservation.domain.Refund;
 import ma.locavite.reservation.domain.ReservationContract;
 import ma.locavite.reservation.domain.ReservationExtension;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.ReservationStatus;
 import ma.locavite.reservation.dto.ExtendReservationRequest;
+import ma.locavite.reservation.dto.CancellationResponse;
 import ma.locavite.reservation.dto.ReservationExtensionResponse;
 import ma.locavite.reservation.dto.ReservationFilter;
 import ma.locavite.reservation.dto.ReservationRequest;
@@ -26,6 +28,7 @@ import ma.locavite.reservation.exception.ReservationNotFoundException;
 import ma.locavite.reservation.exception.VehicleNotAvailableException;
 import ma.locavite.reservation.event.ReservationConfirmedEvent;
 import ma.locavite.reservation.event.ReservationExtendedEvent;
+import ma.locavite.reservation.event.ReservationCancelledEvent;
 import ma.locavite.reservation.mapper.ReservationMapper;
 import ma.locavite.reservation.repository.ReservationExtensionRepository;
 import ma.locavite.reservation.repository.ReservationRepository;
@@ -84,6 +87,9 @@ public class ReservationService {
     private final PricingService pricingService;
     private final ContractService contractService;
     private final ReservationExtensionRepository reservationExtensionRepository;
+    private final RefundService refundService;
+    private final CancellationPdfService cancellationPdfService;
+    private final CautionService cautionService;
 
     public ReservationService(
             ReservationRepository reservationRepository,
@@ -107,8 +113,28 @@ public class ReservationService {
                 availabilityService,
                 pricingService,
                 contractService,
+                null,
+                null,
+                null,
                 null
         );
+    }
+
+    public ReservationService(
+            ReservationRepository reservationRepository,
+            VehicleRepository vehicleRepository,
+            DocumentRepository documentRepository,
+            UserRepository userRepository,
+            CurrentUserService currentUserService,
+            ReservationMapper reservationMapper,
+            ApplicationEventPublisher eventPublisher,
+            AvailabilityService availabilityService,
+            PricingService pricingService,
+            ContractService contractService,
+            ReservationExtensionRepository reservationExtensionRepository) {
+        this(reservationRepository, vehicleRepository, documentRepository, userRepository, currentUserService,
+                reservationMapper, eventPublisher, availabilityService, pricingService, contractService,
+                reservationExtensionRepository, null, null, null);
     }
 
     @Autowired
@@ -123,7 +149,10 @@ public class ReservationService {
             AvailabilityService availabilityService,
             PricingService pricingService,
             ContractService contractService,
-            ReservationExtensionRepository reservationExtensionRepository) {
+            ReservationExtensionRepository reservationExtensionRepository,
+            RefundService refundService,
+            CancellationPdfService cancellationPdfService,
+            CautionService cautionService) {
         this.reservationRepository = reservationRepository;
         this.vehicleRepository = vehicleRepository;
         this.documentRepository = documentRepository;
@@ -135,6 +164,9 @@ public class ReservationService {
         this.pricingService = pricingService;
         this.contractService = contractService;
         this.reservationExtensionRepository = reservationExtensionRepository;
+        this.refundService = refundService;
+        this.cancellationPdfService = cancellationPdfService;
+        this.cautionService = cautionService;
     }
 
     @Transactional(readOnly = true)
@@ -303,6 +335,47 @@ public class ReservationService {
         availabilityService.invalidateCache();
 
         return reservationMapper.toResponse(saved);
+    }
+
+    @Transactional
+    public CancellationResponse cancelWithRefund(Long id) {
+        if (refundService == null || cancellationPdfService == null || cautionService == null) {
+            throw new IllegalStateException("Le traitement complet des annulations n'est pas configuré");
+        }
+        Long currentUserId = getCurrentUserId();
+        Reservation reservation = reservationRepository.findByIdForUpdate(id)
+                .or(() -> reservationRepository.findById(id))
+                .orElseThrow(() -> new ReservationNotFoundException(id));
+        verifyCanCancel(reservation, currentUserId);
+
+        Refund refund = refundService.create(reservation);
+        reservation.setStatut(ReservationStatus.CANCELLED);
+        cautionService.releaseForCancellation(reservation);
+        Reservation saved = reservationRepository.save(reservation);
+        String avoirPath = cancellationPdfService.generateAndStore(saved, refund);
+        availabilityService.invalidateCache();
+        eventPublisher.publishEvent(new ReservationCancelledEvent(saved, refund, avoirPath));
+
+        return new CancellationResponse(saved.getId(), saved.getStatut(), refund.getMontant(),
+                refundService.calculateRefundRate(saved), refund.getStatut(), avoirPath);
+    }
+
+    private void verifyCanCancel(Reservation reservation, Long currentUserId) {
+        boolean isOwner = reservation.getUserId().equals(currentUserId);
+        boolean isAgence = false;
+        if (!isAdmin() && !isOwner) {
+            Vehicle vehicle = vehicleRepository.findById(reservation.getVehicleId()).orElse(null);
+            isAgence = vehicle != null && vehicle.getAgenceId().equals(currentUserId);
+        }
+        if (!isAdmin() && !isOwner && !isAgence) {
+            throw new AccessDeniedException("Accès refusé : vous ne pouvez pas annuler cette réservation");
+        }
+        if (reservation.getStatut() == ReservationStatus.CANCELLED) {
+            throw new InvalidReservationStatusException("La réservation est déjà annulée");
+        }
+        if (reservation.getStatut() == ReservationStatus.COMPLETED) {
+            throw new InvalidReservationStatusException("Une réservation terminée ne peut pas être annulée");
+        }
     }
 
     @Transactional

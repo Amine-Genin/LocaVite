@@ -42,6 +42,7 @@ import ma.locavite.reservation.domain.ContractLanguage;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.ReservationContract;
+import ma.locavite.reservation.domain.Refund;
 import ma.locavite.reservation.dto.PriceQuoteResponse;
 import ma.locavite.reservation.repository.ReservationContractRepository;
 import ma.locavite.reservation.repository.ReservationRepository;
@@ -231,6 +232,7 @@ public class ContractService {
         if (vehicle == null || vehicle.getAgenceId() == null) {
             return;
         }
+
         User agency = userRepository.findById(vehicle.getAgenceId()).orElse(null);
         if (agency == null || agency.getEmail() == null) {
             return;
@@ -251,6 +253,33 @@ public class ContractService {
             mailSender.send(message);
         } catch (MessagingException | RuntimeException exception) {
             log.error("Échec de l'envoi de la notification de prolongation {} à l'agence {}",
+                    reservation.getCode(), agency.getEmail(), exception);
+        }
+    }
+
+    public void notifyAgencyOfCancellation(Reservation reservation, Refund refund) {
+        Vehicle vehicle = vehicleRepository.findById(reservation.getVehicleId()).orElse(null);
+        if (vehicle == null || vehicle.getAgenceId() == null) {
+            return;
+        }
+        User agency = userRepository.findById(vehicle.getAgenceId()).orElse(null);
+        if (agency == null || agency.getEmail() == null) {
+            return;
+        }
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
+            helper.setFrom("noreply@locavite.ma");
+            helper.setTo(agency.getEmail());
+            helper.setSubject("Annulation de la réservation " + reservation.getCode());
+            helper.setText("Bonjour " + agency.getPrenom() + " " + agency.getNom()
+                    + ",\n\nLa réservation " + reservation.getCode()
+                    + " a été annulée.\nMontant remboursé : "
+                    + refund.getMontant().toPlainString() + " MAD"
+                    + "\n\nCordialement,\nL'équipe LocaVite");
+            mailSender.send(message);
+        } catch (MessagingException | RuntimeException exception) {
+            log.error("Échec de la notification d'annulation {} à l'agence {}",
                     reservation.getCode(), agency.getEmail(), exception);
         }
     }
