@@ -27,6 +27,15 @@ export const routes: Routes = [
       ).then((m) => m.ReservationFormComponent),
   },
   {
+    path: 'my-reservations',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['CLIENT'] },
+    loadComponent: () =>
+      import(
+        './features/reservations/my-reservations.component'
+      ).then((m) => m.MyReservationsComponent),
+  },
+  {
     path: 'reservations/:id',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['CLIENT'] },

@@ -1,4 +1,15 @@
+import { Vehicle } from '../../vehicles/models/vehicle.model';
+
 export type ReservationOption = 'GPS' | 'BABY_SEAT' | 'EXTRA_DRIVER';
+
+export type ReservationStatus =
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'ACTIVE'
+  | 'COMPLETED'
+  | 'CANCELLED';
+
+export type CautionStatus = 'PENDING' | 'BLOCKED' | 'RELEASED' | 'FORFEITED';
 
 export interface QuoteRequest {
   vehicleId: number;
@@ -22,9 +33,40 @@ export interface PriceQuote {
   jours: number;
 }
 
+export interface ReservationExtension {
+  id?: number;
+  nouvelleDateFin: string;
+  prixSupplementaire: number;
+  statut?: string;
+  createdAt?: string;
+}
+
 export interface Reservation {
   id: number;
   code: string;
-  statut: string;
+  userId?: number;
+  vehicleId?: number;
+  vehicle?: Vehicle;
+  dateDebut?: string;
+  dateFin?: string;
+  lieuPriseEnCharge?: string;
+  lieuRetour?: string;
   prixTotal: number;
+  caution?: number;
+  cautionStatut?: CautionStatus;
+  statut: ReservationStatus | string;
+  options?: ReservationOption[];
+  extensions?: ReservationExtension[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ReservationPageResponse {
+  content: Reservation[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first?: boolean;
+  last?: boolean;
 }

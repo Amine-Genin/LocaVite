@@ -1,0 +1,112 @@
+<mat-card class="reservation-card" [attr.data-testid]="'reservation-card-' + reservation.id">
+  <div class="card-layout">
+    <div class="vehicle-media">
+      <img
+        [src]="vehiclePhotoUrl"
+        [alt]="vehicleTitle"
+        class="vehicle-img"
+        onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'160\' height=\'110\' viewBox=\'0 0 160 110\'><rect fill=\'%23e2e8f0\' width=\'160\' height=\'110\'/><text fill=\'%2394a3b8\' x=\'50%\' y=\'50%\' dominant-baseline=\'middle\' text-anchor=\'middle\' font-family=\'sans-serif\' font-size=\'14\'>Véhicule</text></svg>'"
+      />
+      <div class="code-badge">
+        <span class="code-label">Réf:</span>
+        <strong class="code-value">{{ reservation.code }}</strong>
+      </div>
+    </div>
+
+    <div class="reservation-info">
+      <div class="header-row">
+        <h3 class="vehicle-name">{{ vehicleTitle }}</h3>
+        <span class="status-badge" [ngClass]="statusClass" [attr.data-testid]="'status-badge-' + reservation.id">
+          {{ statusLabel }}
+        </span>
+      </div>
+
+      <div class="details-grid">
+        <div class="detail-item">
+          <mat-icon class="icon">calendar_today</mat-icon>
+          <span class="dates">
+            Du <strong>{{ reservation.dateDebut | date:'dd/MM/yyyy' }}</strong>
+            au <strong>{{ reservation.dateFin | date:'dd/MM/yyyy' }}</strong>
+          </span>
+        </div>
+
+        <div class="detail-item" *ngIf="reservation.lieuPriseEnCharge">
+          <mat-icon class="icon">place</mat-icon>
+          <span class="location">{{ reservation.lieuPriseEnCharge }}</span>
+        </div>
+      </div>
+
+      <div class="price-row">
+        <div class="price-container">
+          <span class="price-label">Prix Total</span>
+          <span class="price-amount" [attr.data-testid]="'price-total-' + reservation.id">
+            {{ reservation.prixTotal | number:'1.2-2' }} MAD
+          </span>
+        </div>
+
+        <div class="caution-container" *ngIf="reservation.caution">
+          <span class="caution-label">Caution:</span>
+          <span class="caution-amount">{{ reservation.caution | number:'1.2-2' }} MAD</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <mat-card-actions class="card-actions">
+    <button
+      mat-stroked-button
+      color="primary"
+      type="button"
+      (click)="onViewDetails()"
+      data-testid="btn-view-details"
+    >
+      <mat-icon>visibility</mat-icon>
+      Voir détails
+    </button>
+
+    <button
+      *ngIf="canDownloadContract"
+      mat-stroked-button
+      type="button"
+      (click)="onDownloadContract()"
+      data-testid="btn-download-contract"
+    >
+      <mat-icon>description</mat-icon>
+      Contrat PDF
+    </button>
+
+    <button
+      *ngIf="canExtend"
+      mat-stroked-button
+      color="accent"
+      type="button"
+      (click)="onExtend()"
+      data-testid="btn-extend-reservation"
+    >
+      <mat-icon>update</mat-icon>
+      Prolonger
+    </button>
+
+    <button
+      *ngIf="canCancel"
+      mat-stroked-button
+      color="warn"
+      type="button"
+      (click)="onCancel()"
+      data-testid="btn-cancel-reservation"
+    >
+      <mat-icon>cancel</mat-icon>
+      Annuler
+    </button>
+
+    <button
+      mat-button
+      type="button"
+      (click)="onContactAgency()"
+      data-testid="btn-contact-agency"
+    >
+      <mat-icon>chat</mat-icon>
+      Contacter l'agence
+    </button>
+  </mat-card-actions>
+</mat-card>
