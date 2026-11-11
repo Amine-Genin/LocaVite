@@ -1,0 +1,134 @@
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.reservation-mat-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th.mat-header-cell {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 1rem 0.75rem;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  td.mat-cell {
+    padding: 0.875rem 0.75rem;
+    color: #1e293b;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  tr.mat-row:hover {
+    background-color: #f8fafc;
+  }
+}
+
+.cell-code {
+  .code-text {
+    font-family: monospace;
+    color: #0f172a;
+    background-color: #f1f5f9;
+    padding: 0.2rem 0.45rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+}
+
+.client-info, .vehicle-info {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+
+  .client-icon, .vehicle-icon {
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: #64748b;
+  }
+}
+
+.cell-dates {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+
+  .date-sep {
+    color: #94a3b8;
+    font-size: 0.75rem;
+  }
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+
+  &.badge-pending {
+    background-color: #ffedd5;
+    color: #c2410c;
+  }
+
+  &.badge-confirmed {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  &.badge-active {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  &.badge-completed {
+    background-color: #f1f5f9;
+    color: #475569;
+  }
+
+  &.badge-cancelled {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+
+  &.badge-default {
+    background-color: #f3f4f6;
+    color: #374151;
+  }
+}
+
+.cell-price {
+  display: flex;
+  flex-direction: column;
+
+  .price-val {
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .caution-val {
+    font-size: 0.75rem;
+    color: #64748b;
+  }
+}
+
+.cell-actions {
+  white-space: nowrap;
+}
+
+.th-actions {
+  text-align: right;
+  padding-right: 1.5rem !important;
+}
+
+.text-warn {
+  color: #b91c1c;
+}

@@ -1,0 +1,134 @@
+.admin-reservations-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.header-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.25rem;
+  }
+
+  .page-subtitle {
+    color: #64748b;
+    margin: 0;
+    font-size: 0.95rem;
+  }
+
+  .btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+}
+
+.filter-card {
+  padding: 1.25rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  margin-bottom: 1.5rem;
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+
+  .form-field {
+    flex: 1 1 200px;
+    margin-bottom: -1.25rem;
+  }
+
+  .filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-top: 0.25rem;
+  }
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  color: #64748b;
+
+  p {
+    margin-top: 1rem;
+    font-size: 0.95rem;
+  }
+}
+
+.table-card {
+  padding: 0;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.table-paginator {
+  background-color: #fafafa;
+  border-top: 1px solid #f1f5f9;
+}
+
+.empty-table-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+  color: #64748b;
+
+  .empty-icon {
+    font-size: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin-bottom: 0.5rem;
+    color: #94a3b8;
+  }
+
+  h3 {
+    margin: 0 0 0.25rem;
+    color: #1e293b;
+    font-size: 1.15rem;
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+}
