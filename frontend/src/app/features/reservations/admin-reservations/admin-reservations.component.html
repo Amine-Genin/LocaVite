@@ -1,0 +1,115 @@
+<div class="admin-reservations-container">
+  <div class="header-section">
+    <div>
+      <h1 class="page-title">Gestion des réservations</h1>
+      <p class="page-subtitle">Suivez l'activité de votre flotte, gérez les cautions et validez les prises en charge.</p>
+    </div>
+
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="exportCsv()"
+      data-testid="btn-export-csv"
+      class="btn-export"
+    >
+      <mat-icon>file_download</mat-icon>
+      Exporter CSV
+    </button>
+  </div>
+
+  <!-- Cartes de statistiques -->
+  <app-stats-cards [stats]="stats()"></app-stats-cards>
+
+  <!-- Filtres et Recherche -->
+  <mat-card class="filter-card">
+    <form [formGroup]="filterForm" (ngSubmit)="onFilterSubmit()" class="filter-form">
+      <div class="filters-row">
+        <!-- Recherche par code -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Code réservation</mat-label>
+          <input matInput formControlName="code" placeholder="Ex: LV-A1B2C3" data-testid="filter-code-input" />
+          <mat-icon matPrefix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Filtre par statut -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Statut</mat-label>
+          <mat-select formControlName="statut" data-testid="filter-status-select">
+            <mat-option value="">Tous les statuts</mat-option>
+            <mat-option value="PENDING">En attente (PENDING)</mat-option>
+            <mat-option value="CONFIRMED">Confirmée (CONFIRMED)</mat-option>
+            <mat-option value="ACTIVE">En cours (ACTIVE)</mat-option>
+            <mat-option value="COMPLETED">Terminée (COMPLETED)</mat-option>
+            <mat-option value="CANCELLED">Annulée (CANCELLED)</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Date Début -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Date début</mat-label>
+          <input matInput type="date" formControlName="dateDebut" data-testid="filter-date-debut" />
+        </mat-form-field>
+
+        <!-- Date Fin -->
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Date fin</mat-label>
+          <input matInput type="date" formControlName="dateFin" data-testid="filter-date-fin" />
+        </mat-form-field>
+
+        <div class="filter-actions">
+          <button mat-flat-button color="primary" type="submit" data-testid="btn-apply-filters">
+            <mat-icon>filter_list</mat-icon>
+            Filtrer
+          </button>
+          <button mat-button type="button" (click)="onResetFilters()" data-testid="btn-reset-filters">
+            Réinitialiser
+          </button>
+        </div>
+      </div>
+    </form>
+  </mat-card>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage()" class="error-banner">
+    <mat-icon>error_outline</mat-icon>
+    <span>{{ errorMessage() }}</span>
+    <button mat-button color="warn" (click)="loadReservations()">Réessayer</button>
+  </div>
+
+  <!-- Spinner de chargement -->
+  <div *ngIf="isLoading()" class="loading-container">
+    <mat-spinner diameter="44"></mat-spinner>
+    <p>Chargement des réservations...</p>
+  </div>
+
+  <!-- Tableau des réservations -->
+  <mat-card *ngIf="!isLoading()" class="table-card">
+    <ng-container *ngIf="reservations().length > 0; else noData">
+      <app-reservation-table
+        [reservations]="reservations()"
+        (confirm)="onConfirm($event)"
+        (complete)="onComplete($event)"
+        (cancelReservation)="onCancel($event)"
+        (viewContract)="onViewContract($event)"
+        (manageCaution)="onManageCaution($event)"
+      ></app-reservation-table>
+
+      <mat-paginator
+        [length]="totalElements()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[5, 10, 20, 50]"
+        (page)="onPageChange($event)"
+        aria-label="Sélectionner la page"
+        class="table-paginator"
+      ></mat-paginator>
+    </ng-container>
+
+    <ng-template #noData>
+      <div class="empty-table-state" data-testid="empty-admin-reservations">
+        <mat-icon class="empty-icon">event_busy</mat-icon>
+        <h3>Aucune réservation trouvée</h3>
+        <p>Ajustez vos critères de recherche ou réinitialisez les filtres.</p>
+      </div>
+    </ng-template>
+  </mat-card>
+</div>

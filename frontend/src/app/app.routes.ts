@@ -45,6 +45,15 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'admin/reservations',
+    canActivate: [roleGuard],
+    data: { roles: ['AGENCE', 'ADMIN'] },
+    loadComponent: () =>
+      import(
+        './features/reservations/admin-reservations/admin-reservations.component'
+      ).then((m) => m.AdminReservationsComponent),
+  },
+  {
     path: 'admin/vehicles/new',
     canActivate: [roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },

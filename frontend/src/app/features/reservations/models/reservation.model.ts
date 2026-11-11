@@ -45,6 +45,8 @@ export interface Reservation {
   id: number;
   code: string;
   userId?: number;
+  clientNom?: string;
+  clientEmail?: string;
   vehicleId?: number;
   vehicle?: Vehicle;
   dateDebut?: string;
@@ -59,6 +61,18 @@ export interface Reservation {
   extensions?: ReservationExtension[];
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ReservationFilterParams {
+  userId?: number;
+  vehicleId?: number;
+  statut?: ReservationStatus | string;
+  code?: string;
+  dateDebut?: string;
+  dateFin?: string;
+  page?: number;
+  size?: number;
+  sort?: string;
 }
 
 export interface ReservationPageResponse {

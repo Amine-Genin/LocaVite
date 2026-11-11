@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import {
   PriceQuote,
   Reservation,
+  ReservationFilterParams,
   ReservationPageResponse,
   ReservationRequest,
   QuoteRequest,
@@ -42,8 +43,31 @@ export class ReservationService {
     return this.http.get<ReservationPageResponse>(`${this.apiUrl}/me`, { params });
   }
 
+  getAll(filterParams: ReservationFilterParams = {}): Observable<ReservationPageResponse> {
+    let params = new HttpParams();
+    if (filterParams.page !== undefined) params = params.set('page', filterParams.page.toString());
+    if (filterParams.size !== undefined) params = params.set('size', filterParams.size.toString());
+    if (filterParams.sort) params = params.set('sort', filterParams.sort);
+    if (filterParams.statut) params = params.set('statut', filterParams.statut);
+    if (filterParams.code) params = params.set('code', filterParams.code);
+    if (filterParams.userId) params = params.set('userId', filterParams.userId.toString());
+    if (filterParams.vehicleId) params = params.set('vehicleId', filterParams.vehicleId.toString());
+    if (filterParams.dateDebut) params = params.set('dateDebut', filterParams.dateDebut);
+    if (filterParams.dateFin) params = params.set('dateFin', filterParams.dateFin);
+
+    return this.http.get<ReservationPageResponse>(this.apiUrl, { params });
+  }
+
   getById(id: number): Observable<Reservation> {
     return this.http.get<Reservation>(`${this.apiUrl}/${id}`);
+  }
+
+  confirm(id: number): Observable<Reservation> {
+    return this.http.patch<Reservation>(`${this.apiUrl}/${id}/confirm`, {});
+  }
+
+  complete(id: number): Observable<Reservation> {
+    return this.http.patch<Reservation>(`${this.apiUrl}/${id}/complete`, {});
   }
 
   cancel(id: number): Observable<void> {

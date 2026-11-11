@@ -1,0 +1,49 @@
+<div class="stats-grid" data-testid="stats-cards-container">
+  <!-- Total Réservations -->
+  <mat-card class="stat-card">
+    <div class="stat-icon-wrapper total">
+      <mat-icon>receipt_long</mat-icon>
+    </div>
+    <div class="stat-details">
+      <span class="stat-label">Total Réservations</span>
+      <span class="stat-value" data-testid="stat-total">{{ stats.totalCount }}</span>
+      <span class="stat-subtext">{{ stats.pendingCount }} en attente</span>
+    </div>
+  </mat-card>
+
+  <!-- Revenus du mois -->
+  <mat-card class="stat-card">
+    <div class="stat-icon-wrapper revenue">
+      <mat-icon>payments</mat-icon>
+    </div>
+    <div class="stat-details">
+      <span class="stat-label">Revenus du mois</span>
+      <span class="stat-value" data-testid="stat-revenue">{{ stats.monthlyRevenue | number:'1.2-2' }} MAD</span>
+      <span class="stat-subtext">Facturation générée</span>
+    </div>
+  </mat-card>
+
+  <!-- En cours / Actives -->
+  <mat-card class="stat-card">
+    <div class="stat-icon-wrapper active">
+      <mat-icon>directions_car</mat-icon>
+    </div>
+    <div class="stat-details">
+      <span class="stat-label">Réservations actives</span>
+      <span class="stat-value" data-testid="stat-active">{{ stats.activeCount }}</span>
+      <span class="stat-subtext">Véhicules en circulation</span>
+    </div>
+  </mat-card>
+
+  <!-- Taux d'occupation -->
+  <mat-card class="stat-card">
+    <div class="stat-icon-wrapper occupancy">
+      <mat-icon>pie_chart</mat-icon>
+    </div>
+    <div class="stat-details">
+      <span class="stat-label">Taux d'occupation</span>
+      <span class="stat-value" data-testid="stat-occupancy">{{ stats.occupancyRate | number:'1.0-1' }}%</span>
+      <span class="stat-subtext">Flotte louée</span>
+    </div>
+  </mat-card>
+</div>
