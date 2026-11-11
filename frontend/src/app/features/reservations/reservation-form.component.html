@@ -1,0 +1,134 @@
+<main class="reservation-page">
+  <section class="reservation-shell">
+    <a class="back-link" routerLink="/vehicles">← Retour au catalogue</a>
+    @if (loading()) {
+      <mat-spinner diameter="42"></mat-spinner>
+    } @else if (error()) {
+      <p class="alert error">{{ error() }}</p>
+    } @else if (vehicle()) {
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Réservation</p>
+          <h1>{{ vehicle()!.marque }} {{ vehicle()!.modele }}</h1>
+          <p>{{ vehicle()!.ville }} · {{ formatPrice(vehicle()!.prixJour) }} / jour</p>
+        </div>
+      </header>
+
+      @if (!documentsValid()) {
+        <div class="alert warning" role="alert">
+          Vos documents (permis et CIN) doivent être validés avant de réserver.
+          <a routerLink="/profile">Téléverser mes documents</a>
+        </div>
+      }
+
+      <mat-stepper linear>
+        <mat-step [stepControl]="datesForm" label="Dates">
+          <form [formGroup]="datesForm" class="step-content">
+            <h2>Choisissez vos dates</h2>
+            <div class="fields two-columns">
+              <mat-form-field appearance="outline">
+                <mat-label>Date de début</mat-label>
+                <input matInput [matDatepicker]="startPicker" [min]="today" formControlName="dateDebut">
+                <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+                <mat-datepicker #startPicker></mat-datepicker>
+                @if (datesForm.controls.dateDebut.hasError('required')) {
+                  <mat-error>La date de début est obligatoire.</mat-error>
+                }
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Date de fin</mat-label>
+                <input matInput [matDatepicker]="endPicker" [min]="today" formControlName="dateFin">
+                <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+                <mat-datepicker #endPicker></mat-datepicker>
+                @if (datesForm.controls.dateFin.hasError('required')) {
+                  <mat-error>La date de fin est obligatoire.</mat-error>
+                }
+              </mat-form-field>
+            </div>
+            @if (datesForm.value.dateDebut && datesForm.value.dateFin
+              && datesForm.value.dateFin <= datesForm.value.dateDebut) {
+              <p class="field-error">La date de fin doit être postérieure à la date de début.</p>
+            }
+            @if (checking()) { <p class="status">Vérification de la disponibilité…</p> }
+            @if (available() === true) { <p class="status success">Véhicule disponible pour cette période.</p> }
+            @if (available() === false) { <p class="status error">Véhicule indisponible pour cette période.</p> }
+            <button mat-flat-button color="primary" matStepperNext
+              [disabled]="datesForm.invalid || available() !== true">Continuer</button>
+          </form>
+        </mat-step>
+
+        <mat-step [stepControl]="placesForm" label="Lieux">
+          <form [formGroup]="placesForm" class="step-content">
+            <h2>Où récupérer et restituer le véhicule ?</h2>
+            <mat-form-field appearance="outline">
+              <mat-label>Lieu de prise en charge</mat-label>
+              <input matInput formControlName="lieuPriseEnCharge" placeholder="Aéroport Mohammed V, Casablanca">
+              <mat-hint>Aéroport, gare, hôtel ou agence</mat-hint>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Lieu de retour</mat-label>
+              <input matInput formControlName="lieuRetour" placeholder="Agence LocaVite Casablanca">
+            </mat-form-field>
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>Retour</button>
+              <button mat-flat-button color="primary" matStepperNext [disabled]="placesForm.invalid">Continuer</button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step label="Options">
+          <div class="step-content">
+            <h2>Personnalisez votre location</h2>
+            <div [formGroup]="optionsForm" class="options">
+              <mat-checkbox formControlName="gps">GPS</mat-checkbox>
+              <mat-checkbox formControlName="babySeat">Siège bébé</mat-checkbox>
+              <mat-checkbox formControlName="extraDriver">Conducteur additionnel</mat-checkbox>
+            </div>
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>Retour</button>
+              <button mat-flat-button color="primary" matStepperNext>Voir le récapitulatif</button>
+            </div>
+          </div>
+        </mat-step>
+
+        <mat-step label="Récapitulatif">
+          <div class="step-content">
+            <h2>Détail du prix</h2>
+            @if (quote(); as price) {
+              <dl class="price-summary">
+                <div><dt>Location ({{ price.jours }} jours)</dt><dd>{{ formatPrice(price.sousTotal) }}</dd></div>
+                <div><dt>Options</dt><dd>{{ formatPrice(price.options) }}</dd></div>
+                <div><dt>Remise</dt><dd>- {{ formatPrice(price.remise) }}</dd></div>
+                <div><dt>TVA</dt><dd>{{ formatPrice(price.tva) }}</dd></div>
+                <div><dt>Caution</dt><dd>{{ formatPrice(price.caution) }}</dd></div>
+                <div class="total"><dt>Total</dt><dd>{{ formatPrice(price.total) }}</dd></div>
+              </dl>
+            } @else {
+              <p class="alert error">Le prix n’est pas disponible pour ces dates.</p>
+            }
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>Retour</button>
+              <button mat-flat-button color="primary" matStepperNext [disabled]="!quote()">Continuer</button>
+            </div>
+          </div>
+        </mat-step>
+
+        <mat-step [stepControl]="confirmationForm" label="Confirmation">
+          <form [formGroup]="confirmationForm" class="step-content">
+            <h2>Confirmez votre réservation</h2>
+            <mat-checkbox formControlName="acceptedTerms">
+              J’accepte les CGV et les conditions de location.
+            </mat-checkbox>
+            <div class="step-actions">
+              <button mat-button matStepperPrevious>Retour</button>
+              <button mat-flat-button color="primary" type="button" (click)="submit()"
+                [disabled]="confirmationForm.invalid || submitting()">
+                {{ submitting() ? 'Envoi…' : 'Confirmer la réservation' }}
+              </button>
+            </div>
+          </form>
+        </mat-step>
+      </mat-stepper>
+    }
+  </section>
+</main>
