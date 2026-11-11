@@ -1,6 +1,7 @@
 package ma.locavite.reservation.service;
 
 import ma.locavite.reservation.event.ReservationConfirmedEvent;
+import ma.locavite.reservation.event.ReservationExtendedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -24,6 +25,21 @@ public class ContractEmailListener {
             contractService.emailContract(event.reservation(), event.contract());
         } catch (RuntimeException exception) {
             log.error("Échec du traitement du contrat et de son e-mail après confirmation [reservationId={}]",
+                    event.reservation().getId(), exception);
+        }
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
+    public void onReservationExtended(ReservationExtendedEvent event) {
+        try {
+            if (event.extension() != null) {
+                contractService.notifyAgencyOfExtension(event.reservation(), event.extension());
+            }
+            if (event.contract() != null) {
+                contractService.emailContract(event.reservation(), event.contract());
+            }
+        } catch (RuntimeException exception) {
+            log.error("Échec du traitement après prolongation [reservationId={}]",
                     event.reservation().getId(), exception);
         }
     }

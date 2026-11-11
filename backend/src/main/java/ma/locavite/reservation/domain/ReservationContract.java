@@ -31,6 +31,9 @@ public class ReservationContract {
     @Column(name = "generated_at", nullable = false)
     private Instant generatedAt;
 
+    @Column(name = "version", nullable = false)
+    private int version = 1;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public Reservation getReservation() { return reservation; }
@@ -43,4 +46,6 @@ public class ReservationContract {
     public void setAccessToken(String accessToken) { this.accessToken = accessToken; }
     public Instant getGeneratedAt() { return generatedAt; }
     public void setGeneratedAt(Instant generatedAt) { this.generatedAt = generatedAt; }
+    public int getVersion() { return version; }
+    public void setVersion(int version) { this.version = version; }
 }

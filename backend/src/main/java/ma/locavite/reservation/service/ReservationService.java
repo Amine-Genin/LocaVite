@@ -7,8 +7,13 @@ import ma.locavite.document.domain.DocumentType;
 import ma.locavite.document.repository.DocumentRepository;
 import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.CautionStatus;
+import ma.locavite.reservation.domain.ContractLanguage;
+import ma.locavite.reservation.domain.ReservationContract;
+import ma.locavite.reservation.domain.ReservationExtension;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.ReservationStatus;
+import ma.locavite.reservation.dto.ExtendReservationRequest;
+import ma.locavite.reservation.dto.ReservationExtensionResponse;
 import ma.locavite.reservation.dto.ReservationFilter;
 import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.ReservationResponse;
@@ -20,7 +25,9 @@ import ma.locavite.reservation.exception.InvalidReservationStatusException;
 import ma.locavite.reservation.exception.ReservationNotFoundException;
 import ma.locavite.reservation.exception.VehicleNotAvailableException;
 import ma.locavite.reservation.event.ReservationConfirmedEvent;
+import ma.locavite.reservation.event.ReservationExtendedEvent;
 import ma.locavite.reservation.mapper.ReservationMapper;
+import ma.locavite.reservation.repository.ReservationExtensionRepository;
 import ma.locavite.reservation.repository.ReservationRepository;
 import ma.locavite.reservation.repository.ReservationSpecifications;
 import ma.locavite.vehicle.domain.Vehicle;
@@ -30,6 +37,7 @@ import ma.locavite.vehicle.exception.VehicleNotFoundException;
 import ma.locavite.vehicle.repository.VehicleRepository;
 import ma.locavite.vehicle.service.AvailabilityService;
 import ma.locavite.vehicle.service.CurrentUserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +50,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.util.Collection;
@@ -73,6 +83,7 @@ public class ReservationService {
     private final AvailabilityService availabilityService;
     private final PricingService pricingService;
     private final ContractService contractService;
+    private final ReservationExtensionRepository reservationExtensionRepository;
 
     public ReservationService(
             ReservationRepository reservationRepository,
@@ -85,6 +96,34 @@ public class ReservationService {
             AvailabilityService availabilityService,
             PricingService pricingService,
             ContractService contractService) {
+        this(
+                reservationRepository,
+                vehicleRepository,
+                documentRepository,
+                userRepository,
+                currentUserService,
+                reservationMapper,
+                eventPublisher,
+                availabilityService,
+                pricingService,
+                contractService,
+                null
+        );
+    }
+
+    @Autowired
+    public ReservationService(
+            ReservationRepository reservationRepository,
+            VehicleRepository vehicleRepository,
+            DocumentRepository documentRepository,
+            UserRepository userRepository,
+            CurrentUserService currentUserService,
+            ReservationMapper reservationMapper,
+            ApplicationEventPublisher eventPublisher,
+            AvailabilityService availabilityService,
+            PricingService pricingService,
+            ContractService contractService,
+            ReservationExtensionRepository reservationExtensionRepository) {
         this.reservationRepository = reservationRepository;
         this.vehicleRepository = vehicleRepository;
         this.documentRepository = documentRepository;
@@ -95,6 +134,7 @@ public class ReservationService {
         this.availabilityService = availabilityService;
         this.pricingService = pricingService;
         this.contractService = contractService;
+        this.reservationExtensionRepository = reservationExtensionRepository;
     }
 
     @Transactional(readOnly = true)
@@ -311,6 +351,113 @@ public class ReservationService {
         return reservationMapper.toResponse(saved);
     }
 
+    @Transactional
+    public ReservationResponse extend(Long id, ExtendReservationRequest request) {
+        Long currentUserId = getCurrentUserId();
+
+        Reservation reservation = reservationRepository.findByIdForUpdate(id)
+                .or(() -> reservationRepository.findById(id))
+                .orElseThrow(() -> new ReservationNotFoundException(id));
+
+        if (!reservation.getUserId().equals(currentUserId)) {
+            throw new AccessDeniedException("Accès refusé : vous n'êtes pas le propriétaire de cette réservation");
+        }
+
+        if (reservation.getStatut() != ReservationStatus.CONFIRMED
+                && reservation.getStatut() != ReservationStatus.ACTIVE) {
+            throw new InvalidReservationStatusException(
+                    "Seules les réservations confirmées (CONFIRMED) ou actives (ACTIVE) peuvent être prolongées");
+        }
+
+        if (request == null || request.newDateFin() == null) {
+            throw new InvalidReservationDatesException("La nouvelle date de fin est obligatoire");
+        }
+
+        LocalDate ancienneDateFin = reservation.getDateFin();
+        LocalDate nouvelleDateFin = request.newDateFin();
+
+        if (!nouvelleDateFin.isAfter(ancienneDateFin)) {
+            throw new InvalidReservationDatesException(
+                    "La nouvelle date de fin doit être strictement postérieure à la date de fin actuelle");
+        }
+        if (nouvelleDateFin.isBefore(LocalDate.now())) {
+            throw new InvalidReservationDatesException(
+                    "La nouvelle date de fin ne peut pas être dans le passé");
+        }
+        if (!Boolean.TRUE.equals(request.acceptNewPrice())) {
+            throw new IllegalArgumentException(
+                    "Vous devez accepter le nouveau prix pour prolonger la réservation");
+        }
+
+        Vehicle vehicle = vehicleRepository.findByIdWithLock(reservation.getVehicleId())
+                .or(() -> vehicleRepository.findById(reservation.getVehicleId()))
+                .orElseThrow(() -> new VehicleNotFoundException(reservation.getVehicleId()));
+
+        if (vehicle.getStatut() == VehicleStatus.ARCHIVED) {
+            throw new VehicleNotAvailableException("Ce véhicule n'est plus disponible");
+        }
+
+        // Vérification de disponibilité sur la période supplémentaire [ancienneDateFin, nouvelleDateFin[
+        checkVehicleAvailability(vehicle.getId(), ancienneDateFin, nouvelleDateFin, reservation.getId());
+
+        // Recalcul du prix avec les nouvelles dates [dateDebut, nouvelleDateFin[
+        PriceQuoteResponse newQuote = pricingService.calculate(
+                vehicle, reservation.getDateDebut(), nouvelleDateFin, reservation.getOptions());
+
+        BigDecimal ancienPrixTotal = reservation.getPrixTotal() != null
+                ? reservation.getPrixTotal()
+                : pricingService.calculate(
+                        vehicle, reservation.getDateDebut(), ancienneDateFin, reservation.getOptions()).total();
+        BigDecimal prixSupplementaire = newQuote.total().subtract(ancienPrixTotal);
+        if (prixSupplementaire.compareTo(BigDecimal.ZERO) < 0) {
+            prixSupplementaire = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        }
+
+        reservation.setDateFin(nouvelleDateFin);
+        reservation.setPrixTotal(newQuote.total());
+        reservation.setCaution(newQuote.caution());
+        reservation.setPrixSousTotal(newQuote.sousTotal());
+        reservation.setPrixOptions(newQuote.options());
+        reservation.setPrixRemise(newQuote.remise());
+        reservation.setPrixTva(newQuote.tva());
+
+        Reservation saved = reservationRepository.save(reservation);
+
+        ReservationExtension extension = new ReservationExtension();
+        extension.setReservationId(saved.getId());
+        extension.setAncienneDateFin(ancienneDateFin);
+        extension.setNouvelleDateFin(nouvelleDateFin);
+        extension.setPrixSupplementaire(prixSupplementaire);
+        ReservationExtension savedExtension = reservationExtensionRepository != null
+                ? reservationExtensionRepository.save(extension)
+                : extension;
+
+        ReservationContract updatedContract = contractService.regenerate(saved, ContractLanguage.FR);
+
+        availabilityService.invalidateCache();
+        eventPublisher.publishEvent(new ReservationExtendedEvent(saved, savedExtension, updatedContract));
+
+        List<ReservationExtensionResponse> extensions = loadExtensions(saved.getId(), savedExtension);
+        return attachExtensions(reservationMapper.toResponse(saved), extensions);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationExtensionResponse> getExtensions(Long id) {
+        Long currentUserId = getCurrentUserId();
+
+        Reservation reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new ReservationNotFoundException(id));
+
+        if (!isAdmin() && !reservation.getUserId().equals(currentUserId)) {
+            Vehicle vehicle = vehicleRepository.findById(reservation.getVehicleId()).orElse(null);
+            if (vehicle == null || !vehicle.getAgenceId().equals(currentUserId)) {
+                throw new AccessDeniedException("Accès refusé : vous ne pouvez pas consulter cette réservation");
+            }
+        }
+
+        return loadExtensions(id, null);
+    }
+
     @Transactional(readOnly = true)
     public ReservationResponse getById(Long id) {
         Long currentUserId = getCurrentUserId();
@@ -318,20 +465,68 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new ReservationNotFoundException(id));
 
-        if (isAdmin()) {
-            return reservationMapper.toResponse(reservation);
-        }
-
-        if (reservation.getUserId().equals(currentUserId)) {
-            return reservationMapper.toResponse(reservation);
+        if (isAdmin() || reservation.getUserId().equals(currentUserId)) {
+            return attachExtensions(
+                    reservationMapper.toResponse(reservation),
+                    loadExtensions(reservation.getId(), null));
         }
 
         Vehicle vehicle = vehicleRepository.findById(reservation.getVehicleId()).orElse(null);
         if (vehicle != null && vehicle.getAgenceId().equals(currentUserId)) {
-            return reservationMapper.toResponse(reservation);
+            return attachExtensions(
+                    reservationMapper.toResponse(reservation),
+                    loadExtensions(reservation.getId(), null));
         }
 
         throw new AccessDeniedException("Accès refusé : vous ne pouvez pas consulter cette réservation");
+    }
+
+    private static ReservationResponse attachExtensions(
+            ReservationResponse response,
+            List<ReservationExtensionResponse> extensions) {
+        return new ReservationResponse(
+                response.id(),
+                response.code(),
+                response.userId(),
+                response.vehicleId(),
+                response.dateDebut(),
+                response.dateFin(),
+                response.lieuPriseEnCharge(),
+                response.lieuRetour(),
+                response.prixTotal(),
+                response.caution(),
+                response.cautionStatut(),
+                response.statut(),
+                response.options(),
+                extensions != null ? List.copyOf(extensions) : List.of(),
+                response.createdAt(),
+                response.updatedAt()
+        );
+    }
+
+    private List<ReservationExtensionResponse> loadExtensions(Long reservationId, ReservationExtension latestExtension) {
+        if (reservationExtensionRepository != null && reservationId != null) {
+            List<ReservationExtension> stored =
+                    reservationExtensionRepository.findByReservationIdOrderByCreatedAtAsc(reservationId);
+            if (stored != null && !stored.isEmpty()) {
+                return stored.stream().map(ReservationService::toExtensionResponse).toList();
+            }
+        }
+        if (latestExtension != null) {
+            return List.of(toExtensionResponse(latestExtension));
+        }
+        return List.of();
+    }
+
+    private static ReservationExtensionResponse toExtensionResponse(ReservationExtension extension) {
+        return new ReservationExtensionResponse(
+                extension.getId(),
+                extension.getReservationId(),
+                extension.getAncienneDateFin(),
+                extension.getNouvelleDateFin(),
+                extension.getPrixSupplementaire(),
+                extension.getCreatedAt()
+        );
     }
 
     @Transactional(readOnly = true)

@@ -119,6 +119,14 @@ public class ContractService {
         if (existing.isPresent()) {
             return existing.get();
         }
+        return regenerate(reservation, language);
+    }
+
+    @Transactional
+    public ReservationContract regenerate(Reservation reservation, ContractLanguage language) {
+        Optional<ReservationContract> existing =
+                contractRepository.findByReservationIdAndLanguage(reservation.getId(), language);
+        int nextVersion = existing.map(c -> c.getVersion() + 1).orElse(1);
 
         User client = userRepository.findById(reservation.getUserId())
                 .orElseThrow(() -> new IllegalStateException("Client introuvable pour la réservation"));
@@ -134,18 +142,27 @@ public class ContractService {
                 + "/api/reservations/" + reservation.getId() + "/contract/digital?lang="
                 + language.name() + "&token=" + accessToken;
         byte[] pdf = generatePdf(reservation, client, vehicle, documents, quote, language, digitalUrl);
+        String suffix = nextVersion > 1 ? "-v" + nextVersion : "";
         String path = reservation.getId() + "/" + language.name().toLowerCase(Locale.ROOT)
-                + "/contract-" + reservation.getCode() + ".pdf";
+                + "/contract-" + reservation.getCode() + suffix + ".pdf";
         minioService.putContract(path, pdf);
 
-        ReservationContract contract = new ReservationContract();
+        ReservationContract contract = existing.orElseGet(ReservationContract::new);
         contract.setReservation(reservation);
         contract.setLanguage(language);
         contract.setObjectPath(path);
         contract.setAccessToken(accessToken);
+        contract.setVersion(nextVersion);
         contract.setGeneratedAt(Instant.now());
         ReservationContract saved = contractRepository.save(contract);
-        log.info("Contrat {} généré pour la réservation {}", language, reservation.getCode());
+
+        for (ReservationContract other : contractRepository.findByReservationId(reservation.getId())) {
+            if (other.getLanguage() != language) {
+                contractRepository.delete(other);
+            }
+        }
+
+        log.info("Contrat {} (v{}) généré pour la réservation {}", language, nextVersion, reservation.getCode());
         return saved;
     }
 
@@ -204,6 +221,37 @@ public class ContractService {
             mailSender.send(message);
         } catch (MessagingException | MailException exception) {
             log.error("Échec de l'envoi du contrat {} à {}", reservation.getCode(), client.getEmail(), exception);
+        }
+    }
+
+    public void notifyAgencyOfExtension(
+            Reservation reservation,
+            ma.locavite.reservation.domain.ReservationExtension extension) {
+        Vehicle vehicle = vehicleRepository.findById(reservation.getVehicleId()).orElse(null);
+        if (vehicle == null || vehicle.getAgenceId() == null) {
+            return;
+        }
+        User agency = userRepository.findById(vehicle.getAgenceId()).orElse(null);
+        if (agency == null || agency.getEmail() == null) {
+            return;
+        }
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, false, "UTF-8");
+            helper.setFrom("noreply@locavite.ma");
+            helper.setTo(agency.getEmail());
+            helper.setSubject("Prolongation de la réservation " + reservation.getCode());
+            helper.setText("Bonjour " + agency.getPrenom() + " " + agency.getNom()
+                    + ",\n\nLa réservation " + reservation.getCode()
+                    + " a été prolongée du " + DATE_FORMAT.format(extension.getAncienneDateFin())
+                    + " au " + DATE_FORMAT.format(extension.getNouvelleDateFin())
+                    + ".\nSupplément tarifaire : " + extension.getPrixSupplementaire().toPlainString() + " MAD"
+                    + "\nNouveau total : " + reservation.getPrixTotal().toPlainString() + " MAD"
+                    + "\n\nCordialement,\nL'équipe LocaVite");
+            mailSender.send(message);
+        } catch (MessagingException | RuntimeException exception) {
+            log.error("Échec de l'envoi de la notification de prolongation {} à l'agence {}",
+                    reservation.getCode(), agency.getEmail(), exception);
         }
     }
 

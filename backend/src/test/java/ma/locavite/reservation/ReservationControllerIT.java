@@ -18,6 +18,7 @@ import ma.locavite.document.repository.DocumentRepository;
 import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.ReservationStatus;
+import ma.locavite.reservation.dto.ExtendReservationRequest;
 import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.QuoteRequest;
 import ma.locavite.reservation.repository.ReservationRepository;
@@ -607,5 +608,103 @@ class ReservationControllerIT {
 
         Reservation updated = reservationRepository.findById(res.getId()).orElseThrow();
         org.junit.jupiter.api.Assertions.assertEquals(ReservationStatus.CANCELLED, updated.getStatut());
+    }
+
+    @Test
+    @DisplayName("Test : prolongation si dispo → 200, prix recalculé, nouvelle version du contrat générée, statut conservé et historique créé")
+    void post_extendWhenAvailable_returns200AndUpdatesPriceContractAndHistory() throws Exception {
+        LocalDate debut = LocalDate.now().plusDays(2);
+        LocalDate ancienneFin = LocalDate.now().plusDays(5); // 3 jours -> 3 * 400 + 3000 = 4200.00
+        LocalDate nouvelleFin = LocalDate.now().plusDays(7); // 5 jours -> 5 * 400 + 3000 = 5000.00
+
+        Reservation res = new Reservation();
+        res.setCode("LV-EXTEND");
+        res.setUserId(clientWithDocs.getId());
+        res.setVehicleId(vehicleAgence1.getId());
+        res.setDateDebut(debut);
+        res.setDateFin(ancienneFin);
+        res.setLieuPriseEnCharge("Aéroport Med V");
+        res.setLieuRetour("Aéroport Med V");
+        res.setPrixTotal(new BigDecimal("4200.00"));
+        res.setCaution(new BigDecimal("3000.00"));
+        res.setStatut(ReservationStatus.CONFIRMED);
+        res = reservationRepository.save(res);
+
+        ReservationContract regeneratedContract = new ReservationContract();
+        regeneratedContract.setVersion(2);
+        when(contractService.regenerate(org.mockito.ArgumentMatchers.any(Reservation.class), eq(ContractLanguage.FR)))
+                .thenReturn(regeneratedContract);
+
+        ExtendReservationRequest extendRequest = new ExtendReservationRequest(nouvelleFin, true);
+
+        mockMvc.perform(post("/api/reservations/" + res.getId() + "/extend")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientWithDocsToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(extendRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(res.getId()))
+                .andExpect(jsonPath("$.statut").value("CONFIRMED"))
+                .andExpect(jsonPath("$.dateFin").value(nouvelleFin.toString()))
+                .andExpect(jsonPath("$.prixTotal").value(5000.0))
+                .andExpect(jsonPath("$.extensions", hasSize(1)))
+                .andExpect(jsonPath("$.extensions[0].ancienneDateFin").value(ancienneFin.toString()))
+                .andExpect(jsonPath("$.extensions[0].nouvelleDateFin").value(nouvelleFin.toString()))
+                .andExpect(jsonPath("$.extensions[0].prixSupplementaire").value(800.0));
+
+        verify(contractService).regenerate(org.mockito.ArgumentMatchers.any(Reservation.class), eq(ContractLanguage.FR));
+        verify(contractService).notifyAgencyOfExtension(
+                org.mockito.ArgumentMatchers.any(Reservation.class),
+                org.mockito.ArgumentMatchers.any());
+
+        mockMvc.perform(get("/api/reservations/" + res.getId() + "/extensions")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientWithDocsToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].prixSupplementaire").value(800.0));
+    }
+
+    @Test
+    @DisplayName("Test : prolongation si indispo sur la période supplémentaire → 409 Conflict")
+    void post_extendWhenUnavailable_returns409Conflict() throws Exception {
+        LocalDate debut = LocalDate.now().plusDays(2);
+        LocalDate ancienneFin = LocalDate.now().plusDays(5);
+        LocalDate nouvelleFin = LocalDate.now().plusDays(8);
+
+        Reservation current = new Reservation();
+        current.setCode("LV-EXTCUR");
+        current.setUserId(clientWithDocs.getId());
+        current.setVehicleId(vehicleAgence1.getId());
+        current.setDateDebut(debut);
+        current.setDateFin(ancienneFin);
+        current.setLieuPriseEnCharge("Casa");
+        current.setLieuRetour("Casa");
+        current.setPrixTotal(new BigDecimal("4200.00"));
+        current.setCaution(new BigDecimal("3000.00"));
+        current.setStatut(ReservationStatus.ACTIVE);
+        current = reservationRepository.save(current);
+
+        // Autre réservation chevauchant la période supplémentaire [plusDays(6), plusDays(9)]
+        Reservation nextBooking = new Reservation();
+        nextBooking.setCode("LV-EXTNXT");
+        nextBooking.setUserId(clientWithoutDocs.getId());
+        nextBooking.setVehicleId(vehicleAgence1.getId());
+        nextBooking.setDateDebut(LocalDate.now().plusDays(6));
+        nextBooking.setDateFin(LocalDate.now().plusDays(9));
+        nextBooking.setLieuPriseEnCharge("Casa");
+        nextBooking.setLieuRetour("Casa");
+        nextBooking.setPrixTotal(new BigDecimal("4200.00"));
+        nextBooking.setCaution(new BigDecimal("3000.00"));
+        nextBooking.setStatut(ReservationStatus.CONFIRMED);
+        reservationRepository.save(nextBooking);
+
+        ExtendReservationRequest extendRequest = new ExtendReservationRequest(nouvelleFin, true);
+
+        mockMvc.perform(post("/api/reservations/" + current.getId() + "/extend")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + clientWithDocsToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(extendRequest)))
+                .andExpect(status().isConflict());
+
+        verify(contractService, never()).regenerate(any(), any());
     }
 }

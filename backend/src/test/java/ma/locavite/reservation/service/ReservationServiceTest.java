@@ -9,19 +9,25 @@ import ma.locavite.document.domain.DocumentStatus;
 import ma.locavite.document.domain.DocumentType;
 import ma.locavite.document.repository.DocumentRepository;
 import ma.locavite.reservation.domain.Reservation;
+import ma.locavite.reservation.domain.ContractLanguage;
+import ma.locavite.reservation.domain.ReservationContract;
+import ma.locavite.reservation.domain.ReservationExtension;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.OptionPrice;
 import ma.locavite.reservation.domain.ReservationStatus;
 import ma.locavite.reservation.domain.CautionStatus;
 import ma.locavite.reservation.config.PricingProperties;
+import ma.locavite.reservation.dto.ExtendReservationRequest;
 import ma.locavite.reservation.dto.ReservationFilter;
 import ma.locavite.reservation.dto.ReservationRequest;
 import ma.locavite.reservation.dto.ReservationResponse;
+import ma.locavite.reservation.event.ReservationExtendedEvent;
 import ma.locavite.reservation.exception.ClientDocumentsNotValidatedException;
 import ma.locavite.reservation.exception.InvalidReservationDatesException;
 import ma.locavite.reservation.exception.InvalidReservationStatusException;
 import ma.locavite.reservation.exception.VehicleNotAvailableException;
 import ma.locavite.reservation.mapper.ReservationMapper;
+import ma.locavite.reservation.repository.ReservationExtensionRepository;
 import ma.locavite.reservation.repository.ReservationRepository;
 import ma.locavite.reservation.repository.OptionPriceRepository;
 import ma.locavite.vehicle.domain.Vehicle;
@@ -94,6 +100,9 @@ class ReservationServiceTest {
     @Mock
     private OptionPriceRepository optionPriceRepository;
 
+    @Mock
+    private ReservationExtensionRepository reservationExtensionRepository;
+
     private final ReservationMapper reservationMapper = Mappers.getMapper(ReservationMapper.class);
 
     private ReservationService reservationService;
@@ -124,7 +133,8 @@ class ReservationServiceTest {
                 eventPublisher,
                 availabilityService,
                 pricingService,
-                contractService
+                contractService,
+                reservationExtensionRepository
         );
     }
 
@@ -641,5 +651,167 @@ class ReservationServiceTest {
 
         assertThat(successCount.get()).isEqualTo(1);
         assertThat(failureCount.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("Test : prolongation si dispo → succès, statut conservé, contrat régénéré et événement émis")
+    void extend_whenAvailable_succeedsAndKeepsStatusAndEmitsEvent() {
+        when(currentUserService.getCurrentUserId()).thenReturn(Optional.of(CLIENT_ID));
+
+        LocalDate debut = LocalDate.now().plusDays(1);
+        LocalDate ancienneFin = LocalDate.now().plusDays(4); // 3 jours
+        LocalDate nouvelleFin = LocalDate.now().plusDays(6); // 5 jours (+2 jours)
+
+        Reservation res = new Reservation();
+        res.setId(100L);
+        res.setCode("LV-EXT100");
+        res.setUserId(CLIENT_ID);
+        res.setVehicleId(VEHICLE_ID);
+        res.setDateDebut(debut);
+        res.setDateFin(ancienneFin);
+        res.setLieuPriseEnCharge("Aéroport Casablanca");
+        res.setLieuRetour("Aéroport Casablanca");
+        res.setPrixTotal(new BigDecimal("4350.00")); // 3 * 400 + 3 * 50 + 3000 caution
+        res.setCaution(new BigDecimal("3000.00"));
+        res.setStatut(ReservationStatus.ACTIVE);
+        res.setOptions(Set.of(ReservationOption.GPS));
+
+        Vehicle vehicle = createVehicle(VEHICLE_ID, AGENCE_ID, new BigDecimal("400.00"));
+
+        when(reservationRepository.findByIdForUpdate(100L)).thenReturn(Optional.of(res));
+        when(vehicleRepository.findByIdWithLock(VEHICLE_ID)).thenReturn(Optional.of(vehicle));
+        when(reservationRepository.countOverlapping(VEHICLE_ID, ancienneFin, nouvelleFin, 100L)).thenReturn(0L);
+        when(reservationRepository.findOverlappingReservations(eq(VEHICLE_ID), eq(ancienneFin), eq(nouvelleFin), any(), eq(100L)))
+                .thenReturn(Collections.emptyList());
+        when(reservationRepository.save(any(Reservation.class))).thenAnswer(i -> i.getArgument(0));
+        when(reservationExtensionRepository.save(any(ReservationExtension.class))).thenAnswer(i -> {
+            ReservationExtension ext = i.getArgument(0);
+            ext.setId(1L);
+            return ext;
+        });
+
+        ReservationContract newContract = new ReservationContract();
+        newContract.setVersion(2);
+        when(contractService.regenerate(any(Reservation.class), eq(ContractLanguage.FR))).thenReturn(newContract);
+
+        ExtendReservationRequest request = new ExtendReservationRequest(nouvelleFin, true);
+        ReservationResponse response = reservationService.extend(100L, request);
+
+        assertThat(response).isNotNull();
+        assertThat(response.dateFin()).isEqualTo(nouvelleFin);
+        assertThat(response.statut()).isEqualTo(ReservationStatus.ACTIVE);
+        // 5 * 400 + 5 * 50 + 3000 caution = 5250.00
+        assertThat(response.prixTotal()).isEqualByComparingTo(new BigDecimal("5250.00"));
+        assertThat(response.extensions()).hasSize(1);
+        assertThat(response.extensions().get(0).ancienneDateFin()).isEqualTo(ancienneFin);
+        assertThat(response.extensions().get(0).nouvelleDateFin()).isEqualTo(nouvelleFin);
+        assertThat(response.extensions().get(0).prixSupplementaire()).isEqualByComparingTo(new BigDecimal("900.00"));
+
+        verify(contractService).regenerate(any(Reservation.class), eq(ContractLanguage.FR));
+        verify(availabilityService).invalidateCache();
+
+        ArgumentCaptor<ReservationExtendedEvent> eventCaptor = ArgumentCaptor.forClass(ReservationExtendedEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().reservation().getId()).isEqualTo(100L);
+        assertThat(eventCaptor.getValue().extension().getPrixSupplementaire()).isEqualByComparingTo(new BigDecimal("900.00"));
+        assertThat(eventCaptor.getValue().contract().getVersion()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("Test : prolongation si indispo sur la période supplémentaire → 409 VehicleNotAvailableException")
+    void extend_whenUnavailableOnSupplementaryPeriod_throwsVehicleNotAvailableException() {
+        when(currentUserService.getCurrentUserId()).thenReturn(Optional.of(CLIENT_ID));
+
+        LocalDate debut = LocalDate.now().plusDays(1);
+        LocalDate ancienneFin = LocalDate.now().plusDays(4);
+        LocalDate nouvelleFin = LocalDate.now().plusDays(7);
+
+        Reservation res = new Reservation();
+        res.setId(100L);
+        res.setUserId(CLIENT_ID);
+        res.setVehicleId(VEHICLE_ID);
+        res.setDateDebut(debut);
+        res.setDateFin(ancienneFin);
+        res.setPrixTotal(new BigDecimal("4200.00"));
+        res.setCaution(new BigDecimal("3000.00"));
+        res.setStatut(ReservationStatus.CONFIRMED);
+
+        Vehicle vehicle = createVehicle(VEHICLE_ID, AGENCE_ID, new BigDecimal("400.00"));
+
+        when(reservationRepository.findByIdForUpdate(100L)).thenReturn(Optional.of(res));
+        when(vehicleRepository.findByIdWithLock(VEHICLE_ID)).thenReturn(Optional.of(vehicle));
+        when(reservationRepository.countOverlapping(VEHICLE_ID, ancienneFin, nouvelleFin, 100L)).thenReturn(1L);
+
+        ExtendReservationRequest request = new ExtendReservationRequest(nouvelleFin, true);
+
+        assertThatThrownBy(() -> reservationService.extend(100L, request))
+                .isInstanceOf(VehicleNotAvailableException.class)
+                .hasMessageContaining("déjà réservé");
+
+        verify(reservationRepository, never()).save(any());
+        verify(reservationExtensionRepository, never()).save(any());
+        verify(contractService, never()).regenerate(any(), any());
+    }
+
+    @Test
+    @DisplayName("Test : prix recalculé correctement avec remise longue durée lors d'une prolongation")
+    void extend_recalculatesPriceWithDiscountCorrectly() {
+        when(currentUserService.getCurrentUserId()).thenReturn(Optional.of(CLIENT_ID));
+
+        LocalDate debut = LocalDate.now().plusDays(1);
+        LocalDate ancienneFin = debut.plusDays(5); // 5 jours (pas de remise) -> 5 * 400 + 3000 = 5000.00
+        LocalDate nouvelleFin = debut.plusDays(10); // 10 jours (> 7 jours -> 10% remise) -> 4000 - 400 + 3000 = 6600.00
+
+        Reservation res = new Reservation();
+        res.setId(100L);
+        res.setCode("LV-DISC10");
+        res.setUserId(CLIENT_ID);
+        res.setVehicleId(VEHICLE_ID);
+        res.setDateDebut(debut);
+        res.setDateFin(ancienneFin);
+        res.setPrixTotal(new BigDecimal("5000.00"));
+        res.setCaution(new BigDecimal("3000.00"));
+        res.setStatut(ReservationStatus.CONFIRMED);
+
+        Vehicle vehicle = createVehicle(VEHICLE_ID, AGENCE_ID, new BigDecimal("400.00"));
+
+        when(reservationRepository.findByIdForUpdate(100L)).thenReturn(Optional.of(res));
+        when(vehicleRepository.findByIdWithLock(VEHICLE_ID)).thenReturn(Optional.of(vehicle));
+        when(reservationRepository.countOverlapping(VEHICLE_ID, ancienneFin, nouvelleFin, 100L)).thenReturn(0L);
+        when(reservationRepository.findOverlappingReservations(eq(VEHICLE_ID), eq(ancienneFin), eq(nouvelleFin), any(), eq(100L)))
+                .thenReturn(Collections.emptyList());
+        when(reservationRepository.save(any(Reservation.class))).thenAnswer(i -> i.getArgument(0));
+        when(reservationExtensionRepository.save(any(ReservationExtension.class))).thenAnswer(i -> i.getArgument(0));
+
+        ReservationResponse response = reservationService.extend(
+                100L, new ExtendReservationRequest(nouvelleFin, true));
+
+        assertThat(response.statut()).isEqualTo(ReservationStatus.CONFIRMED);
+        assertThat(response.prixTotal()).isEqualByComparingTo(new BigDecimal("6600.00"));
+        assertThat(res.getPrixSousTotal()).isEqualByComparingTo(new BigDecimal("4000.00"));
+        assertThat(res.getPrixRemise()).isEqualByComparingTo(new BigDecimal("400.00"));
+        assertThat(response.extensions()).hasSize(1);
+        assertThat(response.extensions().get(0).prixSupplementaire()).isEqualByComparingTo(new BigDecimal("1600.00"));
+    }
+
+    @Test
+    @DisplayName("Test : prolongation refusée si le nouveau prix n'est pas accepté (acceptNewPrice = false)")
+    void extend_whenNewPriceNotAccepted_throwsIllegalArgumentException() {
+        when(currentUserService.getCurrentUserId()).thenReturn(Optional.of(CLIENT_ID));
+
+        Reservation res = new Reservation();
+        res.setId(100L);
+        res.setUserId(CLIENT_ID);
+        res.setDateDebut(LocalDate.now().plusDays(1));
+        res.setDateFin(LocalDate.now().plusDays(4));
+        res.setStatut(ReservationStatus.CONFIRMED);
+
+        when(reservationRepository.findByIdForUpdate(100L)).thenReturn(Optional.of(res));
+
+        ExtendReservationRequest request = new ExtendReservationRequest(LocalDate.now().plusDays(6), false);
+
+        assertThatThrownBy(() -> reservationService.extend(100L, request))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("accepter le nouveau prix");
     }
 }
