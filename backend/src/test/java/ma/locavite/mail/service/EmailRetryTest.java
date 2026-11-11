@@ -6,9 +6,9 @@ import ma.locavite.auth.domain.User;
 import ma.locavite.auth.repository.UserRepository;
 import ma.locavite.auth.service.EmailService;
 import ma.locavite.mail.domain.EmailLog;
+import ma.locavite.mail.fixtures.EmailTestFixtures;
 import ma.locavite.mail.repository.EmailLogRepository;
 import ma.locavite.reservation.domain.Reservation;
-import ma.locavite.reservation.domain.ReservationStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -18,8 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Properties;
 
@@ -48,37 +46,19 @@ class EmailRetryTest {
     @Test
     @DisplayName("Test : retry en cas d'échec effectue 3 tentatives puis enregistre un log FAILED")
     void testRetryEffectueTroisTentativesSurEchec() {
-        Reservation reservation = new Reservation();
-        reservation.setId(555L);
-        reservation.setCode("LV-RETRY-01");
-        reservation.setUserId(88L);
-        reservation.setVehicleId(1L);
-        reservation.setDateDebut(LocalDate.now().plusDays(2));
-        reservation.setDateFin(LocalDate.now().plusDays(5));
-        reservation.setLieuPriseEnCharge("Casablanca");
-        reservation.setLieuRetour("Casablanca");
-        reservation.setPrixTotal(new BigDecimal("1500.00"));
-        reservation.setStatut(ReservationStatus.CONFIRMED);
-
-        User user = new User();
-        user.setId(88L);
-        user.setEmail("client.retry@example.com");
-        user.setNom("Tazi");
-        user.setPrenom("Mehdi");
+        User user = EmailTestFixtures.createClient(88L, "client.retry@example.com", "Tazi", "Mehdi");
+        Reservation reservation = EmailTestFixtures.createReservation(555L, "LV-RETRY-01", user, null);
 
         when(userRepository.findById(88L)).thenReturn(Optional.of(user));
         when(mailSender.createMimeMessage()).thenReturn(new MimeMessage(Session.getInstance(new Properties())));
 
-        // Le mailSender échoue systématiquement
         doThrow(new MailSendException("SMTP error: connection refused"))
                 .when(mailSender).send(any(MimeMessage.class));
 
         emailService.sendReservationConfirmation(reservation);
 
-        // Vérifie qu'il y a eu exactement 3 tentatives d'envoi
         verify(mailSender, times(3)).send(any(MimeMessage.class));
 
-        // Vérifie que le log FAILED a été créé avec 3 tentatives
         ArgumentCaptor<EmailLog> captor = ArgumentCaptor.forClass(EmailLog.class);
         verify(emailLogRepository, times(1)).save(captor.capture());
 
@@ -87,6 +67,7 @@ class EmailRetryTest {
         assertThat(failedLog.getRecipient()).isEqualTo("client.retry@example.com");
         assertThat(failedLog.getStatus()).isEqualTo("FAILED");
         assertThat(failedLog.getStatut()).isEqualTo("FAILED");
+        assertThat(failedLog.getTemplateName()).isEqualTo("mail/reservation-confirmation");
         assertThat(failedLog.getAttempts()).isEqualTo(3);
         assertThat(failedLog.getErrorMessage()).contains("SMTP error");
     }

@@ -7,14 +7,15 @@ import ma.locavite.auth.repository.UserRepository;
 import ma.locavite.auth.service.EmailService;
 import ma.locavite.auth.service.EmailServiceImpl;
 import ma.locavite.catalog.domain.Brand;
+import ma.locavite.catalog.domain.Category;
 import ma.locavite.document.service.MinioService;
 import ma.locavite.mail.domain.EmailLog;
+import ma.locavite.mail.fixtures.EmailTestFixtures;
 import ma.locavite.mail.repository.EmailLogRepository;
 import ma.locavite.reservation.config.ContractProperties;
 import ma.locavite.reservation.domain.ContractLanguage;
 import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.ReservationContract;
-import ma.locavite.reservation.domain.ReservationStatus;
 import ma.locavite.reservation.event.ReservationConfirmedEvent;
 import ma.locavite.reservation.repository.ReservationContractRepository;
 import ma.locavite.reservation.service.ContractEmailListener;
@@ -28,7 +29,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mail.MailSendException;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -36,12 +37,11 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -80,8 +80,13 @@ class ReservationConfirmationEmailTest {
         resolver.setTemplateMode("HTML");
         resolver.setCharacterEncoding("UTF-8");
 
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasename("messages");
+        messageSource.setDefaultEncoding("UTF-8");
+
         SpringTemplateEngine springTemplateEngine = new SpringTemplateEngine();
         springTemplateEngine.setTemplateResolver(resolver);
+        springTemplateEngine.setMessageSource(messageSource);
         this.templateEngine = springTemplateEngine;
 
         contractProperties = new ContractProperties();
@@ -98,40 +103,12 @@ class ReservationConfirmationEmailTest {
                 contractProperties
         );
 
-        client = new User();
-        client.setId(10L);
-        client.setNom("Benali");
-        client.setPrenom("Karim");
-        client.setEmail("karim.benali@example.com");
-
-        Brand brand = new Brand();
-        brand.setName("Toyota");
-
-        vehicle = new Vehicle();
-        vehicle.setId(20L);
-        vehicle.setBrand(brand);
-        vehicle.setModele("RAV4");
-        vehicle.setMatricule("12345-A-6");
-
-        reservation = new Reservation();
-        reservation.setId(100L);
-        reservation.setCode("LV-CONFIRM-123");
-        reservation.setUserId(10L);
-        reservation.setVehicleId(20L);
-        reservation.setDateDebut(LocalDate.of(2026, 12, 1));
-        reservation.setDateFin(LocalDate.of(2026, 12, 5));
-        reservation.setLieuPriseEnCharge("Aéroport Casablanca");
-        reservation.setLieuRetour("Gare Rabat");
-        reservation.setPrixTotal(new BigDecimal("4500.00"));
-        reservation.setCaution(new BigDecimal("3000.00"));
-        reservation.setStatut(ReservationStatus.CONFIRMED);
-
-        contract = new ReservationContract();
-        contract.setId(1L);
-        contract.setReservation(reservation);
-        contract.setLanguage(ContractLanguage.FR);
-        contract.setObjectPath("100/fr/contract-LV-CONFIRM-123.pdf");
-        contract.setAccessToken("token123");
+        client = EmailTestFixtures.createClient();
+        Brand brand = EmailTestFixtures.createBrand("Toyota");
+        Category category = EmailTestFixtures.createCategory("SUV", new BigDecimal("3000.00"));
+        vehicle = EmailTestFixtures.createVehicle(brand, category);
+        reservation = EmailTestFixtures.createReservation(client, vehicle);
+        contract = EmailTestFixtures.createContract(reservation, ContractLanguage.FR);
 
         lenient().when(mailSender.createMimeMessage()).thenReturn(new MimeMessage(Session.getInstance(new Properties())));
     }
@@ -151,44 +128,48 @@ class ReservationConfirmationEmailTest {
     @Test
     @DisplayName("Test : template contient les bonnes variables en Français")
     void testTemplateContientLesBonnesVariables_FR() {
-        Context context = new Context();
+        Context context = new Context(Locale.FRENCH);
+        context.setVariable("dir", "ltr");
+        context.setVariable("isRtl", false);
+        context.setVariable("lang", "fr");
         context.setVariable("client", client);
         context.setVariable("reservation", reservation);
         context.setVariable("vehicle", vehicle);
         context.setVariable("contract", contract);
         context.setVariable("reservationUrl", "https://locavite.ma/reservations/LV-CONFIRM-123");
-        context.setVariable("lang", "FR");
 
-        String html = templateEngine.process("mail/reservation-confirmation-fr", context);
+        String html = templateEngine.process("mail/reservation-confirmation", context);
 
         assertThat(html)
-                .contains("Loca", "Vite") // Logo
-                .contains("LV-CONFIRM-123") // Code
-                .contains("Karim Benali") // Client
-                .contains("Toyota RAV4") // Véhicule
-                .contains("12345-A-6") // Matricule
-                .contains("2026-12-01 au 2026-12-05") // Dates
-                .contains("Aéroport Casablanca") // Lieu prise en charge
-                .contains("Gare Rabat") // Lieu retour
-                .contains("4500.00 MAD") // Prix total
-                .contains("3000.00 MAD") // Caution
-                .contains("Contrat PDF en pièce jointe") // Contrat PDF
-                .contains("Voir ma réservation") // Bouton
-                .contains("https://locavite.ma/reservations/LV-CONFIRM-123"); // Lien bouton
+                .contains("Loca", "Vite")
+                .contains("LV-CONFIRM-123")
+                .contains("Karim Benali")
+                .contains("Toyota RAV4")
+                .contains("12345-A-6")
+                .contains("2026-12-01 au 2026-12-05")
+                .contains("Aéroport Casablanca")
+                .contains("Gare Rabat")
+                .contains("4500.00 MAD")
+                .contains("3000.00 MAD")
+                .contains("Contrat PDF en pièce jointe")
+                .contains("Voir ma réservation")
+                .contains("https://locavite.ma/reservations/LV-CONFIRM-123");
     }
 
     @Test
     @DisplayName("Test : template multilingue Anglais")
     void testTemplateMultilingue_EN() {
-        Context context = new Context();
+        Context context = new Context(Locale.ENGLISH);
+        context.setVariable("dir", "ltr");
+        context.setVariable("isRtl", false);
+        context.setVariable("lang", "en");
         context.setVariable("client", client);
         context.setVariable("reservation", reservation);
         context.setVariable("vehicle", vehicle);
         context.setVariable("contract", contract);
         context.setVariable("reservationUrl", "https://locavite.ma/reservations/LV-CONFIRM-123");
-        context.setVariable("lang", "EN");
 
-        String html = templateEngine.process("mail/reservation-confirmation-en", context);
+        String html = templateEngine.process("mail/reservation-confirmation", context);
 
         assertThat(html)
                 .contains("Loca", "Vite")
@@ -201,15 +182,17 @@ class ReservationConfirmationEmailTest {
     @Test
     @DisplayName("Test : template multilingue Arabe avec direction RTL")
     void testTemplateMultilingue_AR() {
-        Context context = new Context();
+        Context context = new Context(Locale.forLanguageTag("ar"));
+        context.setVariable("dir", "rtl");
+        context.setVariable("isRtl", true);
+        context.setVariable("lang", "ar");
         context.setVariable("client", client);
         context.setVariable("reservation", reservation);
         context.setVariable("vehicle", vehicle);
         context.setVariable("contract", contract);
         context.setVariable("reservationUrl", "https://locavite.ma/reservations/LV-CONFIRM-123");
-        context.setVariable("lang", "AR");
 
-        String html = templateEngine.process("mail/reservation-confirmation-ar", context);
+        String html = templateEngine.process("mail/reservation-confirmation", context);
 
         assertThat(html)
                 .contains("Loca", "Vite")
@@ -241,6 +224,7 @@ class ReservationConfirmationEmailTest {
         assertThat(savedLog.getStatus()).isEqualTo("SENT");
         assertThat(savedLog.getStatut()).isEqualTo("SENT");
         assertThat(savedLog.getSubject()).contains("LV-CONFIRM-123");
+        assertThat(savedLog.getTemplateName()).isEqualTo("mail/reservation-confirmation");
         assertThat(savedLog.getAttempts()).isEqualTo(1);
         assertThat(savedLog.getErrorMessage()).isNull();
     }
@@ -260,6 +244,7 @@ class ReservationConfirmationEmailTest {
         assertThat(savedLog.getRecipient()).isEqualTo("karim.benali@example.com");
         assertThat(savedLog.getStatus()).isEqualTo("FAILED");
         assertThat(savedLog.getStatut()).isEqualTo("FAILED");
+        assertThat(savedLog.getTemplateName()).isEqualTo("mail/reservation-confirmation");
         assertThat(savedLog.getErrorMessage()).contains("SMTP connection timed out");
         assertThat(savedLog.getAttempts()).isEqualTo(3);
     }

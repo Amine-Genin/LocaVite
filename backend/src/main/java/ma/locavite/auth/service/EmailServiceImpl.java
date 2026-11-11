@@ -43,6 +43,8 @@ public class EmailServiceImpl implements EmailService {
             + "trailer<</Size 4/Root 1 0 R>>\nstartxref\n178\n%%EOF\n"
     ).getBytes(StandardCharsets.UTF_8);
 
+    public static final String CONFIRMATION_TEMPLATE = "mail/reservation-confirmation";
+
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
     private final EmailLogRepository emailLogRepository;
@@ -131,7 +133,6 @@ public class EmailServiceImpl implements EmailService {
         Vehicle vehicle = resolveVehicle(reservation);
         ContractLanguage lang = resolveLanguage(contract, language);
         String subject = resolveSubject(reservation, lang);
-        String templateName = resolveTemplateName(lang);
 
         byte[] pdfBytes = resolveContractPdf(reservation, contract, lang);
 
@@ -140,7 +141,7 @@ public class EmailServiceImpl implements EmailService {
                 : "http://localhost:8081";
         String reservationUrl = baseUrl + "/reservations/" + reservation.getCode();
 
-        String htmlContent = renderHtml(client, reservation, vehicle, contract, reservationUrl, lang, templateName);
+        String htmlContent = renderHtml(client, reservation, vehicle, contract, reservationUrl, lang);
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -164,7 +165,7 @@ public class EmailServiceImpl implements EmailService {
 
             saveEmailLog(reservation.getId(),
                     client != null ? client.getEmail() : "inconnu",
-                    subject, templateName, "SENT", null, attempt);
+                    subject, CONFIRMATION_TEMPLATE, "SENT", null, attempt);
 
             log.info("Email de confirmation de réservation {} envoyé avec succès à {} (tentative {})",
                     reservation.getCode(), client != null ? client.getEmail() : "inconnu", attempt);
@@ -197,13 +198,12 @@ public class EmailServiceImpl implements EmailService {
         User client = reservation != null ? resolveClient(reservation) : null;
         ContractLanguage lang = resolveLanguage(contract, language);
         String subject = reservation != null ? resolveSubject(reservation, lang) : "Confirmation de réservation LocaVite";
-        String templateName = resolveTemplateName(lang);
 
         saveEmailLog(
                 reservation != null ? reservation.getId() : null,
                 client != null && client.getEmail() != null ? client.getEmail() : "inconnu",
                 subject,
-                templateName,
+                CONFIRMATION_TEMPLATE,
                 "FAILED",
                 e.getMessage(),
                 3
@@ -243,8 +243,12 @@ public class EmailServiceImpl implements EmailService {
         };
     }
 
-    private String resolveTemplateName(ContractLanguage language) {
-        return "mail/reservation-confirmation-" + language.name().toLowerCase(Locale.ROOT);
+    private Locale resolveLocale(ContractLanguage language) {
+        return switch (language) {
+            case EN -> Locale.ENGLISH;
+            case AR -> Locale.forLanguageTag("ar");
+            case FR -> Locale.FRENCH;
+        };
     }
 
     private byte[] resolveContractPdf(Reservation reservation, ReservationContract contract, ContractLanguage lang) {
@@ -275,27 +279,26 @@ public class EmailServiceImpl implements EmailService {
 
     private String renderHtml(User client, Reservation reservation, Vehicle vehicle,
                               ReservationContract contract, String reservationUrl,
-                              ContractLanguage lang, String templateName) {
+                              ContractLanguage lang) {
         if (templateEngine == null) {
             return "<html><body><h1>LocaVite</h1><p>Réservation " + reservation.getCode() + " confirmée.</p>"
                     + "<a href=\"" + reservationUrl + "\">Voir ma réservation</a></body></html>";
         }
 
-        Context context = new Context();
+        Locale locale = resolveLocale(lang);
+        boolean isRtl = (lang == ContractLanguage.AR);
+
+        Context context = new Context(locale);
+        context.setVariable("dir", isRtl ? "rtl" : "ltr");
+        context.setVariable("isRtl", isRtl);
+        context.setVariable("lang", lang.name().toLowerCase(Locale.ROOT));
         context.setVariable("client", client != null ? client : new User());
         context.setVariable("reservation", reservation);
         context.setVariable("vehicle", vehicle);
         context.setVariable("contract", contract);
         context.setVariable("reservationUrl", reservationUrl);
-        context.setVariable("lang", lang.name());
 
-        try {
-            return templateEngine.process(templateName, context);
-        } catch (Exception ex) {
-            log.warn("Erreur lors du rendu du template {}, bascule sur mail/reservation-confirmation: {}",
-                    templateName, ex.getMessage());
-            return templateEngine.process("mail/reservation-confirmation", context);
-        }
+        return templateEngine.process(CONFIRMATION_TEMPLATE, context);
     }
 
     private void saveEmailLog(Long reservationId, String recipient, String subject,
