@@ -1,16 +1,324 @@
 {
   "stats": {
-    "suites": 2,
-    "tests": 13,
-    "passes": 13,
+    "suites": 10,
+    "tests": 52,
+    "passes": 51,
     "pending": 0,
-    "failures": 0,
-    "start": "2026-11-11T11:40:09.447Z",
-    "end": "2026-11-11T11:41:02.058Z",
-    "duration": 65478,
-    "passPercent": 100
+    "failures": 1,
+    "start": "2026-11-11T15:46:21.436Z",
+    "end": "2026-11-11T15:46:24.587Z",
+    "duration": 80076,
+    "passPercent": 98
   },
   "results": [
+    {
+      "file": "cypress\\e2e\\admin-reservations.cy.js",
+      "suites": [
+        {
+          "title": "Dashboard réservations admin (/admin/reservations)",
+          "tests": [
+            {
+              "title": "refuse l’accès aux utilisateurs non autorisés",
+              "fullTitle": "Dashboard réservations admin (/admin/reservations) refuse l’accès aux utilisateurs non autorisés",
+              "duration": 2670,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche le dashboard et le tableau pour une agence",
+              "fullTitle": "Dashboard réservations admin (/admin/reservations) affiche le dashboard et le tableau pour une agence",
+              "duration": 2051,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "confirme une réservation PENDING avec rafraîchissement",
+              "fullTitle": "Dashboard réservations admin (/admin/reservations) confirme une réservation PENDING avec rafraîchissement",
+              "duration": 1570,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "filtre par statut et par code",
+              "fullTitle": "Dashboard réservations admin (/admin/reservations) filtre par statut et par code",
+              "duration": 0,
+              "state": "failed",
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "err": {
+                "message": "Timed out retrying after 4000ms: `cy.type()` failed because this element:\n\n`<input _ngcontent-ng-c934887524=\"\" matinput=\"\" formcontrolname=\"code\" placeholder=\"Ex: LV-A1B2C3\" data-testid=\"filter-code-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"code\" ng-reflect-placeholder=\"Ex: LV-A1B2C3\" id=\"mat-input-0\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c934887524=\"\">Code ré...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with",
+                "estack": "CypressError: Timed out retrying after 4000ms: `cy.type()` failed because this element:\n\n`<input _ngcontent-ng-c934887524=\"\" matinput=\"\" formcontrolname=\"code\" placeholder=\"Ex: LV-A1B2C3\" data-testid=\"filter-code-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"code\" ng-reflect-placeholder=\"Ex: LV-A1B2C3\" id=\"mat-input-0\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c934887524=\"\">Code ré...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with\n    at ensureIsDescendent (http://localhost:4200/__cypress/runner/cypress_runner.js:112962:68)\n    at ensureDescendents (http://localhost:4200/__cypress/runner/cypress_runner.js:113013:5)\n    at ensureDescendentsAndScroll (http://localhost:4200/__cypress/runner/cypress_runner.js:113019:14)\n    at ensureElIsNotCovered (http://localhost:4200/__cypress/runner/cypress_runner.js:113150:5)\n    at runAllChecks (http://localhost:4200/__cypress/runner/cypress_runner.js:113349:52)\n    at retryActionability (http://localhost:4200/__cypress/runner/cypress_runner.js:113386:16)\n    at tryCatcher (http://localhost:4200/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise.attempt.Promise.try (http://localhost:4200/__cypress/runner/cypress_runner.js:4315:29)\n    at whenStable (http://localhost:4200/__cypress/runner/cypress_runner.js:143797:68)\n    at <unknown> (http://localhost:4200/__cypress/runner/cypress_runner.js:143738:14)\n    at tryCatcher (http://localhost:4200/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:4200/__cypress/runner/cypress_runner.js:1519:31)\n    at Promise._settlePromise (http://localhost:4200/__cypress/runner/cypress_runner.js:1576:18)\n    at Promise._settlePromise0 (http://localhost:4200/__cypress/runner/cypress_runner.js:1621:10)\n    at Promise._settlePromises (http://localhost:4200/__cypress/runner/cypress_runner.js:1701:18)\n    at Promise._fulfill (http://localhost:4200/__cypress/runner/cypress_runner.js:1645:18)\n    at <unknown> (http://localhost:4200/__cypress/runner/cypress_runner.js:5450:46)\nFrom Your Spec Code:\n    at Context.eval (webpack://locavite-frontend/./cypress/e2e/admin-reservations.cy.js:109:48)"
+              }
+            }
+          ],
+          "passes": 3,
+          "failures": 1,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\login.cy.js",
+      "suites": [
+        {
+          "title": "Page de connexion (Login)",
+          "tests": [
+            {
+              "title": "affiche tous les éléments du formulaire de connexion",
+              "fullTitle": "Page de connexion (Login) affiche tous les éléments du formulaire de connexion",
+              "duration": 2526,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "désactive le bouton de soumission si le formulaire est invalide",
+              "fullTitle": "Page de connexion (Login) désactive le bouton de soumission si le formulaire est invalide",
+              "duration": 2068,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche un message derreur lors dun échec de connexion (mauvais identifiants)",
+              "fullTitle": "Page de connexion (Login) affiche un message derreur lors dun échec de connexion (mauvais identifiants)",
+              "duration": 1843,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "se connecte avec succès, stocke le JWT et redirige",
+              "fullTitle": "Page de connexion (Login) se connecte avec succès, stocke le JWT et redirige",
+              "duration": 2095,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "prend en charge le support multilingue (FR / AR / EN)",
+              "fullTitle": "Page de connexion (Login) prend en charge le support multilingue (FR / AR / EN)",
+              "duration": 1221,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "navigue vers la page dinscription via le lien",
+              "fullTitle": "Page de connexion (Login) navigue vers la page dinscription via le lien",
+              "duration": 843,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 6,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\my-reservations.cy.js",
+      "suites": [
+        {
+          "title": "Mes réservations (/my-reservations)",
+          "tests": [
+            {
+              "title": "redirige vers /login si le client n’est pas connecté",
+              "fullTitle": "Mes réservations (/my-reservations) redirige vers /login si le client n’est pas connecté",
+              "duration": 856,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche les réservations par onglet avec leurs détails",
+              "fullTitle": "Mes réservations (/my-reservations) affiche les réservations par onglet avec leurs détails",
+              "duration": 1111,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "permet d’annuler une réservation éligible après confirmation",
+              "fullTitle": "Mes réservations (/my-reservations) permet d’annuler une réservation éligible après confirmation",
+              "duration": 485,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche un état vide si aucune réservation n’est présente",
+              "fullTitle": "Mes réservations (/my-reservations) affiche un état vide si aucune réservation n’est présente",
+              "duration": 314,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 4,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\profile.cy.js",
+      "suites": [
+        {
+          "title": "Profil client (Angular)",
+          "tests": [
+            {
+              "title": "redirection vers /login si non authentifié",
+              "fullTitle": "Profil client (Angular) redirection vers /login si non authentifié",
+              "duration": 888,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "connexion et affichage complet du profil client",
+              "fullTitle": "Profil client (Angular) connexion et affichage complet du profil client",
+              "duration": 1505,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "modification du profil avec message de succès",
+              "fullTitle": "Profil client (Angular) modification du profil avec message de succès",
+              "duration": 1362,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "déconnexion",
+              "fullTitle": "Profil client (Angular) déconnexion",
+              "duration": 894,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 4,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\register.cy.js",
+      "suites": [
+        {
+          "title": "Page d'inscription (Register)",
+          "tests": [
+            {
+              "title": "affiche tous les éléments du formulaire d'inscription",
+              "fullTitle": "Page d'inscription (Register) affiche tous les éléments du formulaire d'inscription",
+              "duration": 2535,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "valide côté client et désactive le bouton si les données sont invalides",
+              "fullTitle": "Page d'inscription (Register) valide côté client et désactive le bouton si les données sont invalides",
+              "duration": 4642,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche une erreur si l'email est déjà utilisé (409 Conflict)",
+              "fullTitle": "Page d'inscription (Register) affiche une erreur si l'email est déjà utilisé (409 Conflict)",
+              "duration": 2403,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "inscrit l'utilisateur avec succès et redirige vers /login avec notification",
+              "fullTitle": "Page d'inscription (Register) inscrit l'utilisateur avec succès et redirige vers /login avec notification",
+              "duration": 2244,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "prend en charge le support multilingue (FR / AR / EN)",
+              "fullTitle": "Page d'inscription (Register) prend en charge le support multilingue (FR / AR / EN)",
+              "duration": 592,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "navigue vers la page de connexion via le lien",
+              "fullTitle": "Page d'inscription (Register) navigue vers la page de connexion via le lien",
+              "duration": 443,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 6,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
     {
       "file": "cypress\\e2e\\reservation.cy.js",
       "suites": [
@@ -20,7 +328,7 @@
             {
               "title": "redirige vers /login si le client n’est pas authentifié",
               "fullTitle": "Formulaire de réservation (/reservation/:vehicleId) redirige vers /login si le client n’est pas authentifié",
-              "duration": 3708,
+              "duration": 632,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -30,7 +338,7 @@
             {
               "title": "affiche un message d’alerte et un lien vers /profile si les documents ne sont pas validés",
               "fullTitle": "Formulaire de réservation (/reservation/:vehicleId) affiche un message d’alerte et un lien vers /profile si les documents ne sont pas validés",
-              "duration": 2358,
+              "duration": 529,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -40,7 +348,7 @@
             {
               "title": "parcours complet de réservation (Dates -> Lieux -> Options -> Récapitulatif -> Confirmation)",
               "fullTitle": "Formulaire de réservation (/reservation/:vehicleId) parcours complet de réservation (Dates -> Lieux -> Options -> Récapitulatif -> Confirmation)",
-              "duration": 6134,
+              "duration": 3428,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -55,6 +363,79 @@
       ]
     },
     {
+      "file": "cypress\\e2e\\vehicle-create.cy.ts",
+      "suites": [
+        {
+          "title": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new)",
+          "tests": [
+            {
+              "title": "redirection vers /login si non authentifié",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) redirection vers /login si non authentifié",
+              "duration": 676,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "redirection vers /login si rôle non autorisé (CLIENT)",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) redirection vers /login si rôle non autorisé (CLIENT)",
+              "duration": 329,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "accès autorisé pour rôle AGENCE/ADMIN et affichage de toutes les sections",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) accès autorisé pour rôle AGENCE/ADMIN et affichage de toutes les sections",
+              "duration": 559,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "upload de 3 photos, prévisualisation, réorganisation et sélection photo principale",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) upload de 3 photos, prévisualisation, réorganisation et sélection photo principale",
+              "duration": 514,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "remplissage complet via cy.createVehicle(), publication et redirection vers /admin/vehicles",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) remplissage complet via cy.createVehicle(), publication et redirection vers /admin/vehicles",
+              "duration": 3344,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "sauvegarde en tant que brouillon (statut DRAFT) via cy.createVehicle()",
+              "fullTitle": "Formulaire ajout véhicule (admin Angular) (/admin/vehicles/new) sauvegarde en tant que brouillon (statut DRAFT) via cy.createVehicle()",
+              "duration": 3555,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 6,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
       "file": "cypress\\e2e\\vehicle-detail.cy.ts",
       "suites": [
         {
@@ -63,7 +444,7 @@
             {
               "title": "navigates from catalogue list (/vehicles) to vehicle detail page (/vehicles/1)",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie navigates from catalogue list (/vehicles) to vehicle detail page (/vehicles/1)",
-              "duration": 5596,
+              "duration": 1393,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -73,7 +454,7 @@
             {
               "title": "displays full vehicle specifications, pricing, city and agency on /vehicles/1",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie displays full vehicle specifications, pricing, city and agency on /vehicles/1",
-              "duration": 1864,
+              "duration": 439,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -83,7 +464,7 @@
             {
               "title": "navigates through photo gallery with buttons and thumbnails",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie navigates through photo gallery with buttons and thumbnails",
-              "duration": 2983,
+              "duration": 754,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -93,7 +474,7 @@
             {
               "title": "displays the monthly availability calendar and highlights dates",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie displays the monthly availability calendar and highlights dates",
-              "duration": 5080,
+              "duration": 1072,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -103,7 +484,7 @@
             {
               "title": "navigates to /reservation/:id when clicking Réserver",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie navigates to /reservation/:id when clicking Réserver",
-              "duration": 3517,
+              "duration": 476,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -113,7 +494,7 @@
             {
               "title": "opens contact modal with WhatsApp and contact form on clicking Contacter agence",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie opens contact modal with WhatsApp and contact form on clicking Contacter agence",
-              "duration": 18807,
+              "duration": 3566,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -123,7 +504,7 @@
             {
               "title": "toggles favorite button on vehicle detail page",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie toggles favorite button on vehicle detail page",
-              "duration": 3278,
+              "duration": 1023,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -133,7 +514,7 @@
             {
               "title": "displays 3 similar vehicle suggestions excluding current vehicle",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie displays 3 similar vehicle suggestions excluding current vehicle",
-              "duration": 1096,
+              "duration": 790,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -143,7 +524,7 @@
             {
               "title": "sets dynamic SEO title and meta tags",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie sets dynamic SEO title and meta tags",
-              "duration": 828,
+              "duration": 965,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -153,7 +534,7 @@
             {
               "title": "adapts responsive layout across mobile, tablet, and desktop",
               "fullTitle": "Vehicle Detail Page (/vehicles/:id) - Navigation & galerie adapts responsive layout across mobile, tablet, and desktop",
-              "duration": 866,
+              "duration": 806,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -162,6 +543,122 @@
             }
           ],
           "passes": 10,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\vehicle-filters.cy.ts",
+      "suites": [
+        {
+          "title": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL",
+          "tests": [
+            {
+              "title": "filters the vehicle list by city and keeps the filter synchronized in the URL",
+              "fullTitle": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL filters the vehicle list by city and keeps the filter synchronized in the URL",
+              "duration": 1851,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "applies category, brand, and sort filters and resets all filters cleanly",
+              "fullTitle": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL applies category, brand, and sort filters and resets all filters cleanly",
+              "duration": 2006,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "hydrates filter controls from initial URL query parameters",
+              "fullTitle": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL hydrates filter controls from initial URL query parameters",
+              "duration": 422,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "opens and closes the filter drawer on mobile viewport",
+              "fullTitle": "Vehicle Filters (/vehicles) - Filtres & synchronisation URL opens and closes the filter drawer on mobile viewport",
+              "duration": 518,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 4,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\vehicle-list.cy.ts",
+      "suites": [
+        {
+          "title": "Vehicle List Page (/vehicles) - Affichage liste & pagination",
+          "tests": [
+            {
+              "title": "displays the vehicle grid with cards, lazy-loaded photos, and details on /vehicles",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination displays the vehicle grid with cards, lazy-loaded photos, and details on /vehicles",
+              "duration": 968,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "toggles the favorite (heart) button on a vehicle card",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination toggles the favorite (heart) button on a vehicle card",
+              "duration": 582,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "changes page using MatPaginator (next and previous page)",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination changes page using MatPaginator (next and previous page)",
+              "duration": 559,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "displays an empty state message when no vehicles match",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination displays an empty state message when no vehicles match",
+              "duration": 462,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "adapts responsive grid across mobile, tablet, and desktop viewports",
+              "fullTitle": "Vehicle List Page (/vehicles) - Affichage liste & pagination adapts responsive grid across mobile, tablet, and desktop viewports",
+              "duration": 344,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 5,
           "failures": 0,
           "pending": 0
         }
