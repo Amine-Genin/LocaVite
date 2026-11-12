@@ -48,6 +48,13 @@ minio:
   bucket: locavite-documents
   init-bucket: false
 
+twilio:
+  enabled: false
+  account-sid: mock-sid
+  auth-token: mock-token
+  phone-number: +212522000000
+  whatsapp-number: whatsapp:+14155238886
+
 
 management:
   endpoints:

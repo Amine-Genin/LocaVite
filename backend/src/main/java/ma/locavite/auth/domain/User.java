@@ -1,6 +1,7 @@
 package ma.locavite.auth.domain;
 
 import jakarta.persistence.*;
+import ma.locavite.notification.domain.NotificationPreference;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -37,6 +38,13 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 255)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "preference_notification", length = 30)
+    private NotificationPreference preferenceNotification = NotificationPreference.SMS;
+
+    @Column(name = "notification_opt_in")
+    private Boolean notificationOptIn = Boolean.TRUE;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "user_roles",
@@ -57,6 +65,12 @@ public class User implements UserDetails {
     }
 
     public User(Long id, String nom, String prenom, String email, String telephone, String password, Set<Role> roles, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this(id, nom, prenom, email, telephone, password, roles, NotificationPreference.SMS, Boolean.TRUE, createdAt, updatedAt);
+    }
+
+    public User(Long id, String nom, String prenom, String email, String telephone, String password, Set<Role> roles,
+                NotificationPreference preferenceNotification, Boolean notificationOptIn,
+                LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
@@ -64,6 +78,8 @@ public class User implements UserDetails {
         this.telephone = telephone;
         this.password = password;
         this.roles = roles != null ? roles : new HashSet<>();
+        this.preferenceNotification = preferenceNotification != null ? preferenceNotification : NotificationPreference.SMS;
+        this.notificationOptIn = notificationOptIn != null ? notificationOptIn : Boolean.TRUE;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -140,6 +156,43 @@ public class User implements UserDetails {
         this.updatedAt = updatedAt;
     }
 
+    public NotificationPreference getPreferenceNotification() {
+        return preferenceNotification != null ? preferenceNotification : NotificationPreference.SMS;
+    }
+
+    public void setPreferenceNotification(NotificationPreference preferenceNotification) {
+        this.preferenceNotification = preferenceNotification != null ? preferenceNotification : NotificationPreference.SMS;
+    }
+
+    public void setPreferenceNotification(String pref) {
+        this.preferenceNotification = NotificationPreference.from(pref);
+    }
+
+    public Boolean getNotificationOptIn() {
+        return notificationOptIn != null ? notificationOptIn : Boolean.TRUE;
+    }
+
+    public void setNotificationOptIn(Boolean notificationOptIn) {
+        this.notificationOptIn = notificationOptIn != null ? notificationOptIn : Boolean.TRUE;
+    }
+
+    public boolean isNotificationOptedIn() {
+        return Boolean.TRUE.equals(this.notificationOptIn)
+                && this.preferenceNotification != null
+                && this.preferenceNotification != NotificationPreference.NONE;
+    }
+
+    public void optOutNotifications() {
+        this.notificationOptIn = false;
+        this.preferenceNotification = NotificationPreference.NONE;
+    }
+
+    public void optInNotifications(NotificationPreference preference) {
+        this.notificationOptIn = true;
+        this.preferenceNotification = (preference != null && preference != NotificationPreference.NONE)
+                ? preference : NotificationPreference.SMS;
+    }
+
     public static UserBuilder builder() {
         return new UserBuilder();
     }
@@ -152,6 +205,8 @@ public class User implements UserDetails {
         private String telephone;
         private String password;
         private Set<Role> roles = new HashSet<>();
+        private NotificationPreference preferenceNotification = NotificationPreference.SMS;
+        private Boolean notificationOptIn = Boolean.TRUE;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
 
@@ -190,6 +245,21 @@ public class User implements UserDetails {
             return this;
         }
 
+        public UserBuilder preferenceNotification(NotificationPreference preferenceNotification) {
+            this.preferenceNotification = preferenceNotification;
+            return this;
+        }
+
+        public UserBuilder preferenceNotification(String preferenceNotification) {
+            this.preferenceNotification = NotificationPreference.from(preferenceNotification);
+            return this;
+        }
+
+        public UserBuilder notificationOptIn(Boolean notificationOptIn) {
+            this.notificationOptIn = notificationOptIn;
+            return this;
+        }
+
         public UserBuilder createdAt(LocalDateTime createdAt) {
             this.createdAt = createdAt;
             return this;
@@ -201,7 +271,7 @@ public class User implements UserDetails {
         }
 
         public User build() {
-            return new User(id, nom, prenom, email, telephone, password, roles, createdAt, updatedAt);
+            return new User(id, nom, prenom, email, telephone, password, roles, preferenceNotification, notificationOptIn, createdAt, updatedAt);
         }
     }
 

@@ -17,11 +17,15 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "preferenceNotification", ignore = true)
+    @Mapping(target = "notificationOptIn", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     User toEntity(RegisterRequest request);
 
     @Mapping(target = "roles", source = "roles")
+    @Mapping(target = "preferenceNotification", expression = "java(user.getPreferenceNotification() != null ? user.getPreferenceNotification().name() : null)")
+    @Mapping(target = "notificationOptIn", source = "notificationOptIn")
     UserResponse toResponse(User user);
 
     default Set<String> mapRoles(Set<Role> roles) {

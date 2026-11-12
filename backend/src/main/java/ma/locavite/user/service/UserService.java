@@ -62,13 +62,35 @@ public class UserService {
 
    @Transactional
     public UserResponse updateProfile(Long userId, UpdateProfileRequest request) {
-    User user = userRepository.findById(userId)
-            .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'id : " + userId));
-    user.setNom(request.getNom());
-    user.setPrenom(request.getPrenom());
-    user.setTelephone(request.getTelephone());
-    return userMapper.toResponse(userRepository.save(user));
-}
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'id : " + userId));
+        user.setNom(request.getNom());
+        user.setPrenom(request.getPrenom());
+        user.setTelephone(request.getTelephone());
+        if (request.getPreferenceNotification() != null) {
+            user.setPreferenceNotification(ma.locavite.notification.domain.NotificationPreference.from(request.getPreferenceNotification()));
+        }
+        if (request.getNotificationOptIn() != null) {
+            user.setNotificationOptIn(request.getNotificationOptIn());
+        }
+        return userMapper.toResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    public UserResponse optOutNotifications(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'id : " + userId));
+        user.optOutNotifications();
+        return userMapper.toResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    public UserResponse optInNotifications(Long userId, ma.locavite.notification.domain.NotificationPreference preference) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Utilisateur non trouvé avec l'id : " + userId));
+        user.optInNotifications(preference);
+        return userMapper.toResponse(userRepository.save(user));
+    }
 
     @Transactional
     public UserResponse assignRole(Long userId, Set<String> roleNames) {

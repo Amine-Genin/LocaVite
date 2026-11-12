@@ -20,10 +20,20 @@ public class UpdateProfileRequest {
     @Schema(description = "Numéro de téléphone marocain", example = "+212611223344", requiredMode = Schema.RequiredMode.REQUIRED)
     private String telephone;
 
+    @Schema(description = "Préférence de notification (SMS, WHATSAPP, EMAIL, NONE)", example = "SMS")
+    private String preferenceNotification;
+
+    @Schema(description = "Consentement aux notifications (opt-in)", example = "true")
+    private Boolean notificationOptIn;
+
     public String getNom() { return nom; }
     public void setNom(String nom) { this.nom = nom; }
     public String getPrenom() { return prenom; }
     public void setPrenom(String prenom) { this.prenom = prenom; }
     public String getTelephone() { return telephone; }
     public void setTelephone(String telephone) { this.telephone = telephone; }
+    public String getPreferenceNotification() { return preferenceNotification; }
+    public void setPreferenceNotification(String preferenceNotification) { this.preferenceNotification = preferenceNotification; }
+    public Boolean getNotificationOptIn() { return notificationOptIn; }
+    public void setNotificationOptIn(Boolean notificationOptIn) { this.notificationOptIn = notificationOptIn; }
 }

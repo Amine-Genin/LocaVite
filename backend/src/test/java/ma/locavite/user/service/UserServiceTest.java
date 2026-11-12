@@ -102,6 +102,40 @@ class UserServiceTest {
     }
 
     @Test
+    void optOutNotifications_disablesNotificationsForUser() {
+        User user = user("client@example.com", Set.of(role("CLIENT")));
+        user.setNotificationOptIn(true);
+        user.setPreferenceNotification(ma.locavite.notification.domain.NotificationPreference.SMS);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        UserResponse result = userService.optOutNotifications(1L);
+
+        assertThat(user.isNotificationOptedIn()).isFalse();
+        assertThat(user.getPreferenceNotification()).isEqualTo(ma.locavite.notification.domain.NotificationPreference.NONE);
+        assertThat(result.getPreferenceNotification()).isEqualTo("NONE");
+        assertThat(result.getNotificationOptIn()).isFalse();
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void optInNotifications_enablesNotificationsWithChannel() {
+        User user = user("client@example.com", Set.of(role("CLIENT")));
+        user.setNotificationOptIn(false);
+        user.setPreferenceNotification(ma.locavite.notification.domain.NotificationPreference.NONE);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        UserResponse result = userService.optInNotifications(1L, ma.locavite.notification.domain.NotificationPreference.WHATSAPP);
+
+        assertThat(user.isNotificationOptedIn()).isTrue();
+        assertThat(user.getPreferenceNotification()).isEqualTo(ma.locavite.notification.domain.NotificationPreference.WHATSAPP);
+        assertThat(result.getPreferenceNotification()).isEqualTo("WHATSAPP");
+        assertThat(result.getNotificationOptIn()).isTrue();
+        verify(userRepository).save(user);
+    }
+
+    @Test
     void updateProfile_throwsWhenUserDoesNotExist() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 

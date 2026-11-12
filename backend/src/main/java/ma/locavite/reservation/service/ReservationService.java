@@ -29,6 +29,7 @@ import ma.locavite.reservation.exception.VehicleNotAvailableException;
 import ma.locavite.reservation.event.ReservationConfirmedEvent;
 import ma.locavite.reservation.event.ReservationExtendedEvent;
 import ma.locavite.reservation.event.ReservationCancelledEvent;
+import ma.locavite.reservation.event.ReservationCompletedEvent;
 import ma.locavite.reservation.mapper.ReservationMapper;
 import ma.locavite.reservation.repository.ReservationExtensionRepository;
 import ma.locavite.reservation.repository.ReservationRepository;
@@ -333,6 +334,7 @@ public class ReservationService {
         Reservation saved = reservationRepository.save(reservation);
 
         availabilityService.invalidateCache();
+        eventPublisher.publishEvent(new ReservationCancelledEvent(saved, null, null));
 
         return reservationMapper.toResponse(saved);
     }
@@ -420,6 +422,7 @@ public class ReservationService {
         Reservation saved = reservationRepository.save(reservation);
 
         availabilityService.invalidateCache();
+        eventPublisher.publishEvent(new ReservationCompletedEvent(saved));
 
         return reservationMapper.toResponse(saved);
     }

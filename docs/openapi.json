@@ -195,7 +195,7 @@
       "put" : {
         "tags" : [ "Users" ],
         "summary" : "Mettre à jour son profil",
-        "description" : "Met à jour les informations personnelles (nom, prénom, téléphone) de l'utilisateur connecté.",
+        "description" : "Met à jour les informations personnelles (nom, prénom, téléphone, préférences notifications) de l'utilisateur connecté.",
         "operationId" : "updateMe",
         "requestBody" : {
           "content" : {
@@ -211,6 +211,12 @@
           "400" : {
             "description" : "Données de formulaire invalides"
           },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès refusé"
+          },
           "200" : {
             "description" : "Profil mis à jour avec succès",
             "content" : {
@@ -220,12 +226,6 @@
                 }
               }
             }
-          },
-          "403" : {
-            "description" : "Accès refusé"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -434,17 +434,17 @@
               }
             }
           },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Utilisateur introuvable"
           },
           "400" : {
             "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
           },
-          "401" : {
-            "description" : "Non authentifié"
+          "404" : {
+            "description" : "Utilisateur introuvable"
           }
         },
         "security" : [ {
@@ -520,6 +520,18 @@
           "required" : true
         },
         "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "400" : {
+            "description" : "Requête invalide (statut non supporté)"
+          },
+          "404" : {
+            "description" : "Document introuvable"
+          },
           "200" : {
             "description" : "Document vérifié avec succès",
             "content" : {
@@ -529,18 +541,6 @@
                 }
               }
             }
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Document introuvable"
-          },
-          "400" : {
-            "description" : "Requête invalide (statut non supporté)"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -697,6 +697,9 @@
         "description" : "Retourne tous les documents téléversés par l'utilisateur connecté avec leurs URL de visualisation sécurisées.",
         "operationId" : "getUserDocuments",
         "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "200" : {
             "description" : "Liste des documents récupérée",
             "content" : {
@@ -709,9 +712,6 @@
                 }
               }
             }
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -751,6 +751,9 @@
           }
         },
         "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "201" : {
             "description" : "Document téléversé avec succès",
             "content" : {
@@ -763,9 +766,6 @@
           },
           "400" : {
             "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -1126,6 +1126,9 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Requête invalide"
+          },
           "200" : {
             "description" : "Tokens rafraîchis avec succès",
             "content" : {
@@ -1138,9 +1141,6 @@
           },
           "401" : {
             "description" : "Refresh token invalide ou expiré"
-          },
-          "400" : {
-            "description" : "Requête invalide"
           }
         }
       }
@@ -1184,6 +1184,12 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Format de la requête invalide"
+          },
+          "401" : {
+            "description" : "Email ou mot de passe incorrect"
+          },
           "200" : {
             "description" : "Authentification réussie",
             "content" : {
@@ -1193,12 +1199,6 @@
                 }
               }
             }
-          },
-          "400" : {
-            "description" : "Format de la requête invalide"
-          },
-          "401" : {
-            "description" : "Email ou mot de passe incorrect"
           }
         }
       }
@@ -1257,6 +1257,61 @@
             }
           }
         }
+      }
+    },
+    "/api/users/me/notifications/opt-out" : {
+      "patch" : {
+        "tags" : [ "Users" ],
+        "summary" : "Désactiver les notifications SMS/WhatsApp",
+        "description" : "Permet au client de s'opposer (opt-out) aux notifications SMS/WhatsApp.",
+        "operationId" : "optOut",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/users/me/notifications/opt-in" : {
+      "patch" : {
+        "tags" : [ "Users" ],
+        "summary" : "Activer les notifications SMS/WhatsApp",
+        "description" : "Permet au client d'activer (opt-in) les notifications SMS/WhatsApp avec son canal préféré.",
+        "operationId" : "optIn",
+        "parameters" : [ {
+          "name" : "channel",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string",
+            "default" : "SMS"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
       }
     },
     "/api/reservations/{id}/confirm" : {
@@ -1423,12 +1478,6 @@
           }
         } ],
         "responses" : {
-          "403" : {
-            "description" : "Accès non autorisé à ce document"
-          },
-          "404" : {
-            "description" : "Document introuvable"
-          },
           "200" : {
             "description" : "Document récupéré avec succès",
             "content" : {
@@ -1441,6 +1490,12 @@
           },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès non autorisé à ce document"
+          },
+          "404" : {
+            "description" : "Document introuvable"
           }
         },
         "security" : [ {
@@ -1466,14 +1521,14 @@
           "403" : {
             "description" : "Accès non autorisé"
           },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "204" : {
             "description" : "Document supprimé avec succès"
           },
           "404" : {
             "description" : "Document introuvable"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -1712,6 +1767,9 @@
           }
         } ],
         "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
           },
@@ -1724,9 +1782,6 @@
                 }
               }
             }
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -1783,12 +1838,6 @@
           }
         } ],
         "responses" : {
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Document introuvable"
-          },
           "200" : {
             "description" : "Document récupéré avec succès",
             "content" : {
@@ -1801,6 +1850,12 @@
           },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Document introuvable"
           }
         },
         "security" : [ {
@@ -2061,6 +2116,16 @@
             "type" : "string",
             "description" : "Numéro de téléphone marocain",
             "example" : "+212611223344"
+          },
+          "preferenceNotification" : {
+            "type" : "string",
+            "description" : "Préférence de notification (SMS, WHATSAPP, EMAIL, NONE)",
+            "example" : "SMS"
+          },
+          "notificationOptIn" : {
+            "type" : "boolean",
+            "description" : "Consentement aux notifications (opt-in)",
+            "example" : true
           }
         },
         "description" : "Requête de mise à jour des informations de profil utilisateur"
@@ -2093,6 +2158,16 @@
             "type" : "string",
             "description" : "Numéro de téléphone",
             "example" : "+212611223344"
+          },
+          "preferenceNotification" : {
+            "type" : "string",
+            "description" : "Préférence de notification (SMS, WHATSAPP, EMAIL, NONE)",
+            "example" : "SMS"
+          },
+          "notificationOptIn" : {
+            "type" : "boolean",
+            "description" : "Consentement aux notifications (opt-in)",
+            "example" : true
           },
           "roles" : {
             "uniqueItems" : true,
@@ -2803,13 +2878,13 @@
       "PageVehicleResponse" : {
         "type" : "object",
         "properties" : {
-          "totalPages" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "totalElements" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "size" : {
             "type" : "integer",
@@ -2831,18 +2906,18 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
-          "first" : {
-            "type" : "boolean"
-          },
-          "last" : {
-            "type" : "boolean"
-          },
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
           },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
           },
           "empty" : {
             "type" : "boolean"
@@ -2862,12 +2937,6 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
-          "paged" : {
-            "type" : "boolean"
-          },
-          "unpaged" : {
-            "type" : "boolean"
-          },
           "pageSize" : {
             "type" : "integer",
             "format" : "int32"
@@ -2875,6 +2944,12 @@
           "pageNumber" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "paged" : {
+            "type" : "boolean"
+          },
+          "unpaged" : {
+            "type" : "boolean"
           }
         }
       },
@@ -2935,13 +3010,13 @@
       "PageReservationResponse" : {
         "type" : "object",
         "properties" : {
-          "totalPages" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "totalElements" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "size" : {
             "type" : "integer",
@@ -2963,18 +3038,18 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
-          "first" : {
-            "type" : "boolean"
-          },
-          "last" : {
-            "type" : "boolean"
-          },
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
           },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
           },
           "empty" : {
             "type" : "boolean"
@@ -2984,13 +3059,13 @@
       "PageUserResponse" : {
         "type" : "object",
         "properties" : {
-          "totalPages" : {
-            "type" : "integer",
-            "format" : "int32"
-          },
           "totalElements" : {
             "type" : "integer",
             "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
           },
           "size" : {
             "type" : "integer",
@@ -3012,18 +3087,18 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
-          "first" : {
-            "type" : "boolean"
-          },
-          "last" : {
-            "type" : "boolean"
-          },
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
           },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
           },
           "empty" : {
             "type" : "boolean"

@@ -23,6 +23,12 @@ public class UserResponse {
     @Schema(description = "Numéro de téléphone", example = "+212611223344")
     private String telephone;
 
+    @Schema(description = "Préférence de notification (SMS, WHATSAPP, EMAIL, NONE)", example = "SMS")
+    private String preferenceNotification;
+
+    @Schema(description = "Consentement aux notifications (opt-in)", example = "true")
+    private Boolean notificationOptIn;
+
     @Schema(description = "Rôles attribués à l'utilisateur", example = "[\"CLIENT\", \"AGENCE\"]")
     private Set<String> roles;
 
@@ -33,11 +39,19 @@ public class UserResponse {
     }
 
     public UserResponse(Long id, String nom, String prenom, String email, String telephone, Set<String> roles, LocalDateTime createdAt) {
+        this(id, nom, prenom, email, telephone, "SMS", true, roles, createdAt);
+    }
+
+    public UserResponse(Long id, String nom, String prenom, String email, String telephone,
+                        String preferenceNotification, Boolean notificationOptIn,
+                        Set<String> roles, LocalDateTime createdAt) {
         this.id = id;
         this.nom = nom;
         this.prenom = prenom;
         this.email = email;
         this.telephone = telephone;
+        this.preferenceNotification = preferenceNotification;
+        this.notificationOptIn = notificationOptIn;
         this.roles = roles;
         this.createdAt = createdAt;
     }
@@ -80,6 +94,22 @@ public class UserResponse {
 
     public void setTelephone(String telephone) {
         this.telephone = telephone;
+    }
+
+    public String getPreferenceNotification() {
+        return preferenceNotification;
+    }
+
+    public void setPreferenceNotification(String preferenceNotification) {
+        this.preferenceNotification = preferenceNotification;
+    }
+
+    public Boolean getNotificationOptIn() {
+        return notificationOptIn;
+    }
+
+    public void setNotificationOptIn(Boolean notificationOptIn) {
+        this.notificationOptIn = notificationOptIn;
     }
 
     public Set<String> getRoles() {
@@ -127,6 +157,14 @@ public class UserResponse {
         return createdAt;
     }
 
+    public String preferenceNotification() {
+        return preferenceNotification;
+    }
+
+    public Boolean notificationOptIn() {
+        return notificationOptIn;
+    }
+
     public static UserResponseBuilder builder() {
         return new UserResponseBuilder();
     }
@@ -137,6 +175,8 @@ public class UserResponse {
         private String prenom;
         private String email;
         private String telephone;
+        private String preferenceNotification;
+        private Boolean notificationOptIn;
         private Set<String> roles;
         private LocalDateTime createdAt;
 
@@ -165,6 +205,16 @@ public class UserResponse {
             return this;
         }
 
+        public UserResponseBuilder preferenceNotification(String preferenceNotification) {
+            this.preferenceNotification = preferenceNotification;
+            return this;
+        }
+
+        public UserResponseBuilder notificationOptIn(Boolean notificationOptIn) {
+            this.notificationOptIn = notificationOptIn;
+            return this;
+        }
+
         public UserResponseBuilder roles(Set<String> roles) {
             this.roles = roles;
             return this;
@@ -176,7 +226,7 @@ public class UserResponse {
         }
 
         public UserResponse build() {
-            return new UserResponse(id, nom, prenom, email, telephone, roles, createdAt);
+            return new UserResponse(id, nom, prenom, email, telephone, preferenceNotification, notificationOptIn, roles, createdAt);
         }
     }
 }
