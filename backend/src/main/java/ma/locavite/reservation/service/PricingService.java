@@ -53,7 +53,7 @@ public class PricingService {
 
         long jours = ChronoUnit.DAYS.between(dateDebut, dateFin);
         List<Season> seasons = seasonService.getAll();
-        BigDecimal sousTotal = calculateSeasonalSubtotal(vehicle.getPrixJour(), dateDebut, dateFin, seasons);
+        BigDecimal sousTotal = calculateSeasonalSubtotal(vehicle, dateDebut, dateFin, seasons);
         BigDecimal optionsTotal = calculateOptions(options, jours);
         BigDecimal remiseRate = jours > 30
                 ? VERY_LONG_RENTAL_DISCOUNT
@@ -77,20 +77,73 @@ public class PricingService {
         );
     }
 
+    public BigDecimal resolveCoefficient(Vehicle vehicle, LocalDate date) {
+        return resolveCoefficientForDay(vehicle, date, seasonService.getAll());
+    }
+
+    public BigDecimal resolveCoefficient(Long agenceId, Long vehicleId, LocalDate date) {
+        Vehicle v = new Vehicle();
+        v.setId(vehicleId);
+        v.setAgenceId(agenceId);
+        return resolveCoefficient(v, date);
+    }
+
+    public BigDecimal resolveCoefficientForDay(Vehicle vehicle, LocalDate day, java.util.List<Season> seasons) {
+        if (seasons == null || seasons.isEmpty()) {
+            return LOW_SEASON_COEFFICIENT;
+        }
+
+        Long vehicleId = (vehicle != null) ? vehicle.getId() : null;
+        Long agenceId = (vehicle != null) ? vehicle.getAgenceId() : null;
+
+        // 1. Override spécifique au véhicule
+        if (vehicleId != null) {
+            java.util.Optional<BigDecimal> vehicleCoeff = seasons.stream()
+                    .filter(s -> vehicleId.equals(s.getVehicleId()) && s.matchesDate(day))
+                    .max((s1, s2) -> {
+                        int p = Integer.compare(s1.getPriorite(), s2.getPriorite());
+                        return p != 0 ? p : s1.getCoefficient().compareTo(s2.getCoefficient());
+                    })
+                    .map(Season::getCoefficient);
+            if (vehicleCoeff.isPresent()) {
+                return vehicleCoeff.get();
+            }
+        }
+
+        // 2. Override agence
+        if (agenceId != null) {
+            java.util.Optional<BigDecimal> agenceCoeff = seasons.stream()
+                    .filter(s -> agenceId.equals(s.getAgenceId()) && s.getVehicleId() == null && s.matchesDate(day))
+                    .max((s1, s2) -> {
+                        int p = Integer.compare(s1.getPriorite(), s2.getPriorite());
+                        return p != 0 ? p : s1.getCoefficient().compareTo(s2.getCoefficient());
+                    })
+                    .map(Season::getCoefficient);
+            if (agenceCoeff.isPresent()) {
+                return agenceCoeff.get();
+            }
+        }
+
+        // 3. Saisons globales (agenceId IS NULL et vehicleId IS NULL)
+        return seasons.stream()
+                .filter(s -> s.isGlobal() && s.matchesDate(day))
+                .max((s1, s2) -> {
+                    int p = Integer.compare(s1.getPriorite(), s2.getPriorite());
+                    return p != 0 ? p : s1.getCoefficient().compareTo(s2.getCoefficient());
+                })
+                .map(Season::getCoefficient)
+                .orElse(LOW_SEASON_COEFFICIENT);
+    }
+
     private BigDecimal calculateSeasonalSubtotal(
-            BigDecimal prixJour,
+            Vehicle vehicle,
             LocalDate dateDebut,
             LocalDate dateFin,
             List<Season> seasons) {
         BigDecimal subtotal = BigDecimal.ZERO;
+        BigDecimal prixJour = vehicle != null && vehicle.getPrixJour() != null ? vehicle.getPrixJour() : BigDecimal.ZERO;
         for (LocalDate day = dateDebut; day.isBefore(dateFin); day = day.plusDays(1)) {
-            LocalDate currentDay = day;
-            BigDecimal coefficient = seasons.stream()
-                    .filter(season -> !currentDay.isBefore(season.getDateDebut())
-                            && currentDay.isBefore(season.getDateFin()))
-                    .map(Season::getCoefficient)
-                    .max(BigDecimal::compareTo)
-                    .orElse(LOW_SEASON_COEFFICIENT);
+            BigDecimal coefficient = resolveCoefficientForDay(vehicle, day, seasons);
             subtotal = subtotal.add(prixJour.multiply(coefficient));
         }
         return subtotal.setScale(2, RoundingMode.HALF_UP);
