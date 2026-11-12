@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html th:lang="${lang}" th:dir="${dir}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="#{email.confirmation.title}">Confirmation de réservation LocaVite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            color: #333333;
+        }
+        body.rtl {
+            direction: rtl;
+            text-align: right;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            background-color: #166fa0;
+            color: #ffffff;
+            padding: 24px 30px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #ffffff;
+            text-decoration: none;
+        }
+        .logo span {
+            color: #ffb703;
+        }
+        .content {
+            padding: 30px;
+        }
+        h1 {
+            color: #166fa0;
+            font-size: 22px;
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        .badge {
+            display: inline-block;
+            background-color: #e8f4f8;
+            color: #166fa0;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .details-table th, .details-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #eeeeee;
+            font-size: 14px;
+            text-align: left;
+        }
+        body.rtl .details-table th, body.rtl .details-table td {
+            text-align: right;
+        }
+        .details-table th {
+            color: #777777;
+            width: 40%;
+            font-weight: 500;
+        }
+        .details-table td {
+            font-weight: 600;
+            color: #222222;
+        }
+        .total-row th, .total-row td {
+            border-top: 2px solid #166fa0;
+            font-size: 16px;
+            color: #166fa0;
+        }
+        .attachment-notice {
+            background-color: #f8f9fa;
+            border-left: 4px solid #166fa0;
+            padding: 12px 16px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #555555;
+        }
+        body.rtl .attachment-notice {
+            border-left: none;
+            border-right: 4px solid #166fa0;
+        }
+        .btn-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            background-color: #166fa0;
+            color: #ffffff !important;
+            padding: 12px 28px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 15px;
+            display: inline-block;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #888888;
+            border-top: 1px solid #eeeeee;
+        }
+    </style>
+</head>
+<body th:classappend="${dir == 'rtl' ? 'rtl' : ''}">
+    <div class="container">
+        <div class="header">
+            <div class="logo">Loca<span>Vite</span></div>
+            <p style="margin: 8px 0 0; font-size: 14px; opacity: 0.9;" th:text="#{email.confirmation.partner}">Votre partenaire de mobilité au Maroc</p>
+        </div>
+
+        <div class="content">
+            <h1 th:text="#{email.confirmation.title}">Confirmation de réservation</h1>
+            <p th:text="#{email.confirmation.greeting(${client != null ? (client.prenom + ' ' + client.nom) : 'Client'})}">Bonjour Client,</p>
+            <p th:text="#{email.confirmation.intro}">Nous avons le plaisir de vous confirmer que votre réservation a bien été enregistrée.</p>
+
+            <div class="badge">
+                <span th:text="#{email.confirmation.code_label}">Code de réservation :</span>
+                <span th:text="${reservation != null ? reservation.code : ''}">LV-000000</span>
+            </div>
+
+            <table class="details-table">
+                <tr>
+                    <th th:text="#{email.confirmation.vehicle_label}">Véhicule</th>
+                    <td th:text="${(vehicle != null && vehicle.brand != null ? vehicle.brand.name + ' ' : '') + (vehicle != null ? vehicle.modele : '') + (vehicle != null && vehicle.matricule != null ? ' (' + vehicle.matricule + ')' : '')}">Toyota RAV4</td>
+                </tr>
+                <tr>
+                    <th th:text="#{email.confirmation.dates_label}">Dates</th>
+                    <td th:text="${reservation != null ? (reservation.dateDebut + ' ' + #messages.msg('email.confirmation.dates_separator') + ' ' + reservation.dateFin) : ''}">01/01/2026 au 05/01/2026</td>
+                </tr>
+                <tr>
+                    <th th:text="#{email.confirmation.pickup_label}">Lieu de prise en charge</th>
+                    <td th:text="${reservation != null ? reservation.lieuPriseEnCharge : ''}">Aéroport Casablanca</td>
+                </tr>
+                <tr>
+                    <th th:text="#{email.confirmation.return_label}">Lieu de retour</th>
+                    <td th:text="${reservation != null ? reservation.lieuRetour : ''}">Aéroport Casablanca</td>
+                </tr>
+                <tr th:if="${reservation != null && reservation.caution != null}">
+                    <th th:text="#{email.confirmation.caution_label}">Caution</th>
+                    <td th:text="${reservation.caution + ' ' + #messages.msg('email.confirmation.currency')}">3000.00 MAD</td>
+                </tr>
+                <tr class="total-row">
+                    <th th:text="#{email.confirmation.total_label}">Prix total</th>
+                    <td th:text="${reservation != null ? (reservation.prixTotal + ' ' + #messages.msg('email.confirmation.currency')) : ''}">4500.00 MAD</td>
+                </tr>
+            </table>
+
+            <div class="attachment-notice" th:text="#{email.confirmation.attachment_notice}">
+                📎 Contrat PDF en pièce jointe : Votre contrat de location officiel est joint à cet e-mail.
+            </div>
+
+            <div class="btn-container">
+                <a th:href="${reservationUrl}" class="btn" th:text="#{email.confirmation.button}">Voir ma réservation</a>
+            </div>
+
+            <p style="font-size: 14px; color: #666666; margin-top: 25px;" th:text="#{email.confirmation.questions}">
+                Si vous avez la moindre question, n'hésitez pas à nous contacter à support@locavite.ma.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p th:text="#{email.confirmation.footer}">© 2026 LocaVite. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

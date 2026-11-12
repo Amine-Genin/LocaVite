@@ -30,6 +30,7 @@ import ma.locavite.vehicle.domain.TransmissionType;
 import ma.locavite.vehicle.domain.Vehicle;
 import ma.locavite.vehicle.domain.VehicleStatus;
 import ma.locavite.vehicle.repository.VehicleRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -161,6 +162,14 @@ class ReservationControllerIT {
 
         vehicleAgence1 = createVehicle(brand, category, "1111-A-1", agence1.getId(), new BigDecimal("400.00"));
         vehicleAgence2 = createVehicle(brand, category, "2222-B-2", agence2.getId(), new BigDecimal("600.00"));
+    }
+
+    @AfterEach
+    void tearDown() {
+        reservationRepository.deleteAll();
+        documentRepository.deleteAll();
+        vehicleRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
