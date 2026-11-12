@@ -70,6 +70,13 @@ minio:
   vehicles-bucket: ${MINIO_VEHICLES_BUCKET:locavite-vehicles}
   contracts-bucket: ${MINIO_CONTRACTS_BUCKET:locavite-contracts}
 
+twilio:
+  enabled: ${TWILIO_ENABLED:false}
+  account-sid: ${TWILIO_ACCOUNT_SID:mock-sid}
+  auth-token: ${TWILIO_AUTH_TOKEN:mock-token}
+  phone-number: ${TWILIO_PHONE_NUMBER:+212522000000}
+  whatsapp-number: ${TWILIO_WHATSAPP_NUMBER:whatsapp:+14155238886}
+
 springdoc:
   api-docs:
     path: /v3/api-docs

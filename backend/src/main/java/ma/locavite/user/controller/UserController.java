@@ -51,7 +51,7 @@ public class UserController {
     }
 
     @PutMapping
-    @Operation(summary = "Mettre à jour son profil", description = "Met à jour les informations personnelles (nom, prénom, téléphone) de l'utilisateur connecté.")
+    @Operation(summary = "Mettre à jour son profil", description = "Met à jour les informations personnelles (nom, prénom, téléphone, préférences notifications) de l'utilisateur connecté.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Profil mis à jour avec succès",
                     content = @Content(schema = @Schema(implementation = UserResponse.class))),
@@ -68,6 +68,27 @@ public class UserController {
             @Valid @RequestBody UpdateProfileRequest request) {
         User user = resolveCurrentUser(current, authentication);
         return ResponseEntity.ok(userService.updateProfile(user.getId(), request));
+    }
+
+    @PatchMapping("/notifications/opt-out")
+    @Operation(summary = "Désactiver les notifications SMS/WhatsApp", description = "Permet au client de s'opposer (opt-out) aux notifications SMS/WhatsApp.")
+    public ResponseEntity<UserResponse> optOut(
+            @io.swagger.v3.oas.annotations.Parameter(hidden = true) @AuthenticationPrincipal User current,
+            @io.swagger.v3.oas.annotations.Parameter(hidden = true) Authentication authentication) {
+        User user = resolveCurrentUser(current, authentication);
+        return ResponseEntity.ok(userService.optOutNotifications(user.getId()));
+    }
+
+    @PatchMapping("/notifications/opt-in")
+    @Operation(summary = "Activer les notifications SMS/WhatsApp", description = "Permet au client d'activer (opt-in) les notifications SMS/WhatsApp avec son canal préféré.")
+    public ResponseEntity<UserResponse> optIn(
+            @io.swagger.v3.oas.annotations.Parameter(hidden = true) @AuthenticationPrincipal User current,
+            @io.swagger.v3.oas.annotations.Parameter(hidden = true) Authentication authentication,
+            @RequestParam(required = false, defaultValue = "SMS") String channel) {
+        User user = resolveCurrentUser(current, authentication);
+        ma.locavite.notification.domain.NotificationPreference pref =
+                ma.locavite.notification.domain.NotificationPreference.from(channel);
+        return ResponseEntity.ok(userService.optInNotifications(user.getId(), pref));
     }
 
     private User resolveCurrentUser(User currentUser, Authentication authentication) {

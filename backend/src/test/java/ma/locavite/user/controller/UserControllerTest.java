@@ -103,6 +103,31 @@ class UserControllerTest {
                 .hasMessage("Authentification requise");
     }
 
+    @Test
+    void optOut_updatesNotificationPreference() {
+        User currentUser = user(5L, "client@example.com");
+        UserResponse response = response(5L, "client@example.com");
+        when(userService.optOutNotifications(5L)).thenReturn(response);
+
+        var result = userController.optOut(currentUser, null);
+
+        assertThat(result.getBody()).isSameAs(response);
+        verify(userService).optOutNotifications(5L);
+    }
+
+    @Test
+    void optIn_updatesNotificationPreference() {
+        User currentUser = user(6L, "client@example.com");
+        UserResponse response = response(6L, "client@example.com");
+        when(userService.optInNotifications(6L, ma.locavite.notification.domain.NotificationPreference.SMS))
+                .thenReturn(response);
+
+        var result = userController.optIn(currentUser, null, "SMS");
+
+        assertThat(result.getBody()).isSameAs(response);
+        verify(userService).optInNotifications(6L, ma.locavite.notification.domain.NotificationPreference.SMS);
+    }
+
     private static User user(Long id, String email) {
         return User.builder().id(id).email(email).build();
     }

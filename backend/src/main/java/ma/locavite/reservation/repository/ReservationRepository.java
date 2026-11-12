@@ -30,6 +30,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
 
     Page<Reservation> findByUserId(Long userId, Pageable pageable);
 
+    List<Reservation> findByStatutAndDateDebut(ReservationStatus statut, LocalDate dateDebut);
+
     @Query("""
         SELECT COUNT(r) FROM Reservation r
         WHERE r.vehicleId = :vehicleId
