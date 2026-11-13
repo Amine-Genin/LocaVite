@@ -17,4 +17,4 @@ public class LocaviteApplication {
     public static void main(String[] args) {
         SpringApplication.run(LocaviteApplication.class, args);
     }
-}
+} 

@@ -4,6 +4,7 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "node",
+    "baseUrl": ".",
     "lib": ["ES2022", "dom"],
     "types": ["cypress", "node"],
     "isolatedModules": false
