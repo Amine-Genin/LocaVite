@@ -138,160 +138,16 @@
       <h1>Mochawesome Report — LocaVite E2E Cypress</h1>
     </div>
     <div class="stats-bar">
-      <span class="stat-pill">Suites: 4</span>
-      <span class="stat-pill">Tests: 17</span>
-      <span class="stat-pill pass">Passes: 16</span>
-      <span class="stat-pill fail">Failures: 1</span>
-      <span class="stat-pill">Pass %: 94%</span>
-      <span class="stat-pill">Duration: 211.40s</span>
+      <span class="stat-pill">Suites: 1</span>
+      <span class="stat-pill">Tests: 4</span>
+      <span class="stat-pill pass">Passes: 4</span>
+      <span class="stat-pill fail">Failures: 0</span>
+      <span class="stat-pill">Pass %: 100%</span>
+      <span class="stat-pill">Duration: 106.50s</span>
     </div>
   </header>
   <main>
     
-            <div class="suite-card">
-              <div class="suite-header">
-                <h3>Gestion admin des réservations (/admin/reservations)</h3>
-                <span class="suite-file">cypress\e2e\admin-reservations.cy.ts</span>
-              </div>
-              <ul class="test-list">
-                
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">refuse l’accès aux clients non autorisés et redirige</span>
-                    <span class="test-duration">7755 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche le dashboard administrateur, les indicateurs clés et le tableau des réservations</span>
-                    <span class="test-duration">10095 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">permet à l’agence de confirmer une réservation PENDING avec notification de succès</span>
-                    <span class="test-duration">8505 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">permet de filtrer les réservations par code</span>
-                    <span class="test-duration">4422 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">permet d’accéder aux actions du menu contextuel (contrat PDF, gestion caution)</span>
-                    <span class="test-duration">3520 ms</span>
-                  </div>
-                  
-                </li>
-              </ul>
-            </div>
-
-            <div class="suite-card">
-              <div class="suite-header">
-                <h3>Gestion des réservations client (/my-reservations)</h3>
-                <span class="suite-file">cypress\e2e\my-reservations.cy.ts</span>
-              </div>
-              <ul class="test-list">
-                
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">redirige vers /login si le client n’est pas authentifié</span>
-                    <span class="test-duration">7944 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche les réservations organisées par onglets avec détails et statuts</span>
-                    <span class="test-duration">10066 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche un état vide et un lien vers le catalogue si aucune réservation n’existe</span>
-                    <span class="test-duration">12536 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche les actions autorisées selon le statut de la réservation</span>
-                    <span class="test-duration">7266 ms</span>
-                  </div>
-                  
-                </li>
-              </ul>
-            </div>
-
-            <div class="suite-card">
-              <div class="suite-header">
-                <h3>Annulation de réservation (/my-reservations)</h3>
-                <span class="suite-file">cypress\e2e\reservation-cancel.cy.ts</span>
-              </div>
-              <ul class="test-list">
-                
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">permet au client d’annuler une réservation éligible après confirmation</span>
-                    <span class="test-duration">12073 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">n’annule pas la réservation si le client rejette la confirmation</span>
-                    <span class="test-duration">9177 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche un message d’erreur si l’annulation échoue côté serveur</span>
-                    <span class="test-duration">23830 ms</span>
-                  </div>
-                  
-                </li>
-
-                <li class="test-item passed">
-                  <div class="test-row">
-                    <span class="status-badge passed">✓</span>
-                    <span class="test-title">interdit l’annulation sur les réservations terminées</span>
-                    <span class="test-duration">18486 ms</span>
-                  </div>
-                  
-                </li>
-              </ul>
-            </div>
-
             <div class="suite-card">
               <div class="suite-header">
                 <h3>Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id)</h3>
@@ -303,7 +159,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">redirige vers /login si un utilisateur non authentifié tente de réserver</span>
-                    <span class="test-duration">9302 ms</span>
+                    <span class="test-duration">16769 ms</span>
                   </div>
                   
                 </li>
@@ -312,26 +168,25 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche un avertissement et bloque la confirmation si les documents ne sont pas validés</span>
-                    <span class="test-duration">11826 ms</span>
+                    <span class="test-duration">30329 ms</span>
                   </div>
                   
                 </li>
 
-                <li class="test-item failed">
+                <li class="test-item passed">
                   <div class="test-row">
-                    <span class="status-badge failed">✗</span>
+                    <span class="status-badge passed">✓</span>
                     <span class="test-title">exécute le parcours complet de bout en bout (Recherche → Détail → Réservation → Confirmation)</span>
-                    <span class="test-duration">0 ms</span>
+                    <span class="test-duration">40618 ms</span>
                   </div>
-                  <pre class="error-box">AssertionError: Timed out retrying after 4000ms: expected &#39;http://localhost:4200/vehicles&#39; to include &#39;/vehicles/1&#39;
-    at Context.eval (webpack://locavite-frontend/./cypress/e2e/reservation-flow.cy.ts:89:0)</pre>
+                  
                 </li>
 
                 <li class="test-item passed">
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">effectue la réservation via la commande custom cy.createReservation()</span>
-                    <span class="test-duration">33507 ms</span>
+                    <span class="test-duration">16841 ms</span>
                   </div>
                   
                 </li>

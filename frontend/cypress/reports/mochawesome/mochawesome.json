@@ -1,185 +1,16 @@
 {
   "stats": {
-    "suites": 4,
-    "tests": 17,
-    "passes": 16,
+    "suites": 1,
+    "tests": 4,
+    "passes": 4,
     "pending": 0,
-    "failures": 1,
-    "start": "2026-11-13T13:27:08.414Z",
-    "end": "2026-11-13T13:28:13.639Z",
-    "duration": 211400,
-    "passPercent": 94
+    "failures": 0,
+    "start": "2026-11-13T14:39:02.778Z",
+    "end": "2026-11-13T14:40:49.284Z",
+    "duration": 106500,
+    "passPercent": 100
   },
   "results": [
-    {
-      "file": "cypress\\e2e\\admin-reservations.cy.ts",
-      "suites": [
-        {
-          "title": "Gestion admin des réservations (/admin/reservations)",
-          "tests": [
-            {
-              "title": "refuse l’accès aux clients non autorisés et redirige",
-              "fullTitle": "Gestion admin des réservations (/admin/reservations) refuse l’accès aux clients non autorisés et redirige",
-              "duration": 7755,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "affiche le dashboard administrateur, les indicateurs clés et le tableau des réservations",
-              "fullTitle": "Gestion admin des réservations (/admin/reservations) affiche le dashboard administrateur, les indicateurs clés et le tableau des réservations",
-              "duration": 10095,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "permet à l’agence de confirmer une réservation PENDING avec notification de succès",
-              "fullTitle": "Gestion admin des réservations (/admin/reservations) permet à l’agence de confirmer une réservation PENDING avec notification de succès",
-              "duration": 8505,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "permet de filtrer les réservations par code",
-              "fullTitle": "Gestion admin des réservations (/admin/reservations) permet de filtrer les réservations par code",
-              "duration": 4422,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "permet d’accéder aux actions du menu contextuel (contrat PDF, gestion caution)",
-              "fullTitle": "Gestion admin des réservations (/admin/reservations) permet d’accéder aux actions du menu contextuel (contrat PDF, gestion caution)",
-              "duration": 3520,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            }
-          ],
-          "passes": 5,
-          "failures": 0,
-          "pending": 0
-        }
-      ]
-    },
-    {
-      "file": "cypress\\e2e\\my-reservations.cy.ts",
-      "suites": [
-        {
-          "title": "Gestion des réservations client (/my-reservations)",
-          "tests": [
-            {
-              "title": "redirige vers /login si le client n’est pas authentifié",
-              "fullTitle": "Gestion des réservations client (/my-reservations) redirige vers /login si le client n’est pas authentifié",
-              "duration": 7944,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "affiche les réservations organisées par onglets avec détails et statuts",
-              "fullTitle": "Gestion des réservations client (/my-reservations) affiche les réservations organisées par onglets avec détails et statuts",
-              "duration": 10066,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "affiche un état vide et un lien vers le catalogue si aucune réservation n’existe",
-              "fullTitle": "Gestion des réservations client (/my-reservations) affiche un état vide et un lien vers le catalogue si aucune réservation n’existe",
-              "duration": 12536,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "affiche les actions autorisées selon le statut de la réservation",
-              "fullTitle": "Gestion des réservations client (/my-reservations) affiche les actions autorisées selon le statut de la réservation",
-              "duration": 7266,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            }
-          ],
-          "passes": 4,
-          "failures": 0,
-          "pending": 0
-        }
-      ]
-    },
-    {
-      "file": "cypress\\e2e\\reservation-cancel.cy.ts",
-      "suites": [
-        {
-          "title": "Annulation de réservation (/my-reservations)",
-          "tests": [
-            {
-              "title": "permet au client d’annuler une réservation éligible après confirmation",
-              "fullTitle": "Annulation de réservation (/my-reservations) permet au client d’annuler une réservation éligible après confirmation",
-              "duration": 12073,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "n’annule pas la réservation si le client rejette la confirmation",
-              "fullTitle": "Annulation de réservation (/my-reservations) n’annule pas la réservation si le client rejette la confirmation",
-              "duration": 9177,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "affiche un message d’erreur si l’annulation échoue côté serveur",
-              "fullTitle": "Annulation de réservation (/my-reservations) affiche un message d’erreur si l’annulation échoue côté serveur",
-              "duration": 23830,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "interdit l’annulation sur les réservations terminées",
-              "fullTitle": "Annulation de réservation (/my-reservations) interdit l’annulation sur les réservations terminées",
-              "duration": 18486,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            }
-          ],
-          "passes": 4,
-          "failures": 0,
-          "pending": 0
-        }
-      ]
-    },
     {
       "file": "cypress\\e2e\\reservation-flow.cy.ts",
       "suites": [
@@ -189,7 +20,7 @@
             {
               "title": "redirige vers /login si un utilisateur non authentifié tente de réserver",
               "fullTitle": "Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id) redirige vers /login si un utilisateur non authentifié tente de réserver",
-              "duration": 9302,
+              "duration": 16769,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -199,7 +30,7 @@
             {
               "title": "affiche un avertissement et bloque la confirmation si les documents ne sont pas validés",
               "fullTitle": "Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id) affiche un avertissement et bloque la confirmation si les documents ne sont pas validés",
-              "duration": 11826,
+              "duration": 30329,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -209,20 +40,17 @@
             {
               "title": "exécute le parcours complet de bout en bout (Recherche → Détail → Réservation → Confirmation)",
               "fullTitle": "Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id) exécute le parcours complet de bout en bout (Recherche → Détail → Réservation → Confirmation)",
-              "duration": 0,
-              "state": "failed",
-              "pass": false,
-              "fail": true,
+              "duration": 40618,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
               "pending": false,
-              "err": {
-                "message": "Timed out retrying after 4000ms: expected 'http://localhost:4200/vehicles' to include '/vehicles/1'",
-                "estack": "AssertionError: Timed out retrying after 4000ms: expected 'http://localhost:4200/vehicles' to include '/vehicles/1'\n    at Context.eval (webpack://locavite-frontend/./cypress/e2e/reservation-flow.cy.ts:89:0)"
-              }
+              "err": {}
             },
             {
               "title": "effectue la réservation via la commande custom cy.createReservation()",
               "fullTitle": "Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id) effectue la réservation via la commande custom cy.createReservation()",
-              "duration": 33507,
+              "duration": 16841,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -230,8 +58,8 @@
               "err": {}
             }
           ],
-          "passes": 3,
-          "failures": 1,
+          "passes": 4,
+          "failures": 0,
           "pending": 0
         }
       ]

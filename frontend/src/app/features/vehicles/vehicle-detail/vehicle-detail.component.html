@@ -226,8 +226,10 @@
               <div class="header-titles">
                 <span class="category-pill" data-cy="vehicle-category-pill">{{ v.categorie }}</span>
                 <h1 class="main-title">
-                  <span data-cy="vehicle-brand">{{ v.marque }}</span>
-                  <span data-cy="vehicle-model">{{ v.modele }}</span>
+                  <span data-cy="vehicle-brand">
+                    {{ v.marque }}
+                    <span data-cy="vehicle-model">{{ v.modele }}</span>
+                  </span>
                 </h1>
                 <div class="meta-row">
                   <span class="meta-badge year" data-cy="vehicle-year">{{ v.annee }}</span>
