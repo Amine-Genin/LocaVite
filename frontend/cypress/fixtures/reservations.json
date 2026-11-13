@@ -1,0 +1,253 @@
+{
+  "clientUser": {
+    "id": 2,
+    "nom": "Benali",
+    "prenom": "Ahmed",
+    "email": "ahmed.benali@locavite.ma",
+    "telephone": "0612345678",
+    "roles": ["CLIENT"],
+    "createdAt": "2026-01-15T10:00:00"
+  },
+  "agencyUser": {
+    "id": 1,
+    "nom": "Agence",
+    "prenom": "Admin",
+    "email": "agence@locavite.ma",
+    "telephone": "+212600000014",
+    "roles": ["AGENCE"],
+    "createdAt": "2026-01-10T09:00:00"
+  },
+  "adminUser": {
+    "id": 99,
+    "nom": "Dev",
+    "prenom": "Admin",
+    "email": "admin.dev@locavite.ma",
+    "telephone": "+212600000000",
+    "roles": ["ADMIN"],
+    "createdAt": "2026-01-01T08:00:00"
+  },
+  "validDocuments": [
+    {
+      "id": 10,
+      "type": "PERMIS",
+      "status": "VALIDATED",
+      "url": "http://localhost:9000/locavite-documents/permis.pdf",
+      "uploadedAt": "2026-01-16T10:00:00"
+    },
+    {
+      "id": 11,
+      "type": "CIN",
+      "status": "VALIDATED",
+      "url": "http://localhost:9000/locavite-documents/cin.pdf",
+      "uploadedAt": "2026-01-16T11:00:00"
+    }
+  ],
+  "pendingDocuments": [
+    {
+      "id": 10,
+      "type": "PERMIS",
+      "status": "PENDING",
+      "url": "http://localhost:9000/locavite-documents/permis.pdf",
+      "uploadedAt": "2026-01-16T10:00:00"
+    }
+  ],
+  "vehicle": {
+    "id": 1,
+    "brandId": 2,
+    "marque": "Dacia",
+    "modele": "Duster",
+    "annee": 2024,
+    "categoryId": 2,
+    "categorie": "SUV",
+    "ville": "Casablanca",
+    "prixJour": 350,
+    "prixVente": 195000,
+    "carburant": "DIESEL",
+    "transmission": "MANUELLE",
+    "places": 5,
+    "description": "SUV compact économique, polyvalent, parfait pour vos déplacements en ville et sur autoroute au Maroc.",
+    "matricule": "78945-A-1",
+    "statut": "PUBLISHED",
+    "agenceId": 101,
+    "agenceNom": "LocaVite Casablanca Marina",
+    "agenceTelephone": "+212600000014",
+    "photoUrl": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d",
+    "photos": [
+      {
+        "id": 1,
+        "vehicleId": 1,
+        "url": "https://images.unsplash.com/photo-1541899481282-d53bffe3c35d",
+        "isPrimary": true
+      }
+    ]
+  },
+  "availability": {
+    "available": ["2026-11-15", "2026-11-16", "2026-11-17", "2026-11-18", "2026-11-19"],
+    "unavailable": []
+  },
+  "quote": {
+    "sousTotal": 1400,
+    "options": 0,
+    "remise": 0,
+    "caution": 3000,
+    "tva": 280,
+    "total": 4680,
+    "jours": 4
+  },
+  "quoteWithOptions": {
+    "sousTotal": 1400,
+    "options": 280,
+    "remise": 0,
+    "caution": 3000,
+    "tva": 336,
+    "total": 5016,
+    "jours": 4
+  },
+  "createdReservation": {
+    "id": 88,
+    "code": "LV-RES88",
+    "statut": "PENDING",
+    "dateDebut": "2026-11-15",
+    "dateFin": "2026-11-19",
+    "lieuPriseEnCharge": "Aéroport - Casablanca",
+    "lieuRetour": "Agence LocaVite Casablanca",
+    "prixTotal": 5016,
+    "caution": 3000,
+    "vehicleId": 1,
+    "vehicle": {
+      "id": 1,
+      "marque": "Dacia",
+      "modele": "Duster",
+      "annee": 2024,
+      "categorie": "SUV",
+      "ville": "Casablanca",
+      "prixJour": 350
+    }
+  },
+  "myReservations": [
+    {
+      "id": 101,
+      "code": "LV-TEST01",
+      "statut": "PENDING",
+      "dateDebut": "2026-11-20",
+      "dateFin": "2026-11-25",
+      "prixTotal": 1500,
+      "caution": 3000,
+      "lieuPriseEnCharge": "Aéroport Casablanca",
+      "lieuRetour": "Aéroport Casablanca",
+      "vehicleId": 1,
+      "vehicle": {
+        "id": 1,
+        "marque": "Dacia",
+        "modele": "Logan",
+        "annee": 2023,
+        "categorie": "Économique",
+        "ville": "Casablanca",
+        "prixJour": 250
+      }
+    },
+    {
+      "id": 102,
+      "code": "LV-TEST02",
+      "statut": "ACTIVE",
+      "dateDebut": "2026-11-10",
+      "dateFin": "2026-11-15",
+      "prixTotal": 3000,
+      "caution": 5000,
+      "lieuPriseEnCharge": "Gare Rabat Ville",
+      "lieuRetour": "Gare Rabat Ville",
+      "vehicleId": 2,
+      "vehicle": {
+        "id": 2,
+        "marque": "Renault",
+        "modele": "Clio",
+        "annee": 2024,
+        "categorie": "Citadine",
+        "ville": "Rabat",
+        "prixJour": 350
+      }
+    },
+    {
+      "id": 103,
+      "code": "LV-TEST03",
+      "statut": "COMPLETED",
+      "dateDebut": "2026-10-01",
+      "dateFin": "2026-10-05",
+      "prixTotal": 1200,
+      "caution": 3000,
+      "lieuPriseEnCharge": "Aéroport Marrakech",
+      "lieuRetour": "Aéroport Marrakech",
+      "vehicleId": 1,
+      "vehicle": {
+        "id": 1,
+        "marque": "Dacia",
+        "modele": "Logan",
+        "annee": 2023,
+        "categorie": "Économique",
+        "ville": "Casablanca",
+        "prixJour": 250
+      }
+    },
+    {
+      "id": 104,
+      "code": "LV-TEST04",
+      "statut": "CANCELLED",
+      "dateDebut": "2026-09-10",
+      "dateFin": "2026-09-12",
+      "prixTotal": 600,
+      "caution": 2000,
+      "lieuPriseEnCharge": "Agence Casablanca",
+      "lieuRetour": "Agence Casablanca",
+      "vehicleId": 2,
+      "vehicle": {
+        "id": 2,
+        "marque": "Renault",
+        "modele": "Clio",
+        "annee": 2024,
+        "categorie": "Citadine",
+        "ville": "Rabat",
+        "prixJour": 350
+      }
+    }
+  ],
+  "adminReservations": [
+    {
+      "id": 201,
+      "code": "LV-ADM01",
+      "statut": "PENDING",
+      "dateDebut": "2026-11-20",
+      "dateFin": "2026-11-25",
+      "prixTotal": 1800,
+      "caution": 3500,
+      "lieuPriseEnCharge": "Aéroport Casablanca",
+      "lieuRetour": "Aéroport Casablanca",
+      "vehicleId": 1,
+      "clientNom": "Karim Idrissi",
+      "vehicle": {
+        "id": 1,
+        "marque": "Peugeot",
+        "modele": "208",
+        "annee": 2023
+      }
+    },
+    {
+      "id": 202,
+      "code": "LV-ADM02",
+      "statut": "ACTIVE",
+      "dateDebut": "2026-11-10",
+      "dateFin": "2026-11-15",
+      "prixTotal": 2500,
+      "caution": 4000,
+      "lieuPriseEnCharge": "Gare Rabat Ville",
+      "lieuRetour": "Gare Rabat Ville",
+      "vehicleId": 2,
+      "clientNom": "Nadia Alaoui",
+      "vehicle": {
+        "id": 2,
+        "marque": "Renault",
+        "modele": "Clio",
+        "annee": 2024
+      }
+    }
+  ]
+}
