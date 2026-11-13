@@ -96,7 +96,7 @@ jobs:
       - name: Wait for PostgreSQL and Seed database
         run: |
           echo "Waiting for PostgreSQL database to be ready..."
-          docker compose -f infra/docker/docker-compose.yml exec -T postgres sh -c 'until pg_isready -U locavite -d locavite; do sleep 1; done'
+          docker compose -f infra/docker/docker-compose.yml exec -T postgres sh -c 'until pg_isready -h 127.0.0.1 -p 5432 -U locavite -d locavite; do sleep 1; done'
           echo "Seeding test database with reservation fixtures..."
           docker compose -f infra/docker/docker-compose.yml exec -T postgres psql -U locavite -d locavite < frontend/cypress/fixtures/seed.sql
           echo "Database seeded successfully."
