@@ -163,36 +163,51 @@ npm run test
 npm run build
 ```
 
-### Tests E2E Cypress (Catalogue & Authentification)
+### Tests E2E Cypress (Réservation, Catalogue & Authentification)
 
-Les tests E2E Cypress (`Cypress 13+`) couvrent le parcours catalogue complet dans `frontend/cypress/e2e/` :
+[![Cypress E2E](https://img.shields.io/badge/Cypress%20E2E-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
+
+Les tests E2E Cypress (`Cypress 13+`) couvrent l'intégralité du parcours critique de réservation et du catalogue dans `frontend/cypress/e2e/` :
+
+#### Parcours Réservation
+- `reservation-flow.cy.ts` : parcours complet (recherche catalogue → fiche détail → formulaire réservation multi-étapes → récapitulatif & CGV → page de confirmation)
+- `my-reservations.cy.ts` : gestion des réservations côté client (onglets par statut À venir / En cours / Passées / Annulées, cartes de détails)
+- `admin-reservations.cy.ts` : gestion administrateur / agence (dashboard KPI, tableau de bord, validation & confirmation PENDING)
+- `reservation-cancel.cy.ts` : annulation de réservation avec confirmation `window.confirm`, gestion des erreurs serveur et verrouillage des réservations terminées
+
+#### Catalogue & Véhicules
 - `vehicle-list.cy.ts` : affichage liste + pagination
 - `vehicle-detail.cy.ts` : navigation + galerie
 - `vehicle-filters.cy.ts` : filtres + synchronisation URL
-- `vehicle-create.cy.ts` : ajout véhicule (admin) avec les commandes custom `cy.login()` et `cy.createVehicle()`
+- `vehicle-create.cy.ts` : ajout véhicule (admin)
 
-Exécution complète en mode CI (démarre automatiquement le serveur sur `http://localhost:4200` s'il n'est pas déjà lancé et génère le rapport HTML Mochawesome dans `frontend/cypress/reports/mochawesome/index.html`) :
+#### Commandes Custom & Isolation
+- **Commandes custom** : `cy.loginAsClient()`, `cy.createReservation()`, `cy.login()`, `cy.createVehicle()`
+- **Fixtures** : `cypress/fixtures/reservations.json` & `cypress/fixtures/vehicles.json`
+- **Isolation des tests** : `cy.task('db:reset')` et seed automatique avant les tests
+- **Rapports** : Rapport HTML Mochawesome généré dans `frontend/cypress/reports/mochawesome/index.html` et téléchargeable en artefact CI
+
+Exécution complète en mode CI (démarre automatiquement le serveur Angular si nécessaire) :
 
 ```powershell
 cd frontend
 npm run e2e:ci
 ```
 
-Exécution sur environnement staging local (`docker-compose`) :
+Exécution ciblée sur le parcours de réservation :
 
 ```powershell
-docker compose -f infra/docker/docker-compose.staging.yml up -d --build
 cd frontend
-npm run e2e:ci
+npm run e2e:reservations
 ```
 
-Exécution d'un spec spécifique ou en mode interactif :
+Exécution d'un spec spécifique :
 
 ```powershell
-npx cypress run --spec cypress/e2e/vehicle-list.cy.ts
-npx cypress run --spec cypress/e2e/vehicle-detail.cy.ts
-npx cypress run --spec cypress/e2e/vehicle-filters.cy.ts
-npx cypress run --spec cypress/e2e/vehicle-create.cy.ts
+npx cypress run --spec cypress/e2e/reservation-flow.cy.ts
+npx cypress run --spec cypress/e2e/my-reservations.cy.ts
+npx cypress run --spec cypress/e2e/admin-reservations.cy.ts
+npx cypress run --spec cypress/e2e/reservation-cancel.cy.ts
 # ou interactif :
 npx cypress open
 ```

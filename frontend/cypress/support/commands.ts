@@ -16,6 +16,19 @@ export interface CreateVehicleCommandOptions {
   withPhoto?: boolean;
 }
 
+export interface CreateReservationCommandOptions {
+  dateDebutDays?: number;
+  dateFinDays?: number;
+  pickupType?: 'Aéroport' | 'Gare' | 'Hôtel' | 'Agence LocaVite';
+  pickupLocation?: string;
+  returnLocation?: string;
+  gps?: boolean;
+  babySeat?: boolean;
+  extraDriver?: boolean;
+  acceptTerms?: boolean;
+  submit?: boolean;
+}
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
@@ -26,9 +39,19 @@ declare global {
       login(email?: string, password?: string, roles?: string[]): Chainable<void>;
 
       /**
+       * Authenticates a client user for reservation E2E tests.
+       */
+      loginAsClient(email?: string, password?: string, profile?: Record<string, unknown>): Chainable<void>;
+
+      /**
        * Fills and submits the admin vehicle creation form (/admin/vehicles/new).
        */
       createVehicle(options?: CreateVehicleCommandOptions): Chainable<void>;
+
+      /**
+       * Fills the reservation stepper steps and optionally submits the reservation.
+       */
+      createReservation(options?: CreateReservationCommandOptions): Chainable<void>;
     }
   }
 }
@@ -61,6 +84,40 @@ Cypress.Commands.add(
       telephone: '0612345678',
       roles,
       createdAt: '2026-01-15T10:00:00',
+    };
+
+    cy.window({ log: false }).then((win) => {
+      win.localStorage.setItem('accessToken', token);
+      win.localStorage.setItem('refreshToken', 'mock-refresh-token');
+      win.localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+
+    cy.on('window:before:load', (win) => {
+      win.localStorage.setItem('accessToken', token);
+      win.localStorage.setItem('refreshToken', 'mock-refresh-token');
+      win.localStorage.setItem('currentUser', JSON.stringify(user));
+    });
+  },
+);
+
+Cypress.Commands.add(
+  'loginAsClient',
+  (
+    email = 'ahmed.benali@locavite.ma',
+    _password = 'ClientPass123!',
+    profile = {},
+  ) => {
+    const roles = ['CLIENT'];
+    const token = createMockJwt(email, roles);
+    const user = {
+      id: 2,
+      nom: 'Benali',
+      prenom: 'Ahmed',
+      email,
+      telephone: '0612345678',
+      roles,
+      createdAt: '2026-01-15T10:00:00',
+      ...profile,
     };
 
     cy.window({ log: false }).then((win) => {
@@ -136,5 +193,71 @@ Cypress.Commands.add('createVehicle', (options: CreateVehicleCommandOptions = {}
     cy.get('[data-cy="draft-button"]').should('not.be.disabled').click({ force: true });
   } else {
     cy.get('[data-cy="publish-button"]').should('not.be.disabled').click({ force: true });
+  }
+});
+
+Cypress.Commands.add('createReservation', (options: CreateReservationCommandOptions = {}) => {
+  const {
+    dateDebutDays = 2,
+    dateFinDays = 6,
+    pickupType = 'Aéroport',
+    pickupLocation = 'Aéroport - Casablanca',
+    returnLocation = 'Agence LocaVite Casablanca',
+    gps = true,
+    babySeat = false,
+    extraDriver = false,
+    acceptTerms = true,
+    submit = true,
+  } = options;
+
+  const formatDate = (days: number) => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + days);
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    const year = d.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
+  // Étape 1 : Dates
+  cy.get('[data-cy="date-debut-input"]').clear().type(formatDate(dateDebutDays)).blur();
+  cy.get('[data-cy="date-fin-input"]').clear().type(formatDate(dateFinDays)).blur();
+  cy.get('[data-cy="step-dates-next"]').should('not.be.disabled').click();
+
+  // Étape 2 : Lieux
+  if (pickupType) {
+    cy.get(`[data-cy="pickup-type-${pickupType}"] input[type="radio"]`).check({ force: true });
+  }
+  if (pickupLocation) {
+    cy.get('[data-cy="pickup-location-input"]').clear({ force: true }).type(pickupLocation, { force: true });
+  }
+  if (returnLocation) {
+    cy.get('[data-cy="return-location-input"]').clear({ force: true }).type(returnLocation, { force: true });
+  }
+  cy.get('[data-cy="step-places-next"]').should('not.be.disabled').click();
+
+  // Étape 3 : Options
+  if (gps) {
+    cy.get('[data-cy="option-gps"] input[type="checkbox"]').check({ force: true });
+  }
+  if (babySeat) {
+    cy.get('[data-cy="option-baby-seat"] input[type="checkbox"]').check({ force: true });
+  }
+  if (extraDriver) {
+    cy.get('[data-cy="option-extra-driver"] input[type="checkbox"]').check({ force: true });
+  }
+  cy.get('[data-cy="step-options-next"]').click();
+
+  // Étape 4 : Récapitulatif
+  cy.get('[data-cy="step-summary-next"]').should('not.be.disabled').click();
+
+  // Étape 5 : Confirmation
+  if (acceptTerms) {
+    cy.get('[data-cy="accept-terms-checkbox"] input[type="checkbox"]').check({ force: true });
+  }
+
+  if (submit) {
+    cy.get('[data-cy="confirm-reservation-btn"]').should('not.be.disabled').click();
   }
 });

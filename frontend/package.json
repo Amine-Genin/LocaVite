@@ -11,6 +11,10 @@
         "test:coverage": "ng test --watch=false --browsers=ChromeHeadlessNoSandbox --code-coverage",
         "test:e2e": "node cypress/scripts/run-e2e-ci.cjs",
         "e2e:ci": "node cypress/scripts/run-e2e-ci.cjs",
+        "e2e:reservations": "node cypress/scripts/run-e2e-ci.cjs --spec \"cypress/e2e/reservation-flow.cy.ts,cypress/e2e/my-reservations.cy.ts,cypress/e2e/admin-reservations.cy.ts,cypress/e2e/reservation-cancel.cy.ts\"",
+        "e2e:catalogue": "node cypress/scripts/run-e2e-ci.cjs --spec \"cypress/e2e/vehicle-*.cy.ts\"",
+        "db:seed": "node cypress/scripts/db-reset.cjs",
+        "db:reset": "node cypress/scripts/db-reset.cjs",
         "lint": "ng lint",
         "format": "prettier --write \"src/**/*.{ts,html,scss,json}\"",
         "format:check": "prettier --check \"src/**/*.{ts,html,scss,json}\""
