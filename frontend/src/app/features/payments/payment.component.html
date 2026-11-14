@@ -144,22 +144,26 @@
                 data-cy="submit-payment-btn"
               >
                 @if (processingPayment) {
-                  <mat-progress-spinner
-                    mode="indeterminate"
-                    diameter="22"
-                    class="inline-spinner"
-                    data-cy="processing-spinner"
-                  ></mat-progress-spinner>
-                  <span>{{ 'PAYMENT.PROCESSING' | translate }}</span>
+                  <span class="btn-content">
+                    <mat-progress-spinner
+                      mode="indeterminate"
+                      diameter="22"
+                      class="inline-spinner"
+                      data-cy="processing-spinner"
+                    ></mat-progress-spinner>
+                    <span>{{ 'PAYMENT.PROCESSING' | translate }}</span>
+                  </span>
                 } @else {
-                  <mat-icon>{{ selectedMethod === 'CMI' ? 'lock' : 'check_circle' }}</mat-icon>
-                  <span>
-                    {{
-                      (selectedMethod === 'CMI'
-                        ? 'PAYMENT.ACTIONS.PAY_CMI'
-                        : 'PAYMENT.ACTIONS.CONFIRM_PAYMENT') | translate
-                    }}
-                    ({{ reservation.prixTotal | number: '1.2-2' }} MAD)
+                  <span class="btn-content">
+                    <mat-icon>{{ selectedMethod === 'CMI' ? 'lock' : 'check_circle' }}</mat-icon>
+                    <span>
+                      {{
+                        (selectedMethod === 'CMI'
+                          ? 'PAYMENT.ACTIONS.PAY_CMI'
+                          : 'PAYMENT.ACTIONS.CONFIRM_PAYMENT') | translate
+                      }}
+                      ({{ reservation.prixTotal | number: '1.2-2' }} MAD)
+                    </span>
                   </span>
                 }
               </button>
