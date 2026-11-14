@@ -46,6 +46,7 @@ minio:
   access-key: test
   secret-key: test-secret
   bucket: locavite-documents
+  invoices-bucket: locavite-invoices
   init-bucket: false
 
 twilio:

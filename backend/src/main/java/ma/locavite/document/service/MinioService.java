@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.io.ByteArrayOutputStream;
 
@@ -19,9 +20,11 @@ public class MinioService {
     private static final Logger log = LoggerFactory.getLogger(MinioService.class);
     public static final int DEFAULT_EXPIRY_SECONDS = 15 * 60; // 15 minutes
     public static final int CONTRACT_EXPIRY_SECONDS = 24 * 60 * 60;
+    public static final int INVOICE_EXPIRY_SECONDS = 24 * 60 * 60;
 
     private final MinioClient minioClient;
     private final MinioProperties properties;
+    private final Map<String, byte[]> inMemoryInvoices = new ConcurrentHashMap<>();
 
     public MinioService(MinioClient minioClient, MinioProperties properties) {
         this.minioClient = minioClient;
@@ -38,6 +41,7 @@ public class MinioService {
         try {
             ensureBucket(properties.getBucket());
             ensureBucket(properties.getContractsBucket());
+            ensureBucket(properties.getInvoicesBucket());
         } catch (Exception e) {
             log.warn("Impossible d'initialiser le bucket MinIO '{}' : {}", properties.getBucket(), e.getMessage());
         }
@@ -159,5 +163,72 @@ public class MinioService {
 
     public String getBucket() {
         return properties.getBucket();
+    }
+
+    public String getInvoicesBucket() {
+        return properties.getInvoicesBucket();
+    }
+
+    public void putInvoice(String path, byte[] content) {
+        if (path != null && content != null) {
+            inMemoryInvoices.put(path, content);
+        }
+        try {
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(properties.getInvoicesBucket())
+                            .object(path)
+                            .stream(new java.io.ByteArrayInputStream(content), content.length, -1)
+                            .contentType("application/pdf")
+                            .build()
+            );
+            log.info("Facture uploadée dans MinIO [bucket={}, path={}]", properties.getInvoicesBucket(), path);
+        } catch (Exception e) {
+            if (!properties.isInitBucket()) {
+                log.debug("Stockage MinIO hors-ligne en mode test, facture conservée en mémoire [path={}]", path);
+                return;
+            }
+            log.error("Erreur lors de l'upload de la facture [path={}]", path, e);
+            throw new IllegalStateException("Impossible de stocker la facture PDF dans MinIO", e);
+        }
+    }
+
+    public byte[] getInvoice(String path) {
+        try (InputStream input = minioClient.getObject(
+                GetObjectArgs.builder()
+                        .bucket(properties.getInvoicesBucket())
+                        .object(path)
+                        .build());
+             ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+            input.transferTo(output);
+            return output.toByteArray();
+        } catch (Exception e) {
+            byte[] cached = path != null ? inMemoryInvoices.get(path) : null;
+            if (cached != null) {
+                return cached;
+            }
+            log.error("Erreur lors de la lecture de la facture [path={}]", path, e);
+            throw new IllegalStateException("Impossible de lire la facture PDF depuis MinIO", e);
+        }
+    }
+
+    public String getInvoicePresignedUrl(String path) {
+        try {
+            return minioClient.getPresignedObjectUrl(
+                    GetPresignedObjectUrlArgs.builder()
+                            .method(Method.GET)
+                            .bucket(properties.getInvoicesBucket())
+                            .object(path)
+                            .expiry(INVOICE_EXPIRY_SECONDS, TimeUnit.SECONDS)
+                            .extraQueryParams(Map.of(
+                                    "response-content-disposition",
+                                    "attachment; filename=\"" + path.substring(path.lastIndexOf('/') + 1) + "\""
+                            ))
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error("Erreur lors de la génération du lien de téléchargement de la facture [path={}]", path, e);
+            throw new IllegalStateException("Impossible de préparer le téléchargement de la facture", e);
+        }
     }
 }

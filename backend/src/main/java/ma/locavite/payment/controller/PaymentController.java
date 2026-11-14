@@ -11,7 +11,9 @@ import ma.locavite.payment.dto.PaymentFilter;
 import ma.locavite.payment.dto.PaymentRequest;
 import ma.locavite.payment.dto.PaymentResponse;
 import ma.locavite.payment.service.CashPaymentService;
+import ma.locavite.payment.service.InvoiceService;
 import ma.locavite.payment.service.PaymentService;
+import ma.locavite.reservation.domain.ContractLanguage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,15 +35,24 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final CashPaymentService cashPaymentService;
+    private final InvoiceService invoiceService;
 
     public PaymentController(PaymentService paymentService) {
-        this(paymentService, null);
+        this(paymentService, null, null);
+    }
+
+    public PaymentController(PaymentService paymentService, CashPaymentService cashPaymentService) {
+        this(paymentService, cashPaymentService, null);
     }
 
     @Autowired
-    public PaymentController(PaymentService paymentService, CashPaymentService cashPaymentService) {
+    public PaymentController(
+            PaymentService paymentService,
+            CashPaymentService cashPaymentService,
+            InvoiceService invoiceService) {
         this.paymentService = paymentService;
         this.cashPaymentService = cashPaymentService;
+        this.invoiceService = invoiceService;
     }
 
     @PostMapping
@@ -97,6 +108,30 @@ public class PaymentController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"ticket-caisse-" + id + ".pdf\"")
+                .body(pdf);
+    }
+
+    @GetMapping("/{id}/invoice")
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "Télécharger la facture PDF d'un paiement (CLIENT / AGENCE / ADMIN)",
+            description = "Retourne la facture PDF/A-3 générée pour un paiement confirmé (SUCCESS)."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Facture PDF générée et retournée"),
+            @ApiResponse(responseCode = "400", description = "Paiement non confirmé"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé"),
+            @ApiResponse(responseCode = "404", description = "Paiement non trouvé")
+    })
+    public ResponseEntity<byte[]> getInvoice(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "FR") String lang) {
+        byte[] pdf = invoiceService.downloadInvoicePdf(id, ContractLanguage.from(lang));
+        String filename = invoiceService.getInvoiceFilename(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .body(pdf);
     }
 

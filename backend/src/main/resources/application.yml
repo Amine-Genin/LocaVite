@@ -89,6 +89,7 @@ minio:
   init-bucket: ${MINIO_INIT_BUCKET:true}
   vehicles-bucket: ${MINIO_VEHICLES_BUCKET:locavite-vehicles}
   contracts-bucket: ${MINIO_CONTRACTS_BUCKET:locavite-contracts}
+  invoices-bucket: ${MINIO_INVOICES_BUCKET:locavite-invoices}
 
 twilio:
   enabled: ${TWILIO_ENABLED:false}

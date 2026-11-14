@@ -11,10 +11,12 @@ import ma.locavite.catalog.domain.Brand;
 import ma.locavite.catalog.domain.Category;
 import ma.locavite.catalog.repository.BrandRepository;
 import ma.locavite.catalog.repository.CategoryRepository;
+import ma.locavite.payment.domain.Invoice;
 import ma.locavite.payment.domain.Payment;
 import ma.locavite.payment.domain.PaymentMethod;
 import ma.locavite.payment.domain.PaymentStatus;
 import ma.locavite.payment.dto.PaymentRequest;
+import ma.locavite.payment.repository.InvoiceRepository;
 import ma.locavite.payment.repository.PaymentRepository;
 import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.ReservationStatus;
@@ -57,6 +59,9 @@ class PaymentControllerIT {
     private PaymentRepository paymentRepository;
 
     @Autowired
+    private InvoiceRepository invoiceRepository;
+
+    @Autowired
     private ReservationRepository reservationRepository;
 
     @Autowired
@@ -95,6 +100,7 @@ class PaymentControllerIT {
 
     @BeforeEach
     void setUp() {
+        invoiceRepository.deleteAll();
         paymentRepository.deleteAll();
         reservationRepository.deleteAll();
         vehicleRepository.deleteAll();
@@ -547,6 +553,127 @@ class PaymentControllerIT {
 
         mockMvc.perform(put("/api/admin/payments/" + cashPayment.getId() + "/confirm-cash")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + client1Token))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Test : facture générée après paiement SUCCESS + numéro séquentiel sans trou")
+    void confirmPayments_generatesInvoicesAutomaticallyWithSequentialNumbersWithoutGaps() throws Exception {
+        Payment p1 = new Payment();
+        p1.setCode("PAY-INV001");
+        p1.setReservationId(reservation.getId());
+        p1.setUserId(client1.getId());
+        p1.setMontant(new BigDecimal("600.00"));
+        p1.setDevise("MAD");
+        p1.setMethode(PaymentMethod.CMI);
+        p1.setStatut(PaymentStatus.PENDING);
+        p1 = paymentRepository.save(p1);
+
+        Payment p2 = new Payment();
+        p2.setCode("PAY-INV002");
+        p2.setReservationId(reservation.getId());
+        p2.setUserId(client1.getId());
+        p2.setMontant(new BigDecimal("900.00"));
+        p2.setDevise("MAD");
+        p2.setMethode(PaymentMethod.CASH_AGENCY);
+        p2.setStatut(PaymentStatus.PENDING);
+        p2 = paymentRepository.save(p2);
+
+        // Confirmation du 1er paiement (CMI)
+        mockMvc.perform(post("/api/payments/" + p1.getId() + "/confirm")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("SUCCESS"));
+
+        // Confirmation du 2e paiement (Espèces en agence)
+        mockMvc.perform(put("/api/admin/payments/" + p2.getId() + "/confirm-cash")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("SUCCESS"));
+
+        Invoice inv1 = invoiceRepository.findByPaymentId(p1.getId()).orElseThrow();
+        Invoice inv2 = invoiceRepository.findByPaymentId(p2.getId()).orElseThrow();
+
+        org.assertj.core.api.Assertions.assertThat(inv1.getNumero()).matches("FA-\\d{4}-\\d{4}");
+        org.assertj.core.api.Assertions.assertThat(inv2.getNumero()).matches("FA-\\d{4}-\\d{4}");
+
+        int seq1 = Integer.parseInt(inv1.getNumero().substring(inv1.getNumero().lastIndexOf('-') + 1));
+        int seq2 = Integer.parseInt(inv2.getNumero().substring(inv2.getNumero().lastIndexOf('-') + 1));
+        org.assertj.core.api.Assertions.assertThat(seq2).isEqualTo(seq1 + 1);
+
+        org.assertj.core.api.Assertions.assertThat(inv1.getMontantTTC()).isEqualByComparingTo("600.00");
+        org.assertj.core.api.Assertions.assertThat(inv1.getMontantHT()).isEqualByComparingTo("500.00");
+        org.assertj.core.api.Assertions.assertThat(inv1.getMontantTVA()).isEqualByComparingTo("100.00");
+    }
+
+    @Test
+    @DisplayName("Test : téléchargement facture PDF par propriétaire OK (GET /api/payments/{id}/invoice) + contenu PDFBox")
+    void getInvoice_byOwner_returns200AndValidPdfContent() throws Exception {
+        Payment payment = new Payment();
+        payment.setCode("PAY-INV200");
+        payment.setReservationId(reservation.getId());
+        payment.setUserId(client1.getId());
+        payment.setMontant(new BigDecimal("1200.00"));
+        payment.setDevise("MAD");
+        payment.setMethode(PaymentMethod.CMI);
+        payment.setStatut(PaymentStatus.PENDING);
+        payment.setMetadata("{\"clientIce\":\"009988776655443\",\"clientAddress\":\"10 Rue de la Liberté, Casablanca\"}");
+        payment = paymentRepository.save(payment);
+
+        mockMvc.perform(post("/api/payments/" + payment.getId() + "/confirm")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+                .andExpect(status().isOk());
+
+        Invoice invoice = invoiceRepository.findByPaymentId(payment.getId()).orElseThrow();
+
+        byte[] pdfBytes = mockMvc.perform(get("/api/payments/" + payment.getId() + "/invoice")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + client1Token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION, containsString(invoice.getNumero())))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        try (var pdf = org.apache.pdfbox.Loader.loadPDF(pdfBytes)) {
+            String text = new org.apache.pdfbox.text.PDFTextStripper().getText(pdf).replaceAll("\\s+", " ");
+            org.assertj.core.api.Assertions.assertThat(text).contains(
+                    "LocaVite SARL",
+                    "002584963000084",
+                    "458921",
+                    "50412896",
+                    "34298115",
+                    invoice.getNumero(),
+                    "One Client",
+                    "009988776655443",
+                    "10 Rue de la Liberté, Casablanca",
+                    "1000.00 MAD",
+                    "200.00 MAD",
+                    "1200.00 MAD",
+                    "TVA 20%",
+                    "CMI",
+                    "QR code de vérification"
+            );
+        }
+    }
+
+    @Test
+    @DisplayName("Test : téléchargement facture par un autre client → 403 Forbidden")
+    void getInvoice_byOtherClient_returns403Forbidden() throws Exception {
+        Payment payment = new Payment();
+        payment.setCode("PAY-INV403");
+        payment.setReservationId(reservation.getId());
+        payment.setUserId(client1.getId());
+        payment.setMontant(new BigDecimal("1200.00"));
+        payment.setDevise("MAD");
+        payment.setMethode(PaymentMethod.CMI);
+        payment.setStatut(PaymentStatus.PENDING);
+        payment = paymentRepository.save(payment);
+
+        mockMvc.perform(post("/api/payments/" + payment.getId() + "/confirm")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/payments/" + payment.getId() + "/invoice")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + client2Token))
                 .andExpect(status().isForbidden());
     }
 }

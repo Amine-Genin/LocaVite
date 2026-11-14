@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${lang != null ? lang : 'fr'}" th:dir="${isRtl != null and isRtl ? 'rtl' : 'ltr'}">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'Facture LocaVite - ' + ${invoice.numero}">Facture LocaVite</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            color: #1f2937;
+            margin: 24px;
+            font-size: 12px;
+        }
+        .header {
+            border-bottom: 2px solid #166fa0;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+        }
+        .company-name {
+            color: #166fa0;
+            font-size: 22px;
+            font-weight: bold;
+        }
+        .invoice-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 12px 0;
+            color: #166fa0;
+        }
+        .section {
+            margin: 14px 0;
+            padding: 10px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #166fa0;
+            color: #ffffff;
+        }
+        .totals {
+            margin-top: 14px;
+            text-align: right;
+        }
+        .legal {
+            margin-top: 20px;
+            font-size: 10px;
+            color: #4b5563;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="company-name">LocaVite SARL</div>
+        <div>Adresse : 120 Boulevard Zerktouni, 20000 Casablanca, Maroc</div>
+        <div>Téléphone : +212 5 22 00 00 00 | Email : contact@locavite.ma</div>
+        <div>ICE : 002584963000084 | RC : 458921 | IF : 50412896 | Patente : 34298115</div>
+    </div>
+
+    <div class="invoice-title">
+        <span>FACTURE / فاتورة : </span>
+        <span th:text="${invoice.numero}">FA-2026-0001</span>
+    </div>
+
+    <div>
+        <strong>Date d'émission :</strong> <span th:text="${dateEmissionFormatted}">14/11/2026</span><br/>
+        <strong>Référence paiement :</strong> <span th:text="${payment.code}">PAY-000001</span><br/>
+        <strong>Mode de paiement :</strong> <span th:text="${paymentMethodLabel}">CMI</span>
+    </div>
+
+    <div class="section">
+        <strong>Informations Client / معلومات الزبون</strong><br/>
+        <span>Nom : </span><span th:text="${clientName}">Client Test</span><br/>
+        <span>ICE Entreprise : </span><span th:text="${clientIce}">N/A (Particulier)</span><br/>
+        <span>Adresse : </span><span th:text="${clientAddress}">Casablanca, Maroc</span>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Quantité</th>
+                <th>Prix unitaire HT</th>
+                <th>TVA 20%</th>
+                <th>Total HT</th>
+                <th>Total TTC</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td th:text="${lineDescription}">Location de véhicule</td>
+                <td th:text="${quantity}">1</td>
+                <td th:text="${unitPriceHt + ' MAD'}">1000.00 MAD</td>
+                <td th:text="${invoice.montantTVA + ' MAD (20%)'}">200.00 MAD (20%)</td>
+                <td th:text="${invoice.montantHT + ' MAD'}">1000.00 MAD</td>
+                <td th:text="${invoice.montantTTC + ' MAD'}">1200.00 MAD</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="totals">
+        <div><strong>Total HT :</strong> <span th:text="${invoice.montantHT + ' MAD'}">1000.00 MAD</span></div>
+        <div><strong>TVA (20%) :</strong> <span th:text="${invoice.montantTVA + ' MAD'}">200.00 MAD</span></div>
+        <div><strong>Total TTC :</strong> <span th:text="${invoice.montantTTC + ' MAD'}">1200.00 MAD</span></div>
+    </div>
+
+    <div class="legal">
+        <strong>Mentions légales :</strong>
+        Facture conforme aux dispositions de l'article 145 du Code Général des Impôts (CGI) marocain.
+        Archivage légal au format PDF/A-3. TVA applicable au taux légal de 20%.
+        Arrêtée la présente facture à la somme de <span th:text="${invoice.montantTTC}">1200.00</span> MAD TTC.
+    </div>
+</body>
+</html>
