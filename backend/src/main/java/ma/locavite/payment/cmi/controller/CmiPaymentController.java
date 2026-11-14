@@ -37,7 +37,7 @@ public class CmiPaymentController {
         this.cmiPaymentService = cmiPaymentService;
     }
 
-    @PostMapping("/initiate")
+    @PostMapping(value = "/initiate", produces = MediaType.APPLICATION_JSON_VALUE)
     @SecurityRequirement(name = "BearerAuth")
     @PreAuthorize("hasRole('CLIENT')")
     @Operation(summary = "Initier un paiement en ligne via CMI", description = "Génère une session de paiement CMI avec signature HMAC-SHA512 et retourne l'URL de redirection et les paramètres.")
@@ -48,20 +48,11 @@ public class CmiPaymentController {
             @ApiResponse(responseCode = "404", description = "Réservation non trouvée"),
             @ApiResponse(responseCode = "503", description = "Passerelle CMI indisponible (mode fallback)")
     })
-    public ResponseEntity<Map<String, Object>> initiate(
+    public ResponseEntity<CmiInitiateResponse> initiate(
             @Valid @RequestBody CmiInitiateRequest request,
             HttpServletRequest httpRequest) {
         CmiInitiateResponse response = cmiPaymentService.initiate(request, httpRequest);
-        Map<String, Object> body = new HashMap<>();
-        body.put("paymentId", response.paymentId());
-        body.put("paymentCode", response.paymentCode());
-        body.put("montant", response.montant());
-        body.put("devise", response.devise());
-        body.put("gatewayUrl", response.gatewayUrl());
-        body.put("redirectUrl", response.redirectUrl());
-        body.put("formData", response.formData());
-        body.put("expiresAt", response.expiresAt());
-        return ResponseEntity.ok(body);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping(value = "/callback", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE, MediaType.ALL_VALUE})

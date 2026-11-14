@@ -10,7 +10,9 @@ import ma.locavite.reservation.exception.ReservationNotFoundException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -65,6 +67,8 @@ public class PaymentExceptionHandler {
     }
 
     private ResponseEntity<Map<String, Object>> error(HttpStatus status, String detail) {
-        return ResponseEntity.status(status).body(Map.of("detail", detail != null ? detail : status.getReasonPhrase()));
+        return ResponseEntity.status(status)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("detail", detail != null ? detail : status.getReasonPhrase()));
     }
 }
