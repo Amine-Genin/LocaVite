@@ -1,5 +1,10 @@
 package ma.locavite.payment.exception;
 
+import ma.locavite.payment.cmi.controller.CmiPaymentController;
+import ma.locavite.payment.cmi.exception.CmiIpNotAllowedException;
+import ma.locavite.payment.cmi.exception.CmiSessionExpiredException;
+import ma.locavite.payment.cmi.exception.CmiSignatureException;
+import ma.locavite.payment.cmi.exception.CmiUnavailableException;
 import ma.locavite.payment.controller.PaymentController;
 import ma.locavite.reservation.exception.ReservationNotFoundException;
 import org.springframework.core.Ordered;
@@ -14,7 +19,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@RestControllerAdvice(assignableTypes = PaymentController.class)
+@RestControllerAdvice(assignableTypes = {PaymentController.class, CmiPaymentController.class})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class PaymentExceptionHandler {
 
@@ -28,14 +33,26 @@ public class PaymentExceptionHandler {
         return ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ProblemDetail handleAccessDenied(AccessDeniedException ex) {
+    @ExceptionHandler({AccessDeniedException.class, CmiIpNotAllowedException.class})
+    public ProblemDetail handleAccessDenied(RuntimeException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage() != null ? ex.getMessage() : "Accès refusé");
     }
 
-    @ExceptionHandler({InvalidPaymentStatusException.class, PaymentValidationException.class, IllegalArgumentException.class, IllegalStateException.class})
+    @ExceptionHandler({
+            InvalidPaymentStatusException.class,
+            PaymentValidationException.class,
+            CmiSignatureException.class,
+            CmiSessionExpiredException.class,
+            IllegalArgumentException.class,
+            IllegalStateException.class
+    })
     public ProblemDetail handleBadRequest(RuntimeException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(CmiUnavailableException.class)
+    public ProblemDetail handleCmiUnavailable(CmiUnavailableException ex) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

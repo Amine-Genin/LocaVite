@@ -24,6 +24,12 @@
     "name" : "Vehicle photos",
     "description" : "Gestion des photos des véhicules"
   }, {
+    "name" : "Paiement CMI",
+    "description" : "Endpoints d'intégration de la passerelle de paiement en ligne CMI (Centre Monétique Interbancaire)"
+  }, {
+    "name" : "Payments",
+    "description" : "Endpoints de gestion et suivi des paiements"
+  }, {
     "name" : "Reservations",
     "description" : "Endpoints de gestion et réservation de véhicules"
   }, {
@@ -214,9 +220,6 @@
           "required" : true
         },
         "responses" : {
-          "403" : {
-            "description" : "Accès refusé"
-          },
           "200" : {
             "description" : "Profil mis à jour avec succès",
             "content" : {
@@ -227,11 +230,14 @@
               }
             }
           },
-          "400" : {
-            "description" : "Données de formulaire invalides"
+          "403" : {
+            "description" : "Accès refusé"
           },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "400" : {
+            "description" : "Données de formulaire invalides"
           }
         },
         "security" : [ {
@@ -374,7 +380,7 @@
         "tags" : [ "Reservations" ],
         "summary" : "Annuler une réservation",
         "description" : "Passe le statut de la réservation à CANCELLED.",
-        "operationId" : "cancel",
+        "operationId" : "cancel_1",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -430,6 +436,18 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
+          },
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Utilisateur introuvable"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "200" : {
             "description" : "Rôles mis à jour avec succès",
             "content" : {
@@ -439,18 +457,6 @@
                 }
               }
             }
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Utilisateur introuvable"
-          },
-          "400" : {
-            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -484,6 +490,15 @@
           "required" : true
         },
         "responses" : {
+          "403" : {
+            "description" : "Accès refusé"
+          },
+          "404" : {
+            "description" : "Saison introuvable"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "200" : {
             "description" : "Saison modifiée avec succès",
             "content" : {
@@ -494,17 +509,8 @@
               }
             }
           },
-          "404" : {
-            "description" : "Saison introuvable"
-          },
-          "403" : {
-            "description" : "Accès refusé"
-          },
           "400" : {
             "description" : "Données invalides ou dates incohérentes"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -526,17 +532,17 @@
           }
         } ],
         "responses" : {
-          "404" : {
-            "description" : "Saison introuvable"
-          },
           "403" : {
             "description" : "Accès refusé"
           },
-          "204" : {
-            "description" : "Saison supprimée avec succès"
+          "404" : {
+            "description" : "Saison introuvable"
           },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "204" : {
+            "description" : "Saison supprimée avec succès"
           }
         },
         "security" : [ {
@@ -628,11 +634,11 @@
               }
             }
           },
-          "400" : {
-            "description" : "Requête invalide (statut non supporté)"
-          },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "400" : {
+            "description" : "Requête invalide (statut non supporté)"
           }
         },
         "security" : [ {
@@ -843,6 +849,9 @@
           }
         },
         "responses" : {
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "201" : {
             "description" : "Document téléversé avec succès",
             "content" : {
@@ -855,9 +864,6 @@
           },
           "400" : {
             "description" : "Fichier invalide (type non supporté ou taille max dépassée)"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -1168,6 +1174,423 @@
         }
       }
     },
+    "/api/payments" : {
+      "get" : {
+        "tags" : [ "Payments" ],
+        "summary" : "Lister les paiements (AGENCE / ADMIN)",
+        "description" : "Retourne tous les paiements pour un ADMIN ou ceux des véhicules d'une AGENCE.",
+        "operationId" : "getAll_1",
+        "parameters" : [ {
+          "name" : "filter",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/PaymentFilter"
+          }
+        }, {
+          "name" : "pageable",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagePaymentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      },
+      "post" : {
+        "tags" : [ "Payments" ],
+        "summary" : "Initier un paiement (CLIENT)",
+        "description" : "Crée un nouveau paiement pour une réservation avec le statut PENDING.",
+        "operationId" : "initiate",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/PaymentRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "403" : {
+            "description" : "Accès refusé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Réservation non trouvée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Données invalides ou montant supérieur au restant dû",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "201" : {
+            "description" : "Paiement initié avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/payments/{id}/fail" : {
+      "post" : {
+        "tags" : [ "Payments" ],
+        "summary" : "Marquer un paiement en échec (ADMIN)",
+        "description" : "Passe le statut du paiement à FAILED.",
+        "operationId" : "fail",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "reason",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/payments/{id}/confirm" : {
+      "post" : {
+        "tags" : [ "Payments" ],
+        "summary" : "Confirmer un paiement (ADMIN)",
+        "description" : "Confirme un paiement et passe son statut à SUCCESS.",
+        "operationId" : "confirm",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        }, {
+          "name" : "transactionId",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "reference",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "metadata",
+          "in" : "query",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/payments/{id}/cancel" : {
+      "post" : {
+        "tags" : [ "Payments" ],
+        "summary" : "Annuler un paiement",
+        "description" : "Annule un paiement si son statut permet la transition vers CANCELLED.",
+        "operationId" : "cancel",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "400" : {
+            "description" : "Statut incompatible avec l'annulation",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Accès refusé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Paiement annulé avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Paiement non trouvé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/payments/cmi/webhook" : {
+      "post" : {
+        "tags" : [ "Paiement CMI" ],
+        "summary" : "Notification serveur-à-serveur CMI",
+        "description" : "Notification directe CMI. Vérifie l'authenticité (IP whitelist + signature) et garantit l'idempotence.",
+        "operationId" : "webhook",
+        "responses" : {
+          "400" : {
+            "description" : "Signature CMI invalide",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "IP appelante non autorisée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Notification prise en compte (ACTION=POSTAUTH)",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Paiement non trouvé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/payments/cmi/initiate" : {
+      "post" : {
+        "tags" : [ "Paiement CMI" ],
+        "summary" : "Initier un paiement en ligne via CMI",
+        "description" : "Génère une session de paiement CMI avec signature HMAC-SHA512 et retourne l'URL de redirection et les paramètres.",
+        "operationId" : "initiate_1",
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/CmiInitiateRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Session CMI initialisée avec succès",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CmiInitiateResponse"
+                }
+              }
+            }
+          },
+          "503" : {
+            "description" : "Passerelle CMI indisponible (mode fallback)",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CmiInitiateResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Accès refusé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CmiInitiateResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Données invalides ou dépassement du montant restant dû",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CmiInitiateResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Réservation non trouvée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CmiInitiateResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/payments/cmi/callback" : {
+      "get" : {
+        "tags" : [ "Paiement CMI" ],
+        "summary" : "Callback CMI GET (redirection navigateur)",
+        "description" : "Permet de traiter la redirection GET retour de la passerelle CMI si applicable.",
+        "operationId" : "callbackGet",
+        "parameters" : [ {
+          "name" : "requestParams",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Paiement CMI" ],
+        "summary" : "Callback CMI après paiement",
+        "description" : "Appelé par CMI après passage par la passerelle 3D-Secure. Vérifie la signature et redirige vers la confirmation.",
+        "operationId" : "callbackPost",
+        "responses" : {
+          "302" : {
+            "description" : "Paiement traité et redirection vers la page de confirmation"
+          },
+          "400" : {
+            "description" : "Signature ou hash CMI invalide"
+          },
+          "404" : {
+            "description" : "Paiement non trouvé"
+          }
+        }
+      }
+    },
     "/api/auth/register" : {
       "post" : {
         "tags" : [ "Auth" ],
@@ -1185,6 +1608,9 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Données d'inscription invalides ou email déjà utilisé"
+          },
           "201" : {
             "description" : "Utilisateur créé avec succès",
             "content" : {
@@ -1194,9 +1620,6 @@
                 }
               }
             }
-          },
-          "400" : {
-            "description" : "Données d'inscription invalides ou email déjà utilisé"
           }
         }
       }
@@ -1218,9 +1641,6 @@
           "required" : true
         },
         "responses" : {
-          "400" : {
-            "description" : "Requête invalide"
-          },
           "200" : {
             "description" : "Tokens rafraîchis avec succès",
             "content" : {
@@ -1230,6 +1650,9 @@
                 }
               }
             }
+          },
+          "400" : {
+            "description" : "Requête invalide"
           },
           "401" : {
             "description" : "Refresh token invalide ou expiré"
@@ -1286,11 +1709,11 @@
               }
             }
           },
-          "400" : {
-            "description" : "Format de la requête invalide"
-          },
           "401" : {
             "description" : "Email ou mot de passe incorrect"
+          },
+          "400" : {
+            "description" : "Format de la requête invalide"
           }
         }
       }
@@ -1336,6 +1759,15 @@
           "required" : true
         },
         "responses" : {
+          "403" : {
+            "description" : "Accès refusé"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "400" : {
+            "description" : "Données invalides ou dates incohérentes"
+          },
           "201" : {
             "description" : "Saison créée avec succès",
             "content" : {
@@ -1345,15 +1777,6 @@
                 }
               }
             }
-          },
-          "403" : {
-            "description" : "Accès refusé"
-          },
-          "400" : {
-            "description" : "Données invalides ou dates incohérentes"
-          },
-          "401" : {
-            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -1477,7 +1900,7 @@
         "tags" : [ "Reservations" ],
         "summary" : "Confirmer une réservation",
         "description" : "Passe le statut à CONFIRMED.",
-        "operationId" : "confirm",
+        "operationId" : "confirm_1",
         "parameters" : [ {
           "name" : "id",
           "in" : "path",
@@ -1649,11 +2072,11 @@
           "404" : {
             "description" : "Document introuvable"
           },
-          "403" : {
-            "description" : "Accès non autorisé à ce document"
-          },
           "401" : {
             "description" : "Non authentifié"
+          },
+          "403" : {
+            "description" : "Accès non autorisé à ce document"
           }
         },
         "security" : [ {
@@ -1752,9 +2175,6 @@
           }
         } ],
         "responses" : {
-          "404" : {
-            "description" : "Saison non trouvée"
-          },
           "200" : {
             "description" : "Saison trouvée",
             "content" : {
@@ -1764,6 +2184,9 @@
                 }
               }
             }
+          },
+          "404" : {
+            "description" : "Saison non trouvée"
           }
         }
       }
@@ -1931,6 +2354,89 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/PageReservationResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/payments/{id}" : {
+      "get" : {
+        "tags" : [ "Payments" ],
+        "summary" : "Consulter un paiement par ID",
+        "description" : "Accessible par le propriétaire ou un administrateur.",
+        "operationId" : "getById_2",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "responses" : {
+          "403" : {
+            "description" : "Accès non autorisé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Détails du paiement",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Paiement non trouvé",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PaymentResponse"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "BearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/api/payments/me" : {
+      "get" : {
+        "tags" : [ "Payments" ],
+        "summary" : "Lister mes paiements (CLIENT)",
+        "description" : "Retourne la liste paginée des paiements du client connecté.",
+        "operationId" : "getMe_1",
+        "parameters" : [ {
+          "name" : "pageable",
+          "in" : "query",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/PagePaymentResponse"
                 }
               }
             }
@@ -2968,6 +3474,201 @@
         },
         "description" : "Détail du devis de réservation, en MAD"
       },
+      "PaymentRequest" : {
+        "required" : [ "methode", "montant", "reservationId" ],
+        "type" : "object",
+        "properties" : {
+          "reservationId" : {
+            "type" : "integer",
+            "description" : "Identifiant de la réservation",
+            "format" : "int64",
+            "example" : 1
+          },
+          "montant" : {
+            "minimum" : 0.01,
+            "exclusiveMinimum" : false,
+            "type" : "number",
+            "description" : "Montant du paiement",
+            "example" : 500.0
+          },
+          "devise" : {
+            "type" : "string",
+            "description" : "Devise du paiement (par défaut MAD)",
+            "example" : "MAD"
+          },
+          "methode" : {
+            "type" : "string",
+            "description" : "Méthode de paiement",
+            "example" : "CMI",
+            "enum" : [ "CMI", "CASH_DELIVERY", "CASH_AGENCY", "BANK_TRANSFER" ]
+          },
+          "reference" : {
+            "type" : "string",
+            "description" : "Référence externe (ex: ID CMI)",
+            "example" : "CMI-REF-123456"
+          },
+          "metadata" : {
+            "type" : "string",
+            "description" : "Données additionnelles au format JSON",
+            "example" : "{\"cmiSessionId\":\"xyz\"}"
+          }
+        }
+      },
+      "PaymentResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "description" : "Identifiant unique du paiement",
+            "format" : "int64",
+            "example" : 1
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Code unique du paiement au format PAY-XXXXXX",
+            "example" : "PAY-A1B2C3"
+          },
+          "reservationId" : {
+            "type" : "integer",
+            "description" : "Identifiant de la réservation associée",
+            "format" : "int64",
+            "example" : 1
+          },
+          "userId" : {
+            "type" : "integer",
+            "description" : "Identifiant de l'utilisateur ayant payé",
+            "format" : "int64",
+            "example" : 42
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "Montant du paiement",
+            "example" : 500.0
+          },
+          "devise" : {
+            "type" : "string",
+            "description" : "Devise du paiement",
+            "example" : "MAD"
+          },
+          "methode" : {
+            "type" : "string",
+            "description" : "Méthode de paiement",
+            "example" : "CMI",
+            "enum" : [ "CMI", "CASH_DELIVERY", "CASH_AGENCY", "BANK_TRANSFER" ]
+          },
+          "statut" : {
+            "type" : "string",
+            "description" : "Statut du paiement",
+            "example" : "PENDING",
+            "enum" : [ "PENDING", "PROCESSING", "SUCCESS", "FAILED", "REFUNDED", "PARTIALLY_REFUNDED", "CANCELLED" ]
+          },
+          "reference" : {
+            "type" : "string",
+            "description" : "Référence externe (ex: ID CMI)",
+            "example" : "CMI-123456"
+          },
+          "transactionId" : {
+            "type" : "string",
+            "description" : "Identifiant de transaction",
+            "example" : "TXN-987654"
+          },
+          "metadata" : {
+            "type" : "string",
+            "description" : "Métadonnées JSON pour détails CMI",
+            "example" : "{\"authCode\":\"12345\"}"
+          },
+          "createdAt" : {
+            "type" : "string",
+            "description" : "Date et heure de création",
+            "format" : "date-time"
+          },
+          "updatedAt" : {
+            "type" : "string",
+            "description" : "Date et heure de dernière mise à jour",
+            "format" : "date-time"
+          },
+          "paidAt" : {
+            "type" : "string",
+            "description" : "Date et heure où le paiement a été effectué",
+            "format" : "date-time"
+          }
+        }
+      },
+      "CmiInitiateRequest" : {
+        "required" : [ "montant", "reservationId", "returnUrl" ],
+        "type" : "object",
+        "properties" : {
+          "reservationId" : {
+            "type" : "integer",
+            "description" : "Identifiant technique de la réservation",
+            "format" : "int64",
+            "example" : 10
+          },
+          "montant" : {
+            "minimum" : 0.01,
+            "exclusiveMinimum" : false,
+            "type" : "number",
+            "description" : "Montant en Dirhams marocains (MAD)",
+            "example" : 750.0
+          },
+          "returnUrl" : {
+            "type" : "string",
+            "description" : "URL de retour applicative après le passage par CMI",
+            "example" : "https://locavite.ma/reservations/10/confirmation"
+          }
+        },
+        "description" : "Demande d'initiation d'un paiement en ligne via CMI"
+      },
+      "CmiInitiateResponse" : {
+        "type" : "object",
+        "properties" : {
+          "paymentId" : {
+            "type" : "integer",
+            "description" : "ID unique du paiement créé dans LocaVite",
+            "format" : "int64",
+            "example" : 42
+          },
+          "paymentCode" : {
+            "type" : "string",
+            "description" : "Code métier unique du paiement",
+            "example" : "PAY-CMI789"
+          },
+          "montant" : {
+            "type" : "number",
+            "description" : "Montant du paiement",
+            "example" : 750.0
+          },
+          "devise" : {
+            "type" : "string",
+            "description" : "Devise du paiement (par défaut MAD)",
+            "example" : "MAD"
+          },
+          "gatewayUrl" : {
+            "type" : "string",
+            "description" : "URL de la passerelle CMI vers laquelle rediriger le client",
+            "example" : "https://testpayment.cmi.co.ma/fim/est3Dgate"
+          },
+          "redirectUrl" : {
+            "type" : "string",
+            "description" : "URL complète de redirection CMI",
+            "example" : "https://testpayment.cmi.co.ma/fim/est3Dgate"
+          },
+          "formData" : {
+            "type" : "object",
+            "additionalProperties" : {
+              "type" : "string",
+              "description" : "Ensemble des champs du formulaire CMI signés avec HMAC-SHA512 / SHA-512"
+            },
+            "description" : "Ensemble des champs du formulaire CMI signés avec HMAC-SHA512 / SHA-512"
+          },
+          "expiresAt" : {
+            "type" : "string",
+            "description" : "Date et heure d'expiration de la session CMI (TTL 15 min)",
+            "format" : "date-time"
+          }
+        },
+        "description" : "Réponse d'initiation d'un paiement CMI contenant les paramètres et l'URL de redirection"
+      },
       "RegisterRequest" : {
         "required" : [ "email", "nom", "password", "prenom", "telephone" ],
         "type" : "object",
@@ -3255,18 +3956,18 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
-          "first" : {
-            "type" : "boolean"
-          },
-          "last" : {
-            "type" : "boolean"
-          },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
           },
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
           },
           "empty" : {
             "type" : "boolean"
@@ -3294,10 +3995,10 @@
             "type" : "integer",
             "format" : "int32"
           },
-          "paged" : {
+          "unpaged" : {
             "type" : "boolean"
           },
-          "unpaged" : {
+          "paged" : {
             "type" : "boolean"
           }
         }
@@ -3387,11 +4088,97 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
+          "pageable" : {
+            "$ref" : "#/components/schemas/PageableObject"
+          },
+          "numberOfElements" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
           "first" : {
             "type" : "boolean"
           },
           "last" : {
             "type" : "boolean"
+          },
+          "empty" : {
+            "type" : "boolean"
+          }
+        }
+      },
+      "PaymentFilter" : {
+        "type" : "object",
+        "properties" : {
+          "reservationId" : {
+            "type" : "integer",
+            "description" : "Filtrer par identifiant de réservation",
+            "format" : "int64"
+          },
+          "userId" : {
+            "type" : "integer",
+            "description" : "Filtrer par identifiant utilisateur",
+            "format" : "int64"
+          },
+          "statut" : {
+            "type" : "string",
+            "description" : "Filtrer par statut de paiement",
+            "enum" : [ "PENDING", "PROCESSING", "SUCCESS", "FAILED", "REFUNDED", "PARTIALLY_REFUNDED", "CANCELLED" ]
+          },
+          "methode" : {
+            "type" : "string",
+            "description" : "Filtrer par méthode de paiement",
+            "enum" : [ "CMI", "CASH_DELIVERY", "CASH_AGENCY", "BANK_TRANSFER" ]
+          },
+          "code" : {
+            "type" : "string",
+            "description" : "Filtrer par code de paiement"
+          },
+          "reference" : {
+            "type" : "string",
+            "description" : "Filtrer par référence"
+          },
+          "dateDebut" : {
+            "type" : "string",
+            "description" : "Date création minimale",
+            "format" : "date-time"
+          },
+          "dateFin" : {
+            "type" : "string",
+            "description" : "Date création maximale",
+            "format" : "date-time"
+          }
+        }
+      },
+      "PagePaymentResponse" : {
+        "type" : "object",
+        "properties" : {
+          "totalElements" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "totalPages" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "size" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "content" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/PaymentResponse"
+            }
+          },
+          "number" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
           },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
@@ -3399,6 +4186,12 @@
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
           },
           "empty" : {
             "type" : "boolean"
@@ -3436,18 +4229,18 @@
               "$ref" : "#/components/schemas/SortObject"
             }
           },
-          "first" : {
-            "type" : "boolean"
-          },
-          "last" : {
-            "type" : "boolean"
-          },
           "pageable" : {
             "$ref" : "#/components/schemas/PageableObject"
           },
           "numberOfElements" : {
             "type" : "integer",
             "format" : "int32"
+          },
+          "first" : {
+            "type" : "boolean"
+          },
+          "last" : {
+            "type" : "boolean"
           },
           "empty" : {
             "type" : "boolean"
