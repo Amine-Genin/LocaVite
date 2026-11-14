@@ -1,5 +1,7 @@
 package ma.locavite.payment.cmi.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -25,6 +27,9 @@ import java.util.Map;
 @RequestMapping("/api/payments/cmi")
 @Tag(name = "Paiement CMI", description = "Endpoints d'intégration de la passerelle de paiement en ligne CMI (Centre Monétique Interbancaire)")
 public class CmiPaymentController {
+
+    private static final ObjectMapper JSON = new ObjectMapper();
+    private static final TypeReference<Map<String, String>> STRING_MAP = new TypeReference<>() {};
 
     private final CmiPaymentService cmiPaymentService;
 
@@ -59,9 +64,9 @@ public class CmiPaymentController {
     })
     public ResponseEntity<Void> callbackPost(
             @RequestParam(required = false) Map<String, String> requestParams,
-            @RequestBody(required = false) Map<String, String> bodyParams,
+            @RequestBody(required = false) String body,
             HttpServletRequest httpRequest) {
-        Map<String, String> merged = mergeParams(requestParams, bodyParams);
+        Map<String, String> merged = mergeParams(requestParams, parseJsonBody(body, httpRequest));
         String redirectUrl = cmiPaymentService.handleCallback(merged, httpRequest);
         return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(redirectUrl)).build();
     }
@@ -85,9 +90,9 @@ public class CmiPaymentController {
     })
     public ResponseEntity<String> webhook(
             @RequestParam(required = false) Map<String, String> requestParams,
-            @RequestBody(required = false) Map<String, String> bodyParams,
+            @RequestBody(required = false) String body,
             HttpServletRequest httpRequest) {
-        Map<String, String> merged = mergeParams(requestParams, bodyParams);
+        Map<String, String> merged = mergeParams(requestParams, parseJsonBody(body, httpRequest));
         CmiWebhookResponse response = cmiPaymentService.handleWebhook(merged, httpRequest);
         return ResponseEntity.ok(response.action());
     }
@@ -101,5 +106,17 @@ public class CmiPaymentController {
             merged.putAll(bodyParams);
         }
         return merged;
+    }
+
+    private Map<String, String> parseJsonBody(String body, HttpServletRequest request) {
+        if (body == null || body.isBlank() || !MediaType.APPLICATION_JSON.isCompatibleWith(
+                MediaType.parseMediaType(request.getContentType() == null ? MediaType.ALL_VALUE : request.getContentType()))) {
+            return null;
+        }
+        try {
+            return JSON.readValue(body, STRING_MAP);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+            throw new IllegalArgumentException("Corps JSON CMI invalide", ex);
+        }
     }
 }

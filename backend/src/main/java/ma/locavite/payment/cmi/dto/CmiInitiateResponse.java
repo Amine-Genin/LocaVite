@@ -1,5 +1,6 @@
 package ma.locavite.payment.cmi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
@@ -9,7 +10,7 @@ import java.util.Map;
 @Schema(description = "Réponse d'initiation d'un paiement CMI contenant les paramètres et l'URL de redirection")
 public record CmiInitiateResponse(
         @Schema(description = "ID unique du paiement créé dans LocaVite", example = "42")
-        Long paymentId,
+        @JsonProperty("paymentId") Long paymentId,
 
         @Schema(description = "Code métier unique du paiement", example = "PAY-CMI789")
         String paymentCode,
