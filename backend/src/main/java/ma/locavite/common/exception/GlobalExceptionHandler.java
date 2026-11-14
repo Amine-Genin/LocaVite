@@ -52,7 +52,9 @@ public class GlobalExceptionHandler {
             IllegalArgumentException.class,
             IllegalStateException.class,
             InvalidReservationDatesException.class,
-            InvalidReservationStatusException.class
+            InvalidReservationStatusException.class,
+            ma.locavite.payment.exception.InvalidPaymentStatusException.class,
+            ma.locavite.payment.exception.PaymentValidationException.class
     })
     public ResponseEntity<Map<String, Object>> handleBadRequestExceptions(RuntimeException ex) {
         Map<String, Object> body = new HashMap<>();
@@ -68,7 +70,8 @@ public class GlobalExceptionHandler {
             ma.locavite.document.exception.DocumentNotFoundException.class,
             ma.locavite.vehicle.exception.VehicleNotFoundException.class,
             ma.locavite.vehicle.exception.VehiclePhotoNotFoundException.class,
-            ReservationNotFoundException.class
+            ReservationNotFoundException.class,
+            ma.locavite.payment.exception.PaymentNotFoundException.class
     })
     public ResponseEntity<Map<String, Object>> handleUserNotFound(RuntimeException ex) {
         Map<String, Object> body = new HashMap<>();
