@@ -25,6 +25,10 @@ public interface PaymentRepository extends JpaRepository<Payment, Long>, JpaSpec
 
     Optional<Payment> findByCode(String code);
 
+    Optional<Payment> findByReference(String reference);
+
+    Optional<Payment> findByTransactionId(String transactionId);
+
     boolean existsByCode(String code);
 
     @Query("SELECT COALESCE(SUM(p.montant), 0) FROM Payment p WHERE p.reservationId = :reservationId AND p.statut = ma.locavite.payment.domain.PaymentStatus.SUCCESS")

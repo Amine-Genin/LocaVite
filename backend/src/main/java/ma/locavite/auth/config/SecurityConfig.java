@@ -68,6 +68,7 @@ public class SecurityConfig {
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/payments/cmi/callback", "/api/payments/cmi/webhook").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/reservations/quote").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reservations/*/contract/digital").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/brands", "/api/categories").permitAll()
