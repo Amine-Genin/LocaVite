@@ -526,7 +526,7 @@ class PaymentControllerIT {
                 .andReturn().getResponse().getContentAsByteArray();
 
         try (var pdf = org.apache.pdfbox.Loader.loadPDF(pdfBytes)) {
-            String text = new org.apache.pdfbox.text.PDFTextStripper().getText(pdf);
+            String text = new org.apache.pdfbox.text.PDFTextStripper().getText(pdf).replaceAll("\\s+", " ");
             org.assertj.core.api.Assertions.assertThat(text)
                     .contains("Ticket de caisse", "PAY-CSH200", "LV-PAYTEST1", "CASH_DELIVERY", "1500.00");
         }

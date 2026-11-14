@@ -44,7 +44,7 @@ public class CashReceiptPdfService {
 
             document.add(new Paragraph("LocaVite - Recu de paiement en especes (Ticket de caisse)")
                     .setBold()
-                    .setFontSize(18));
+                    .setFontSize(14));
             document.add(new Paragraph("Ticket / Paiement : " + payment.getCode()));
             document.add(new Paragraph("Reservation : " + reservation.getCode()));
             document.add(new Paragraph("Methode : " + payment.getMethode() + " - " + formatMethodLabel(payment.getMethode())));

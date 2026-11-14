@@ -193,7 +193,7 @@ class CashPaymentServiceTest {
 
         assertThat(pdfBytes).isNotNull().isNotEmpty();
         try (var pdf = Loader.loadPDF(pdfBytes)) {
-            String text = new PDFTextStripper().getText(pdf);
+            String text = new PDFTextStripper().getText(pdf).replaceAll("\\s+", " ");
             assertThat(text).contains(
                     "Ticket de caisse",
                     "PAY-CSH001",
