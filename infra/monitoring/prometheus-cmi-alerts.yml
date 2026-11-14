@@ -1,0 +1,50 @@
+# ==============================================================================
+# Règles d'alerte Prometheus & Alertmanager - Sécurité Webhook CMI (LocaVite)
+# ==============================================================================
+groups:
+  - name: locavite.cmi.webhook.security
+    interval: 30s
+    rules:
+      - alert: CmiWebhookInvalidSignatureDetected
+        expr: increase(cmi_webhook_security_failures_total{reason="invalid_signature"}[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          service: locavite-backend
+          component: cmi-webhook
+        annotations:
+          summary: "Échec de vérification de signature HMAC-SHA512 sur le webhook CMI"
+          description: "{{ $value }} tentative(s) avec signature HMAC-SHA512 invalide détectée(s) sur /api/payments/cmi/webhook au cours des 5 dernières minutes."
+
+      - alert: CmiWebhookUnauthorizedIpAttempt
+        expr: increase(cmi_webhook_security_failures_total{reason="ip_not_whitelisted"}[5m]) > 0
+        for: 0m
+        labels:
+          severity: warning
+          service: locavite-backend
+          component: cmi-webhook
+        annotations:
+          summary: "Tentative d'accès au webhook CMI depuis une IP non whitelistée"
+          description: "{{ $value }} requête(s) bloquée(s) (HTTP 403) depuis une IP hors de la whitelist CMI sur les 5 dernières minutes."
+
+      - alert: CmiWebhookRateLimitExceeded
+        expr: increase(cmi_webhook_security_failures_total{reason="rate_limit_exceeded"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: warning
+          service: locavite-backend
+          component: cmi-webhook
+        annotations:
+          summary: "Dépassement du rate limit (10 req/min/IP) sur le webhook CMI"
+          description: "Le seuil de 10 requêtes/minute par IP a été dépassé ({{ $value }} rejets HTTP 429 sur 5 minutes)."
+
+      - alert: CmiWebhookUnencryptedHttpAttempt
+        expr: increase(cmi_webhook_security_failures_total{reason="https_required"}[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          service: locavite-backend
+          component: cmi-webhook
+        annotations:
+          summary: "Appel non chiffré (HTTP) détecté sur le webhook CMI"
+          description: "{{ $value }} requête(s) rejetée(s) car transmise(s) sans TLS 1.2+ sur /api/payments/cmi/webhook."

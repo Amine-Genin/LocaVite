@@ -5,11 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import ma.locavite.payment.cmi.config.CmiProperties;
+import ma.locavite.payment.cmi.domain.WebhookEvent;
 import ma.locavite.payment.cmi.dto.CmiInitiateRequest;
 import ma.locavite.payment.cmi.dto.CmiInitiateResponse;
 import ma.locavite.payment.cmi.dto.CmiWebhookResponse;
 import ma.locavite.payment.cmi.exception.CmiIpNotAllowedException;
+import ma.locavite.payment.cmi.exception.CmiRateLimitExceededException;
 import ma.locavite.payment.cmi.exception.CmiSignatureException;
+import ma.locavite.payment.cmi.exception.CmiWebhookSignatureException;
+import ma.locavite.payment.cmi.filter.CmiWebhookFilter;
+import ma.locavite.payment.cmi.repository.WebhookEventRepository;
 import ma.locavite.payment.cmi.util.CmiDataSanitizer;
 import ma.locavite.payment.domain.Payment;
 import ma.locavite.payment.domain.PaymentMethod;
@@ -27,7 +32,9 @@ import ma.locavite.reservation.repository.ReservationRepository;
 import ma.locavite.vehicle.service.CurrentUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +47,7 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Transactional
@@ -59,6 +67,10 @@ public class CmiPaymentService {
     private final CmiIpWhitelistService ipWhitelistService;
     private final CmiClient cmiClient;
     private final ObjectMapper objectMapper;
+    private final WebhookEventRepository webhookEventRepository;
+    private final CmiWebhookRateLimiter rateLimiter;
+    private final CmiSecurityAlertService securityAlertService;
+    private final Set<String> processedEventIdsFallback = ConcurrentHashMap.newKeySet();
 
     public CmiPaymentService(
             PaymentRepository paymentRepository,
@@ -70,6 +82,36 @@ public class CmiPaymentService {
             CmiIpWhitelistService ipWhitelistService,
             CmiClient cmiClient,
             ObjectMapper objectMapper) {
+        this(
+                paymentRepository,
+                reservationRepository,
+                currentUserService,
+                eventPublisher,
+                cmiProperties,
+                cmiHashService,
+                ipWhitelistService,
+                cmiClient,
+                objectMapper,
+                null,
+                new CmiWebhookRateLimiter(cmiProperties),
+                new CmiSecurityAlertService()
+        );
+    }
+
+    @Autowired
+    public CmiPaymentService(
+            PaymentRepository paymentRepository,
+            ReservationRepository reservationRepository,
+            CurrentUserService currentUserService,
+            ApplicationEventPublisher eventPublisher,
+            CmiProperties cmiProperties,
+            CmiHashService cmiHashService,
+            CmiIpWhitelistService ipWhitelistService,
+            CmiClient cmiClient,
+            ObjectMapper objectMapper,
+            @Nullable WebhookEventRepository webhookEventRepository,
+            @Nullable CmiWebhookRateLimiter rateLimiter,
+            @Nullable CmiSecurityAlertService securityAlertService) {
         this.paymentRepository = paymentRepository;
         this.reservationRepository = reservationRepository;
         this.currentUserService = currentUserService;
@@ -79,6 +121,9 @@ public class CmiPaymentService {
         this.ipWhitelistService = ipWhitelistService;
         this.cmiClient = cmiClient;
         this.objectMapper = objectMapper;
+        this.webhookEventRepository = webhookEventRepository;
+        this.rateLimiter = rateLimiter != null ? rateLimiter : new CmiWebhookRateLimiter(cmiProperties);
+        this.securityAlertService = securityAlertService != null ? securityAlertService : new CmiSecurityAlertService();
     }
 
     public CmiInitiateResponse initiate(CmiInitiateRequest request, HttpServletRequest httpRequest) {
@@ -247,24 +292,62 @@ public class CmiPaymentService {
 
     public CmiWebhookResponse handleWebhook(Map<String, String> params, HttpServletRequest httpRequest) {
         String clientIp = ipWhitelistService.getClientIp(httpRequest);
-        log.info("Réception notification webhook serveur-à-serveur CMI depuis l'IP : {}", clientIp);
+        boolean verifiedByFilter = httpRequest != null
+                && Boolean.TRUE.equals(httpRequest.getAttribute(CmiWebhookFilter.ATTR_WEBHOOK_VERIFIED));
 
-        if (!ipWhitelistService.isIpAllowed(clientIp)) {
-            log.warn("Notification webhook CMI rejetée : IP {} non autorisée", clientIp);
-            throw new CmiIpNotAllowedException("IP non autorisée pour le webhook CMI : " + clientIp);
-        }
+        Map<String, String> sanitizedParams = CmiDataSanitizer.maskSensitiveParams(params);
+        if (!verifiedByFilter) {
+            log.info("AUDIT_WEBHOOK_CMI ip={} headers={} payload={}",
+                    clientIp, extractHeaders(httpRequest), sanitizedParams);
 
-        boolean validHash = cmiHashService.verifyHash(params, cmiProperties.getStoreKey());
-        if (!validHash) {
-            log.warn("Notification webhook CMI rejetée : signature invalide");
-            throw new CmiSignatureException("Signature CMI invalide");
+            if (!ipWhitelistService.isIpAllowed(clientIp)) {
+                log.warn("Notification webhook CMI rejetée : IP {} non autorisée", clientIp);
+                securityAlertService.triggerSecurityAlert(
+                        "ip_not_whitelisted",
+                        clientIp,
+                        "IP non autorisée pour le webhook CMI : " + clientIp
+                );
+                throw new CmiIpNotAllowedException("IP non autorisée pour le webhook CMI : " + clientIp);
+            }
+
+            if (!rateLimiter.tryConsume(clientIp)) {
+                log.warn("Notification webhook CMI rejetée : rate limit dépassé pour l'IP {}", clientIp);
+                securityAlertService.triggerSecurityAlert(
+                        "rate_limit_exceeded",
+                        clientIp,
+                        "Dépassement de la limite de " + cmiProperties.getWebhookRateLimitPerMinute() + " req/min pour l'IP " + clientIp
+                );
+                throw new CmiRateLimitExceededException(
+                        "Trop de requêtes sur le webhook CMI depuis l'IP " + clientIp + " (limite : " + cmiProperties.getWebhookRateLimitPerMinute() + " req/min)"
+                );
+            }
+
+            boolean validHash = cmiHashService.verifyHash(params, cmiProperties.getStoreKey());
+            if (!validHash) {
+                log.warn("Notification webhook CMI rejetée : signature HMAC-SHA512 invalide");
+                securityAlertService.triggerSecurityAlert(
+                        "invalid_signature",
+                        clientIp,
+                        "Signature HMAC-SHA512 invalide pour oid=" + params.getOrDefault("oid", "unknown")
+                );
+                throw new CmiWebhookSignatureException("Signature CMI invalide");
+            }
+            securityAlertService.recordWebhookRequest("accepted");
         }
 
         String oid = extractOid(params);
         Payment payment = findPaymentByOid(oid);
+        String eventId = resolveEventId(params, httpRequest, oid);
 
-        // Idempotence : si le paiement a déjà été traité avec succès ou échec, ne pas re-traiter
+        // Vérification d'idempotence via la table webhook_events (event_id unique)
+        if (isDuplicateWebhookEvent(eventId)) {
+            log.info("Webhook CMI idempotent : l'événement {} pour le paiement {} a déjà été traité", eventId, payment.getCode());
+            return new CmiWebhookResponse("ACTION=POSTAUTH", true, payment.getId(), payment.getStatut());
+        }
+
+        // Idempotence métier sur le statut du paiement
         if (payment.getStatut() == PaymentStatus.SUCCESS || payment.getStatut() == PaymentStatus.FAILED) {
+            recordWebhookEvent(eventId, sanitizedParams, clientIp);
             log.info("Webhook CMI idempotent : le paiement {} est déjà au statut {}", payment.getCode(), payment.getStatut());
             return new CmiWebhookResponse("ACTION=POSTAUTH", true, payment.getId(), payment.getStatut());
         }
@@ -281,20 +364,96 @@ public class CmiPaymentService {
             if (transId != null && !transId.isBlank()) {
                 payment.setTransactionId(transId);
             }
-            appendMetadata(payment, "cmiWebhookResponse", CmiDataSanitizer.maskSensitiveParams(params));
+            appendMetadata(payment, "cmiWebhookResponse", sanitizedParams);
+            appendMetadata(payment, "webhookEventId", eventId);
             Payment saved = paymentRepository.save(payment);
+            recordWebhookEvent(eventId, sanitizedParams, clientIp);
             eventPublisher.publishEvent(new PaymentSucceededEvent(saved));
-            log.info("Paiement CMI {} confirmé via webhook (TransId: {})", payment.getCode(), transId);
+            log.info("Paiement CMI {} confirmé via webhook (TransId: {}, eventId: {})", payment.getCode(), transId, eventId);
             return new CmiWebhookResponse("ACTION=POSTAUTH", false, saved.getId(), saved.getStatut());
         } else {
             payment.setStatut(PaymentStatus.FAILED);
-            appendMetadata(payment, "cmiWebhookResponse", CmiDataSanitizer.maskSensitiveParams(params));
+            appendMetadata(payment, "cmiWebhookResponse", sanitizedParams);
+            appendMetadata(payment, "webhookEventId", eventId);
             appendMetadata(payment, "failureReason", params.getOrDefault("ErrMsg", "Échec CMI via notification serveur"));
             Payment saved = paymentRepository.save(payment);
+            recordWebhookEvent(eventId, sanitizedParams, clientIp);
             eventPublisher.publishEvent(new PaymentFailedEvent(saved));
-            log.warn("Paiement CMI {} échoué via webhook", payment.getCode());
+            log.warn("Paiement CMI {} échoué via webhook (eventId: {})", payment.getCode(), eventId);
             return new CmiWebhookResponse("ACTION=POSTAUTH", false, saved.getId(), saved.getStatut());
         }
+    }
+
+    private String resolveEventId(Map<String, String> params, HttpServletRequest request, String oid) {
+        if (params != null) {
+            for (String key : List.of("event_id", "eventId", "EVENT_ID", "EventId")) {
+                String val = params.get(key);
+                if (val != null && !val.isBlank()) {
+                    return val.trim();
+                }
+            }
+        }
+        if (request != null) {
+            String headerVal = request.getHeader("X-CMI-Event-Id");
+            if (headerVal != null && !headerVal.isBlank()) {
+                return headerVal.trim();
+            }
+        }
+        String transId = params != null ? params.getOrDefault("TransId", "NO_TX") : "NO_TX";
+        String procCode = params != null ? params.getOrDefault("ProcReturnCode", "NA") : "NA";
+        return "CMI:" + (oid != null ? oid : "UNKNOWN") + ":" + transId + ":" + procCode;
+    }
+
+    private boolean isDuplicateWebhookEvent(String eventId) {
+        if (eventId == null || eventId.isBlank()) {
+            return false;
+        }
+        if (webhookEventRepository != null) {
+            return webhookEventRepository.existsByEventId(eventId);
+        }
+        return processedEventIdsFallback.contains(eventId);
+    }
+
+    private void recordWebhookEvent(String eventId, Map<String, String> sanitizedParams, String clientIp) {
+        if (eventId == null || eventId.isBlank()) {
+            return;
+        }
+        processedEventIdsFallback.add(eventId);
+        if (webhookEventRepository != null && !webhookEventRepository.existsByEventId(eventId)) {
+            Instant now = Instant.now();
+            WebhookEvent event = new WebhookEvent();
+            event.setEventId(eventId);
+            event.setSource("CMI");
+            event.setIp(clientIp != null && !clientIp.isBlank() ? clientIp : "unknown");
+            try {
+                event.setPayload(objectMapper.writeValueAsString(sanitizedParams));
+            } catch (Exception e) {
+                event.setPayload(String.valueOf(sanitizedParams));
+            }
+            event.setReceivedAt(now);
+            event.setProcessedAt(now);
+            webhookEventRepository.save(event);
+        }
+    }
+
+    private Map<String, String> extractHeaders(HttpServletRequest request) {
+        if (request == null) {
+            return Collections.emptyMap();
+        }
+        Map<String, String> headers = new LinkedHashMap<>();
+        Enumeration<String> names = request.getHeaderNames();
+        if (names != null) {
+            while (names.hasMoreElements()) {
+                String name = names.nextElement();
+                String lower = name.toLowerCase(Locale.ROOT);
+                if (lower.contains("authorization") || lower.contains("cookie") || lower.contains("secret")) {
+                    headers.put(name, "******");
+                } else {
+                    headers.put(name, request.getHeader(name));
+                }
+            }
+        }
+        return headers;
     }
 
     private Long getCurrentUserId() {

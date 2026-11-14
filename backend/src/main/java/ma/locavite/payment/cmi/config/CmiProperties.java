@@ -41,6 +41,8 @@ public class CmiProperties {
     private String signatureAlgorithm = "HMAC_SHA512"; // "HMAC_SHA512" or "SHA512"
     private boolean fallbackMode = false;
     private boolean checkGatewayHealth = false;
+    private int webhookRateLimitPerMinute = 10;
+    private boolean webhookRequireHttps = false;
 
     public CmiProperties() {
     }
@@ -203,5 +205,21 @@ public class CmiProperties {
 
     public void setCheckGatewayHealth(boolean checkGatewayHealth) {
         this.checkGatewayHealth = checkGatewayHealth;
+    }
+
+    public int getWebhookRateLimitPerMinute() {
+        return webhookRateLimitPerMinute;
+    }
+
+    public void setWebhookRateLimitPerMinute(int webhookRateLimitPerMinute) {
+        this.webhookRateLimitPerMinute = webhookRateLimitPerMinute;
+    }
+
+    public boolean isWebhookRequireHttps() {
+        return webhookRequireHttps;
+    }
+
+    public void setWebhookRequireHttps(boolean webhookRequireHttps) {
+        this.webhookRequireHttps = webhookRequireHttps;
     }
 }

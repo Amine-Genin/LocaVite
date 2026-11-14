@@ -3,12 +3,16 @@ package ma.locavite.payment.cmi.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import ma.locavite.payment.cmi.config.CmiProperties;
+import ma.locavite.payment.cmi.domain.WebhookEvent;
 import ma.locavite.payment.cmi.dto.CmiInitiateRequest;
 import ma.locavite.payment.cmi.dto.CmiInitiateResponse;
 import ma.locavite.payment.cmi.dto.CmiWebhookResponse;
 import ma.locavite.payment.cmi.exception.CmiIpNotAllowedException;
+import ma.locavite.payment.cmi.exception.CmiRateLimitExceededException;
 import ma.locavite.payment.cmi.exception.CmiSignatureException;
 import ma.locavite.payment.cmi.exception.CmiUnavailableException;
+import ma.locavite.payment.cmi.exception.CmiWebhookSignatureException;
+import ma.locavite.payment.cmi.repository.WebhookEventRepository;
 import ma.locavite.payment.domain.Payment;
 import ma.locavite.payment.domain.PaymentMethod;
 import ma.locavite.payment.domain.PaymentStatus;
@@ -371,7 +375,7 @@ class CmiPaymentServiceTest {
     }
 
     @Test
-    @DisplayName("Test : webhook avec signature invalide → CmiSignatureException (400)")
+    @DisplayName("Test : webhook avec signature invalide → CmiWebhookSignatureException (401)")
     void webhook_invalidSignature_throwsCmiSignatureException() {
         when(httpRequest.getRemoteAddr()).thenReturn("127.0.0.1");
 
@@ -382,8 +386,109 @@ class CmiPaymentServiceTest {
         params.put("hash", "BAD_SIG");
 
         assertThatThrownBy(() -> paymentService.handleWebhook(params, httpRequest))
-                .isInstanceOf(CmiSignatureException.class);
+                .isInstanceOf(CmiWebhookSignatureException.class);
 
         verify(paymentRepository, never()).findByCode(any());
+    }
+
+    @Test
+    @DisplayName("Test : même event_id 2 fois via table webhook_events → 1 seul traitement")
+    void webhook_sameEventIdTwice_persistedInWebhookEventsAndProcessedOnce() {
+        WebhookEventRepository webhookEventRepository = mock(WebhookEventRepository.class);
+        CmiWebhookRateLimiter rateLimiter = new CmiWebhookRateLimiter(properties);
+        CmiSecurityAlertService alertService = new CmiSecurityAlertService();
+
+        CmiPaymentService serviceWithRepo = new CmiPaymentService(
+                paymentRepository,
+                reservationRepository,
+                currentUserService,
+                eventPublisher,
+                properties,
+                hashService,
+                ipWhitelistService,
+                cmiClient,
+                objectMapper,
+                webhookEventRepository,
+                rateLimiter,
+                alertService
+        );
+
+        Payment payment = new Payment();
+        payment.setId(55L);
+        payment.setCode("PAY-WB002");
+        payment.setReservationId(10L);
+        payment.setMontant(new BigDecimal("600.00"));
+        payment.setStatut(PaymentStatus.PENDING);
+
+        when(paymentRepository.findByCode("PAY-WB002")).thenReturn(Optional.of(payment));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
+        when(httpRequest.getRemoteAddr()).thenReturn("196.200.160.15");
+
+        // 1er appel : event_id non encore présent en base, puis présent au 2ème appel
+        when(webhookEventRepository.existsByEventId("EVT-CMI-9001"))
+                .thenReturn(false)
+                .thenReturn(false)
+                .thenReturn(true);
+
+        Map<String, String> params = new HashMap<>();
+        params.put("event_id", "EVT-CMI-9001");
+        params.put("oid", "PAY-WB002");
+        params.put("Response", "Approved");
+        params.put("ProcReturnCode", "00");
+        params.put("TransId", "TXN-WB-88");
+        params.put("amount", "600.00");
+        params.put("hash", hashService.generateInitiateHash(params, secretKey, "HMAC_SHA512"));
+
+        CmiWebhookResponse first = serviceWithRepo.handleWebhook(params, httpRequest);
+        assertThat(first.action()).isEqualTo("ACTION=POSTAUTH");
+        assertThat(first.duplicate()).isFalse();
+
+        ArgumentCaptor<WebhookEvent> eventCaptor = ArgumentCaptor.forClass(WebhookEvent.class);
+        verify(webhookEventRepository, times(1)).save(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getEventId()).isEqualTo("EVT-CMI-9001");
+        assertThat(eventCaptor.getValue().getSource()).isEqualTo("CMI");
+        assertThat(eventCaptor.getValue().getIp()).isEqualTo("196.200.160.15");
+        assertThat(eventCaptor.getValue().getReceivedAt()).isNotNull();
+        assertThat(eventCaptor.getValue().getProcessedAt()).isNotNull();
+
+        // 2ème appel avec le même event_id
+        CmiWebhookResponse second = serviceWithRepo.handleWebhook(params, httpRequest);
+        assertThat(second.action()).isEqualTo("ACTION=POSTAUTH");
+        assertThat(second.duplicate()).isTrue();
+        verify(paymentRepository, times(1)).save(any(Payment.class));
+        verify(eventPublisher, times(1)).publishEvent(any(PaymentSucceededEvent.class));
+    }
+
+    @Test
+    @DisplayName("Test : rate limit (> 10 req/min par IP) → CmiRateLimitExceededException (429)")
+    void webhook_rateLimitExceeded_throwsCmiRateLimitExceededException() {
+        when(httpRequest.getRemoteAddr()).thenReturn("196.200.160.42");
+
+        Payment payment = new Payment();
+        payment.setId(56L);
+        payment.setCode("PAY-WB003");
+        payment.setReservationId(10L);
+        payment.setMontant(new BigDecimal("600.00"));
+        payment.setStatut(PaymentStatus.PENDING);
+        when(paymentRepository.findByCode("PAY-WB003")).thenReturn(Optional.of(payment));
+        when(paymentRepository.save(any(Payment.class))).thenAnswer(i -> i.getArgument(0));
+
+        Map<String, String> params = new HashMap<>();
+        params.put("oid", "PAY-WB003");
+        params.put("Response", "Approved");
+        params.put("ProcReturnCode", "00");
+        params.put("amount", "600.00");
+        params.put("hash", hashService.generateInitiateHash(params, secretKey, "HMAC_SHA512"));
+
+        // 10 requêtes autorisées dans la minute
+        for (int i = 0; i < 10; i++) {
+            CmiWebhookResponse resp = paymentService.handleWebhook(params, httpRequest);
+            assertThat(resp.action()).isEqualTo("ACTION=POSTAUTH");
+        }
+
+        // La 11ème requête de la même IP dans la même minute doit être bloquée (429)
+        assertThatThrownBy(() -> paymentService.handleWebhook(params, httpRequest))
+                .isInstanceOf(CmiRateLimitExceededException.class)
+                .hasMessageContaining("Trop de requêtes");
     }
 }

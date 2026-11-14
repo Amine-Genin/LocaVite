@@ -2,6 +2,7 @@ package ma.locavite.auth.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import ma.locavite.auth.repository.UserRepository;
+import ma.locavite.payment.cmi.filter.CmiWebhookFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -60,7 +61,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            CmiWebhookFilter cmiWebhookFilter) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())
@@ -90,6 +94,7 @@ public class SecurityConfig {
                     response.getWriter().write("{\"timestamp\":\"" + LocalDateTime.now() + "\",\"status\":403,\"error\":\"Forbidden\",\"message\":\"Accès refusé\"}");
                 })
             )
+            .addFilterBefore(cmiWebhookFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

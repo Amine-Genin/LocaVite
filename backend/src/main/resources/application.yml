@@ -1,5 +1,8 @@
 server:
   port: ${PORT:8081}
+  forward-headers-strategy: framework
+  ssl:
+    enabled-protocols: TLSv1.2,TLSv1.3
 
 spring:
   application:
@@ -73,6 +76,8 @@ cmi:
   encoding: "UTF-8"
   signature-algorithm: "HMAC_SHA512"
   fallback-mode: ${CMI_FALLBACK_MODE:false}
+  webhook-rate-limit-per-minute: ${CMI_WEBHOOK_RATE_LIMIT:10}
+  webhook-require-https: ${CMI_WEBHOOK_REQUIRE_HTTPS:false}
 
 security:
   jwt:

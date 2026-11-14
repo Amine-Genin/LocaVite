@@ -5,8 +5,10 @@ import ma.locavite.payment.cmi.dto.CmiInitiateRequest;
 import ma.locavite.payment.cmi.dto.CmiInitiateResponse;
 import ma.locavite.payment.cmi.dto.CmiWebhookResponse;
 import ma.locavite.payment.cmi.exception.CmiIpNotAllowedException;
+import ma.locavite.payment.cmi.exception.CmiRateLimitExceededException;
 import ma.locavite.payment.cmi.exception.CmiSignatureException;
 import ma.locavite.payment.cmi.exception.CmiUnavailableException;
+import ma.locavite.payment.cmi.exception.CmiWebhookSignatureException;
 import ma.locavite.payment.cmi.service.CmiPaymentService;
 import ma.locavite.payment.domain.PaymentStatus;
 import ma.locavite.payment.exception.PaymentExceptionHandler;
@@ -189,16 +191,31 @@ class CmiPaymentControllerTest {
     }
 
     @Test
-    @DisplayName("Endpoint POST /api/payments/cmi/webhook avec signature invalide → 400 Bad Request")
-    void webhook_invalidSignature_returns400BadRequest() throws Exception {
+    @DisplayName("Endpoint POST /api/payments/cmi/webhook avec signature invalide → 401 Unauthorized")
+    void webhook_invalidSignature_returns401Unauthorized() throws Exception {
         when(cmiPaymentService.handleWebhook(any(), any()))
-                .thenThrow(new CmiSignatureException("Signature CMI invalide"));
+                .thenThrow(new CmiWebhookSignatureException("Signature CMI invalide"));
 
         mockMvc.perform(post("/api/payments/cmi/webhook")
                         .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                         .param("oid", "PAY-CMI001")
                         .param("hash", "BAD_SIG"))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.detail", containsString("Signature CMI invalide")));
+    }
+
+    @Test
+    @DisplayName("Endpoint POST /api/payments/cmi/webhook avec rate limit dépassé → 429 Too Many Requests")
+    void webhook_rateLimitExceeded_returns429TooManyRequests() throws Exception {
+        when(cmiPaymentService.handleWebhook(any(), any()))
+                .thenThrow(new CmiRateLimitExceededException("Trop de requêtes sur le webhook CMI (limite : 10 req/min)"));
+
+        mockMvc.perform(post("/api/payments/cmi/webhook")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .param("oid", "PAY-CMI001")
+                        .param("hash", "VALID_HASH"))
+                .andExpect(status().isTooManyRequests())
+                .andExpect(header().string("Retry-After", "60"))
+                .andExpect(jsonPath("$.detail", containsString("Trop de requêtes")));
     }
 }
