@@ -153,9 +153,9 @@ export class PaymentFailureComponent implements OnInit {
 
   retryPayment(): void {
     if (this.reservationId > 0) {
-      this.router.navigate(['/payment', this.reservationId]);
+      void this.router.navigate(['/payment', this.reservationId]);
     } else {
-      this.router.navigate(['/my-reservations']);
+      void this.router.navigate(['/my-reservations']);
     }
   }
 }

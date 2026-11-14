@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
@@ -31,7 +31,6 @@ export interface PaymentMethodOption {
   imports: [
     CommonModule,
     FormsModule,
-    RouterLink,
     MatCardModule,
     MatRadioModule,
     MatButtonModule,
@@ -142,7 +141,7 @@ export class PaymentComponent implements OnInit {
             return;
           }
 
-          this.router.navigate(['/payment/success'], {
+          void this.router.navigate(['/payment/success'], {
             queryParams: {
               paymentId: response.id,
               reservationId: this.reservation?.id,
@@ -169,7 +168,9 @@ export class PaymentComponent implements OnInit {
 
   copyRib(): void {
     if (navigator?.clipboard) {
-      navigator.clipboard.writeText(this.ribInfo.rib);
+      navigator.clipboard.writeText(this.ribInfo.rib).catch(() => {
+        // Ignorer si l'accès au presse-papiers est refusé par le navigateur
+      });
     }
     this.ribCopied = true;
     setTimeout(() => {

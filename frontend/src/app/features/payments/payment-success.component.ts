@@ -261,7 +261,7 @@ export class PaymentSuccessComponent implements OnInit, OnDestroy {
 
           if (res.statut === 'FAILED' || res.statut === 'CANCELLED') {
             this.polling = false;
-            this.router.navigate(['/payment/failure'], {
+            void this.router.navigate(['/payment/failure'], {
               queryParams: {
                 paymentId: this.paymentId,
                 reservationId: this.reservationId || res.reservationId,

@@ -41,6 +41,7 @@ describe('PaymentFailureComponent', () => {
   });
 
   it('devrait afficher le motif d’échec et permettre de réessayer le paiement', () => {
+    expect(component).toBeTruthy();
     spyOn(router, 'navigate');
     const el: HTMLElement = fixture.nativeElement;
 

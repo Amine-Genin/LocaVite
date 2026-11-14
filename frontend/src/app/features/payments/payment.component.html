@@ -60,8 +60,12 @@
                 @for (option of paymentMethods; track option.value) {
                   <div
                     class="method-option-wrapper"
+                    role="button"
+                    tabindex="0"
                     [class.selected]="selectedMethod === option.value"
                     (click)="selectedMethod = option.value"
+                    (keydown.enter)="selectedMethod = option.value"
+                    (keydown.space)="selectedMethod = option.value; $event.preventDefault()"
                     [attr.data-cy]="option.dataCy + '-card'"
                   >
                     <mat-radio-button
