@@ -89,4 +89,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
             @Param("statuses") Collection<ReservationStatus> statuses,
             @Param("excludedId") Long excludedId
     );
+
+    @Query("SELECT r.id FROM Reservation r WHERE r.vehicleId IN :vehicleIds")
+    List<Long> findIdsByVehicleIdIn(@Param("vehicleIds") Collection<Long> vehicleIds);
 }
