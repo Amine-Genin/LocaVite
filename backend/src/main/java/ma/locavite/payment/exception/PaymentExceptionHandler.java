@@ -1,5 +1,6 @@
 package ma.locavite.payment.exception;
 
+import ma.locavite.payment.controller.AdminPaymentController;
 import ma.locavite.payment.controller.PaymentController;
 import ma.locavite.reservation.exception.ReservationNotFoundException;
 import org.springframework.core.Ordered;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@RestControllerAdvice(assignableTypes = PaymentController.class)
+@RestControllerAdvice(assignableTypes = {PaymentController.class, AdminPaymentController.class})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class PaymentExceptionHandler {
 

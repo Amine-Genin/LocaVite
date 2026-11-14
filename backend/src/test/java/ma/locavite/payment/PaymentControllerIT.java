@@ -451,4 +451,102 @@ class PaymentControllerIT {
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + client1Token))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    @DisplayName("Test : création paiement cash (CASH_DELIVERY et CASH_AGENCY) → PENDING")
+    void createCashPayment_valid_returns201WithPendingStatus() throws Exception {
+        String body = objectMapper.writeValueAsString(
+                new ma.locavite.payment.dto.CashPaymentRequest(reservation.getId(), PaymentMethod.CASH_DELIVERY)
+        );
+
+        mockMvc.perform(post("/api/payments/cash")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + client1Token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.code", startsWith("PAY-")))
+                .andExpect(jsonPath("$.reservationId").value(reservation.getId()))
+                .andExpect(jsonPath("$.userId").value(client1.getId()))
+                .andExpect(jsonPath("$.montant").value(1500.0))
+                .andExpect(jsonPath("$.devise").value("MAD"))
+                .andExpect(jsonPath("$.methode").value("CASH_DELIVERY"))
+                .andExpect(jsonPath("$.statut").value("PENDING"))
+                .andExpect(jsonPath("$.transactionId").isEmpty())
+                .andExpect(jsonPath("$.paidAt").isEmpty());
+    }
+
+    @Test
+    @DisplayName("Test : confirmation agence → SUCCESS (PUT /api/admin/payments/{id}/confirm-cash)")
+    void confirmCash_byAgence_returns200WithSuccessStatus() throws Exception {
+        Payment cashPayment = new Payment();
+        cashPayment.setCode("PAY-CSH100");
+        cashPayment.setReservationId(reservation.getId());
+        cashPayment.setUserId(client1.getId());
+        cashPayment.setMontant(new BigDecimal("1500.00"));
+        cashPayment.setDevise("MAD");
+        cashPayment.setMethode(PaymentMethod.CASH_AGENCY);
+        cashPayment.setStatut(PaymentStatus.PENDING);
+        cashPayment = paymentRepository.save(cashPayment);
+
+        mockMvc.perform(put("/api/admin/payments/" + cashPayment.getId() + "/confirm-cash")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(cashPayment.getId()))
+                .andExpect(jsonPath("$.methode").value("CASH_AGENCY"))
+                .andExpect(jsonPath("$.statut").value("SUCCESS"))
+                .andExpect(jsonPath("$.paidAt").isNotEmpty())
+                .andExpect(jsonPath("$.reference", startsWith("TICKET-")));
+    }
+
+    @Test
+    @DisplayName("Test : reçu PDF généré (ticket de caisse)")
+    void confirmCash_generatesValidPdfReceipt() throws Exception {
+        Payment cashPayment = new Payment();
+        cashPayment.setCode("PAY-CSH200");
+        cashPayment.setReservationId(reservation.getId());
+        cashPayment.setUserId(client1.getId());
+        cashPayment.setMontant(new BigDecimal("1500.00"));
+        cashPayment.setDevise("MAD");
+        cashPayment.setMethode(PaymentMethod.CASH_DELIVERY);
+        cashPayment.setStatut(PaymentStatus.PENDING);
+        cashPayment = paymentRepository.save(cashPayment);
+
+        // Confirmation par l'agence
+        mockMvc.perform(put("/api/admin/payments/" + cashPayment.getId() + "/confirm-cash")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.statut").value("SUCCESS"));
+
+        // Téléchargement du reçu PDF (ticket de caisse)
+        byte[] pdfBytes = mockMvc.perform(get("/api/admin/payments/" + cashPayment.getId() + "/receipt")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        try (var pdf = org.apache.pdfbox.Loader.loadPDF(pdfBytes)) {
+            String text = new org.apache.pdfbox.text.PDFTextStripper().getText(pdf);
+            org.assertj.core.api.Assertions.assertThat(text)
+                    .contains("Ticket de caisse", "PAY-CSH200", "LV-PAYTEST1", "CASH_DELIVERY", "1500.00");
+        }
+    }
+
+    @Test
+    @DisplayName("Test : client ne peut pas confirmer lui-même (403 Forbidden)")
+    void confirmCash_byClient_returns403Forbidden() throws Exception {
+        Payment cashPayment = new Payment();
+        cashPayment.setCode("PAY-CSH300");
+        cashPayment.setReservationId(reservation.getId());
+        cashPayment.setUserId(client1.getId());
+        cashPayment.setMontant(new BigDecimal("1500.00"));
+        cashPayment.setDevise("MAD");
+        cashPayment.setMethode(PaymentMethod.CASH_DELIVERY);
+        cashPayment.setStatut(PaymentStatus.PENDING);
+        cashPayment = paymentRepository.save(cashPayment);
+
+        mockMvc.perform(put("/api/admin/payments/" + cashPayment.getId() + "/confirm-cash")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + client1Token))
+                .andExpect(status().isForbidden());
+    }
 }
