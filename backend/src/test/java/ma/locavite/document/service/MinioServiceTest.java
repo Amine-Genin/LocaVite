@@ -44,8 +44,8 @@ class MinioServiceTest {
 
         minioService.initBucket();
 
-        verify(minioClient, times(2)).bucketExists(any(BucketExistsArgs.class));
-        verify(minioClient, times(2)).makeBucket(any(MakeBucketArgs.class));
+        verify(minioClient, times(3)).bucketExists(any(BucketExistsArgs.class));
+        verify(minioClient, times(3)).makeBucket(any(MakeBucketArgs.class));
     }
 
     @Test
@@ -55,7 +55,7 @@ class MinioServiceTest {
 
         minioService.initBucket();
 
-        verify(minioClient, times(2)).bucketExists(any(BucketExistsArgs.class));
+        verify(minioClient, times(3)).bucketExists(any(BucketExistsArgs.class));
         verify(minioClient, never()).makeBucket(any(MakeBucketArgs.class));
     }
 

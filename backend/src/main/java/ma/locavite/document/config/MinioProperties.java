@@ -11,6 +11,7 @@ public class MinioProperties {
     private String bucket = "locavite-documents";
     private String vehiclesBucket = "locavite-vehicles";
     private String contractsBucket = "locavite-contracts";
+    private String invoicesBucket = "locavite-invoices";
     private boolean initBucket = true;
 
     public String getEndpoint() {
@@ -59,6 +60,14 @@ public class MinioProperties {
 
     public void setContractsBucket(String contractsBucket) {
         this.contractsBucket = contractsBucket;
+    }
+
+    public String getInvoicesBucket() {
+        return invoicesBucket;
+    }
+
+    public void setInvoicesBucket(String invoicesBucket) {
+        this.invoicesBucket = invoicesBucket;
     }
 
     public boolean isInitBucket() {
