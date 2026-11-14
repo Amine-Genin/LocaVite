@@ -6,14 +6,19 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import ma.locavite.payment.dto.CashPaymentRequest;
 import ma.locavite.payment.dto.PaymentFilter;
 import ma.locavite.payment.dto.PaymentRequest;
 import ma.locavite.payment.dto.PaymentResponse;
+import ma.locavite.payment.service.CashPaymentService;
 import ma.locavite.payment.service.PaymentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -27,9 +32,16 @@ import java.net.URI;
 public class PaymentController {
 
     private final PaymentService paymentService;
+    private final CashPaymentService cashPaymentService;
 
     public PaymentController(PaymentService paymentService) {
+        this(paymentService, null);
+    }
+
+    @Autowired
+    public PaymentController(PaymentService paymentService, CashPaymentService cashPaymentService) {
         this.paymentService = paymentService;
+        this.cashPaymentService = cashPaymentService;
     }
 
     @PostMapping
@@ -49,6 +61,43 @@ public class PaymentController {
                 .buildAndExpand(response.id())
                 .toUri();
         return ResponseEntity.created(location).body(response);
+    }
+
+    @PostMapping("/cash")
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("hasRole('CLIENT')")
+    @Operation(
+            summary = "Créer un paiement en espèces (CLIENT)",
+            description = "Enregistre un paiement en espèces (CASH_DELIVERY ou CASH_AGENCY) avec le statut PENDING sans transaction en ligne."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Paiement en espèces créé en statut PENDING"),
+            @ApiResponse(responseCode = "400", description = "Méthode invalide ou réservation déjà payée/annulée"),
+            @ApiResponse(responseCode = "403", description = "Accès refusé"),
+            @ApiResponse(responseCode = "404", description = "Réservation non trouvée")
+    })
+    public ResponseEntity<PaymentResponse> createCashPayment(@Valid @RequestBody CashPaymentRequest request) {
+        PaymentResponse response = cashPaymentService.createCashPayment(request);
+        URI location = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/payments/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+        return ResponseEntity.created(location).body(response);
+    }
+
+    @GetMapping("/{id}/receipt")
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "Télécharger le reçu PDF (ticket de caisse) d'un paiement en espèces",
+            description = "Retourne le reçu PDF généré pour un paiement en espèces confirmé (SUCCESS)."
+    )
+    public ResponseEntity<byte[]> getReceipt(@PathVariable Long id) {
+        byte[] pdf = cashPaymentService.generateReceipt(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"ticket-caisse-" + id + ".pdf\"")
+                .body(pdf);
     }
 
     @GetMapping("/{id}")

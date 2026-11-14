@@ -1,5 +1,6 @@
 package ma.locavite.payment.exception;
 
+import ma.locavite.payment.controller.AdminPaymentController;
 import ma.locavite.payment.cmi.controller.CmiPaymentController;
 import ma.locavite.payment.cmi.exception.CmiIpNotAllowedException;
 import ma.locavite.payment.cmi.exception.CmiSessionExpiredException;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@RestControllerAdvice(assignableTypes = {PaymentController.class, CmiPaymentController.class})
+@RestControllerAdvice(assignableTypes = {PaymentController.class, AdminPaymentController.class, CmiPaymentController.class})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class PaymentExceptionHandler {
 
