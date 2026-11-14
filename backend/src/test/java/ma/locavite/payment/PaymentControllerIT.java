@@ -11,13 +11,17 @@ import ma.locavite.catalog.domain.Brand;
 import ma.locavite.catalog.domain.Category;
 import ma.locavite.catalog.repository.BrandRepository;
 import ma.locavite.catalog.repository.CategoryRepository;
+import ma.locavite.mail.repository.EmailLogRepository;
+import ma.locavite.notification.repository.NotificationLogRepository;
 import ma.locavite.payment.domain.Invoice;
 import ma.locavite.payment.domain.Payment;
 import ma.locavite.payment.domain.PaymentMethod;
 import ma.locavite.payment.domain.PaymentStatus;
 import ma.locavite.payment.dto.PaymentRequest;
+import ma.locavite.payment.dto.RefundRequest;
 import ma.locavite.payment.repository.InvoiceRepository;
 import ma.locavite.payment.repository.PaymentRepository;
+import ma.locavite.payment.repository.RefundRepository;
 import ma.locavite.reservation.domain.Reservation;
 import ma.locavite.reservation.domain.ReservationStatus;
 import ma.locavite.reservation.repository.ReservationRepository;
@@ -62,6 +66,15 @@ class PaymentControllerIT {
     private InvoiceRepository invoiceRepository;
 
     @Autowired
+    private RefundRepository refundRepository;
+
+    @Autowired
+    private EmailLogRepository emailLogRepository;
+
+    @Autowired
+    private NotificationLogRepository notificationLogRepository;
+
+    @Autowired
     private ReservationRepository reservationRepository;
 
     @Autowired
@@ -100,6 +113,7 @@ class PaymentControllerIT {
 
     @BeforeEach
     void setUp() {
+        refundRepository.deleteAll();
         invoiceRepository.deleteAll();
         paymentRepository.deleteAll();
         reservationRepository.deleteAll();
@@ -675,5 +689,200 @@ class PaymentControllerIT {
         mockMvc.perform(get("/api/payments/" + payment.getId() + "/invoice")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + client2Token))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("Test : remboursement total → statut REFUNDED (POST /api/admin/payments/{id}/refund)")
+    void refundPayment_fullAmount_transitionsToRefunded() throws Exception {
+        Payment payment = new Payment();
+        payment.setCode("PAY-REF100");
+        payment.setReservationId(reservation.getId());
+        payment.setUserId(client1.getId());
+        payment.setMontant(new BigDecimal("1500.00"));
+        payment.setDevise("MAD");
+        payment.setMethode(PaymentMethod.CMI);
+        payment.setStatut(PaymentStatus.SUCCESS);
+        payment.setTransactionId("CMI-TX-100");
+        payment = paymentRepository.save(payment);
+
+        RefundRequest refundRequest = new RefundRequest(
+                new BigDecimal("1500.00"),
+                "Annulation à plus de 7 jours avant départ (100%)"
+        );
+
+        mockMvc.perform(post("/api/admin/payments/" + payment.getId() + "/refund")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(refundRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.paymentId").value(payment.getId()))
+                .andExpect(jsonPath("$.paymentStatut").value("REFUNDED"))
+                .andExpect(jsonPath("$.montant").value(1500.0))
+                .andExpect(jsonPath("$.montantTotalRembourse").value(1500.0))
+                .andExpect(jsonPath("$.montantRestant").value(0.0))
+                .andExpect(jsonPath("$.statut").value("COMPLETED"))
+                .andExpect(jsonPath("$.methode").value("CMI"))
+                .andExpect(jsonPath("$.avoirPath", startsWith("avoirs/")));
+
+        Payment updatedPayment = paymentRepository.findById(payment.getId()).orElseThrow();
+        org.assertj.core.api.Assertions.assertThat(updatedPayment.getStatut()).isEqualTo(PaymentStatus.REFUNDED);
+    }
+
+    @Test
+    @DisplayName("Test : remboursement partiel → PARTIALLY_REFUNDED")
+    void refundPayment_partialAmount_transitionsToPartiallyRefunded() throws Exception {
+        Payment payment = new Payment();
+        payment.setCode("PAY-REF200");
+        payment.setReservationId(reservation.getId());
+        payment.setUserId(client1.getId());
+        payment.setMontant(new BigDecimal("1500.00"));
+        payment.setDevise("MAD");
+        payment.setMethode(PaymentMethod.BANK_TRANSFER);
+        payment.setStatut(PaymentStatus.SUCCESS);
+        payment = paymentRepository.save(payment);
+
+        // Remboursement partiel de 70% = 1050.00 MAD sur 1500.00 MAD
+        RefundRequest partialRequest = new RefundRequest(
+                new BigDecimal("1050.00"),
+                "Annulation à 5 jours du début (règle 70%)"
+        );
+
+        mockMvc.perform(post("/api/admin/payments/" + payment.getId() + "/refund")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(partialRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paymentId").value(payment.getId()))
+                .andExpect(jsonPath("$.paymentStatut").value("PARTIALLY_REFUNDED"))
+                .andExpect(jsonPath("$.montant").value(1050.0))
+                .andExpect(jsonPath("$.montantTotalRembourse").value(1050.0))
+                .andExpect(jsonPath("$.montantRestant").value(450.0))
+                .andExpect(jsonPath("$.statut").value("COMPLETED"))
+                .andExpect(jsonPath("$.methode").value("MANUAL"));
+
+        Payment updatedPayment = paymentRepository.findById(payment.getId()).orElseThrow();
+        org.assertj.core.api.Assertions.assertThat(updatedPayment.getStatut()).isEqualTo(PaymentStatus.PARTIALLY_REFUNDED);
+    }
+
+    @Test
+    @DisplayName("Test : montant > paiement (ou > paiement - déjà remboursé) → 400 Bad Request")
+    void refundPayment_montantExceedsPayment_returns400() throws Exception {
+        Payment payment = new Payment();
+        payment.setCode("PAY-REF400");
+        payment.setReservationId(reservation.getId());
+        payment.setUserId(client1.getId());
+        payment.setMontant(new BigDecimal("1000.00"));
+        payment.setDevise("MAD");
+        payment.setMethode(PaymentMethod.CMI);
+        payment.setStatut(PaymentStatus.SUCCESS);
+        payment = paymentRepository.save(payment);
+
+        // 1. Montant > paiement (1200.00 > 1000.00) -> 400 Bad Request
+        RefundRequest excessiveRequest = new RefundRequest(
+                new BigDecimal("1200.00"),
+                "Demande supérieure au paiement"
+        );
+
+        mockMvc.perform(post("/api/admin/payments/" + payment.getId() + "/refund")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(excessiveRequest)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail", containsString("dépasse le montant remboursable restant")));
+
+        // 2. Premier remboursement partiel valide de 600.00 MAD, puis second de 500.00 MAD (> 400.00 restants) -> 400
+        mockMvc.perform(post("/api/admin/payments/" + payment.getId() + "/refund")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new RefundRequest(new BigDecimal("600.00"), "1er remboursement"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paymentStatut").value("PARTIALLY_REFUNDED"));
+
+        mockMvc.perform(post("/api/admin/payments/" + payment.getId() + "/refund")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new RefundRequest(new BigDecimal("500.00"), "2e remboursement excessif"))))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.detail", containsString("400.00")));
+    }
+
+    @Test
+    @DisplayName("Test : avoir PDF généré et téléchargeable")
+    void refundPayment_generatesAvoirPdf() throws Exception {
+        Payment payment = new Payment();
+        payment.setCode("PAY-REFPDF");
+        payment.setReservationId(reservation.getId());
+        payment.setUserId(client1.getId());
+        payment.setMontant(new BigDecimal("1200.00"));
+        payment.setDevise("MAD");
+        payment.setMethode(PaymentMethod.CMI);
+        payment.setStatut(PaymentStatus.SUCCESS);
+        payment = paymentRepository.save(payment);
+
+        RefundRequest refundRequest = new RefundRequest(
+                new BigDecimal("600.00"),
+                "Remboursement partiel 50% (annulation J-2)"
+        );
+
+        mockMvc.perform(post("/api/admin/payments/" + payment.getId() + "/refund")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(refundRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.avoirPath").isNotEmpty());
+
+        byte[] pdfBytes = mockMvc.perform(get("/api/admin/payments/" + payment.getId() + "/avoir")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_PDF))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        try (var pdf = org.apache.pdfbox.Loader.loadPDF(pdfBytes)) {
+            String text = new org.apache.pdfbox.text.PDFTextStripper().getText(pdf).replaceAll("\\s+", " ");
+            org.assertj.core.api.Assertions.assertThat(text).contains(
+                    "LocaVite SARL - Avoir de remboursement",
+                    "PAY-REFPDF",
+                    "LV-PAYTEST1",
+                    "600.00 MAD",
+                    "Remboursement partiel 50%"
+            );
+        }
+    }
+
+    @Test
+    @DisplayName("Test : notification envoyée (email + SMS) et journalisation complète (audit trail)")
+    void refundPayment_sendsClientNotificationsAndLogsAuditTrail() throws Exception {
+        long emailCountBefore = emailLogRepository.count();
+        long notifCountBefore = notificationLogRepository.count();
+
+        Payment payment = new Payment();
+        payment.setCode("PAY-REFNOTIF");
+        payment.setReservationId(reservation.getId());
+        payment.setUserId(client1.getId());
+        payment.setMontant(new BigDecimal("1500.00"));
+        payment.setDevise("MAD");
+        payment.setMethode(PaymentMethod.CMI);
+        payment.setStatut(PaymentStatus.SUCCESS);
+        payment = paymentRepository.save(payment);
+
+        RefundRequest refundRequest = new RefundRequest(
+                new BigDecimal("1500.00"),
+                "Annulation complète selon conditions"
+        );
+
+        mockMvc.perform(post("/api/admin/payments/" + payment.getId() + "/refund")
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + agenceToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(refundRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.auditTrail", containsString("INITIATED")))
+                .andExpect(jsonPath("$.auditTrail", containsString("COMPLETED")));
+
+        org.assertj.core.api.Assertions.assertThat(emailLogRepository.count()).isGreaterThan(emailCountBefore);
+        org.assertj.core.api.Assertions.assertThat(notificationLogRepository.count()).isGreaterThan(notifCountBefore);
+
+        Payment updated = paymentRepository.findById(payment.getId()).orElseThrow();
+        org.assertj.core.api.Assertions.assertThat(updated.getMetadata()).contains("refundHistory", "REFUNDED");
     }
 }

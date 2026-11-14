@@ -56,6 +56,12 @@ public class NotificationTemplateService {
                     code, vehicule)
                     : String.format("LocaVite : Votre réservation %s pour le véhicule %s a été annulée. Contactez-nous pour toute question.",
                     code, vehicule);
+
+            case REFUND -> lang == ContractLanguage.AR
+                    ? String.format("لوكا فيت: تم إجراء استرداد بخصوص حجزكم رقم %s (%s). تم إرسال إشعار الدائن عبر البريد الإلكتروني.",
+                    code, vehicule)
+                    : String.format("LocaVite : Un remboursement concernant votre réservation %s (%s) a été effectué. Votre avoir PDF a été envoyé par email.",
+                    code, vehicule);
         };
     }
 
