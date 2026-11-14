@@ -1,0 +1,227 @@
+<main
+  class="payment-page"
+  [attr.dir]="languageService.currentLang() === 'ar' ? 'rtl' : 'ltr'"
+  data-cy="payment-page"
+>
+  <div class="payment-container">
+    <header class="payment-header">
+      <h1 data-cy="payment-title">{{ 'PAYMENT.TITLE' | translate }}</h1>
+      <p class="payment-subtitle">{{ 'PAYMENT.SUBTITLE' | translate }}</p>
+    </header>
+
+    <!-- Spinner de chargement initial -->
+    @if (loadingReservation) {
+      <mat-card class="loading-card" data-cy="loading-spinner-card">
+        <mat-progress-spinner
+          mode="indeterminate"
+          diameter="48"
+          data-cy="payment-spinner"
+        ></mat-progress-spinner>
+        <p>{{ 'PAYMENT.LOADING_RESERVATION' | translate }}</p>
+      </mat-card>
+    }
+
+    <!-- Message d'erreur éventuel -->
+    @if (errorMessage && !loadingReservation) {
+      <mat-card class="error-banner" data-cy="payment-error-banner">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <div class="error-banner__content">
+          <p data-cy="payment-error-text">{{ errorMessage | translate }}</p>
+        </div>
+        <button
+          mat-stroked-button
+          color="warn"
+          type="button"
+          (click)="loadReservation()"
+          data-cy="reload-reservation-btn"
+        >
+          {{ 'COMMON.RETRY' | translate }}
+        </button>
+      </mat-card>
+    }
+
+    @if (reservation && !loadingReservation) {
+      <div class="payment-grid">
+        <!-- Colonne gauche : Choix du mode de paiement -->
+        <section class="payment-methods-section">
+          <mat-card class="methods-card" data-cy="payment-methods-card">
+            <mat-card-header>
+              <mat-card-title>{{ 'PAYMENT.CHOOSE_METHOD' | translate }}</mat-card-title>
+              <mat-card-subtitle>{{ 'PAYMENT.CHOOSE_METHOD_HINT' | translate }}</mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <mat-radio-group
+                [(ngModel)]="selectedMethod"
+                class="methods-radio-group"
+                aria-label="Mode de paiement"
+                data-cy="payment-method-group"
+              >
+                @for (option of paymentMethods; track option.value) {
+                  <div
+                    class="method-option-wrapper"
+                    [class.selected]="selectedMethod === option.value"
+                    (click)="selectedMethod = option.value"
+                    [attr.data-cy]="option.dataCy + '-card'"
+                  >
+                    <mat-radio-button
+                      [value]="option.value"
+                      [attr.data-cy]="option.dataCy"
+                    >
+                      <div class="method-option-content">
+                        <div class="method-option-header">
+                          <mat-icon class="method-icon">{{ option.icon }}</mat-icon>
+                          <span class="method-title">{{ option.labelKey | translate }}</span>
+                          @if (option.badgeKey) {
+                            <span class="method-badge">{{ option.badgeKey | translate }}</span>
+                          }
+                        </div>
+                        <p class="method-desc">{{ option.descKey | translate }}</p>
+                      </div>
+                    </mat-radio-button>
+                  </div>
+                }
+              </mat-radio-group>
+
+              <!-- Affichage du RIB si Virement bancaire sélectionné -->
+              @if (selectedMethod === 'BANK_TRANSFER') {
+                <div class="bank-rib-box" data-cy="bank-rib-card">
+                  <div class="bank-rib-header">
+                    <mat-icon>account_balance</mat-icon>
+                    <h3>{{ 'PAYMENT.RIB.TITLE' | translate }}</h3>
+                  </div>
+                  <p class="bank-rib-instructions">
+                    {{ 'PAYMENT.RIB.INSTRUCTIONS' | translate }}
+                  </p>
+                  <dl class="bank-rib-details">
+                    <div class="rib-row">
+                      <dt>{{ 'PAYMENT.RIB.BANK' | translate }}</dt>
+                      <dd data-cy="rib-bank">{{ ribInfo.banque }}</dd>
+                    </div>
+                    <div class="rib-row">
+                      <dt>{{ 'PAYMENT.RIB.HOLDER' | translate }}</dt>
+                      <dd data-cy="rib-holder">{{ ribInfo.titulaire }}</dd>
+                    </div>
+                    <div class="rib-row">
+                      <dt>{{ 'PAYMENT.RIB.NUMBER' | translate }}</dt>
+                      <dd class="rib-code" data-cy="rib-number">{{ ribInfo.rib }}</dd>
+                    </div>
+                    <div class="rib-row">
+                      <dt>IBAN</dt>
+                      <dd class="rib-code" data-cy="rib-iban">{{ ribInfo.iban }}</dd>
+                    </div>
+                    <div class="rib-row">
+                      <dt>SWIFT / BIC</dt>
+                      <dd data-cy="rib-swift">{{ ribInfo.swift }}</dd>
+                    </div>
+                    <div class="rib-row">
+                      <dt>{{ 'PAYMENT.RIB.AGENCY' | translate }}</dt>
+                      <dd>{{ ribInfo.agence }}</dd>
+                    </div>
+                  </dl>
+                  <button
+                    mat-stroked-button
+                    color="primary"
+                    type="button"
+                    (click)="copyRib()"
+                    data-cy="copy-rib-btn"
+                  >
+                    <mat-icon>{{ ribCopied ? 'check' : 'content_copy' }}</mat-icon>
+                    {{ (ribCopied ? 'PAYMENT.RIB.COPIED' : 'PAYMENT.RIB.COPY') | translate }}
+                  </button>
+                </div>
+              }
+            </mat-card-content>
+
+            <mat-card-actions class="methods-actions">
+              <button
+                mat-flat-button
+                color="primary"
+                class="submit-payment-btn"
+                type="button"
+                [disabled]="processingPayment"
+                (click)="submitPayment()"
+                data-cy="submit-payment-btn"
+              >
+                @if (processingPayment) {
+                  <mat-progress-spinner
+                    mode="indeterminate"
+                    diameter="22"
+                    class="inline-spinner"
+                    data-cy="processing-spinner"
+                  ></mat-progress-spinner>
+                  <span>{{ 'PAYMENT.PROCESSING' | translate }}</span>
+                } @else {
+                  <mat-icon>{{ selectedMethod === 'CMI' ? 'lock' : 'check_circle' }}</mat-icon>
+                  <span>
+                    {{
+                      (selectedMethod === 'CMI'
+                        ? 'PAYMENT.ACTIONS.PAY_CMI'
+                        : 'PAYMENT.ACTIONS.CONFIRM_PAYMENT') | translate
+                    }}
+                    ({{ reservation.prixTotal | number: '1.2-2' }} MAD)
+                  </span>
+                }
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </section>
+
+        <!-- Colonne droite : Récapitulatif de la réservation -->
+        <aside class="reservation-summary-section">
+          <mat-card class="summary-card" data-cy="reservation-summary-card">
+            <mat-card-header>
+              <mat-card-title>{{ 'PAYMENT.SUMMARY.TITLE' | translate }}</mat-card-title>
+              <mat-card-subtitle data-cy="summary-code">
+                {{ 'PAYMENT.SUMMARY.CODE' | translate }} : <strong>{{ reservation.code }}</strong>
+              </mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+              <div class="summary-item">
+                <span class="summary-label">{{ 'PAYMENT.SUMMARY.VEHICLE' | translate }}</span>
+                <strong class="summary-value" data-cy="summary-vehicle">{{ vehicleDisplayName }}</strong>
+              </div>
+
+              <div class="summary-item">
+                <span class="summary-label">{{ 'PAYMENT.SUMMARY.DATES' | translate }}</span>
+                <span class="summary-value" data-cy="summary-dates">
+                  {{ reservation.dateDebut | date: 'dd/MM/yyyy' }} →
+                  {{ reservation.dateFin | date: 'dd/MM/yyyy' }}
+                </span>
+              </div>
+
+              @if (reservation.lieuPriseEnCharge) {
+                <div class="summary-item">
+                  <span class="summary-label">{{ 'PAYMENT.SUMMARY.PICKUP' | translate }}</span>
+                  <span class="summary-value" data-cy="summary-pickup">{{ reservation.lieuPriseEnCharge }}</span>
+                </div>
+              }
+
+              @if (reservation.lieuRetour) {
+                <div class="summary-item">
+                  <span class="summary-label">{{ 'PAYMENT.SUMMARY.RETURN' | translate }}</span>
+                  <span class="summary-value" data-cy="summary-return">{{ reservation.lieuRetour }}</span>
+                </div>
+              }
+
+              <mat-divider class="summary-divider"></mat-divider>
+
+              <div class="summary-total">
+                <span>{{ 'PAYMENT.SUMMARY.TOTAL' | translate }}</span>
+                <strong class="total-amount" data-cy="summary-amount">
+                  {{ reservation.prixTotal | number: '1.2-2' }} MAD
+                </strong>
+              </div>
+
+              <div class="security-note" data-cy="security-badge">
+                <mat-icon>verified_user</mat-icon>
+                <span>{{ 'PAYMENT.SECURITY_NOTE' | translate }}</span>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </aside>
+      </div>
+    }
+  </div>
+</main>

@@ -45,6 +45,33 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'payment/success',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['CLIENT'] },
+    loadComponent: () =>
+      import('./features/payments/payment-success.component').then(
+        (m) => m.PaymentSuccessComponent,
+      ),
+  },
+  {
+    path: 'payment/failure',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['CLIENT'] },
+    loadComponent: () =>
+      import('./features/payments/payment-failure.component').then(
+        (m) => m.PaymentFailureComponent,
+      ),
+  },
+  {
+    path: 'payment/:reservationId',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['CLIENT'] },
+    loadComponent: () =>
+      import('./features/payments/payment.component').then(
+        (m) => m.PaymentComponent,
+      ),
+  },
+  {
     path: 'admin/reservations',
     canActivate: [roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },

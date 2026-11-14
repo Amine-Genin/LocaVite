@@ -259,5 +259,77 @@
       "NOT_FOUND_TITLE": "Véhicule introuvable",
       "NOT_FOUND_MSG": "Le véhicule demandé n’existe pas ou a été désactivé."
     }
+  },
+  "PAYMENT": {
+    "TITLE": "Finaliser votre paiement",
+    "SUBTITLE": "Sélectionnez votre mode de paiement préféré pour confirmer votre réservation",
+    "LOADING_RESERVATION": "Chargement du récapitulatif de votre réservation…",
+    "CHOOSE_METHOD": "Choisissez votre mode de paiement",
+    "CHOOSE_METHOD_HINT": "Toutes les transactions sont chiffrées et sécurisées",
+    "PROCESSING": "Traitement du paiement en cours…",
+    "SECURITY_NOTE": "Paiement 100 % sécurisé via CMI 3D-Secure & chiffrement TLS",
+    "METHODS": {
+      "CMI": {
+        "TITLE": "Carte bancaire (CMI)",
+        "DESC": "Paiement immédiat sécurisé par carte marocaine ou internationale (redirection vers la page CMI)",
+        "BADGE": "Recommandé"
+      },
+      "CASH_DELIVERY": {
+        "TITLE": "Espèces à la livraison",
+        "DESC": "Payez en espèces directement à notre agent lors de la remise du véhicule"
+      },
+      "CASH_AGENCY": {
+        "TITLE": "Espèces à l'agence",
+        "DESC": "Réglez en espèces au comptoir de l'agence LocaVite lors de votre arrivée"
+      },
+      "BANK_TRANSFER": {
+        "TITLE": "Virement bancaire",
+        "DESC": "Effectuez un virement sur notre compte bancaire (RIB ci-dessous)"
+      }
+    },
+    "RIB": {
+      "TITLE": "Coordonnées bancaires LocaVite (RIB)",
+      "INSTRUCTIONS": "Veuillez indiquer le code de votre réservation en motif de virement.",
+      "BANK": "Banque",
+      "HOLDER": "Titulaire du compte",
+      "NUMBER": "RIB (24 chiffres)",
+      "AGENCY": "Agence",
+      "COPY": "Copier le RIB",
+      "COPIED": "RIB copié !"
+    },
+    "SUMMARY": {
+      "TITLE": "Récapitulatif de la réservation",
+      "CODE": "Réservation",
+      "VEHICLE": "Véhicule",
+      "DATES": "Période",
+      "PICKUP": "Prise en charge",
+      "RETURN": "Restitution",
+      "TOTAL": "Montant à payer"
+    },
+    "ACTIONS": {
+      "PAY_CMI": "Payer en ligne via CMI",
+      "CONFIRM_PAYMENT": "Confirmer le paiement"
+    },
+    "SUCCESS": {
+      "VERIFYING_TITLE": "Vérification de votre paiement…",
+      "VERIFYING_DESC": "Veuillez patienter pendant la confirmation auprès de la passerelle bancaire.",
+      "TITLE": "Paiement confirmé avec succès !",
+      "MESSAGE": "Votre paiement a bien été pris en compte. Votre facture officielle est prête au téléchargement.",
+      "PAYMENT_CODE": "Référence paiement",
+      "INVOICE_NUMBER": "Numéro de facture",
+      "DOWNLOAD_INVOICE": "Télécharger la facture PDF",
+      "MY_RESERVATIONS": "Voir mes réservations"
+    },
+    "FAILURE": {
+      "TITLE": "Échec du paiement",
+      "MESSAGE": "La transaction n'a pas pu aboutir ou a été annulée. Aucun montant n'a été débité.",
+      "RETRY_BTN": "Réessayer le paiement"
+    },
+    "ERRORS": {
+      "INVALID_RESERVATION": "Identifiant de réservation invalide.",
+      "LOAD_FAILED": "Impossible de charger les détails de la réservation.",
+      "INITIATE_FAILED": "Une erreur est survenue lors de l'initialisation du paiement.",
+      "INVOICE_DOWNLOAD_FAILED": "Impossible de télécharger la facture pour le moment."
+    }
   }
 }
