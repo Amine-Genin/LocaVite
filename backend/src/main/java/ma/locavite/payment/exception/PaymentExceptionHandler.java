@@ -22,8 +22,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@RestControllerAdvice(assignableTypes = {PaymentController.class, AdminPaymentController.class})
-@RestControllerAdvice(assignableTypes = {PaymentController.class, CmiPaymentController.class})
+@RestControllerAdvice(assignableTypes = {PaymentController.class, AdminPaymentController.class, CmiPaymentController.class})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class PaymentExceptionHandler {
 
