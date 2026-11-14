@@ -3,9 +3,11 @@ package ma.locavite.payment.exception;
 import ma.locavite.payment.controller.AdminPaymentController;
 import ma.locavite.payment.cmi.controller.CmiPaymentController;
 import ma.locavite.payment.cmi.exception.CmiIpNotAllowedException;
+import ma.locavite.payment.cmi.exception.CmiRateLimitExceededException;
 import ma.locavite.payment.cmi.exception.CmiSessionExpiredException;
 import ma.locavite.payment.cmi.exception.CmiSignatureException;
 import ma.locavite.payment.cmi.exception.CmiUnavailableException;
+import ma.locavite.payment.cmi.exception.CmiWebhookSignatureException;
 import ma.locavite.payment.controller.PaymentController;
 import ma.locavite.reservation.exception.ReservationNotFoundException;
 import org.springframework.core.Ordered;
@@ -39,6 +41,19 @@ public class PaymentExceptionHandler {
     @ExceptionHandler({AccessDeniedException.class, CmiIpNotAllowedException.class})
     public ResponseEntity<Map<String, Object>> handleAccessDenied(RuntimeException ex) {
         return error(HttpStatus.FORBIDDEN, ex.getMessage() != null ? ex.getMessage() : "Accès refusé");
+    }
+
+    @ExceptionHandler(CmiWebhookSignatureException.class)
+    public ResponseEntity<Map<String, Object>> handleWebhookSignature(CmiWebhookSignatureException ex) {
+        return error(HttpStatus.UNAUTHORIZED, ex.getMessage() != null ? ex.getMessage() : "Signature CMI invalide");
+    }
+
+    @ExceptionHandler(CmiRateLimitExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleRateLimitExceeded(CmiRateLimitExceededException ex) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .header("Retry-After", "60")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(Map.of("detail", ex.getMessage() != null ? ex.getMessage() : "Limite de requêtes dépassée"));
     }
 
     @ExceptionHandler({

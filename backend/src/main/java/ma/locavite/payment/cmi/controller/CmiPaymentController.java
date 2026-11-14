@@ -81,12 +81,13 @@ public class CmiPaymentController {
     }
 
     @PostMapping(value = "/webhook", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE, MediaType.ALL_VALUE})
-    @Operation(summary = "Notification serveur-à-serveur CMI", description = "Notification directe CMI. Vérifie l'authenticité (IP whitelist + signature) et garantit l'idempotence.")
+    @Operation(summary = "Notification serveur-à-serveur CMI", description = "Notification directe CMI. Vérifie l'authenticité (IP whitelist + rate limiting + signature HMAC-SHA512) et garantit l'idempotence via webhook_events.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Notification prise en compte (ACTION=POSTAUTH)"),
-            @ApiResponse(responseCode = "400", description = "Signature CMI invalide"),
-            @ApiResponse(responseCode = "403", description = "IP appelante non autorisée"),
-            @ApiResponse(responseCode = "404", description = "Paiement non trouvé")
+            @ApiResponse(responseCode = "401", description = "Signature HMAC-SHA512 CMI invalide ou absente"),
+            @ApiResponse(responseCode = "403", description = "IP appelante non autorisée ou HTTPS requis"),
+            @ApiResponse(responseCode = "404", description = "Paiement non trouvé"),
+            @ApiResponse(responseCode = "429", description = "Rate limit dépassé (10 req/min par IP)")
     })
     public ResponseEntity<String> webhook(
             @RequestParam(required = false) Map<String, String> requestParams,
