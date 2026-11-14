@@ -12,7 +12,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-@Service
+@Service("reservationRefundService")
 public class RefundService {
 
     private final RefundRepository refundRepository;

@@ -13,6 +13,7 @@ public class CmiProperties {
 
     public static final String DEFAULT_TEST_GATEWAY = "https://testpayment.cmi.co.ma/fim/est3Dgate";
     public static final String DEFAULT_PROD_GATEWAY = "https://payment.cmi.co.ma/fim/est3Dgate";
+    public static final String DEFAULT_REFUND_URL = "https://testpayment.cmi.co.ma/fim/api/refund";
 
     private String merchantId = "locavite_merchant";
     private String terminalId = "locavite_term";
@@ -21,6 +22,7 @@ public class CmiProperties {
     private String gatewayUrl = DEFAULT_TEST_GATEWAY;
     private String gatewayUrlTest = DEFAULT_TEST_GATEWAY;
     private String gatewayUrlProd = DEFAULT_PROD_GATEWAY;
+    private String refundUrl = DEFAULT_REFUND_URL;
     private String callbackUrl = "http://localhost:8081/api/payments/cmi/callback";
     private String webhookUrl = "http://localhost:8081/api/payments/cmi/webhook";
     private List<String> ipWhitelist = new ArrayList<>(Arrays.asList(
@@ -97,6 +99,14 @@ public class CmiProperties {
 
     public void setGatewayUrlProd(String gatewayUrlProd) {
         this.gatewayUrlProd = gatewayUrlProd;
+    }
+
+    public String getRefundUrl() {
+        return refundUrl;
+    }
+
+    public void setRefundUrl(String refundUrl) {
+        this.refundUrl = refundUrl;
     }
 
     public String getCallbackUrl() {

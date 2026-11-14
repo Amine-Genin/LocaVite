@@ -6,7 +6,8 @@ public enum NotificationType {
     CONFIRMATION,
     REMINDER_J1,
     COMPLETION,
-    CANCELLATION;
+    CANCELLATION,
+    REFUND;
 
     public static NotificationType from(String value) {
         if (value == null || value.isBlank()) {

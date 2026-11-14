@@ -6,7 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.math.BigDecimal;
 import java.time.Instant;
 
-@Entity
+@Entity(name = "ReservationRefund")
 @Table(name = "refunds")
 public class Refund {
 
@@ -14,8 +14,8 @@ public class Refund {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "reservation_id", nullable = false, unique = true)
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "reservation_id")
     private Reservation reservation;
 
     @Column(nullable = false, precision = 12, scale = 2)
@@ -25,8 +25,11 @@ public class Refund {
     private String raison;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 30)
     private RefundStatus statut = RefundStatus.PENDING;
+
+    @Column(nullable = false, length = 30)
+    private String methode = "MANUAL";
 
     @CreationTimestamp
     @Column(name = "date_operation", nullable = false, updatable = false)

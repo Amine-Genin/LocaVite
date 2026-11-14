@@ -36,23 +36,33 @@ public class PaymentController {
     private final PaymentService paymentService;
     private final CashPaymentService cashPaymentService;
     private final InvoiceService invoiceService;
+    private final ma.locavite.payment.service.RefundService refundService;
 
     public PaymentController(PaymentService paymentService) {
-        this(paymentService, null, null);
+        this(paymentService, null, null, null);
     }
 
     public PaymentController(PaymentService paymentService, CashPaymentService cashPaymentService) {
-        this(paymentService, cashPaymentService, null);
+        this(paymentService, cashPaymentService, null, null);
+    }
+
+    public PaymentController(
+            PaymentService paymentService,
+            CashPaymentService cashPaymentService,
+            InvoiceService invoiceService) {
+        this(paymentService, cashPaymentService, invoiceService, null);
     }
 
     @Autowired
     public PaymentController(
             PaymentService paymentService,
             CashPaymentService cashPaymentService,
-            InvoiceService invoiceService) {
+            InvoiceService invoiceService,
+            @Autowired(required = false) ma.locavite.payment.service.RefundService refundService) {
         this.paymentService = paymentService;
         this.cashPaymentService = cashPaymentService;
         this.invoiceService = invoiceService;
+        this.refundService = refundService;
     }
 
     @PostMapping
@@ -132,6 +142,21 @@ public class PaymentController {
         return ResponseEntity.ok()
                 .contentType(MediaType.APPLICATION_PDF)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .body(pdf);
+    }
+
+    @GetMapping("/{id}/avoir")
+    @SecurityRequirement(name = "BearerAuth")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            summary = "Télécharger l'avoir PDF d'un paiement remboursé (CLIENT / AGENCE / ADMIN)",
+            description = "Retourne l'avoir PDF généré lors du remboursement partiel ou total d'un paiement."
+    )
+    public ResponseEntity<byte[]> getAvoir(@PathVariable Long id) {
+        byte[] pdf = refundService.downloadAvoirPdf(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"avoir-paiement-" + id + ".pdf\"")
                 .body(pdf);
     }
 

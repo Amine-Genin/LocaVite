@@ -64,6 +64,10 @@ public class NotificationService {
         return sendNotification(reservation, NotificationType.CANCELLATION);
     }
 
+    public boolean sendRefund(Reservation reservation) {
+        return sendNotification(reservation, NotificationType.REFUND);
+    }
+
     public boolean sendNotification(Reservation reservation, NotificationType type) {
         if (reservation == null) {
             log.warn("Réservation nulle fournie pour la notification");
