@@ -48,11 +48,20 @@ public class CmiPaymentController {
             @ApiResponse(responseCode = "404", description = "Réservation non trouvée"),
             @ApiResponse(responseCode = "503", description = "Passerelle CMI indisponible (mode fallback)")
     })
-    public ResponseEntity<CmiInitiateResponse> initiate(
+    public ResponseEntity<Map<String, Object>> initiate(
             @Valid @RequestBody CmiInitiateRequest request,
             HttpServletRequest httpRequest) {
         CmiInitiateResponse response = cmiPaymentService.initiate(request, httpRequest);
-        return ResponseEntity.ok(response);
+        Map<String, Object> body = new HashMap<>();
+        body.put("paymentId", response.paymentId());
+        body.put("paymentCode", response.paymentCode());
+        body.put("montant", response.montant());
+        body.put("devise", response.devise());
+        body.put("gatewayUrl", response.gatewayUrl());
+        body.put("redirectUrl", response.redirectUrl());
+        body.put("formData", response.formData());
+        body.put("expiresAt", response.expiresAt());
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping(value = "/callback", consumes = {MediaType.APPLICATION_FORM_URLENCODED_VALUE, MediaType.APPLICATION_JSON_VALUE, MediaType.ALL_VALUE})

@@ -34,8 +34,8 @@ public class PaymentExceptionHandler {
     }
 
     @ExceptionHandler({AccessDeniedException.class, CmiIpNotAllowedException.class})
-    public ProblemDetail handleAccessDenied(RuntimeException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage() != null ? ex.getMessage() : "Accès refusé");
+    public ResponseEntity<Map<String, Object>> handleAccessDenied(RuntimeException ex) {
+        return error(HttpStatus.FORBIDDEN, ex.getMessage() != null ? ex.getMessage() : "Accès refusé");
     }
 
     @ExceptionHandler({
@@ -46,13 +46,13 @@ public class PaymentExceptionHandler {
             IllegalArgumentException.class,
             IllegalStateException.class
     })
-    public ProblemDetail handleBadRequest(RuntimeException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+    public ResponseEntity<Map<String, Object>> handleBadRequest(RuntimeException ex) {
+        return error(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
     @ExceptionHandler(CmiUnavailableException.class)
-    public ProblemDetail handleCmiUnavailable(CmiUnavailableException ex) {
-        return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    public ResponseEntity<Map<String, Object>> handleCmiUnavailable(CmiUnavailableException ex) {
+        return error(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -62,5 +62,9 @@ public class PaymentExceptionHandler {
         ex.getBindingResult().getFieldErrors().forEach(f -> errors.put(f.getField(), f.getDefaultMessage()));
         problem.setProperty("errors", errors);
         return problem;
+    }
+
+    private ResponseEntity<Map<String, Object>> error(HttpStatus status, String detail) {
+        return ResponseEntity.status(status).body(Map.of("detail", detail != null ? detail : status.getReasonPhrase()));
     }
 }
