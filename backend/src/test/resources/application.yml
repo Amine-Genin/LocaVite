@@ -56,6 +56,27 @@ twilio:
   whatsapp-number: whatsapp:+14155238886
 
 
+cmi:
+  merchant-id: test_merchant
+  terminal-id: test_term
+  secret-key: test_secret_key_1234567890_cmi
+  store-key: test_secret_key_1234567890_cmi
+  gateway-url: https://testpayment.cmi.co.ma/fim/est3Dgate
+  gateway-url-test: https://testpayment.cmi.co.ma/fim/est3Dgate
+  gateway-url-prod: https://payment.cmi.co.ma/fim/est3Dgate
+  callback-url: http://localhost:8081/api/payments/cmi/callback
+  webhook-url: http://localhost:8081/api/payments/cmi/webhook
+  ip-whitelist: 127.0.0.1,0:0:0:0:0:0:0:1,::1,196.200.160.0/24,41.137.0.0/16
+  session-ttl-minutes: 15
+  currency: "504"
+  store-type: "3D_PAY_HOSTING"
+  tran-type: "Auth"
+  lang: "fr"
+  encoding: "UTF-8"
+  signature-algorithm: "HMAC_SHA512"
+  fallback-mode: false
+  check-gateway-health: false
+
 management:
   endpoints:
     web:
