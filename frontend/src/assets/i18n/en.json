@@ -259,5 +259,77 @@
       "NOT_FOUND_TITLE": "Vehicle not found",
       "NOT_FOUND_MSG": "The requested vehicle does not exist or has been deactivated."
     }
+  },
+  "PAYMENT": {
+    "TITLE": "Complete Your Payment",
+    "SUBTITLE": "Select your preferred payment method to finalize your reservation",
+    "LOADING_RESERVATION": "Loading your reservation summary…",
+    "CHOOSE_METHOD": "Choose your payment method",
+    "CHOOSE_METHOD_HINT": "All transactions are encrypted and secure",
+    "PROCESSING": "Processing payment…",
+    "SECURITY_NOTE": "100% secure payment via CMI 3D-Secure & TLS encryption",
+    "METHODS": {
+      "CMI": {
+        "TITLE": "Bank Card (CMI)",
+        "DESC": "Instant secure online payment by Moroccan or international card (redirects to CMI gateway)",
+        "BADGE": "Recommended"
+      },
+      "CASH_DELIVERY": {
+        "TITLE": "Cash on Delivery",
+        "DESC": "Pay in cash directly to our agent when the vehicle is delivered"
+      },
+      "CASH_AGENCY": {
+        "TITLE": "Cash at Agency",
+        "DESC": "Pay in cash at the LocaVite agency counter upon arrival"
+      },
+      "BANK_TRANSFER": {
+        "TITLE": "Bank Transfer",
+        "DESC": "Transfer the amount to our bank account (RIB displayed below)"
+      }
+    },
+    "RIB": {
+      "TITLE": "LocaVite Bank Account Details (RIB)",
+      "INSTRUCTIONS": "Please include your reservation code as the transfer reference.",
+      "BANK": "Bank",
+      "HOLDER": "Account Holder",
+      "NUMBER": "RIB (24 digits)",
+      "AGENCY": "Branch",
+      "COPY": "Copy RIB",
+      "COPIED": "RIB copied!"
+    },
+    "SUMMARY": {
+      "TITLE": "Reservation Summary",
+      "CODE": "Reservation",
+      "VEHICLE": "Vehicle",
+      "DATES": "Dates",
+      "PICKUP": "Pick-up",
+      "RETURN": "Return",
+      "TOTAL": "Total Amount"
+    },
+    "ACTIONS": {
+      "PAY_CMI": "Pay Online via CMI",
+      "CONFIRM_PAYMENT": "Confirm Payment"
+    },
+    "SUCCESS": {
+      "VERIFYING_TITLE": "Verifying your payment…",
+      "VERIFYING_DESC": "Please wait while we confirm your transaction with the payment gateway.",
+      "TITLE": "Payment Confirmed Successfully!",
+      "MESSAGE": "Your payment has been processed. Your official invoice is ready to download.",
+      "PAYMENT_CODE": "Payment Reference",
+      "INVOICE_NUMBER": "Invoice Number",
+      "DOWNLOAD_INVOICE": "Download Invoice PDF",
+      "MY_RESERVATIONS": "View My Reservations"
+    },
+    "FAILURE": {
+      "TITLE": "Payment Failed",
+      "MESSAGE": "The transaction could not be completed or was cancelled. No amount was charged.",
+      "RETRY_BTN": "Retry Payment"
+    },
+    "ERRORS": {
+      "INVALID_RESERVATION": "Invalid reservation identifier.",
+      "LOAD_FAILED": "Unable to load reservation details.",
+      "INITIATE_FAILED": "An error occurred while initiating the payment.",
+      "INVOICE_DOWNLOAD_FAILED": "Unable to download the invoice right now."
+    }
   }
 }
