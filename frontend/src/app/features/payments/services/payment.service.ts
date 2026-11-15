@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, timer, of } from 'rxjs';
 import { map, switchMap, takeWhile, timeout, catchError } from 'rxjs/operators';
 
@@ -7,6 +7,7 @@ import {
   BankRibInfo,
   CmiInitiateResponse,
   PaymentInitiateRequest,
+  PaymentPageResponse,
   PaymentResponse,
 } from '../models/payment.model';
 
@@ -72,6 +73,33 @@ export class PaymentService {
       methode: request.methode,
       reference: request.reference,
     });
+  }
+
+  /**
+   * Récupère l'historique paginé des paiements du client connecté (GET /api/payments/me).
+   */
+  getMyPayments(
+    page = 0,
+    size = 50,
+    sort = 'createdAt,desc',
+  ): Observable<PaymentPageResponse> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort);
+
+    return this.http
+      .get<PaymentPageResponse>(`${this.apiUrl}/me`, { params })
+      .pipe(
+        map((response) => ({
+          ...response,
+          content: (response?.content ?? []).map((payment) => ({
+            ...payment,
+            invoiceNumber:
+              payment.invoiceNumber || this.extractInvoiceNumber(payment),
+          })),
+        })),
+      );
   }
 
   /**

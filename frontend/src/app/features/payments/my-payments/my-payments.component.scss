@@ -1,0 +1,141 @@
+.my-payments-page {
+  min-height: 80vh;
+  background-color: #f8fafc;
+  padding: 2rem 1rem 4rem;
+}
+
+.my-payments-container {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.25rem;
+  }
+
+  .page-subtitle {
+    margin: 0;
+    color: #475569;
+  }
+}
+
+.summary-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 6px 18px -4px rgba(15, 23, 42, 0.07);
+
+  .kpi-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 0.75rem;
+    display: grid;
+    place-items: center;
+    background: #eff6ff;
+    color: #2563eb;
+  }
+
+  &.success-kpi .kpi-icon {
+    background: #dcfce7;
+    color: #16a34a;
+  }
+
+  &.count-kpi .kpi-icon {
+    background: #f1f5f9;
+    color: #334155;
+  }
+
+  .kpi-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .kpi-label {
+    font-size: 0.85rem;
+    color: #64748b;
+  }
+
+  .kpi-value {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+}
+
+.filters-card {
+  padding: 1.25rem 1.25rem 0.5rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 6px 18px -4px rgba(15, 23, 42, 0.06);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+
+  .reset-btn {
+    height: 3.25rem;
+    margin-bottom: 1.25rem;
+  }
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  background: #fef2f2;
+  color: #991b1b;
+  border-left: 4px solid #dc2626;
+}
+
+.loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3rem 1.5rem;
+  border-radius: 1rem;
+}
+
+@media (max-width: 900px) {
+  .summary-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+
+    .reset-btn {
+      width: 100%;
+      margin-bottom: 0.75rem;
+    }
+  }
+}

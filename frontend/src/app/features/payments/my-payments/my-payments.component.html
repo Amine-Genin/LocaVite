@@ -1,0 +1,158 @@
+<main
+  class="my-payments-page"
+  [attr.dir]="languageService.currentLang() === 'ar' ? 'rtl' : 'ltr'"
+  data-cy="my-payments-page"
+>
+  <div class="my-payments-container">
+    <!-- En-tête -->
+    <header class="page-header">
+      <div>
+        <h1 data-cy="my-payments-title">{{ 'PAYMENT.HISTORY.TITLE' | translate }}</h1>
+        <p class="page-subtitle">{{ 'PAYMENT.HISTORY.SUBTITLE' | translate }}</p>
+      </div>
+      <a
+        mat-stroked-button
+        color="primary"
+        routerLink="/my-reservations"
+        data-cy="go-to-my-reservations-btn"
+      >
+        <mat-icon>event_note</mat-icon>
+        <span>{{ 'PAYMENT.SUCCESS.MY_RESERVATIONS' | translate }}</span>
+      </a>
+    </header>
+
+    <!-- Résumé en haut : Total des paiements -->
+    <section class="summary-kpis" data-cy="payments-summary-header">
+      <mat-card class="kpi-card primary-kpi" data-cy="kpi-total-amount">
+        <div class="kpi-icon">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">{{ 'PAYMENT.HISTORY.TOTAL_PAYMENTS' | translate }}</span>
+          <strong class="kpi-value" data-cy="total-payments-amount">
+            {{ totalAmount | number: '1.2-2' }} MAD
+          </strong>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card success-kpi" data-cy="kpi-confirmed-amount">
+        <div class="kpi-icon">
+          <mat-icon>verified</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">{{ 'PAYMENT.HISTORY.CONFIRMED_TOTAL' | translate }}</span>
+          <strong class="kpi-value" data-cy="confirmed-payments-amount">
+            {{ confirmedAmount | number: '1.2-2' }} MAD
+          </strong>
+        </div>
+      </mat-card>
+
+      <mat-card class="kpi-card count-kpi" data-cy="kpi-transactions-count">
+        <div class="kpi-icon">
+          <mat-icon>receipt_long</mat-icon>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">{{ 'PAYMENT.HISTORY.TRANSACTIONS_COUNT' | translate }}</span>
+          <strong class="kpi-value" data-cy="total-payments-count">
+            {{ filteredPayments.length }}
+          </strong>
+        </div>
+      </mat-card>
+    </section>
+
+    <!-- Barre de filtres : statut, méthode, date -->
+    <mat-card class="filters-card" data-cy="payments-filters">
+      <div class="filters-grid">
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>{{ 'PAYMENT.HISTORY.FILTERS.STATUS' | translate }}</mat-label>
+          <mat-select
+            [(ngModel)]="selectedStatus"
+            (selectionChange)="applyFilters()"
+            data-cy="filter-status"
+          >
+            <mat-option value="" data-cy="filter-status-all">
+              {{ 'PAYMENT.HISTORY.FILTERS.ALL_STATUSES' | translate }}
+            </mat-option>
+            @for (st of statusOptions; track st) {
+              <mat-option [value]="st" [attr.data-cy]="'filter-status-' + st">
+                {{ 'PAYMENT.HISTORY.STATUS.' + st | translate }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>{{ 'PAYMENT.HISTORY.FILTERS.METHOD' | translate }}</mat-label>
+          <mat-select
+            [(ngModel)]="selectedMethod"
+            (selectionChange)="applyFilters()"
+            data-cy="filter-method"
+          >
+            <mat-option value="" data-cy="filter-method-all">
+              {{ 'PAYMENT.HISTORY.FILTERS.ALL_METHODS' | translate }}
+            </mat-option>
+            @for (m of methodOptions; track m) {
+              <mat-option [value]="m" [attr.data-cy]="'filter-method-' + m">
+                {{ 'PAYMENT.HISTORY.METHODS.' + m | translate }}
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>{{ 'PAYMENT.HISTORY.FILTERS.DATE' | translate }}</mat-label>
+          <input
+            matInput
+            type="date"
+            [(ngModel)]="selectedDate"
+            (change)="applyFilters()"
+            data-cy="filter-date"
+          />
+        </mat-form-field>
+
+        <button
+          mat-stroked-button
+          type="button"
+          class="reset-btn"
+          (click)="resetFilters()"
+          data-cy="reset-filters-btn"
+        >
+          <mat-icon>filter_alt_off</mat-icon>
+          <span>{{ 'PAYMENT.HISTORY.FILTERS.RESET' | translate }}</span>
+        </button>
+      </div>
+    </mat-card>
+
+    <!-- Message d'erreur éventuel -->
+    @if (errorMessage) {
+      <mat-card class="error-banner" data-cy="my-payments-error">
+        <mat-icon color="warn">error_outline</mat-icon>
+        <span>{{ errorMessage | translate }}</span>
+        <button mat-button color="warn" type="button" (click)="loadMyPayments()">
+          {{ 'COMMON.RETRY' | translate }}
+        </button>
+      </mat-card>
+    }
+
+    @if (downloadError) {
+      <mat-card class="error-banner" data-cy="download-error-banner">
+        <mat-icon color="warn">warning</mat-icon>
+        <span>{{ downloadError | translate }}</span>
+      </mat-card>
+    }
+
+    <!-- Chargement ou Tableau -->
+    @if (loading) {
+      <mat-card class="loading-box" data-cy="my-payments-loading">
+        <mat-progress-spinner mode="indeterminate" diameter="44"></mat-progress-spinner>
+        <p>{{ 'COMMON.LOADING' | translate }}</p>
+      </mat-card>
+    } @else {
+      <app-payment-table
+        [payments]="filteredPayments"
+        (downloadInvoice)="onDownloadInvoice($event)"
+        (viewReservation)="onViewReservation($event)"
+      ></app-payment-table>
+    }
+  </div>
+</main>

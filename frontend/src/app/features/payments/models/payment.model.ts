@@ -60,3 +60,24 @@ export interface BankRibInfo {
   swift: string;
   agence: string;
 }
+
+export interface PaymentFilterParams {
+  statut?: PaymentStatusType | '';
+  methode?: PaymentMethodType | '';
+  date?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
+export interface PaymentPageResponse {
+  content: PaymentResponse[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first?: boolean;
+  last?: boolean;
+}

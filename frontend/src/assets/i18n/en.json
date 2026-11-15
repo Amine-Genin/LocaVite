@@ -330,6 +330,52 @@
       "LOAD_FAILED": "Unable to load reservation details.",
       "INITIATE_FAILED": "An error occurred while initiating the payment.",
       "INVOICE_DOWNLOAD_FAILED": "Unable to download the invoice right now."
+    },
+    "HISTORY": {
+      "TITLE": "My Payment History",
+      "SUBTITLE": "View and track all your transactions and downloadable invoices",
+      "TOTAL_PAYMENTS": "Total Payments",
+      "CONFIRMED_TOTAL": "Confirmed Total",
+      "TRANSACTIONS_COUNT": "Payment Count",
+      "LOAD_ERROR": "Unable to load your payment history.",
+      "NO_INVOICE": "Unavailable",
+      "EMPTY_TITLE": "No payments found",
+      "EMPTY_DESC": "No payments match the selected filters.",
+      "COLUMNS": {
+        "DATE": "Date",
+        "RESERVATION": "Reservation",
+        "AMOUNT": "Amount",
+        "METHOD": "Method",
+        "STATUS": "Status",
+        "INVOICE": "Invoice & Actions"
+      },
+      "FILTERS": {
+        "STATUS": "Status",
+        "ALL_STATUSES": "All statuses",
+        "METHOD": "Method",
+        "ALL_METHODS": "All methods",
+        "DATE": "Date",
+        "RESET": "Reset"
+      },
+      "STATUS": {
+        "SUCCESS": "Paid",
+        "PENDING": "Pending",
+        "PROCESSING": "Processing",
+        "FAILED": "Failed",
+        "REFUNDED": "Refunded",
+        "PARTIALLY_REFUNDED": "Partially refunded",
+        "CANCELLED": "Cancelled"
+      },
+      "METHODS": {
+        "CMI": "Bank Card (CMI)",
+        "CASH_DELIVERY": "Cash on Delivery",
+        "CASH_AGENCY": "Cash at Agency",
+        "BANK_TRANSFER": "Bank Transfer"
+      },
+      "ACTIONS": {
+        "DOWNLOAD_PDF": "Invoice PDF",
+        "VIEW_RESERVATION": "View associated reservation"
+      }
     }
   }
 }
