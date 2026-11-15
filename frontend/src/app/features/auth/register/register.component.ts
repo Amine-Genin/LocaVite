@@ -344,7 +344,7 @@ import { AuthFooterComponent } from '../../../shared/components/auth-footer/auth
 
     .name-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 16px;
     }
 
@@ -352,6 +352,7 @@ import { AuthFooterComponent } from '../../../shared/components/auth-footer/auth
       display: flex;
       flex-direction: column;
       gap: 7px;
+      min-width: 0;
     }
 
     .input-label {
@@ -364,6 +365,8 @@ import { AuthFooterComponent } from '../../../shared/components/auth-footer/auth
       display: flex;
       align-items: center;
       height: 48px;
+      width: 100%;
+      box-sizing: border-box;
       border: 1px solid #dce4ee;
       border-radius: 10px;
       padding: 0 14px;
