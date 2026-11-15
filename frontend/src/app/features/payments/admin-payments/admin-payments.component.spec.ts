@@ -96,7 +96,16 @@ describe('AdminPaymentsComponent', () => {
         { provide: MatDialog, useValue: dialogSpy },
         { provide: MatSnackBar, useValue: snackBarSpy },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(AdminPaymentsComponent, {
+        set: {
+          providers: [
+            { provide: MatDialog, useValue: dialogSpy },
+            { provide: MatSnackBar, useValue: snackBarSpy },
+          ],
+        },
+      })
+      .compileComponents();
 
     fixture = TestBed.createComponent(AdminPaymentsComponent);
     component = fixture.componentInstance;
