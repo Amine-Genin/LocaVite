@@ -1,0 +1,16 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" th:dir="${isRtl ? 'rtl' : 'ltr'}">
+<head><meta charset="UTF-8"><title>LocaVite</title></head>
+<body>
+<div th:if="${#locale.language == 'fr'}"><h2>Paiement échoué</h2><p>Le paiement <strong th:text="${payment.code}">PAY-000</strong> n’a pas abouti.</p><p><a th:href="${retryLink}">Réessayer le paiement</a></p></div>
+<div th:if="${#locale.language == 'en'}"><h2>Payment failed</h2><p>Payment <strong th:text="${payment.code}">PAY-000</strong> could not be completed.</p><p><a th:href="${retryLink}">Retry payment</a></p></div>
+<div th:if="${#locale.language == 'ar'}"><h2>فشل الدفع</h2><p>تعذر إتمام عملية الدفع <strong th:text="${payment.code}">PAY-000</strong>.</p><p><a th:href="${retryLink}">إعادة المحاولة</a></p></div>
+</body></html>
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" th:dir="${isRtl ? 'rtl' : 'ltr'}">
+<head><meta charset="UTF-8"><title>LocaVite</title></head>
+<body>
+<div th:if="${#locale.language == 'fr'}"><h2>Paiement échoué</h2><p>Le paiement <strong th:text="${payment.code}">PAY-000</strong> n’a pas abouti.</p><p><a th:href="${retryLink}">Réessayer le paiement</a></p></div>
+<div th:if="${#locale.language == 'en'}"><h2>Payment failed</h2><p>Payment <strong th:text="${payment.code}">PAY-000</strong> could not be completed.</p><p><a th:href="${retryLink}">Retry payment</a></p></div>
+<div th:if="${#locale.language == 'ar'}"><h2>فشل الدفع</h2><p>تعذر إتمام عملية الدفع <strong th:text="${payment.code}">PAY-000</strong>.</p><p><a th:href="${retryLink}">إعادة المحاولة</a></p></div>
+</body></html>

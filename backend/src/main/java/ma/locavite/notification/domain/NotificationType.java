@@ -7,7 +7,10 @@ public enum NotificationType {
     REMINDER_J1,
     COMPLETION,
     CANCELLATION,
-    REFUND;
+    REFUND,
+    PAYMENT_SUCCESS,
+    PAYMENT_FAILED,
+    CASH_PAYMENT_CONFIRMED;
 
     public static NotificationType from(String value) {
         if (value == null || value.isBlank()) {

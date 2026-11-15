@@ -62,6 +62,24 @@ public class NotificationTemplateService {
                     code, vehicule)
                     : String.format("LocaVite : Un remboursement concernant votre réservation %s (%s) a été effectué. Votre avoir PDF a été envoyé par email.",
                     code, vehicule);
+
+            case PAYMENT_SUCCESS -> lang == ContractLanguage.AR
+                    ? String.format("LocaVite: تم تأكيد الدفع للمعاملة %s. تم إرسال الفاتورة عبر البريد الإلكتروني.", code)
+                    : lang == ContractLanguage.EN
+                    ? String.format("LocaVite: Payment %s was successful. Your invoice has been sent by email.", code)
+                    : String.format("LocaVite : Le paiement %s a réussi. Votre facture a été envoyée par email.", code);
+
+            case PAYMENT_FAILED -> lang == ContractLanguage.AR
+                    ? String.format("LocaVite: فشل الدفع للمعاملة %s. يرجى مراجعة بريدك الإلكتروني لإعادة المحاولة.", code)
+                    : lang == ContractLanguage.EN
+                    ? String.format("LocaVite: Payment %s failed. Check your email to retry.", code)
+                    : String.format("LocaVite : Le paiement %s a échoué. Consultez votre email pour réessayer.", code);
+
+            case CASH_PAYMENT_CONFIRMED -> lang == ContractLanguage.AR
+                    ? String.format("LocaVite: تم تأكيد الدفع النقدي %s. تم إرسال الإيصال عبر البريد الإلكتروني.", code)
+                    : lang == ContractLanguage.EN
+                    ? String.format("LocaVite: Cash payment %s is confirmed. Your receipt has been emailed.", code)
+                    : String.format("LocaVite : Le paiement en espèces %s est confirmé. Votre reçu a été envoyé par email.", code);
         };
     }
 
