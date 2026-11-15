@@ -71,7 +71,13 @@ describe('AdminPaymentsComponent', () => {
       'refund',
       'downloadInvoice',
     ]);
-    dialogSpy = jasmine.createSpyObj('MatDialog', ['open']);
+    const mockDialogRef = {
+      afterClosed: () => of(null),
+      close: jasmine.createSpy('close'),
+    };
+    dialogSpy = jasmine.createSpyObj('MatDialog', {
+      open: mockDialogRef,
+    });
     snackBarSpy = jasmine.createSpyObj('MatSnackBar', ['open']);
 
     paymentServiceSpy.getAll.and.returnValue(of(mockPageResponse));
