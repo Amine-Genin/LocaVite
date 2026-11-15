@@ -330,6 +330,52 @@
       "LOAD_FAILED": "تعذر تحميل تفاصيل الحجز.",
       "INITIATE_FAILED": "حدث خطأ أثناء بدء عملية الدفع.",
       "INVOICE_DOWNLOAD_FAILED": "تعذر تحميل الفاتورة في الوقت الحالي."
+    },
+    "HISTORY": {
+      "TITLE": "سجل مدفوعاتي",
+      "SUBTITLE": "تصفح وتتبع جميع مدفوعاتك وفواتيرك القابلة للتحميل",
+      "TOTAL_PAYMENTS": "إجمالي المدفوعات",
+      "CONFIRMED_TOTAL": "الإجمالي المؤكد",
+      "TRANSACTIONS_COUNT": "عدد المدفوعات",
+      "LOAD_ERROR": "تعذر تحميل سجل المدفوعات الخاص بك.",
+      "NO_INVOICE": "غير متاح",
+      "EMPTY_TITLE": "لم يتم العثور على مدفوعات",
+      "EMPTY_DESC": "لا توجد مدفوعات تطابق معايير البحث المحددة.",
+      "COLUMNS": {
+        "DATE": "التاريخ",
+        "RESERVATION": "الحجز",
+        "AMOUNT": "المبلغ",
+        "METHOD": "وسيلة الدفع",
+        "STATUS": "الحالة",
+        "INVOICE": "الفاتورة والإجراءات"
+      },
+      "FILTERS": {
+        "STATUS": "الحالة",
+        "ALL_STATUSES": "جميع الحالات",
+        "METHOD": "وسيلة الدفع",
+        "ALL_METHODS": "جميع الوسائل",
+        "DATE": "التاريخ",
+        "RESET": "إعادة تعيين"
+      },
+      "STATUS": {
+        "SUCCESS": "مدفوع",
+        "PENDING": "قيد الانتظار",
+        "PROCESSING": "قيد المعالجة",
+        "FAILED": "فشل",
+        "REFUNDED": "مسترجع",
+        "PARTIALLY_REFUNDED": "مسترجع جزئياً",
+        "CANCELLED": "ملغى"
+      },
+      "METHODS": {
+        "CMI": "بطاقة بنكية (CMI)",
+        "CASH_DELIVERY": "نقداً عند التسليم",
+        "CASH_AGENCY": "نقداً في الوكالة",
+        "BANK_TRANSFER": "تحويل بنكي"
+      },
+      "ACTIONS": {
+        "DOWNLOAD_PDF": "فاتورة PDF",
+        "VIEW_RESERVATION": "عرض الحجز المرتبط"
+      }
     }
   }
 }

@@ -330,6 +330,52 @@
       "LOAD_FAILED": "Impossible de charger les détails de la réservation.",
       "INITIATE_FAILED": "Une erreur est survenue lors de l'initialisation du paiement.",
       "INVOICE_DOWNLOAD_FAILED": "Impossible de télécharger la facture pour le moment."
+    },
+    "HISTORY": {
+      "TITLE": "Historique de mes paiements",
+      "SUBTITLE": "Consultez et suivez l'ensemble de vos règlements et factures téléchargeables",
+      "TOTAL_PAYMENTS": "Total des paiements",
+      "CONFIRMED_TOTAL": "Total confirmé",
+      "TRANSACTIONS_COUNT": "Nombre de paiements",
+      "LOAD_ERROR": "Impossible de charger l'historique de vos paiements.",
+      "NO_INVOICE": "Non disponible",
+      "EMPTY_TITLE": "Aucun paiement trouvé",
+      "EMPTY_DESC": "Aucun paiement ne correspond aux critères sélectionnés.",
+      "COLUMNS": {
+        "DATE": "Date",
+        "RESERVATION": "Réservation",
+        "AMOUNT": "Montant",
+        "METHOD": "Méthode",
+        "STATUS": "Statut",
+        "INVOICE": "Facture & Actions"
+      },
+      "FILTERS": {
+        "STATUS": "Statut",
+        "ALL_STATUSES": "Tous les statuts",
+        "METHOD": "Méthode",
+        "ALL_METHODS": "Toutes les méthodes",
+        "DATE": "Date",
+        "RESET": "Réinitialiser"
+      },
+      "STATUS": {
+        "SUCCESS": "Payé",
+        "PENDING": "En attente",
+        "PROCESSING": "En cours",
+        "FAILED": "Échoué",
+        "REFUNDED": "Remboursé",
+        "PARTIALLY_REFUNDED": "Remboursé partiel.",
+        "CANCELLED": "Annulé"
+      },
+      "METHODS": {
+        "CMI": "Carte bancaire (CMI)",
+        "CASH_DELIVERY": "Espèces à la livraison",
+        "CASH_AGENCY": "Espèces à l'agence",
+        "BANK_TRANSFER": "Virement bancaire"
+      },
+      "ACTIONS": {
+        "DOWNLOAD_PDF": "Facture PDF",
+        "VIEW_RESERVATION": "Voir la réservation associée"
+      }
     }
   }
 }

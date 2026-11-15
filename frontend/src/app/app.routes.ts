@@ -36,6 +36,15 @@ export const routes: Routes = [
       ).then((m) => m.MyReservationsComponent),
   },
   {
+    path: 'my-payments',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['CLIENT'] },
+    loadComponent: () =>
+      import(
+        './features/payments/my-payments/my-payments.component'
+      ).then((m) => m.MyPaymentsComponent),
+  },
+  {
     path: 'reservations/:id',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['CLIENT'] },
