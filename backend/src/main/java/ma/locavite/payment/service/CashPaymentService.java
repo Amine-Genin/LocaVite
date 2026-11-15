@@ -7,6 +7,7 @@ import ma.locavite.payment.domain.PaymentStatus;
 import ma.locavite.payment.dto.CashPaymentRequest;
 import ma.locavite.payment.dto.PaymentResponse;
 import ma.locavite.payment.event.PaymentInitiatedEvent;
+import ma.locavite.payment.event.CashPaymentConfirmedEvent;
 import ma.locavite.payment.event.PaymentSucceededEvent;
 import ma.locavite.payment.exception.InvalidPaymentStatusException;
 import ma.locavite.payment.exception.PaymentNotFoundException;
@@ -174,6 +175,7 @@ public class CashPaymentService {
         notifyClientAfterConfirmation(reservation);
 
         if (eventPublisher != null) {
+            eventPublisher.publishEvent(new CashPaymentConfirmedEvent(saved, reservation));
             eventPublisher.publishEvent(new PaymentSucceededEvent(saved));
         }
 
