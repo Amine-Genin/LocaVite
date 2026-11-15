@@ -38,6 +38,8 @@ export interface PaymentResponse {
   code: string;
   reservationId: number;
   userId?: number;
+  clientNom?: string;
+  clientEmail?: string;
   montant: number;
   devise: string;
   methode: PaymentMethodType;
@@ -50,6 +52,23 @@ export interface PaymentResponse {
   createdAt?: string;
   updatedAt?: string;
   paidAt?: string;
+}
+
+export interface RefundRequest {
+  montant?: number;
+  raison: string;
+}
+
+export interface RefundResponse {
+  id: number;
+  paymentId: number;
+  reservationId: number;
+  montant: number;
+  statut: string;
+  methode: string;
+  raison: string;
+  dateOperation: string;
+  avoirPath?: string;
 }
 
 export interface BankRibInfo {
@@ -67,9 +86,23 @@ export interface PaymentFilterParams {
   date?: string;
   dateFrom?: string;
   dateTo?: string;
+  search?: string;
+  montantMin?: number;
+  montantMax?: number;
+  reservationId?: number;
+  userId?: number;
+  code?: string;
   page?: number;
   size?: number;
   sort?: string;
+}
+
+export interface PaymentStats {
+  monthlyRevenue: number;
+  transactionCount: number;
+  successRate: number;
+  methodDistribution: Record<PaymentMethodType, number>;
+  revenueTrend: { date: string; amount: number }[];
 }
 
 export interface PaymentPageResponse {

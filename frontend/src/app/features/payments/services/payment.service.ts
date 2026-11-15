@@ -6,9 +6,11 @@ import { map, switchMap, takeWhile, timeout, catchError } from 'rxjs/operators';
 import {
   BankRibInfo,
   CmiInitiateResponse,
+  PaymentFilterParams,
   PaymentInitiateRequest,
   PaymentPageResponse,
   PaymentResponse,
+  RefundResponse,
 } from '../models/payment.model';
 
 @Injectable({ providedIn: 'root' })
@@ -144,6 +146,64 @@ export class PaymentService {
         } as PaymentResponse);
       }),
     );
+  }
+
+  /**
+   * Récupère la liste paginée de tous les paiements (AGENCE / ADMIN).
+   */
+  getAll(
+    filter?: PaymentFilterParams,
+    page = 0,
+    size = 20,
+    sort = 'createdAt,desc',
+  ): Observable<PaymentPageResponse> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', sort);
+
+    if (filter) {
+      if (filter.statut) params = params.set('statut', filter.statut);
+      if (filter.methode) params = params.set('methode', filter.methode);
+      if (filter.reservationId) params = params.set('reservationId', filter.reservationId.toString());
+      if (filter.userId) params = params.set('userId', filter.userId.toString());
+      if (filter.code) params = params.set('code', filter.code);
+      if (filter.dateFrom) params = params.set('dateDebut', filter.dateFrom);
+      if (filter.dateTo) params = params.set('dateFin', filter.dateTo);
+    }
+
+    return this.http.get<PaymentPageResponse>(this.apiUrl, { params }).pipe(
+      map((response) => ({
+        ...response,
+        content: (response?.content ?? []).map((payment) => ({
+          ...payment,
+          invoiceNumber: payment.invoiceNumber || this.extractInvoiceNumber(payment),
+        })),
+      })),
+    );
+  }
+
+  /**
+   * Confirme la réception d'un paiement en espèces (AGENCE / ADMIN).
+   */
+  confirmCash(paymentId: number): Observable<PaymentResponse> {
+    return this.http.put<PaymentResponse>(`/api/admin/payments/${paymentId}/confirm-cash`, {});
+  }
+
+  /**
+   * Rembourse totalement ou partiellement un client (AGENCE / ADMIN).
+   */
+  refund(paymentId: number, request: { montant?: number; raison: string }): Observable<RefundResponse> {
+    return this.http.post<RefundResponse>(`/api/admin/payments/${paymentId}/refund`, request);
+  }
+
+  /**
+   * Télécharge l'avoir PDF de remboursement (AGENCE / ADMIN).
+   */
+  downloadAvoir(paymentId: number): Observable<Blob> {
+    return this.http.get(`/api/admin/payments/${paymentId}/avoir`, {
+      responseType: 'blob',
+    });
   }
 
   /**

@@ -1,0 +1,188 @@
+.admin-payments-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+}
+
+.page-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #b4532a !important;
+  color: #ffffff !important;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.filter-card {
+  padding: 1.25rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.06);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 1.5rem;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.search-field {
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .search-field {
+    grid-column: span 1;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  padding: 0.85rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.table-card {
+  padding: 0;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow: 0 4px 15px -3px rgba(15, 23, 42, 0.06);
+  border: 1px solid #f1f5f9;
+  overflow: hidden;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.payments-table {
+  width: 100%;
+}
+
+.id-tag {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.code-text {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #0f172a;
+}
+
+.amount-val {
+  font-weight: 700;
+  color: #047857;
+}
+
+.res-link {
+  color: #b4532a;
+  text-decoration: none;
+  font-weight: 600;
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.method-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #334155;
+}
+
+.method-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.status-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.chip-success {
+  background-color: #d1fae5 !important;
+  color: #065f46 !important;
+}
+
+.chip-pending {
+  background-color: #fef3c7 !important;
+  color: #92400e !important;
+}
+
+.chip-failed {
+  background-color: #fee2e2 !important;
+  color: #991b1b !important;
+}
+
+.chip-refunded {
+  background-color: #e0e7ff !important;
+  color: #3730a3 !important;
+}
+
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  color: #64748b;
+}
+
+.empty-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #cbd5e1;
+}

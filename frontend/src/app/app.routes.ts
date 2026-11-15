@@ -90,6 +90,15 @@ export const routes: Routes = [
       ).then((m) => m.AdminReservationsComponent),
   },
   {
+    path: 'admin/payments',
+    canActivate: [roleGuard],
+    data: { roles: ['AGENCE', 'ADMIN'] },
+    loadComponent: () =>
+      import(
+        './features/payments/admin-payments/admin-payments.component'
+      ).then((m) => m.AdminPaymentsComponent),
+  },
+  {
     path: 'admin/vehicles/new',
     canActivate: [roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },
