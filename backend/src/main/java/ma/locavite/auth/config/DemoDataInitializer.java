@@ -357,17 +357,22 @@ public class DemoDataInitializer implements CommandLineRunner {
         if (count != null && count > 0) {
             return;
         }
+        Instant now = Instant.now();
+        Timestamp uploaded20d = Timestamp.from(now.minus(20, ChronoUnit.DAYS));
+        Timestamp verified19d = Timestamp.from(now.minus(19, ChronoUnit.DAYS));
+        Timestamp uploaded1d = Timestamp.from(now.minus(1, ChronoUnit.DAYS));
+
         jdbcTemplate.update(
-                "INSERT INTO documents (user_id, type, path, status, uploaded_at, verified_at, verified_by) VALUES (?, 'PERMIS', ?, 'VALIDATED', CURRENT_TIMESTAMP - INTERVAL '20 days', CURRENT_TIMESTAMP - INTERVAL '19 days', ?)",
-                client1Id, "documents/demo/permis-youssef.pdf", adminId
+                "INSERT INTO documents (user_id, type, path, status, uploaded_at, verified_at, verified_by) VALUES (?, 'PERMIS', ?, 'VALIDATED', ?, ?, ?)",
+                client1Id, "documents/demo/permis-youssef.pdf", uploaded20d, verified19d, adminId
         );
         jdbcTemplate.update(
-                "INSERT INTO documents (user_id, type, path, status, uploaded_at, verified_at, verified_by) VALUES (?, 'CIN', ?, 'VALIDATED', CURRENT_TIMESTAMP - INTERVAL '20 days', CURRENT_TIMESTAMP - INTERVAL '19 days', ?)",
-                client1Id, "documents/demo/cin-youssef.pdf", adminId
+                "INSERT INTO documents (user_id, type, path, status, uploaded_at, verified_at, verified_by) VALUES (?, 'CIN', ?, 'VALIDATED', ?, ?, ?)",
+                client1Id, "documents/demo/cin-youssef.pdf", uploaded20d, verified19d, adminId
         );
         jdbcTemplate.update(
-                "INSERT INTO documents (user_id, type, path, status, uploaded_at) VALUES (?, 'PERMIS', ?, 'PENDING', CURRENT_TIMESTAMP - INTERVAL '1 day')",
-                client2Id, "documents/demo/permis-salma.pdf"
+                "INSERT INTO documents (user_id, type, path, status, uploaded_at) VALUES (?, 'PERMIS', ?, 'PENDING', ?)",
+                client2Id, "documents/demo/permis-salma.pdf", uploaded1d
         );
     }
 

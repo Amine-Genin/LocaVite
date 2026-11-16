@@ -2,14 +2,17 @@ package ma.locavite.auth.config;
 
 import ma.locavite.auth.repository.RoleRepository;
 import ma.locavite.auth.repository.UserRepository;
+import ma.locavite.common.config.RedisConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 @SpringBootTest
 @Transactional
@@ -59,5 +62,20 @@ class DemoDataInitializerTest {
                 Integer.class
         );
         assertThat(reservationCountAfterSecondRun).isEqualTo(8);
+    }
+
+    @Test
+    void redisCacheErrorHandlerShouldSwallowRuntimeErrorsGracefully() {
+        RedisConfig redisConfig = new RedisConfig();
+        CacheErrorHandler errorHandler = redisConfig.errorHandler();
+        assertThat(errorHandler).isNotNull();
+
+        RuntimeException ex = new RuntimeException("Simulated Redis error");
+        assertThatCode(() -> {
+            errorHandler.handleCacheGetError(ex, null, "k1");
+            errorHandler.handleCachePutError(ex, null, "k1", "v1");
+            errorHandler.handleCacheEvictError(ex, null, "k1");
+            errorHandler.handleCacheClearError(ex, null);
+        }).doesNotThrowAnyException();
     }
 }
