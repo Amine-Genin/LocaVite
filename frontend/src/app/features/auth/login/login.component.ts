@@ -440,8 +440,8 @@ export class LoginComponent implements OnInit {
   });
 
   ngOnInit() {
-    if (this.auth.accessToken) {
-      this.router.navigate(['/dashboard']);
+    if (this.auth.isAuthenticated()) {
+      this.redirectAfterLogin();
       return;
     }
 
@@ -467,7 +467,7 @@ export class LoginComponent implements OnInit {
 
     this.auth.login(email, password, rememberMe).subscribe({
       next: () => {
-        this.router.navigate(['/dashboard']);
+        this.redirectAfterLogin();
       },
       error: (err) => {
         this.loading.set(false);
@@ -478,5 +478,20 @@ export class LoginComponent implements OnInit {
         this.snackBar.open(errorMsg, 'OK', { duration: 4000 });
       },
     });
+  }
+
+  private redirectAfterLogin(): void {
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl && returnUrl.startsWith('/')) {
+      void this.router.navigateByUrl(returnUrl);
+      return;
+    }
+
+    if (this.auth.hasAnyRole(['AGENCE', 'ADMIN'])) {
+      void this.router.navigate(['/admin/reservations']);
+      return;
+    }
+
+    void this.router.navigate(['/vehicles']);
   }
 }

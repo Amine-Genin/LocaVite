@@ -22,7 +22,20 @@
     "BUY_CAR": "Acheter une voiture",
     "AGENCIES": "Nos agences",
     "HOW_IT_WORKS": "Comment ça marche",
-    "MY_SPACE": "Mon espace"
+    "MY_SPACE": "Mon espace",
+    "CATALOGUE": "Catalogue",
+    "MY_RESERVATIONS": "Mes réservations",
+    "MY_PAYMENTS": "Mes paiements",
+    "ADMIN_VEHICLES": "Flotte véhicules",
+    "ADD_VEHICLE": "Ajouter véhicule",
+    "ADMIN_RESERVATIONS": "Réservations",
+    "ADMIN_PAYMENTS": "Paiements",
+    "PROFILE": "Mon profil",
+    "LOGIN": "Connexion",
+    "REGISTER": "Inscription",
+    "LOGOUT": "Déconnexion",
+    "MENU_TOGGLE": "Ouvrir le menu",
+    "QUICK_ACCESS": "Accès rapide"
   },
   "AUTH": {
     "PROMO": {
@@ -36,7 +49,7 @@
       "DESC": "Nous ne vous demanderons jamais votre mot de passe par WhatsApp ou SMS. Les comptes agence sont créés par un administrateur."
     },
     "LOGIN": {
-      "PAGE_TITLE": "Heureuse de vous retrouver.",
+      "PAGE_TITLE": "heureux de vous retrouver.",
       "TITLE": "Connexion",
       "SUBTITLE": "Connectez-vous à votre compte LocaVite",
       "EMAIL": "Adresse e-mail",
@@ -165,6 +178,30 @@
     "DETAILS": "Détails",
     "ADD_FAVORITE": "Ajouter aux favoris",
     "REMOVE_FAVORITE": "Retirer des favoris",
+    "FILTERS": {
+      "TITLE": "Filtres et tri",
+      "OPEN": "Filtres",
+      "CLOSE": "Fermer",
+      "CITY": "Ville",
+      "CATEGORY": "Catégorie",
+      "BRAND": "Marque",
+      "FUEL": "Carburant",
+      "TRANSMISSION": "Transmission",
+      "START_DATE": "Date de départ",
+      "END_DATE": "Date de retour",
+      "PRICE": "Prix par jour",
+      "MIN_PRICE": "Min",
+      "MAX_PRICE": "Max",
+      "SORT": "Trier par",
+      "ALL": "Tous",
+      "DEFAULT_SORT": "Pertinence",
+      "PRICE_ASC": "Prix croissant",
+      "PRICE_DESC": "Prix décroissant",
+      "YEAR": "Année récente",
+      "POPULARITY": "Popularité",
+      "FUELS": { "ESSENCE": "Essence", "DIESEL": "Diesel", "HYBRIDE": "Hybride", "ELECTRIQUE": "Électrique" },
+      "TRANSMISSIONS": { "MANUELLE": "Manuelle", "AUTOMATIQUE": "Automatique" }
+    },
     "PAGINATION": {
       "ITEMS_PER_PAGE": "Véhicules par page :",
       "NEXT_PAGE": "Page suivante",
@@ -234,6 +271,124 @@
       "SIMILAR_SUBTITLE": "D’autres modèles de la même catégorie qui pourraient vous intéresser",
       "NOT_FOUND_TITLE": "Véhicule introuvable",
       "NOT_FOUND_MSG": "Le véhicule demandé n’existe pas ou a été désactivé."
+    }
+  },
+  "PAYMENT": {
+    "TITLE": "Finaliser votre paiement",
+    "SUBTITLE": "Sélectionnez votre mode de paiement préféré pour confirmer votre réservation",
+    "LOADING_RESERVATION": "Chargement du récapitulatif de votre réservation…",
+    "CHOOSE_METHOD": "Choisissez votre mode de paiement",
+    "CHOOSE_METHOD_HINT": "Toutes les transactions sont chiffrées et sécurisées",
+    "PROCESSING": "Traitement du paiement en cours…",
+    "SECURITY_NOTE": "Paiement 100 % sécurisé via CMI 3D-Secure & chiffrement TLS",
+    "METHODS": {
+      "CMI": {
+        "TITLE": "Carte bancaire (CMI)",
+        "DESC": "Paiement immédiat sécurisé par carte marocaine ou internationale (redirection vers la page CMI)",
+        "BADGE": "Recommandé"
+      },
+      "CASH_DELIVERY": {
+        "TITLE": "Espèces à la livraison",
+        "DESC": "Payez en espèces directement à notre agent lors de la remise du véhicule"
+      },
+      "CASH_AGENCY": {
+        "TITLE": "Espèces à l'agence",
+        "DESC": "Réglez en espèces au comptoir de l'agence LocaVite lors de votre arrivée"
+      },
+      "BANK_TRANSFER": {
+        "TITLE": "Virement bancaire",
+        "DESC": "Effectuez un virement sur notre compte bancaire (RIB ci-dessous)"
+      }
+    },
+    "RIB": {
+      "TITLE": "Coordonnées bancaires LocaVite (RIB)",
+      "INSTRUCTIONS": "Veuillez indiquer le code de votre réservation en motif de virement.",
+      "BANK": "Banque",
+      "HOLDER": "Titulaire du compte",
+      "NUMBER": "RIB (24 chiffres)",
+      "AGENCY": "Agence",
+      "COPY": "Copier le RIB",
+      "COPIED": "RIB copié !"
+    },
+    "SUMMARY": {
+      "TITLE": "Récapitulatif de la réservation",
+      "CODE": "Réservation",
+      "VEHICLE": "Véhicule",
+      "DATES": "Période",
+      "PICKUP": "Prise en charge",
+      "RETURN": "Restitution",
+      "TOTAL": "Montant à payer"
+    },
+    "ACTIONS": {
+      "PAY_CMI": "Payer en ligne via CMI",
+      "CONFIRM_PAYMENT": "Confirmer le paiement"
+    },
+    "SUCCESS": {
+      "VERIFYING_TITLE": "Vérification de votre paiement…",
+      "VERIFYING_DESC": "Veuillez patienter pendant la confirmation auprès de la passerelle bancaire.",
+      "TITLE": "Paiement confirmé avec succès !",
+      "MESSAGE": "Votre paiement a bien été pris en compte. Votre facture officielle est prête au téléchargement.",
+      "PAYMENT_CODE": "Référence paiement",
+      "INVOICE_NUMBER": "Numéro de facture",
+      "DOWNLOAD_INVOICE": "Télécharger la facture PDF",
+      "MY_RESERVATIONS": "Voir mes réservations"
+    },
+    "FAILURE": {
+      "TITLE": "Échec du paiement",
+      "MESSAGE": "La transaction n'a pas pu aboutir ou a été annulée. Aucun montant n'a été débité.",
+      "RETRY_BTN": "Réessayer le paiement"
+    },
+    "ERRORS": {
+      "INVALID_RESERVATION": "Identifiant de réservation invalide.",
+      "LOAD_FAILED": "Impossible de charger les détails de la réservation.",
+      "INITIATE_FAILED": "Une erreur est survenue lors de l'initialisation du paiement.",
+      "INVOICE_DOWNLOAD_FAILED": "Impossible de télécharger la facture pour le moment."
+    },
+    "HISTORY": {
+      "TITLE": "Historique de mes paiements",
+      "SUBTITLE": "Consultez et suivez l'ensemble de vos règlements et factures téléchargeables",
+      "TOTAL_PAYMENTS": "Total des paiements",
+      "CONFIRMED_TOTAL": "Total confirmé",
+      "TRANSACTIONS_COUNT": "Nombre de paiements",
+      "LOAD_ERROR": "Impossible de charger l'historique de vos paiements.",
+      "NO_INVOICE": "Non disponible",
+      "EMPTY_TITLE": "Aucun paiement trouvé",
+      "EMPTY_DESC": "Aucun paiement ne correspond aux critères sélectionnés.",
+      "COLUMNS": {
+        "DATE": "Date",
+        "RESERVATION": "Réservation",
+        "AMOUNT": "Montant",
+        "METHOD": "Méthode",
+        "STATUS": "Statut",
+        "INVOICE": "Facture & Actions"
+      },
+      "FILTERS": {
+        "STATUS": "Statut",
+        "ALL_STATUSES": "Tous les statuts",
+        "METHOD": "Méthode",
+        "ALL_METHODS": "Toutes les méthodes",
+        "DATE": "Date",
+        "RESET": "Réinitialiser"
+      },
+      "STATUS": {
+        "SUCCESS": "Payé",
+        "PENDING": "En attente",
+        "PROCESSING": "En cours",
+        "FAILED": "Échoué",
+        "REFUNDED": "Remboursé",
+        "PARTIALLY_REFUNDED": "Remboursé partiel.",
+        "CANCELLED": "Annulé"
+      },
+      "METHODS": {
+        "CMI": "Carte bancaire (CMI)",
+        "CASH_DELIVERY": "Espèces à la livraison",
+        "CASH_AGENCY": "Espèces à l'agence",
+        "BANK_TRANSFER": "Virement bancaire"
+      },
+      "ACTIONS": {
+        "DOWNLOAD_PDF": "Facture PDF",
+        "VIEW_RESERVATION": "Voir la réservation associée"
+      }
     }
   }
 }

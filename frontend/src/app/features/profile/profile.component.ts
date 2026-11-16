@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,6 +20,7 @@ import { LocalizedDatePipe } from '../../core/i18n/localized-date.pipe';
   standalone: true,
   imports: [
     DatePipe,
+    RouterLink,
     LocalizedDatePipe,
     ReactiveFormsModule,
     MatButtonModule,
@@ -97,6 +99,11 @@ export class ProfileComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+  }
+
+  isAdminOrAgency(): boolean {
+    const role = this.user()?.role?.toUpperCase();
+    return role === 'AGENCE' || role === 'ADMIN';
   }
 
   docOf(type: DocumentType): UserDocument | undefined {

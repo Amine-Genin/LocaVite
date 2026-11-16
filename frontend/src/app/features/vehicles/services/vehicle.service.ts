@@ -174,7 +174,7 @@ export class VehicleService {
       item.primaryPhotoUrl ??
       primaryPhoto?.thumbnailUrl ??
       primaryPhoto?.url ??
-      null;
+      this.getDefaultPhotoForVehicle(item);
 
     let photos = item.photos ?? [];
     if (photos.length === 0 && resolvedPhotoUrl) {
@@ -194,6 +194,21 @@ export class VehicleService {
       photos,
       isFavorite: item.isFavorite ?? this.isFavorite(item.id),
     };
+  }
+
+  private getDefaultPhotoForVehicle(item: RawVehicleApi): string {
+    const fallbackPool = [
+      'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1609521263047-f8f205293f24?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?auto=format&fit=crop&w=900&q=80',
+      'https://images.unsplash.com/photo-1555215695-3004980ad54e?auto=format&fit=crop&w=900&q=80',
+    ];
+    const index = Math.abs((item.id || 1) - 1) % fallbackPool.length;
+    return fallbackPool[index];
   }
 
   private loadFavorites(): Set<number> {

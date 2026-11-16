@@ -22,7 +22,20 @@
     "BUY_CAR": "شراء سيارة",
     "AGENCIES": "وكالاتنا",
     "HOW_IT_WORKS": "كيف يعمل",
-    "MY_SPACE": "فضاء الزبون"
+    "MY_SPACE": "فضاء الزبون",
+    "CATALOGUE": "الكتالوج",
+    "MY_RESERVATIONS": "حجوزاتي",
+    "MY_PAYMENTS": "مدفوعاتي",
+    "ADMIN_VEHICLES": "الأسطول",
+    "ADD_VEHICLE": "إضافة سيارة",
+    "ADMIN_RESERVATIONS": "الحجوزات",
+    "ADMIN_PAYMENTS": "المدفوعات",
+    "PROFILE": "ملفي الشخصي",
+    "LOGIN": "تسجيل الدخول",
+    "REGISTER": "إنشاء حساب",
+    "LOGOUT": "تسجيل الخروج",
+    "MENU_TOGGLE": "فتح القائمة",
+    "QUICK_ACCESS": "وصول سريع"
   },
   "AUTH": {
     "PROMO": {

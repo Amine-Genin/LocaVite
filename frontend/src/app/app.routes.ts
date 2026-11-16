@@ -82,7 +82,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin/reservations',
-    canActivate: [roleGuard],
+    canActivate: [authGuard, roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },
     loadComponent: () =>
       import(
@@ -91,7 +91,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin/payments',
-    canActivate: [roleGuard],
+    canActivate: [authGuard, roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },
     loadComponent: () =>
       import(
@@ -100,7 +100,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin/vehicles/new',
-    canActivate: [roleGuard],
+    canActivate: [authGuard, roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },
     loadComponent: () =>
       import('./features/vehicles/vehicle-form/vehicle-form.component').then(
@@ -109,7 +109,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin/vehicles',
-    canActivate: [roleGuard],
+    canActivate: [authGuard, roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },
     loadComponent: () =>
       import(

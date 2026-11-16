@@ -59,6 +59,9 @@ public class VehiclePhotoStorageService {
     }
 
     public String getPresignedUrl(String path) {
+        if (path != null && (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("data:"))) {
+            return path;
+        }
         try {
             return minioClient.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
                     .method(Method.GET)

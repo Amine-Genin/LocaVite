@@ -16,9 +16,24 @@ import { MatButtonModule } from '@angular/material/button';
           Votre réservation <strong>{{ reservationId }}</strong> a bien été enregistrée.
           Un e-mail de confirmation vous sera envoyé.
         </p>
-        <a mat-flat-button color="primary" routerLink="/vehicles" data-cy="back-to-catalogue-btn">
-          Retour au catalogue
-        </a>
+        <div class="success-actions">
+          @if (reservationId) {
+            <a
+              mat-flat-button
+              color="primary"
+              [routerLink]="['/payment', reservationId]"
+              data-cy="pay-now-btn"
+            >
+              Procéder au paiement
+            </a>
+          }
+          <a mat-stroked-button color="primary" routerLink="/my-reservations" data-cy="my-reservations-btn">
+            Mes réservations
+          </a>
+          <a mat-stroked-button routerLink="/vehicles" data-cy="back-to-catalogue-btn">
+            Retour au catalogue
+          </a>
+        </div>
       </section>
     </main>
   `,
@@ -28,6 +43,7 @@ import { MatButtonModule } from '@angular/material/button';
       background: #fff; box-shadow: 0 10px 25px -5px rgba(15, 23, 42, .12); }
     .success-icon { width: 3.5rem; height: 3.5rem; margin: 0 auto 1rem; border-radius: 50%;
       display: grid; place-items: center; color: #fff; background: #16a34a; font-size: 2rem; }
+    .success-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 1.5rem; }
   `],
 })
 export class ReservationSuccessComponent {

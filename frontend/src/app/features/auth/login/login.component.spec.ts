@@ -32,10 +32,12 @@ describe('LoginComponent', () => {
   };
 
   beforeEach(async () => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['login'], {
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['login', 'isAuthenticated', 'hasAnyRole'], {
       accessToken: null,
       rememberedEmail: '',
     });
+    authServiceSpy.isAuthenticated.and.returnValue(false);
+    authServiceSpy.hasAnyRole.and.returnValue(false);
 
     await TestBed.configureTestingModule({
       imports: [LoginComponent, TranslateModule.forRoot()],
@@ -94,7 +96,7 @@ describe('LoginComponent', () => {
     expect(submitBtn.disabled).toBeFalse();
   });
 
-  it('should call auth.login on submit and navigate to /dashboard on success', () => {
+  it('should call auth.login on submit and navigate to /vehicles for CLIENT on success', () => {
     authServiceSpy.login.and.returnValue(of(mockAuthResponse));
 
     component.form.controls.email.setValue('ahmed.benali@locavite.ma');
@@ -108,7 +110,18 @@ describe('LoginComponent', () => {
       'Password123',
       true,
     );
-    expect(router.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(router.navigate).toHaveBeenCalledWith(['/vehicles']);
+  });
+
+  it('should navigate to /admin/reservations for AGENCE or ADMIN on success', () => {
+    authServiceSpy.login.and.returnValue(of(mockAuthResponse));
+    authServiceSpy.hasAnyRole.and.returnValue(true);
+
+    component.form.controls.email.setValue('admin@locavite.ma');
+    component.form.controls.password.setValue('Password123');
+    component.submit();
+
+    expect(router.navigate).toHaveBeenCalledWith(['/admin/reservations']);
   });
 
   it('should display error message in snackBar when login fails', () => {
