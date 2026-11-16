@@ -49,6 +49,8 @@ spring:
       port: ${REDIS_PORT:6379}
 
 locavite:
+  demo:
+    seed-enabled: ${DEMO_SEED_ENABLED:true}
   pricing:
     vat-rate: "${PRICING_VAT_RATE:}"
   contract:

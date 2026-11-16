@@ -6,6 +6,9 @@
       <a routerLink="/offline" class="offline-bar-link">{{ 'OFFLINE.LEARN_MORE' | translate }}</a>
     </div>
   }
+  @if (showNavbar()) {
+    <app-navbar />
+  }
   <router-outlet />
   <app-pwa-install-prompt />
 </div>

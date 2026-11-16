@@ -8,9 +8,13 @@ import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.cache.Cache;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.interceptor.CacheErrorHandler;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +40,8 @@ import java.util.Set;
 @Configuration
 @EnableCaching
 public class RedisConfig implements CachingConfigurer {
+
+    private static final Logger log = LoggerFactory.getLogger(RedisConfig.class);
 
     public static final String CACHE_BRANDS = "brands";
     public static final String CACHE_CATEGORIES = "categories";
@@ -81,7 +87,7 @@ public class RedisConfig implements CachingConfigurer {
 
         cacheObjectMapper.activateDefaultTyping(
                 ptv,
-                ObjectMapper.DefaultTyping.NON_FINAL,
+                ObjectMapper.DefaultTyping.EVERYTHING,
                 JsonTypeInfo.As.PROPERTY
         );
 
@@ -114,5 +120,34 @@ public class RedisConfig implements CachingConfigurer {
                 .initialCacheNames(Set.of(CACHE_BRANDS, CACHE_CATEGORIES, CACHE_VEHICLE_SEARCH, CACHE_VEHICLES, CACHE_VEHICLE_AVAILABILITY, CACHE_SEASONS))
                 .enableStatistics()
                 .build();
+    }
+
+    @Override
+    public CacheErrorHandler errorHandler() {
+        return new CacheErrorHandler() {
+            @Override
+            public void handleCacheGetError(RuntimeException exception, Cache cache, Object key) {
+                log.warn("Erreur de lecture du cache '{}' pour la clé '{}' (fallback BDD): {}",
+                        cache != null ? cache.getName() : "unknown", key, exception.getMessage());
+            }
+
+            @Override
+            public void handleCachePutError(RuntimeException exception, Cache cache, Object key, Object value) {
+                log.warn("Erreur d'écriture dans le cache '{}' pour la clé '{}': {}",
+                        cache != null ? cache.getName() : "unknown", key, exception.getMessage());
+            }
+
+            @Override
+            public void handleCacheEvictError(RuntimeException exception, Cache cache, Object key) {
+                log.warn("Erreur d'éviction du cache '{}' pour la clé '{}': {}",
+                        cache != null ? cache.getName() : "unknown", key, exception.getMessage());
+            }
+
+            @Override
+            public void handleCacheClearError(RuntimeException exception, Cache cache) {
+                log.warn("Erreur de vidage du cache '{}': {}",
+                        cache != null ? cache.getName() : "unknown", exception.getMessage());
+            }
+        };
     }
 }

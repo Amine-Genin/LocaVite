@@ -8,6 +8,23 @@
   </div>
 
   @if (user(); as u) {
+    <section class="card quick-access" style="margin-bottom: 1.5rem;">
+      <h2>{{ 'NAV.QUICK_ACCESS' | translate }}</h2>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.75rem;">
+        @if (isAdminOrAgency()) {
+          <a mat-flat-button color="primary" routerLink="/admin/vehicles">{{ 'NAV.ADMIN_VEHICLES' | translate }}</a>
+          <a mat-stroked-button color="primary" routerLink="/admin/vehicles/new">{{ 'NAV.ADD_VEHICLE' | translate }}</a>
+          <a mat-stroked-button color="primary" routerLink="/admin/reservations">{{ 'NAV.ADMIN_RESERVATIONS' | translate }}</a>
+          <a mat-stroked-button color="primary" routerLink="/admin/payments">{{ 'NAV.ADMIN_PAYMENTS' | translate }}</a>
+          <a mat-stroked-button routerLink="/vehicles">{{ 'NAV.CATALOGUE' | translate }}</a>
+        } @else {
+          <a mat-flat-button color="primary" routerLink="/vehicles">{{ 'NAV.CATALOGUE' | translate }}</a>
+          <a mat-stroked-button color="primary" routerLink="/my-reservations">{{ 'NAV.MY_RESERVATIONS' | translate }}</a>
+          <a mat-stroked-button color="primary" routerLink="/my-payments">{{ 'NAV.MY_PAYMENTS' | translate }}</a>
+        }
+      </div>
+    </section>
+
     <div class="grid">
 
       <!-- Informations (lecture seule) -->

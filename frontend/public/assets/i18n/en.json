@@ -22,7 +22,20 @@
     "BUY_CAR": "Buy a car",
     "AGENCIES": "Our agencies",
     "HOW_IT_WORKS": "How it works",
-    "MY_SPACE": "My account"
+    "MY_SPACE": "My account",
+    "CATALOGUE": "Vehicles",
+    "MY_RESERVATIONS": "My Reservations",
+    "MY_PAYMENTS": "My Payments",
+    "ADMIN_VEHICLES": "Fleet",
+    "ADD_VEHICLE": "Add Vehicle",
+    "ADMIN_RESERVATIONS": "Reservations",
+    "ADMIN_PAYMENTS": "Payments",
+    "PROFILE": "Profile",
+    "LOGIN": "Sign in",
+    "REGISTER": "Register",
+    "LOGOUT": "Sign out",
+    "MENU_TOGGLE": "Toggle menu",
+    "QUICK_ACCESS": "Quick access"
   },
   "AUTH": {
     "PROMO": {
@@ -165,75 +178,36 @@
     "DETAILS": "Details",
     "ADD_FAVORITE": "Add to favorites",
     "REMOVE_FAVORITE": "Remove from favorites",
+    "FILTERS": {
+      "TITLE": "Filters and sorting",
+      "OPEN": "Filters",
+      "CLOSE": "Close",
+      "CITY": "City",
+      "CATEGORY": "Category",
+      "BRAND": "Brand",
+      "FUEL": "Fuel",
+      "TRANSMISSION": "Transmission",
+      "START_DATE": "Pickup date",
+      "END_DATE": "Return date",
+      "PRICE": "Price per day",
+      "MIN_PRICE": "Min",
+      "MAX_PRICE": "Max",
+      "SORT": "Sort by",
+      "ALL": "All",
+      "DEFAULT_SORT": "Relevance",
+      "PRICE_ASC": "Price: low to high",
+      "PRICE_DESC": "Price: high to low",
+      "YEAR": "Newest year",
+      "POPULARITY": "Popularity",
+      "FUELS": { "ESSENCE": "Petrol", "DIESEL": "Diesel", "HYBRIDE": "Hybrid", "ELECTRIQUE": "Electric" },
+      "TRANSMISSIONS": { "MANUELLE": "Manual", "AUTOMATIQUE": "Automatic" }
+    },
     "PAGINATION": {
       "ITEMS_PER_PAGE": "Vehicles per page:",
       "NEXT_PAGE": "Next page",
       "PREV_PAGE": "Previous page",
       "FIRST_PAGE": "First page",
       "LAST_PAGE": "Last page"
-    },
-    "ADMIN": {
-      "FORM": {
-        "TITLE": "Add a vehicle",
-        "SUBTITLE": "Fill in the details to add a vehicle to the LocaVite catalog",
-        "BACK_TO_LIST": "Back to vehicle list",
-        "SECTIONS": {
-          "IDENTITY": "Vehicle Identity",
-          "SPECS": "Technical Specifications",
-          "PRICING": "Pricing",
-          "LOCATION": "Location",
-          "PHOTOS": "Photo Gallery"
-        },
-        "FIELDS": {
-          "BRAND": "Brand",
-          "BRAND_PLACEHOLDER": "Search brand (e.g. Dacia, Renault...)",
-          "MODEL": "Model",
-          "MODEL_PLACEHOLDER": "E.g. Duster, Clio 5...",
-          "YEAR": "Year",
-          "YEAR_PLACEHOLDER": "Select a year",
-          "CATEGORY": "Category",
-          "CATEGORY_PLACEHOLDER": "Select a category",
-          "MATRICULE": "Registration number",
-          "MATRICULE_PLACEHOLDER": "E.g. 12345-A-1",
-          "FUEL": "Fuel",
-          "TRANSMISSION": "Transmission",
-          "SEATS": "Seats (2 to 9)",
-          "DESCRIPTION": "Detailed description",
-          "DESCRIPTION_PLACEHOLDER": "Describe condition, features and key advantages...",
-          "RENT_PRICE": "Rental price per day (DH)",
-          "SALE_PRICE": "Sale price (DH)",
-          "CITY": "City of availability",
-          "CITY_PLACEHOLDER": "Select a city"
-        },
-        "PHOTOS": {
-          "TITLE": "Vehicle photos",
-          "SUBTITLE": "Add one or more photos. Mark the primary photo with the star.",
-          "DROP_TEXT": "Drag & drop photos here or",
-          "BROWSE": "Browse files",
-          "HINT": "Formats: JPG, PNG, WEBP (Max 5MB per file)",
-          "PRIMARY_BADGE": "Primary photo",
-          "SET_PRIMARY": "Set as primary photo",
-          "MOVE_UP": "Move left / earlier",
-          "MOVE_DOWN": "Move right / later",
-          "DELETE": "Remove"
-        },
-        "ACTIONS": {
-          "SAVE_DRAFT": "Save as draft",
-          "PUBLISH": "Publish vehicle",
-          "SUBMITTING": "Saving..."
-        },
-        "ERRORS": {
-          "REQUIRED": "This field is required.",
-          "MIN_YEAR": "Year must be 1990 or later.",
-          "SEATS_RANGE": "Seats count must be between 2 and 9.",
-          "PRICE_POSITIVE": "Price must be greater than 0.",
-          "SAVE_ERROR": "An error occurred while saving vehicle."
-        },
-        "SUCCESS": {
-          "CREATED_PUBLISHED": "Vehicle published successfully!",
-          "CREATED_DRAFT": "Draft saved successfully!"
-        }
-      }
     },
     "DETAIL": {
       "BACK": "Back to catalog",
@@ -299,20 +273,122 @@
       "NOT_FOUND_MSG": "The requested vehicle does not exist or has been deactivated."
     }
   },
-  "PWA": {
-    "INSTALL_TITLE": "Install LocaVite App",
-    "INSTALL_DESC": "Install the app on your device for fast access and offline experience.",
-    "INSTALL_BTN": "Install",
-    "LATER": "Later"
-  },
-  "OFFLINE": {
-    "TITLE": "You are offline",
-    "DESC": "No internet connection detected. Cached data remains accessible. You can resume browsing once your connection is restored.",
-    "BACK_ONLINE_TITLE": "Back online!",
-    "BACK_ONLINE_DESC": "Your internet connection has been restored.",
-    "RETRY_BTN": "Try again",
-    "HOME_BTN": "Back to home",
-    "BANNER_MSG": "You are currently offline.",
-    "LEARN_MORE": "Learn more"
+  "PAYMENT": {
+    "TITLE": "Complete Your Payment",
+    "SUBTITLE": "Select your preferred payment method to finalize your reservation",
+    "LOADING_RESERVATION": "Loading your reservation summary…",
+    "CHOOSE_METHOD": "Choose your payment method",
+    "CHOOSE_METHOD_HINT": "All transactions are encrypted and secure",
+    "PROCESSING": "Processing payment…",
+    "SECURITY_NOTE": "100% secure payment via CMI 3D-Secure & TLS encryption",
+    "METHODS": {
+      "CMI": {
+        "TITLE": "Bank Card (CMI)",
+        "DESC": "Instant secure online payment by Moroccan or international card (redirects to CMI gateway)",
+        "BADGE": "Recommended"
+      },
+      "CASH_DELIVERY": {
+        "TITLE": "Cash on Delivery",
+        "DESC": "Pay in cash directly to our agent when the vehicle is delivered"
+      },
+      "CASH_AGENCY": {
+        "TITLE": "Cash at Agency",
+        "DESC": "Pay in cash at the LocaVite agency counter upon arrival"
+      },
+      "BANK_TRANSFER": {
+        "TITLE": "Bank Transfer",
+        "DESC": "Transfer the amount to our bank account (RIB displayed below)"
+      }
+    },
+    "RIB": {
+      "TITLE": "LocaVite Bank Account Details (RIB)",
+      "INSTRUCTIONS": "Please include your reservation code as the transfer reference.",
+      "BANK": "Bank",
+      "HOLDER": "Account Holder",
+      "NUMBER": "RIB (24 digits)",
+      "AGENCY": "Branch",
+      "COPY": "Copy RIB",
+      "COPIED": "RIB copied!"
+    },
+    "SUMMARY": {
+      "TITLE": "Reservation Summary",
+      "CODE": "Reservation",
+      "VEHICLE": "Vehicle",
+      "DATES": "Dates",
+      "PICKUP": "Pick-up",
+      "RETURN": "Return",
+      "TOTAL": "Total Amount"
+    },
+    "ACTIONS": {
+      "PAY_CMI": "Pay Online via CMI",
+      "CONFIRM_PAYMENT": "Confirm Payment"
+    },
+    "SUCCESS": {
+      "VERIFYING_TITLE": "Verifying your payment…",
+      "VERIFYING_DESC": "Please wait while we confirm your transaction with the payment gateway.",
+      "TITLE": "Payment Confirmed Successfully!",
+      "MESSAGE": "Your payment has been processed. Your official invoice is ready to download.",
+      "PAYMENT_CODE": "Payment Reference",
+      "INVOICE_NUMBER": "Invoice Number",
+      "DOWNLOAD_INVOICE": "Download Invoice PDF",
+      "MY_RESERVATIONS": "View My Reservations"
+    },
+    "FAILURE": {
+      "TITLE": "Payment Failed",
+      "MESSAGE": "The transaction could not be completed or was cancelled. No amount was charged.",
+      "RETRY_BTN": "Retry Payment"
+    },
+    "ERRORS": {
+      "INVALID_RESERVATION": "Invalid reservation identifier.",
+      "LOAD_FAILED": "Unable to load reservation details.",
+      "INITIATE_FAILED": "An error occurred while initiating the payment.",
+      "INVOICE_DOWNLOAD_FAILED": "Unable to download the invoice right now."
+    },
+    "HISTORY": {
+      "TITLE": "My Payment History",
+      "SUBTITLE": "View and track all your transactions and downloadable invoices",
+      "TOTAL_PAYMENTS": "Total Payments",
+      "CONFIRMED_TOTAL": "Confirmed Total",
+      "TRANSACTIONS_COUNT": "Payment Count",
+      "LOAD_ERROR": "Unable to load your payment history.",
+      "NO_INVOICE": "Unavailable",
+      "EMPTY_TITLE": "No payments found",
+      "EMPTY_DESC": "No payments match the selected filters.",
+      "COLUMNS": {
+        "DATE": "Date",
+        "RESERVATION": "Reservation",
+        "AMOUNT": "Amount",
+        "METHOD": "Method",
+        "STATUS": "Status",
+        "INVOICE": "Invoice & Actions"
+      },
+      "FILTERS": {
+        "STATUS": "Status",
+        "ALL_STATUSES": "All statuses",
+        "METHOD": "Method",
+        "ALL_METHODS": "All methods",
+        "DATE": "Date",
+        "RESET": "Reset"
+      },
+      "STATUS": {
+        "SUCCESS": "Paid",
+        "PENDING": "Pending",
+        "PROCESSING": "Processing",
+        "FAILED": "Failed",
+        "REFUNDED": "Refunded",
+        "PARTIALLY_REFUNDED": "Partially refunded",
+        "CANCELLED": "Cancelled"
+      },
+      "METHODS": {
+        "CMI": "Bank Card (CMI)",
+        "CASH_DELIVERY": "Cash on Delivery",
+        "CASH_AGENCY": "Cash at Agency",
+        "BANK_TRANSFER": "Bank Transfer"
+      },
+      "ACTIONS": {
+        "DOWNLOAD_PDF": "Invoice PDF",
+        "VIEW_RESERVATION": "View associated reservation"
+      }
+    }
   }
 }

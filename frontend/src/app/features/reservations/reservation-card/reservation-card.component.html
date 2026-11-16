@@ -53,6 +53,17 @@
   </div>
 
   <mat-card-actions class="card-actions">
+    <a
+      *ngIf="reservation.statut === 'PENDING'"
+      mat-flat-button
+      color="primary"
+      [routerLink]="['/payment', reservation.id]"
+      data-testid="btn-pay-reservation"
+    >
+      <mat-icon>payment</mat-icon>
+      Payer
+    </a>
+
     <button
       mat-stroked-button
       color="primary"

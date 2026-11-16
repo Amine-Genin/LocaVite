@@ -90,5 +90,7 @@ management:
     mail:
       enabled: false
 locavite:
+  demo:
+    seed-enabled: false
   pricing:
     vat-rate: 0

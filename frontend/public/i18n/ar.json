@@ -22,7 +22,20 @@
     "BUY_CAR": "شراء سيارة",
     "AGENCIES": "وكالاتنا",
     "HOW_IT_WORKS": "كيف يعمل",
-    "MY_SPACE": "فضاء الزبون"
+    "MY_SPACE": "فضاء الزبون",
+    "CATALOGUE": "الكتالوج",
+    "MY_RESERVATIONS": "حجوزاتي",
+    "MY_PAYMENTS": "مدفوعاتي",
+    "ADMIN_VEHICLES": "الأسطول",
+    "ADD_VEHICLE": "إضافة سيارة",
+    "ADMIN_RESERVATIONS": "الحجوزات",
+    "ADMIN_PAYMENTS": "المدفوعات",
+    "PROFILE": "ملفي الشخصي",
+    "LOGIN": "تسجيل الدخول",
+    "REGISTER": "إنشاء حساب",
+    "LOGOUT": "تسجيل الخروج",
+    "MENU_TOGGLE": "فتح القائمة",
+    "QUICK_ACCESS": "وصول سريع"
   },
   "AUTH": {
     "PROMO": {
@@ -165,6 +178,30 @@
     "DETAILS": "التفاصيل",
     "ADD_FAVORITE": "إضافة إلى المفضلة",
     "REMOVE_FAVORITE": "إزالة من المفضلة",
+    "FILTERS": {
+      "TITLE": "الفلاتر والترتيب",
+      "OPEN": "الفلاتر",
+      "CLOSE": "إغلاق",
+      "CITY": "المدينة",
+      "CATEGORY": "الفئة",
+      "BRAND": "الماركة",
+      "FUEL": "الوقود",
+      "TRANSMISSION": "ناقل الحركة",
+      "START_DATE": "تاريخ الاستلام",
+      "END_DATE": "تاريخ الإرجاع",
+      "PRICE": "السعر اليومي",
+      "MIN_PRICE": "الحد الأدنى",
+      "MAX_PRICE": "الحد الأقصى",
+      "SORT": "الترتيب حسب",
+      "ALL": "الكل",
+      "DEFAULT_SORT": "الأهمية",
+      "PRICE_ASC": "السعر من الأقل للأعلى",
+      "PRICE_DESC": "السعر من الأعلى للأقل",
+      "YEAR": "الأحدث سنة",
+      "POPULARITY": "الشعبية",
+      "FUELS": { "ESSENCE": "بنزين", "DIESEL": "ديزل", "HYBRIDE": "هجين", "ELECTRIQUE": "كهربائي" },
+      "TRANSMISSIONS": { "MANUELLE": "يدوي", "AUTOMATIQUE": "أوتوماتيكي" }
+    },
     "PAGINATION": {
       "ITEMS_PER_PAGE": "المركبات في الصفحة:",
       "NEXT_PAGE": "الصفحة التالية",
@@ -234,6 +271,124 @@
       "SIMILAR_SUBTITLE": "D’autres modèles de la même catégorie qui pourraient vous intéresser",
       "NOT_FOUND_TITLE": "Véhicule introuvable",
       "NOT_FOUND_MSG": "Le véhicule demandé n’existe pas ou a été désactivé."
+    }
+  },
+  "PAYMENT": {
+    "TITLE": "إتمام عملية الدفع",
+    "SUBTITLE": "اختر وسيلة الدفع المفضلة لديك لتأكيد الحجز",
+    "LOADING_RESERVATION": "جاري تحميل ملخص الحجز…",
+    "CHOOSE_METHOD": "اختر وسيلة الدفع",
+    "CHOOSE_METHOD_HINT": "جميع المعاملات مشفرة وآمنة",
+    "PROCESSING": "جاري معالجة الدفع…",
+    "SECURITY_NOTE": "دفع آمن 100% عبر CMI 3D-Secure وتشفير TLS",
+    "METHODS": {
+      "CMI": {
+        "TITLE": "بطاقة بنكية (CMI)",
+        "DESC": "دفع فوري آمن عبر البطاقة البنكية المغربية أو الدولية (التوجيه إلى صفحة CMI)",
+        "BADGE": "موصى به"
+      },
+      "CASH_DELIVERY": {
+        "TITLE": "نقداً عند التسليم",
+        "DESC": "ادفع نقداً مباشرة لوكيلنا عند استلام المركبة"
+      },
+      "CASH_AGENCY": {
+        "TITLE": "نقداً في الوكالة",
+        "DESC": "ادفع نقداً في مكتب وكالة LocaVite عند وصولك"
+      },
+      "BANK_TRANSFER": {
+        "TITLE": "تحويل بنكي",
+        "DESC": "قم بإجراء تحويل بنكي إلى حسابنا (رقم الحساب RIB موضح أدناه)"
+      }
+    },
+    "RIB": {
+      "TITLE": "البيانات البنكية لـ LocaVite (RIB)",
+      "INSTRUCTIONS": "يرجى إدراج رمز الحجز الخاص بك في مرجع التحويل البنكي.",
+      "BANK": "البنك",
+      "HOLDER": "صاحب الحساب",
+      "NUMBER": "رقم الحساب البنكي (RIB)",
+      "AGENCY": "الوكالة",
+      "COPY": "نسخ RIB",
+      "COPIED": "تم نسخ RIB!"
+    },
+    "SUMMARY": {
+      "TITLE": "ملخص الحجز",
+      "CODE": "الحجز",
+      "VEHICLE": "المركبة",
+      "DATES": "الفترة",
+      "PICKUP": "مكان الاستلام",
+      "RETURN": "مكان الإرجاع",
+      "TOTAL": "المبلغ الإجمالي للدفع"
+    },
+    "ACTIONS": {
+      "PAY_CMI": "الدفع عبر الإنترنت بواسطة CMI",
+      "CONFIRM_PAYMENT": "تأكيد الدفع"
+    },
+    "SUCCESS": {
+      "VERIFYING_TITLE": "جاري التحقق من عملية الدفع…",
+      "VERIFYING_DESC": "يرجى الانتظار أثناء تأكيد المعاملة مع البوابة البنكية.",
+      "TITLE": "تم تأكيد الدفع بنجاح!",
+      "MESSAGE": "تمت معالجة دفعتك بنجاح. فاتورتك الرسمية جاهزة للتحميل.",
+      "PAYMENT_CODE": "مرجع الدفع",
+      "INVOICE_NUMBER": "رقم الفاتورة",
+      "DOWNLOAD_INVOICE": "تحميل الفاتورة PDF",
+      "MY_RESERVATIONS": "عرض حجوزاتي"
+    },
+    "FAILURE": {
+      "TITLE": "فشل في عملية الدفع",
+      "MESSAGE": "تعذر إتمام المعاملة أو تم إلغاؤها. لم يتم خصم أي مبلغ.",
+      "RETRY_BTN": "إعادة محاولة الدفع"
+    },
+    "ERRORS": {
+      "INVALID_RESERVATION": "معرف الحجز غير صالح.",
+      "LOAD_FAILED": "تعذر تحميل تفاصيل الحجز.",
+      "INITIATE_FAILED": "حدث خطأ أثناء بدء عملية الدفع.",
+      "INVOICE_DOWNLOAD_FAILED": "تعذر تحميل الفاتورة في الوقت الحالي."
+    },
+    "HISTORY": {
+      "TITLE": "سجل مدفوعاتي",
+      "SUBTITLE": "تصفح وتتبع جميع مدفوعاتك وفواتيرك القابلة للتحميل",
+      "TOTAL_PAYMENTS": "إجمالي المدفوعات",
+      "CONFIRMED_TOTAL": "الإجمالي المؤكد",
+      "TRANSACTIONS_COUNT": "عدد المدفوعات",
+      "LOAD_ERROR": "تعذر تحميل سجل المدفوعات الخاص بك.",
+      "NO_INVOICE": "غير متاح",
+      "EMPTY_TITLE": "لم يتم العثور على مدفوعات",
+      "EMPTY_DESC": "لا توجد مدفوعات تطابق معايير البحث المحددة.",
+      "COLUMNS": {
+        "DATE": "التاريخ",
+        "RESERVATION": "الحجز",
+        "AMOUNT": "المبلغ",
+        "METHOD": "وسيلة الدفع",
+        "STATUS": "الحالة",
+        "INVOICE": "الفاتورة والإجراءات"
+      },
+      "FILTERS": {
+        "STATUS": "الحالة",
+        "ALL_STATUSES": "جميع الحالات",
+        "METHOD": "وسيلة الدفع",
+        "ALL_METHODS": "جميع الوسائل",
+        "DATE": "التاريخ",
+        "RESET": "إعادة تعيين"
+      },
+      "STATUS": {
+        "SUCCESS": "مدفوع",
+        "PENDING": "قيد الانتظار",
+        "PROCESSING": "قيد المعالجة",
+        "FAILED": "فشل",
+        "REFUNDED": "مسترجع",
+        "PARTIALLY_REFUNDED": "مسترجع جزئياً",
+        "CANCELLED": "ملغى"
+      },
+      "METHODS": {
+        "CMI": "بطاقة بنكية (CMI)",
+        "CASH_DELIVERY": "نقداً عند التسليم",
+        "CASH_AGENCY": "نقداً في الوكالة",
+        "BANK_TRANSFER": "تحويل بنكي"
+      },
+      "ACTIONS": {
+        "DOWNLOAD_PDF": "فاتورة PDF",
+        "VIEW_RESERVATION": "عرض الحجز المرتبط"
+      }
     }
   }
 }

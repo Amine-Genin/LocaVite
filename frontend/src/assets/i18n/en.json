@@ -22,7 +22,20 @@
     "BUY_CAR": "Buy a car",
     "AGENCIES": "Our agencies",
     "HOW_IT_WORKS": "How it works",
-    "MY_SPACE": "My account"
+    "MY_SPACE": "My account",
+    "CATALOGUE": "Vehicles",
+    "MY_RESERVATIONS": "My Reservations",
+    "MY_PAYMENTS": "My Payments",
+    "ADMIN_VEHICLES": "Fleet",
+    "ADD_VEHICLE": "Add Vehicle",
+    "ADMIN_RESERVATIONS": "Reservations",
+    "ADMIN_PAYMENTS": "Payments",
+    "PROFILE": "Profile",
+    "LOGIN": "Sign in",
+    "REGISTER": "Register",
+    "LOGOUT": "Sign out",
+    "MENU_TOGGLE": "Toggle menu",
+    "QUICK_ACCESS": "Quick access"
   },
   "AUTH": {
     "PROMO": {

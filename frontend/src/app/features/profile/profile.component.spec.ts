@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { ProfileComponent } from './profile.component';
@@ -68,6 +69,7 @@ describe('ProfileComponent', () => {
       imports: [ProfileComponent, TranslateModule.forRoot()],
       providers: [
         provideNoopAnimations(),
+        provideRouter([]),
         { provide: UserService, useValue: userServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
       ],

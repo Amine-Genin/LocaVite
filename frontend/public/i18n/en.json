@@ -22,7 +22,20 @@
     "BUY_CAR": "Buy a car",
     "AGENCIES": "Our agencies",
     "HOW_IT_WORKS": "How it works",
-    "MY_SPACE": "My account"
+    "MY_SPACE": "My account",
+    "CATALOGUE": "Vehicles",
+    "MY_RESERVATIONS": "My Reservations",
+    "MY_PAYMENTS": "My Payments",
+    "ADMIN_VEHICLES": "Fleet",
+    "ADD_VEHICLE": "Add Vehicle",
+    "ADMIN_RESERVATIONS": "Reservations",
+    "ADMIN_PAYMENTS": "Payments",
+    "PROFILE": "Profile",
+    "LOGIN": "Sign in",
+    "REGISTER": "Register",
+    "LOGOUT": "Sign out",
+    "MENU_TOGGLE": "Toggle menu",
+    "QUICK_ACCESS": "Quick access"
   },
   "AUTH": {
     "PROMO": {
@@ -165,6 +178,30 @@
     "DETAILS": "Details",
     "ADD_FAVORITE": "Add to favorites",
     "REMOVE_FAVORITE": "Remove from favorites",
+    "FILTERS": {
+      "TITLE": "Filters and sorting",
+      "OPEN": "Filters",
+      "CLOSE": "Close",
+      "CITY": "City",
+      "CATEGORY": "Category",
+      "BRAND": "Brand",
+      "FUEL": "Fuel",
+      "TRANSMISSION": "Transmission",
+      "START_DATE": "Pickup date",
+      "END_DATE": "Return date",
+      "PRICE": "Price per day",
+      "MIN_PRICE": "Min",
+      "MAX_PRICE": "Max",
+      "SORT": "Sort by",
+      "ALL": "All",
+      "DEFAULT_SORT": "Relevance",
+      "PRICE_ASC": "Price: low to high",
+      "PRICE_DESC": "Price: high to low",
+      "YEAR": "Newest year",
+      "POPULARITY": "Popularity",
+      "FUELS": { "ESSENCE": "Petrol", "DIESEL": "Diesel", "HYBRIDE": "Hybrid", "ELECTRIQUE": "Electric" },
+      "TRANSMISSIONS": { "MANUELLE": "Manual", "AUTOMATIQUE": "Automatic" }
+    },
     "PAGINATION": {
       "ITEMS_PER_PAGE": "Vehicles per page:",
       "NEXT_PAGE": "Next page",
@@ -234,6 +271,124 @@
       "SIMILAR_SUBTITLE": "Other models in the same category that might interest you",
       "NOT_FOUND_TITLE": "Vehicle not found",
       "NOT_FOUND_MSG": "The requested vehicle does not exist or has been deactivated."
+    }
+  },
+  "PAYMENT": {
+    "TITLE": "Complete Your Payment",
+    "SUBTITLE": "Select your preferred payment method to finalize your reservation",
+    "LOADING_RESERVATION": "Loading your reservation summary…",
+    "CHOOSE_METHOD": "Choose your payment method",
+    "CHOOSE_METHOD_HINT": "All transactions are encrypted and secure",
+    "PROCESSING": "Processing payment…",
+    "SECURITY_NOTE": "100% secure payment via CMI 3D-Secure & TLS encryption",
+    "METHODS": {
+      "CMI": {
+        "TITLE": "Bank Card (CMI)",
+        "DESC": "Instant secure online payment by Moroccan or international card (redirects to CMI gateway)",
+        "BADGE": "Recommended"
+      },
+      "CASH_DELIVERY": {
+        "TITLE": "Cash on Delivery",
+        "DESC": "Pay in cash directly to our agent when the vehicle is delivered"
+      },
+      "CASH_AGENCY": {
+        "TITLE": "Cash at Agency",
+        "DESC": "Pay in cash at the LocaVite agency counter upon arrival"
+      },
+      "BANK_TRANSFER": {
+        "TITLE": "Bank Transfer",
+        "DESC": "Transfer the amount to our bank account (RIB displayed below)"
+      }
+    },
+    "RIB": {
+      "TITLE": "LocaVite Bank Account Details (RIB)",
+      "INSTRUCTIONS": "Please include your reservation code as the transfer reference.",
+      "BANK": "Bank",
+      "HOLDER": "Account Holder",
+      "NUMBER": "RIB (24 digits)",
+      "AGENCY": "Branch",
+      "COPY": "Copy RIB",
+      "COPIED": "RIB copied!"
+    },
+    "SUMMARY": {
+      "TITLE": "Reservation Summary",
+      "CODE": "Reservation",
+      "VEHICLE": "Vehicle",
+      "DATES": "Dates",
+      "PICKUP": "Pick-up",
+      "RETURN": "Return",
+      "TOTAL": "Total Amount"
+    },
+    "ACTIONS": {
+      "PAY_CMI": "Pay Online via CMI",
+      "CONFIRM_PAYMENT": "Confirm Payment"
+    },
+    "SUCCESS": {
+      "VERIFYING_TITLE": "Verifying your payment…",
+      "VERIFYING_DESC": "Please wait while we confirm your transaction with the payment gateway.",
+      "TITLE": "Payment Confirmed Successfully!",
+      "MESSAGE": "Your payment has been processed. Your official invoice is ready to download.",
+      "PAYMENT_CODE": "Payment Reference",
+      "INVOICE_NUMBER": "Invoice Number",
+      "DOWNLOAD_INVOICE": "Download Invoice PDF",
+      "MY_RESERVATIONS": "View My Reservations"
+    },
+    "FAILURE": {
+      "TITLE": "Payment Failed",
+      "MESSAGE": "The transaction could not be completed or was cancelled. No amount was charged.",
+      "RETRY_BTN": "Retry Payment"
+    },
+    "ERRORS": {
+      "INVALID_RESERVATION": "Invalid reservation identifier.",
+      "LOAD_FAILED": "Unable to load reservation details.",
+      "INITIATE_FAILED": "An error occurred while initiating the payment.",
+      "INVOICE_DOWNLOAD_FAILED": "Unable to download the invoice right now."
+    },
+    "HISTORY": {
+      "TITLE": "My Payment History",
+      "SUBTITLE": "View and track all your transactions and downloadable invoices",
+      "TOTAL_PAYMENTS": "Total Payments",
+      "CONFIRMED_TOTAL": "Confirmed Total",
+      "TRANSACTIONS_COUNT": "Payment Count",
+      "LOAD_ERROR": "Unable to load your payment history.",
+      "NO_INVOICE": "Unavailable",
+      "EMPTY_TITLE": "No payments found",
+      "EMPTY_DESC": "No payments match the selected filters.",
+      "COLUMNS": {
+        "DATE": "Date",
+        "RESERVATION": "Reservation",
+        "AMOUNT": "Amount",
+        "METHOD": "Method",
+        "STATUS": "Status",
+        "INVOICE": "Invoice & Actions"
+      },
+      "FILTERS": {
+        "STATUS": "Status",
+        "ALL_STATUSES": "All statuses",
+        "METHOD": "Method",
+        "ALL_METHODS": "All methods",
+        "DATE": "Date",
+        "RESET": "Reset"
+      },
+      "STATUS": {
+        "SUCCESS": "Paid",
+        "PENDING": "Pending",
+        "PROCESSING": "Processing",
+        "FAILED": "Failed",
+        "REFUNDED": "Refunded",
+        "PARTIALLY_REFUNDED": "Partially refunded",
+        "CANCELLED": "Cancelled"
+      },
+      "METHODS": {
+        "CMI": "Bank Card (CMI)",
+        "CASH_DELIVERY": "Cash on Delivery",
+        "CASH_AGENCY": "Cash at Agency",
+        "BANK_TRANSFER": "Bank Transfer"
+      },
+      "ACTIONS": {
+        "DOWNLOAD_PDF": "Invoice PDF",
+        "VIEW_RESERVATION": "View associated reservation"
+      }
     }
   }
 }
