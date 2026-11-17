@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import ma.locavite.payment.cmi.config.CmiProperties;
+import ma.locavite.audit.annotation.Auditable;
 import ma.locavite.payment.cmi.domain.WebhookEvent;
 import ma.locavite.payment.cmi.dto.CmiInitiateRequest;
 import ma.locavite.payment.cmi.dto.CmiInitiateResponse;
@@ -126,6 +127,7 @@ public class CmiPaymentService {
         this.securityAlertService = securityAlertService != null ? securityAlertService : new CmiSecurityAlertService();
     }
 
+    @Auditable(action = "PAYMENT_CMI_INITIATE", entity = "Payment")
     public CmiInitiateResponse initiate(CmiInitiateRequest request, HttpServletRequest httpRequest) {
         Long currentUserId = getCurrentUserId();
 
@@ -209,7 +211,7 @@ public class CmiPaymentService {
         payment.setMethode(PaymentMethod.CMI);
         payment.setStatut(PaymentStatus.PENDING);
         payment.setReference(paymentCode);
-        payment.setMetadata(metadataNode.toString());
+        payment.setMetadata(CmiDataSanitizer.sanitizeText(metadataNode.toString()));
 
         Payment saved = paymentRepository.save(payment);
         eventPublisher.publishEvent(new PaymentInitiatedEvent(saved));
@@ -232,6 +234,7 @@ public class CmiPaymentService {
         );
     }
 
+    @Auditable(action = "PAYMENT_CMI_CALLBACK", entity = "Payment")
     public String handleCallback(Map<String, String> params, HttpServletRequest httpRequest) {
         log.info("Réception callback CMI avec paramètres : {}", CmiDataSanitizer.maskSensitiveParams(params));
 
@@ -290,6 +293,7 @@ public class CmiPaymentService {
         }
     }
 
+    @Auditable(action = "PAYMENT_CMI_WEBHOOK", entity = "Payment")
     public CmiWebhookResponse handleWebhook(Map<String, String> params, HttpServletRequest httpRequest) {
         String clientIp = ipWhitelistService.getClientIp(httpRequest);
         boolean verifiedByFilter = httpRequest != null
@@ -545,7 +549,7 @@ public class CmiPaymentService {
             } else {
                 root.set(key, objectMapper.valueToTree(value));
             }
-            payment.setMetadata(root.toString());
+            payment.setMetadata(CmiDataSanitizer.sanitizeText(root.toString()));
         } catch (Exception e) {
             log.warn("Impossible d'enrichir les métadonnées du paiement {}: {}", payment.getCode(), e.getMessage());
         }

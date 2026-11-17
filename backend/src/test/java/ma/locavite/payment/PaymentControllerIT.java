@@ -7,6 +7,7 @@ import ma.locavite.auth.domain.User;
 import ma.locavite.auth.repository.RoleRepository;
 import ma.locavite.auth.repository.UserRepository;
 import ma.locavite.auth.service.JwtService;
+import ma.locavite.audit.repository.AuditLogRepository;
 import ma.locavite.catalog.domain.Brand;
 import ma.locavite.catalog.domain.Category;
 import ma.locavite.catalog.repository.BrandRepository;
@@ -48,6 +49,7 @@ import java.util.Set;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(properties = "spring.cache.type=none")
 @AutoConfigureMockMvc
@@ -73,6 +75,9 @@ class PaymentControllerIT {
 
     @Autowired
     private NotificationLogRepository notificationLogRepository;
+
+    @Autowired
+    private AuditLogRepository auditLogRepository;
 
     @Autowired
     private ReservationRepository reservationRepository;
@@ -113,6 +118,7 @@ class PaymentControllerIT {
 
     @BeforeEach
     void setUp() {
+        auditLogRepository.deleteAll();
         refundRepository.deleteAll();
         invoiceRepository.deleteAll();
         paymentRepository.deleteAll();
@@ -201,7 +207,7 @@ class PaymentControllerIT {
                 "MAD",
                 PaymentMethod.CMI,
                 "CMI-EXT-123",
-                "{\"sessionId\":\"sess_001\"}"
+                "{\"sessionId\":\"sess_001\",\"pan\":\"4111111111111111\"}"
         );
 
         mockMvc.perform(post("/api/payments")
@@ -220,6 +226,13 @@ class PaymentControllerIT {
                 .andExpect(jsonPath("$.statut").value("PENDING"))
                 .andExpect(jsonPath("$.reference").value("CMI-EXT-123"))
                 .andExpect(jsonPath("$.createdAt").isNotEmpty());
+
+        Payment storedPayment = paymentRepository.findAll().get(0);
+        assertThat(storedPayment.getMetadata()).contains("[REDACTED]")
+                .doesNotContain("4111111111111111");
+        assertThat(auditLogRepository.findAll())
+                .anyMatch(audit -> "PAYMENT_INITIATE".equals(audit.getAction())
+                        && "Payment".equals(audit.getEntity()));
     }
 
     @Test

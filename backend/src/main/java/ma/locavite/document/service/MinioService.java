@@ -2,6 +2,7 @@ package ma.locavite.document.service;
 
 import io.minio.*;
 import io.minio.http.Method;
+import io.minio.ServerSideEncryptionS3;
 import jakarta.annotation.PostConstruct;
 import ma.locavite.document.config.MinioProperties;
 import org.slf4j.Logger;
@@ -59,14 +60,15 @@ public class MinioService {
 
     public void putObject(String path, InputStream inputStream, long size, String contentType) {
         try {
-            minioClient.putObject(
-                    PutObjectArgs.builder()
+            PutObjectArgs.Builder builder = PutObjectArgs.builder()
                             .bucket(properties.getBucket())
                             .object(path)
                             .stream(inputStream, size, -1)
-                            .contentType(contentType)
-                            .build()
-            );
+                            .contentType(contentType);
+            if (properties.isSseEnabled()) {
+                builder.sse(new ServerSideEncryptionS3());
+            }
+            minioClient.putObject(builder.build());
             log.info("Objet uploadé avec succès dans MinIO : path={}", path);
         } catch (Exception e) {
             log.error("Erreur lors de l'upload vers MinIO [path={}] : {}", path, e.getMessage(), e);
@@ -76,14 +78,15 @@ public class MinioService {
 
     public void putContract(String path, byte[] content) {
         try {
-            minioClient.putObject(
-                    PutObjectArgs.builder()
+            PutObjectArgs.Builder builder = PutObjectArgs.builder()
                             .bucket(properties.getContractsBucket())
                             .object(path)
                             .stream(new java.io.ByteArrayInputStream(content), content.length, -1)
-                            .contentType("application/pdf")
-                            .build()
-            );
+                            .contentType("application/pdf");
+            if (properties.isSseEnabled()) {
+                builder.sse(new ServerSideEncryptionS3());
+            }
+            minioClient.putObject(builder.build());
             log.info("Contrat uploadé dans MinIO [path={}]", path);
         } catch (Exception e) {
             log.error("Erreur lors de l'upload du contrat [path={}]", path, e);
@@ -174,14 +177,15 @@ public class MinioService {
             inMemoryInvoices.put(path, content);
         }
         try {
-            minioClient.putObject(
-                    PutObjectArgs.builder()
+            PutObjectArgs.Builder builder = PutObjectArgs.builder()
                             .bucket(properties.getInvoicesBucket())
                             .object(path)
                             .stream(new java.io.ByteArrayInputStream(content), content.length, -1)
-                            .contentType("application/pdf")
-                            .build()
-            );
+                            .contentType("application/pdf");
+            if (properties.isSseEnabled()) {
+                builder.sse(new ServerSideEncryptionS3());
+            }
+            minioClient.putObject(builder.build());
             log.info("Facture uploadée dans MinIO [bucket={}, path={}]", properties.getInvoicesBucket(), path);
         } catch (Exception e) {
             if (!properties.isInitBucket()) {

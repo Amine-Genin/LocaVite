@@ -13,6 +13,7 @@ public class MinioProperties {
     private String contractsBucket = "locavite-contracts";
     private String invoicesBucket = "locavite-invoices";
     private boolean initBucket = true;
+    private boolean sseEnabled = true;
 
     public String getEndpoint() {
         return endpoint;
@@ -76,5 +77,13 @@ public class MinioProperties {
 
     public void setInitBucket(boolean initBucket) {
         this.initBucket = initBucket;
+    }
+
+    public boolean isSseEnabled() {
+        return sseEnabled;
+    }
+
+    public void setSseEnabled(boolean sseEnabled) {
+        this.sseEnabled = sseEnabled;
     }
 }
