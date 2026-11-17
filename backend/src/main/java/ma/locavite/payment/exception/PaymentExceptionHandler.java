@@ -1,5 +1,6 @@
 package ma.locavite.payment.exception;
 
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import ma.locavite.payment.controller.AdminPaymentController;
 import ma.locavite.payment.cmi.controller.CmiPaymentController;
 import ma.locavite.payment.cmi.exception.CmiIpNotAllowedException;
@@ -68,8 +69,8 @@ public class PaymentExceptionHandler {
         return error(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    @ExceptionHandler(CmiUnavailableException.class)
-    public ResponseEntity<Map<String, Object>> handleCmiUnavailable(CmiUnavailableException ex) {
+    @ExceptionHandler({CmiUnavailableException.class, CallNotPermittedException.class})
+    public ResponseEntity<Map<String, Object>> handleCmiUnavailable(Exception ex) {
         return error(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
