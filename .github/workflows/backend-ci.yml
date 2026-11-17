@@ -94,16 +94,21 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Scan repository with Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@38b337fff0a2f984d5be173c99e3f633438167ec # master
         with:
           scan-type: fs
           scan-ref: .
           severity: CRITICAL
           exit-code: '1'
           ignore-unfixed: true
+          # OWASP Dependency-Check scans Maven dependencies below. Excluding
+          # manifests avoids Trivy resolving remote registries during outages
+          # or rate limiting, while retaining filesystem and secret scanning.
+          skip-dirs: backend/target,frontend/node_modules
+          skip-files: backend/pom.xml,frontend/package.json,frontend/package-lock.json
 
       - name: Scan Java dependencies with OWASP Dependency-Check
-        uses: dependency-check/Dependency-Check_Action@main
+        uses: dependency-check/Dependency-Check_Action@1e54355a8b4c8abaa8cc7d0b70aa655a3bb15a6c # main
         with:
           project: LocaVite backend
           path: backend
