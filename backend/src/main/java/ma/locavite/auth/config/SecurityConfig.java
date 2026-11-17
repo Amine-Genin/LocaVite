@@ -3,6 +3,7 @@ package ma.locavite.auth.config;
 import jakarta.servlet.http.HttpServletResponse;
 import ma.locavite.auth.repository.UserRepository;
 import ma.locavite.payment.cmi.filter.CmiWebhookFilter;
+import ma.locavite.payment.cmi.filter.IdempotencyFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -68,7 +69,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            CmiWebhookFilter cmiWebhookFilter) throws Exception {
+            CmiWebhookFilter cmiWebhookFilter,
+            IdempotencyFilter idempotencyFilter) throws Exception {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(Customizer.withDefaults())
@@ -104,6 +106,7 @@ public class SecurityConfig {
                 })
             )
             .addFilterBefore(cmiWebhookFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(idempotencyFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

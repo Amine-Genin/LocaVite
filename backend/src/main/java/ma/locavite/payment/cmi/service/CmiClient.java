@@ -1,5 +1,7 @@
 package ma.locavite.payment.cmi.service;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import ma.locavite.payment.cmi.config.CmiProperties;
 import ma.locavite.payment.cmi.exception.CmiUnavailableException;
 import ma.locavite.payment.domain.Payment;
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
@@ -45,12 +48,17 @@ public class CmiClient {
                     .retrieve()
                     .toBodilessEntity();
             return response.getStatusCode().is2xxSuccessful() || response.getStatusCode().is3xxRedirection();
+        } catch (ResourceAccessException e) {
+            log.warn("Timeout lors de l'accès à la passerelle CMI ({}) : {}", cmiProperties.getGatewayUrl(), e.getMessage());
+            throw new CmiUnavailableException("Timeout CMI lors de l'accès à la passerelle : " + e.getMessage(), e);
         } catch (Exception e) {
             log.warn("La passerelle CMI ({}) ne répond pas : {}", cmiProperties.getGatewayUrl(), e.getMessage());
             return false;
         }
     }
 
+    @Retry(name = "cmi")
+    @CircuitBreaker(name = "cmi")
     public void ensureGatewayAvailable() {
         if (!isGatewayReachable()) {
             log.error("Passerelle CMI indisponible à l'adresse {}", cmiProperties.getGatewayUrl());
@@ -64,6 +72,8 @@ public class CmiClient {
     /**
      * Exécute un remboursement CMI via l'endpoint dédié CMI Refund API (trantype=Credit).
      */
+    @Retry(name = "cmi")
+    @CircuitBreaker(name = "cmi")
     public String executeRefund(Payment payment, BigDecimal montant, String raison) {
         ensureGatewayAvailable();
 

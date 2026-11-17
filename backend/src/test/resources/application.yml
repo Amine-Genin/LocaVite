@@ -97,3 +97,31 @@ locavite:
     seed-enabled: false
   pricing:
     vat-rate: 0
+
+resilience4j:
+  retry:
+    instances:
+      cmi:
+        maxAttempts: 3
+        waitDuration: 20ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        retryExceptions:
+          - ma.locavite.payment.cmi.exception.CmiUnavailableException
+          - org.springframework.web.client.RestClientException
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+  circuitbreaker:
+    instances:
+      cmi:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 6
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000ms
+        permittedNumberOfCallsInHalfOpenState: 2
+        recordExceptions:
+          - ma.locavite.payment.cmi.exception.CmiUnavailableException
+          - org.springframework.web.client.RestClientException
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException

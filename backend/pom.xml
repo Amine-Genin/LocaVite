@@ -34,6 +34,7 @@
         <jacoco.version>0.8.12</jacoco.version>
         <sonar.version>5.8.0.7211</sonar.version>
         <twilio.version>10.5.0</twilio.version>
+        <resilience4j.version>2.2.0</resilience4j.version>
 
         <!-- Propriétés SonarCloud / SonarQube -->
         <sonar.organization>amine-genin</sonar.organization>
@@ -214,6 +215,12 @@
             <groupId>com.twilio.sdk</groupId>
             <artifactId>twilio</artifactId>
             <version>${twilio.version}</version>
+        </dependency>
+        <!-- Resilience4j pour le retry et circuit breaker CMI. -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-spring-boot3</artifactId>
+            <version>${resilience4j.version}</version>
         </dependency>
         <!-- Réduction du code répétitif dans les modèles et services. -->
         <dependency>
