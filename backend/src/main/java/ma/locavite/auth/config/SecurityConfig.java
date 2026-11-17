@@ -22,6 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 
@@ -31,9 +32,12 @@ import java.time.LocalDateTime;
 public class SecurityConfig {
 
     private final UserRepository userRepository;
+    private final boolean requireHttps;
 
-    public SecurityConfig(UserRepository userRepository) {
+    public SecurityConfig(UserRepository userRepository,
+                          @Value("${security.require-https:true}") boolean requireHttps) {
         this.userRepository = userRepository;
+        this.requireHttps = requireHttps;
     }
 
     @Bean
@@ -70,6 +74,11 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authenticationProvider(authenticationProvider())
+            .requiresChannel(channel -> {
+                if (requireHttps) {
+                    channel.requestMatchers("/api/payments/**").requiresSecure();
+                }
+            })
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/payments/cmi/callback", "/api/payments/cmi/webhook").permitAll()

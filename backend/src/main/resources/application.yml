@@ -1,6 +1,9 @@
 server:
   port: ${PORT:8082}
   forward-headers-strategy: framework
+  ssl:
+    enabled: ${SERVER_SSL_ENABLED:false}
+    enabled-protocols: TLSv1.2,TLSv1.3
 
 spring:
   application:
@@ -75,9 +78,10 @@ cmi:
   signature-algorithm: "HMAC_SHA512"
   fallback-mode: ${CMI_FALLBACK_MODE:false}
   webhook-rate-limit-per-minute: ${CMI_WEBHOOK_RATE_LIMIT:10}
-  webhook-require-https: ${CMI_WEBHOOK_REQUIRE_HTTPS:false}
+  webhook-require-https: ${CMI_WEBHOOK_REQUIRE_HTTPS:true}
 
 security:
+  require-https: ${SECURITY_REQUIRE_HTTPS:true}
   jwt:
     secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D6351655468576D5A7134743777217A25432A}
     expiration: ${JWT_EXPIRATION:86400000}
@@ -90,6 +94,7 @@ minio:
   secret-key: ${MINIO_SECRET_KEY:locavite_dev_password}
   bucket: ${MINIO_BUCKET:locavite-documents}
   init-bucket: ${MINIO_INIT_BUCKET:true}
+  sse-enabled: ${MINIO_SSE_ENABLED:true}
   vehicles-bucket: ${MINIO_VEHICLES_BUCKET:locavite-vehicles}
   contracts-bucket: ${MINIO_CONTRACTS_BUCKET:locavite-contracts}
   invoices-bucket: ${MINIO_INVOICES_BUCKET:locavite-invoices}

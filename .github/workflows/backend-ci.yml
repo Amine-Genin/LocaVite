@@ -14,6 +14,8 @@ on:
       - '.github/workflows/backend-ci.yml'
       - '.github/maven-settings.xml'
   workflow_dispatch:
+  schedule:
+    - cron: '17 2 * * *'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -81,4 +83,41 @@ jobs:
             backend/target/locavite-backend-*.jar
             !backend/target/*.original
           if-no-files-found: error
+          retention-days: 7
+
+  security-scans:
+    name: PCI-DSS Dependency & Container Scans
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan repository with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL
+          exit-code: '1'
+          ignore-unfixed: true
+
+      - name: Scan Java dependencies with OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: LocaVite backend
+          path: backend
+          format: HTML
+          out: reports
+          args: >-
+            --failOnCVSS 9
+            --enableRetired
+
+      - name: Upload dependency scan report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-dependency-check-report
+          path: reports/
+          if-no-files-found: warn
           retention-days: 7

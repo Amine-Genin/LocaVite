@@ -31,6 +31,7 @@ import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.pdfa.PdfADocument;
 import jakarta.mail.internet.MimeMessage;
 import ma.locavite.auth.domain.User;
+import ma.locavite.audit.annotation.Auditable;
 import ma.locavite.auth.repository.UserRepository;
 import ma.locavite.document.service.MinioService;
 import ma.locavite.mail.domain.EmailLog;
@@ -148,10 +149,12 @@ public class InvoiceService {
         this.objectMapper = objectMapper != null ? objectMapper : new ObjectMapper();
     }
 
+    @Auditable(action = "INVOICE_CREATE", entity = "Invoice")
     public Invoice generate(Payment payment) {
         return generate(payment, ContractLanguage.FR);
     }
 
+    @Auditable(action = "INVOICE_CREATE", entity = "Invoice")
     public Invoice generate(Payment payment, ContractLanguage language) {
         if (payment == null) {
             throw new IllegalArgumentException("Le paiement ne peut pas être nul");
@@ -220,11 +223,13 @@ public class InvoiceService {
     }
 
     @Transactional
+    @Auditable(action = "INVOICE_DOCUMENT_READ", entity = "Invoice", entityIdParameter = 0)
     public byte[] downloadInvoicePdf(Long paymentId) {
         return downloadInvoicePdf(paymentId, ContractLanguage.FR);
     }
 
     @Transactional
+    @Auditable(action = "INVOICE_DOCUMENT_READ", entity = "Invoice", entityIdParameter = 0)
     public byte[] downloadInvoicePdf(Long paymentId, ContractLanguage language) {
         Long currentUserId = getCurrentUserId();
 

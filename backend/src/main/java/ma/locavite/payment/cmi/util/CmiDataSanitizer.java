@@ -66,4 +66,15 @@ public final class CmiDataSanitizer {
         }
         return sanitized;
     }
+
+    public static String sanitizeText(String value) {
+        if (value == null || value.isBlank()) {
+            return value;
+        }
+        String sanitized = value.replaceAll(
+                "(?i)(\"?(?:pan|cardNumber|card_number|cvv|cvc|cavv|expiry|expDate)\"?\\s*[:=]\\s*\"?)[^\",}\\s]+",
+                "$1[REDACTED]"
+        );
+        return sanitized.replaceAll("\\b\\d{13,19}\\b", "[REDACTED]");
+    }
 }

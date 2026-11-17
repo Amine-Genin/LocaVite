@@ -35,6 +35,7 @@ spring:
         enabled: false
 
 security:
+  require-https: false
   jwt:
     secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970337336763979244226452948404D6351655468576D5A7134743777217A25432A
     expiration: 86400000
@@ -48,6 +49,7 @@ minio:
   bucket: locavite-documents
   invoices-bucket: locavite-invoices
   init-bucket: false
+  sse-enabled: false
 
 twilio:
   enabled: false
@@ -76,6 +78,7 @@ cmi:
   encoding: "UTF-8"
   signature-algorithm: "HMAC_SHA512"
   fallback-mode: false
+  webhook-require-https: false
   check-gateway-health: false
 
 management:

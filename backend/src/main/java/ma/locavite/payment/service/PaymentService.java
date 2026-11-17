@@ -1,6 +1,8 @@
 package ma.locavite.payment.service;
 
 import ma.locavite.payment.domain.Payment;
+import ma.locavite.payment.cmi.util.CmiDataSanitizer;
+import ma.locavite.audit.annotation.Auditable;
 import ma.locavite.payment.domain.PaymentStatus;
 import ma.locavite.payment.dto.PaymentFilter;
 import ma.locavite.payment.dto.PaymentRequest;
@@ -64,6 +66,7 @@ public class PaymentService {
         this.eventPublisher = eventPublisher;
     }
 
+    @Auditable(action = "PAYMENT_INITIATE", entity = "Payment")
     public PaymentResponse initiate(PaymentRequest request) {
         Long currentUserId = getCurrentUserId();
 
@@ -101,7 +104,7 @@ public class PaymentService {
         payment.setMethode(request.methode());
         payment.setStatut(PaymentStatus.PENDING);
         payment.setReference(request.reference());
-        payment.setMetadata(request.metadata());
+        payment.setMetadata(CmiDataSanitizer.sanitizeText(request.metadata()));
 
         Payment saved = paymentRepository.save(payment);
         eventPublisher.publishEvent(new PaymentInitiatedEvent(saved));
@@ -109,6 +112,7 @@ public class PaymentService {
         return paymentMapper.toResponse(saved);
     }
 
+    @Auditable(action = "PAYMENT_CONFIRM", entity = "Payment", entityIdParameter = 0)
     public PaymentResponse confirm(Long paymentId, String transactionId, String reference, String metadata) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
@@ -143,7 +147,7 @@ public class PaymentService {
             payment.setReference(reference);
         }
         if (metadata != null && !metadata.isBlank()) {
-            payment.setMetadata(metadata);
+            payment.setMetadata(CmiDataSanitizer.sanitizeText(metadata));
         }
 
         Payment saved = paymentRepository.save(payment);
@@ -156,6 +160,7 @@ public class PaymentService {
         return confirm(paymentId, null, null, null);
     }
 
+    @Auditable(action = "PAYMENT_FAIL", entity = "Payment", entityIdParameter = 0)
     public PaymentResponse fail(Long paymentId, String reason) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
@@ -166,7 +171,7 @@ public class PaymentService {
 
         payment.setStatut(PaymentStatus.FAILED);
         if (reason != null && !reason.isBlank() && (payment.getMetadata() == null || payment.getMetadata().isBlank())) {
-            payment.setMetadata("{\"failureReason\":\"" + reason + "\"}");
+            payment.setMetadata("{\"failureReason\":\"" + CmiDataSanitizer.sanitizeText(reason) + "\"}");
         }
 
         Payment saved = paymentRepository.save(payment);
@@ -179,6 +184,7 @@ public class PaymentService {
         return fail(paymentId, null);
     }
 
+    @Auditable(action = "PAYMENT_CANCEL", entity = "Payment", entityIdParameter = 0)
     public PaymentResponse cancel(Long paymentId) {
         Long currentUserId = getCurrentUserId();
         Payment payment = paymentRepository.findById(paymentId)
@@ -199,6 +205,7 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
+    @Auditable(action = "PAYMENT_READ", entity = "Payment", entityIdParameter = 0)
     public PaymentResponse getById(Long id) {
         Long currentUserId = getCurrentUserId();
         Payment payment = paymentRepository.findById(id)
@@ -216,6 +223,7 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
+    @Auditable(action = "PAYMENT_LIST_MINE", entity = "Payment")
     public Page<PaymentResponse> getMe(Pageable pageable) {
         Long currentUserId = getCurrentUserId();
         return paymentRepository.findByUserId(currentUserId, pageable)
@@ -223,6 +231,7 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
+    @Auditable(action = "PAYMENT_LIST_ALL", entity = "Payment")
     public Page<PaymentResponse> getAll(PaymentFilter filter, Pageable pageable) {
         Long currentUserId = getCurrentUserId();
 
@@ -248,6 +257,7 @@ public class PaymentService {
     }
 
     @Transactional(readOnly = true)
+    @Auditable(action = "PAYMENT_LIST_RESERVATION", entity = "Payment", entityIdParameter = 0)
     public List<PaymentResponse> getByReservationId(Long reservationId) {
         return paymentRepository.findByReservationId(reservationId).stream()
                 .map(paymentMapper::toResponse)

@@ -5,11 +5,13 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.internet.MimeMessage;
 import ma.locavite.auth.domain.User;
+import ma.locavite.audit.annotation.Auditable;
 import ma.locavite.auth.repository.UserRepository;
 import ma.locavite.mail.domain.EmailLog;
 import ma.locavite.mail.repository.EmailLogRepository;
 import ma.locavite.notification.service.NotificationService;
 import ma.locavite.payment.cmi.service.CmiClient;
+import ma.locavite.payment.cmi.util.CmiDataSanitizer;
 import ma.locavite.payment.domain.Payment;
 import ma.locavite.payment.domain.PaymentMethod;
 import ma.locavite.payment.domain.PaymentStatus;
@@ -105,6 +107,7 @@ public class RefundService {
         this.objectMapper = objectMapper != null ? objectMapper : new ObjectMapper();
     }
 
+    @Auditable(action = "REFUND_CREATE", entity = "Refund", entityIdParameter = 0)
     public RefundResponse create(Long paymentId, RefundRequest request) {
         if (request == null || request.montant() == null) {
             throw new PaymentValidationException("Le montant du remboursement est obligatoire");
@@ -274,6 +277,7 @@ public class RefundService {
     }
 
     @Transactional(readOnly = true)
+    @Auditable(action = "REFUND_READ", entity = "Refund", entityIdParameter = 0)
     public List<RefundResponse> getByPaymentId(Long paymentId) {
         Long currentUserId = getCurrentUserId();
         Payment payment = paymentRepository.findById(paymentId)
@@ -294,6 +298,7 @@ public class RefundService {
     }
 
     @Transactional(readOnly = true)
+    @Auditable(action = "REFUND_DOCUMENT_READ", entity = "Refund", entityIdParameter = 0)
     public byte[] downloadAvoirPdf(Long paymentId) {
         Long currentUserId = getCurrentUserId();
         Payment payment = paymentRepository.findById(paymentId)
@@ -469,7 +474,7 @@ public class RefundService {
             entry.put("timestamp", Instant.now().toString());
             history.add(entry);
 
-            payment.setMetadata(root.toString());
+            payment.setMetadata(CmiDataSanitizer.sanitizeText(root.toString()));
         } catch (Exception e) {
             log.debug("Impossible d'enrichir le metadata d'audit sur le paiement {} : {}", payment.getCode(), e.getMessage());
         }
