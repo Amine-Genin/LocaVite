@@ -74,6 +74,17 @@ services:
     networks:
       - locavite-network
 
+  wiremock:
+    image: wiremock/wiremock:3.9.1
+    container_name: locavite-wiremock
+    restart: unless-stopped
+    ports:
+      - "${WIREMOCK_PORT:-8085}:8080"
+    volumes:
+      - ../wiremock/mappings:/home/wiremock/mappings
+    networks:
+      - locavite-network
+
 volumes:
   # Volumes nommés : les données persistent entre les redémarrages des conteneurs.
   postgres_data:

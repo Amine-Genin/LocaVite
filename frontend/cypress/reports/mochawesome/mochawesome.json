@@ -1,26 +1,26 @@
 {
   "stats": {
-    "suites": 1,
-    "tests": 4,
-    "passes": 4,
+    "suites": 5,
+    "tests": 20,
+    "passes": 20,
     "pending": 0,
     "failures": 0,
-    "start": "2026-11-13T14:39:02.778Z",
-    "end": "2026-11-13T14:40:49.284Z",
-    "duration": 106500,
+    "start": "2026-11-18T13:39:49.884Z",
+    "end": "2026-11-18T13:39:53.843Z",
+    "duration": 28477,
     "passPercent": 100
   },
   "results": [
     {
-      "file": "cypress\\e2e\\reservation-flow.cy.ts",
+      "file": "cypress\\e2e\\invoice-download.cy.ts",
       "suites": [
         {
-          "title": "Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id)",
+          "title": "Téléchargement de facture PDF (Succès, Espace client, Admin)",
           "tests": [
             {
-              "title": "redirige vers /login si un utilisateur non authentifié tente de réserver",
-              "fullTitle": "Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id) redirige vers /login si un utilisateur non authentifié tente de réserver",
-              "duration": 16769,
+              "title": "permet au client de télécharger sa facture PDF depuis la page de confirmation (/payment/success)",
+              "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) permet au client de télécharger sa facture PDF depuis la page de confirmation (/payment/success)",
+              "duration": 1201,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -28,9 +28,9 @@
               "err": {}
             },
             {
-              "title": "affiche un avertissement et bloque la confirmation si les documents ne sont pas validés",
-              "fullTitle": "Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id) affiche un avertissement et bloque la confirmation si les documents ne sont pas validés",
-              "duration": 30329,
+              "title": "affiche un message d’erreur convivial si le téléchargement de facture échoue",
+              "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) affiche un message d’erreur convivial si le téléchargement de facture échoue",
+              "duration": 707,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -38,9 +38,9 @@
               "err": {}
             },
             {
-              "title": "exécute le parcours complet de bout en bout (Recherche → Détail → Réservation → Confirmation)",
-              "fullTitle": "Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id) exécute le parcours complet de bout en bout (Recherche → Détail → Réservation → Confirmation)",
-              "duration": 40618,
+              "title": "permet au client de télécharger sa facture depuis son historique de paiements (/my-payments)",
+              "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) permet au client de télécharger sa facture depuis son historique de paiements (/my-payments)",
+              "duration": 901,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -48,9 +48,9 @@
               "err": {}
             },
             {
-              "title": "effectue la réservation via la commande custom cy.createReservation()",
-              "fullTitle": "Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id) effectue la réservation via la commande custom cy.createReservation()",
-              "duration": 16841,
+              "title": "permet à l’administrateur d’extraire la facture PDF depuis le tableau de bord (/admin/payments)",
+              "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) permet à l’administrateur d’extraire la facture PDF depuis le tableau de bord (/admin/payments)",
+              "duration": 986,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -59,6 +59,218 @@
             }
           ],
           "passes": 4,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\payment-cash.cy.ts",
+      "suites": [
+        {
+          "title": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY)",
+          "tests": [
+            {
+              "title": "permet de choisir le paiement en espèces à la livraison (CASH_DELIVERY)",
+              "fullTitle": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY) permet de choisir le paiement en espèces à la livraison (CASH_DELIVERY)",
+              "duration": 2420,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "permet de choisir le paiement en espèces en agence (CASH_AGENCY)",
+              "fullTitle": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY) permet de choisir le paiement en espèces en agence (CASH_AGENCY)",
+              "duration": 1064,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "permet à l’administrateur de confirmer la réception d’un paiement en espèces en attente",
+              "fullTitle": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY) permet à l’administrateur de confirmer la réception d’un paiement en espèces en attente",
+              "duration": 1217,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 3,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\payment-cmi.cy.ts",
+      "suites": [
+        {
+          "title": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success)",
+          "tests": [
+            {
+              "title": "redirige vers /login si un visiteur non authentifié accède à la page de paiement",
+              "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) redirige vers /login si un visiteur non authentifié accède à la page de paiement",
+              "duration": 1311,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche le récapitulatif de réservation et le choix de paiement CMI par défaut",
+              "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) affiche le récapitulatif de réservation et le choix de paiement CMI par défaut",
+              "duration": 782,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "exécute le parcours complet CMI avec redirection vers la passerelle et page de confirmation",
+              "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) exécute le parcours complet CMI avec redirection vers la passerelle et page de confirmation",
+              "duration": 856,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "gère le polling d’état de paiement CMI jusqu’à obtention du statut SUCCESS",
+              "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) gère le polling d’état de paiement CMI jusqu’à obtention du statut SUCCESS",
+              "duration": 2363,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 4,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\payment-failure.cy.ts",
+      "suites": [
+        {
+          "title": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry)",
+          "tests": [
+            {
+              "title": "affiche un bandeau d’erreur explicite si l’initiation CMI échoue (ex: 503 Gateway Timeout)",
+              "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) affiche un bandeau d’erreur explicite si l’initiation CMI échoue (ex: 503 Gateway Timeout)",
+              "duration": 2195,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche la page /payment/failure avec motif d’échec et permet de retenter le paiement",
+              "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) affiche la page /payment/failure avec motif d’échec et permet de retenter le paiement",
+              "duration": 920,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "redirige automatiquement vers /payment/failure si le polling CMI retourne un statut FAILED",
+              "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) redirige automatiquement vers /payment/failure si le polling CMI retourne un statut FAILED",
+              "duration": 456,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "permet de compléter avec succès le paiement lors d’une nouvelle tentative après échec",
+              "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) permet de compléter avec succès le paiement lors d’une nouvelle tentative après échec",
+              "duration": 948,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 4,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\payment-refund.cy.ts",
+      "suites": [
+        {
+          "title": "Gestion des remboursements administrateur (/admin/payments)",
+          "tests": [
+            {
+              "title": "refuse l’accès au dashboard des paiements aux utilisateurs sans rôle ADMIN",
+              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) refuse l’accès au dashboard des paiements aux utilisateurs sans rôle ADMIN",
+              "duration": 1328,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche le tableau des transactions et le bouton de remboursement pour les paiements réussis",
+              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) affiche le tableau des transactions et le bouton de remboursement pour les paiements réussis",
+              "duration": 1358,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action",
+              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action",
+              "duration": 2482,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "effectue un remboursement total (FULL) avec motif justificatif",
+              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) effectue un remboursement total (FULL) avec motif justificatif",
+              "duration": 1948,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "effectue un remboursement partiel (PARTIAL) avec montant et motif",
+              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) effectue un remboursement partiel (PARTIAL) avec montant et motif",
+              "duration": 2064,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 5,
           "failures": 0,
           "pending": 0
         }

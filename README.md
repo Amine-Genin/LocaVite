@@ -6,6 +6,7 @@
 [![Backend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/backend-ci.yml)
 [![Frontend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 [![Cypress E2E](https://img.shields.io/badge/Cypress%20E2E-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
+[![Cypress Paiement](https://img.shields.io/badge/Cypress%20Paiement-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 
 ### Qualité du code Backend (SonarCloud)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-backend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-backend)
@@ -163,11 +164,19 @@ npm run test
 npm run build
 ```
 
-### Tests E2E Cypress (Réservation, Catalogue & Authentification)
+### Tests E2E Cypress (Réservation, Paiement, Catalogue & Authentification)
 
 [![Cypress E2E](https://img.shields.io/badge/Cypress%20E2E-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
+[![Cypress Paiement](https://img.shields.io/badge/Cypress%20Paiement-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 
-Les tests E2E Cypress (`Cypress 13+`) couvrent l'intégralité du parcours critique de réservation et du catalogue dans `frontend/cypress/e2e/` :
+Les tests E2E Cypress (`Cypress 13+`) couvrent l'intégralité du parcours critique de réservation, du paiement et du catalogue dans `frontend/cypress/e2e/` :
+
+#### Parcours Paiement
+- `payment-cmi.cy.ts` : parcours CMI complet (mock gateway WireMock en test, confirmation et facture)
+- `payment-cash.cy.ts` : paiement espèces à la livraison (`CASH_DELIVERY`) et en agence (`CASH_AGENCY`) + confirmation admin
+- `payment-failure.cy.ts` : échecs de passerelle (503), page d'erreur et parcours de réessai (retry)
+- `payment-refund.cy.ts` : gestion des remboursements totaux et partiels côté administration
+- `invoice-download.cy.ts` : téléchargement facture PDF depuis confirmation, espace client et dashboard admin
 
 #### Parcours Réservation
 - `reservation-flow.cy.ts` : parcours complet (recherche catalogue → fiche détail → formulaire réservation multi-étapes → récapitulatif & CGV → page de confirmation)
@@ -183,7 +192,8 @@ Les tests E2E Cypress (`Cypress 13+`) couvrent l'intégralité du parcours criti
 
 #### Commandes Custom & Isolation
 - **Commandes custom** : `cy.loginAsClient()`, `cy.createReservation()`, `cy.login()`, `cy.createVehicle()`
-- **Fixtures** : `cypress/fixtures/reservations.json` & `cypress/fixtures/vehicles.json`
+- **Fixtures** : `cypress/fixtures/payment-cmi-success.json`, `cypress/fixtures/reservations.json` & `cypress/fixtures/vehicles.json`
+- **Simulations de passerelle** : WireMock (`infra/wiremock/mappings/`) pour la simulation de la passerelle CMI et ses webhooks
 - **Isolation des tests** : `cy.task('db:reset')` et seed automatique avant les tests
 - **Rapports** : Rapport HTML Mochawesome généré dans `frontend/cypress/reports/mochawesome/index.html` et téléchargeable en artefact CI
 
@@ -192,6 +202,13 @@ Exécution complète en mode CI (démarre automatiquement le serveur Angular si 
 ```powershell
 cd frontend
 npm run e2e:ci
+```
+
+Exécution ciblée sur le parcours de paiement :
+
+```powershell
+cd frontend
+npm run e2e:payments
 ```
 
 Exécution ciblée sur le parcours de réservation :

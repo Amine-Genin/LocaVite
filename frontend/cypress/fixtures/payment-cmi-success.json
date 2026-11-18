@@ -1,0 +1,21 @@
+{
+  "paymentId": 42,
+  "paymentCode": "PAY-CMI042",
+  "montant": 1400.0,
+  "devise": "MAD",
+  "gatewayUrl": "/payment/success?paymentId=42&reservationId=88&code=PAY-CMI042&method=CMI",
+  "redirectUrl": "/payment/success?paymentId=42&reservationId=88&code=PAY-CMI042&method=CMI",
+  "formData": {
+    "clientid": "locavite_merchant",
+    "storetype": "3D_PAY_HOSTING",
+    "trantype": "Auth",
+    "amount": "1400.00",
+    "currency": "504",
+    "oid": "PAY-CMI042",
+    "okUrl": "http://localhost:4200/payment/success",
+    "failUrl": "http://localhost:4200/payment/failure",
+    "callbackUrl": "http://localhost:8081/api/payments/cmi/webhook",
+    "hash": "VALID_HMAC_SHA512=="
+  },
+  "expiresAt": "2026-12-01T12:00:00Z"
+}

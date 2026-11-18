@@ -1,0 +1,33 @@
+{
+  "content": [
+    {
+      "id": 1,
+      "code": "PAY-2026-001",
+      "reservationId": 101,
+      "clientNom": "Karim Alami",
+      "userId": 2,
+      "montant": 1200.0,
+      "devise": "MAD",
+      "methode": "CMI",
+      "statut": "SUCCESS",
+      "createdAt": "2026-11-15T10:00:00Z",
+      "paidAt": "2026-11-15T10:05:00Z"
+    },
+    {
+      "id": 2,
+      "code": "PAY-2026-002",
+      "reservationId": 102,
+      "clientNom": "Sara Bennani",
+      "userId": 3,
+      "montant": 800.0,
+      "devise": "MAD",
+      "methode": "CASH_AGENCY",
+      "statut": "PENDING",
+      "createdAt": "2026-11-15T11:00:00Z"
+    }
+  ],
+  "totalElements": 2,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0
+}

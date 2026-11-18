@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/fim/est3Dgate"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/html; charset=UTF-8"
+    },
+    "body": "<!DOCTYPE html><html><head><title>Mock CMI Gateway</title></head><body><h2>Simulation Passerelle CMI 3D-Secure</h2><p>Paiement validé avec succès en environnement de test.</p><form id='cmiForm' action='/payment/success' method='GET'><input type='hidden' name='paymentId' value='42' /><input type='hidden' name='code' value='PAY-CMI042' /><input type='hidden' name='status' value='SUCCESS' /></form><script>document.getElementById('cmiForm').submit();</script></body></html>"
+  }
+}
