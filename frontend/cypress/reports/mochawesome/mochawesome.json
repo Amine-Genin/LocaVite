@@ -5,9 +5,9 @@
     "passes": 20,
     "pending": 0,
     "failures": 0,
-    "start": "2026-11-18T13:19:14.683Z",
-    "end": "2026-11-18T13:19:20.306Z",
-    "duration": 39182,
+    "start": "2026-11-18T13:39:49.884Z",
+    "end": "2026-11-18T13:39:53.843Z",
+    "duration": 28477,
     "passPercent": 100
   },
   "results": [
@@ -20,7 +20,7 @@
             {
               "title": "permet au client de télécharger sa facture PDF depuis la page de confirmation (/payment/success)",
               "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) permet au client de télécharger sa facture PDF depuis la page de confirmation (/payment/success)",
-              "duration": 1775,
+              "duration": 1201,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -30,7 +30,7 @@
             {
               "title": "affiche un message d’erreur convivial si le téléchargement de facture échoue",
               "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) affiche un message d’erreur convivial si le téléchargement de facture échoue",
-              "duration": 802,
+              "duration": 707,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -40,7 +40,7 @@
             {
               "title": "permet au client de télécharger sa facture depuis son historique de paiements (/my-payments)",
               "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) permet au client de télécharger sa facture depuis son historique de paiements (/my-payments)",
-              "duration": 1080,
+              "duration": 901,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -50,7 +50,7 @@
             {
               "title": "permet à l’administrateur d’extraire la facture PDF depuis le tableau de bord (/admin/payments)",
               "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) permet à l’administrateur d’extraire la facture PDF depuis le tableau de bord (/admin/payments)",
-              "duration": 1772,
+              "duration": 986,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -73,7 +73,7 @@
             {
               "title": "permet de choisir le paiement en espèces à la livraison (CASH_DELIVERY)",
               "fullTitle": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY) permet de choisir le paiement en espèces à la livraison (CASH_DELIVERY)",
-              "duration": 3250,
+              "duration": 2420,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -83,7 +83,7 @@
             {
               "title": "permet de choisir le paiement en espèces en agence (CASH_AGENCY)",
               "fullTitle": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY) permet de choisir le paiement en espèces en agence (CASH_AGENCY)",
-              "duration": 1353,
+              "duration": 1064,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -93,7 +93,7 @@
             {
               "title": "permet à l’administrateur de confirmer la réception d’un paiement en espèces en attente",
               "fullTitle": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY) permet à l’administrateur de confirmer la réception d’un paiement en espèces en attente",
-              "duration": 2673,
+              "duration": 1217,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -116,7 +116,7 @@
             {
               "title": "redirige vers /login si un visiteur non authentifié accède à la page de paiement",
               "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) redirige vers /login si un visiteur non authentifié accède à la page de paiement",
-              "duration": 1547,
+              "duration": 1311,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -126,7 +126,7 @@
             {
               "title": "affiche le récapitulatif de réservation et le choix de paiement CMI par défaut",
               "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) affiche le récapitulatif de réservation et le choix de paiement CMI par défaut",
-              "duration": 1271,
+              "duration": 782,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -136,7 +136,7 @@
             {
               "title": "exécute le parcours complet CMI avec redirection vers la passerelle et page de confirmation",
               "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) exécute le parcours complet CMI avec redirection vers la passerelle et page de confirmation",
-              "duration": 1694,
+              "duration": 856,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -146,7 +146,7 @@
             {
               "title": "gère le polling d’état de paiement CMI jusqu’à obtention du statut SUCCESS",
               "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) gère le polling d’état de paiement CMI jusqu’à obtention du statut SUCCESS",
-              "duration": 2562,
+              "duration": 2363,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -169,7 +169,7 @@
             {
               "title": "affiche un bandeau d’erreur explicite si l’initiation CMI échoue (ex: 503 Gateway Timeout)",
               "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) affiche un bandeau d’erreur explicite si l’initiation CMI échoue (ex: 503 Gateway Timeout)",
-              "duration": 2289,
+              "duration": 2195,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -179,7 +179,7 @@
             {
               "title": "affiche la page /payment/failure avec motif d’échec et permet de retenter le paiement",
               "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) affiche la page /payment/failure avec motif d’échec et permet de retenter le paiement",
-              "duration": 796,
+              "duration": 920,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -189,7 +189,7 @@
             {
               "title": "redirige automatiquement vers /payment/failure si le polling CMI retourne un statut FAILED",
               "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) redirige automatiquement vers /payment/failure si le polling CMI retourne un statut FAILED",
-              "duration": 484,
+              "duration": 456,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -199,7 +199,7 @@
             {
               "title": "permet de compléter avec succès le paiement lors d’une nouvelle tentative après échec",
               "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) permet de compléter avec succès le paiement lors d’une nouvelle tentative après échec",
-              "duration": 1067,
+              "duration": 948,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -222,7 +222,7 @@
             {
               "title": "refuse l’accès au dashboard des paiements aux utilisateurs sans rôle ADMIN",
               "fullTitle": "Gestion des remboursements administrateur (/admin/payments) refuse l’accès au dashboard des paiements aux utilisateurs sans rôle ADMIN",
-              "duration": 1366,
+              "duration": 1328,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -232,7 +232,7 @@
             {
               "title": "affiche le tableau des transactions et le bouton de remboursement pour les paiements réussis",
               "fullTitle": "Gestion des remboursements administrateur (/admin/payments) affiche le tableau des transactions et le bouton de remboursement pour les paiements réussis",
-              "duration": 1503,
+              "duration": 1358,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -242,7 +242,7 @@
             {
               "title": "permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action",
               "fullTitle": "Gestion des remboursements administrateur (/admin/payments) permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action",
-              "duration": 3527,
+              "duration": 2482,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -252,7 +252,7 @@
             {
               "title": "effectue un remboursement total (FULL) avec motif justificatif",
               "fullTitle": "Gestion des remboursements administrateur (/admin/payments) effectue un remboursement total (FULL) avec motif justificatif",
-              "duration": 3045,
+              "duration": 1948,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -262,7 +262,7 @@
             {
               "title": "effectue un remboursement partiel (PARTIAL) avec montant et motif",
               "fullTitle": "Gestion des remboursements administrateur (/admin/payments) effectue un remboursement partiel (PARTIAL) avec montant et motif",
-              "duration": 3727,
+              "duration": 2064,
               "state": "passed",
               "pass": true,
               "fail": false,

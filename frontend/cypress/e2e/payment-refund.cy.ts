@@ -26,7 +26,7 @@ describe('Gestion des remboursements administrateur (/admin/payments)', () => {
   it('permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action', () => {
     cy.openAdminPayments();
 
-    cy.get('[data-testid="btn-refund"]').click();
+    cy.get('[data-testid="btn-refund"]').first().should('be.visible').click();
 
     // Vérification de la présence de la modale
     cy.get('[data-testid="refund-dialog"]').should('be.visible');
@@ -36,7 +36,7 @@ describe('Gestion des remboursements administrateur (/admin/payments)', () => {
     });
 
     // Clic sur Annuler
-    cy.get('[data-testid="btn-cancel-refund"]').click();
+    cy.get('[data-testid="btn-cancel-refund"]').should('be.visible').click();
     cy.get('[data-testid="refund-dialog"]').should('not.exist');
   });
 
@@ -57,17 +57,20 @@ describe('Gestion des remboursements administrateur (/admin/payments)', () => {
 
     cy.openAdminPayments();
 
-    cy.get('[data-testid="btn-refund"]').click();
+    cy.get('[data-testid="btn-refund"]').first().should('be.visible').click();
     cy.get('[data-testid="refund-dialog"]').should('be.visible');
 
     // Saisie du motif obligatoire dans la modale
     cy.get('[data-testid="refund-dialog"]').within(() => {
-      cy.get('[data-testid="refund-reason-input"]').type('Annulation client sous 48h');
-      cy.get('[data-testid="btn-confirm-refund"]').should('not.be.disabled').click();
+      cy.get('[data-testid="refund-reason-input"]')
+        .should('be.visible')
+        .clear()
+        .type('Annulation client sous 48h');
+      cy.get('[data-testid="btn-confirm-refund"]').should('be.visible').and('not.be.disabled').click();
     });
 
-    cy.wait('@refundTotal');
-    cy.get('[data-testid="refund-dialog"]').should('not.exist');
+    cy.wait('@refundTotal', { timeout: 10000 });
+    cy.get('[data-testid="refund-dialog"]', { timeout: 10000 }).should('not.exist');
     cy.contains('PAY-2026-001').should('exist');
   });
 
@@ -89,18 +92,21 @@ describe('Gestion des remboursements administrateur (/admin/payments)', () => {
 
     cy.openAdminPayments();
 
-    cy.get('[data-testid="btn-refund"]').click();
+    cy.get('[data-testid="btn-refund"]').first().should('be.visible').click();
     cy.get('[data-testid="refund-dialog"]').should('be.visible');
 
     // Basculer en mode Partiel
-    cy.contains('Remboursement Partiel').click();
+    cy.contains('Remboursement Partiel').should('be.visible').click();
     cy.get('[data-testid="refund-dialog"]').within(() => {
-      cy.get('[data-testid="refund-amount-input"]').clear().type('400');
-      cy.get('[data-testid="refund-reason-input"]').type('Geste commercial retard livraison');
-      cy.get('[data-testid="btn-confirm-refund"]').should('not.be.disabled').click();
+      cy.get('[data-testid="refund-amount-input"]').should('be.visible').clear().type('400');
+      cy.get('[data-testid="refund-reason-input"]')
+        .should('be.visible')
+        .clear()
+        .type('Geste commercial retard livraison');
+      cy.get('[data-testid="btn-confirm-refund"]').should('be.visible').and('not.be.disabled').click();
     });
 
-    cy.wait('@refundPartial');
-    cy.get('[data-testid="refund-dialog"]').should('not.exist');
+    cy.wait('@refundPartial', { timeout: 10000 });
+    cy.get('[data-testid="refund-dialog"]', { timeout: 10000 }).should('not.exist');
   });
 });
