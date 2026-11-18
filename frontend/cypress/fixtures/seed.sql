@@ -1,7 +1,9 @@
 -- ==============================================================================
+\set ON_ERROR_STOP on
 -- LocaVite E2E Test Database Seed Script
 -- Initialise les utilisateurs, véhicules, documents et réservations de test E2E.
 -- ==============================================================================
+\set ON_ERROR_STOP on
 
 -- 1. Nettoyage des réservations et données de test
 TRUNCATE TABLE reservation_options, reservation_contracts, caution_transactions,

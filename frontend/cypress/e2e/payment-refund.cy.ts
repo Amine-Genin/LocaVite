@@ -50,7 +50,12 @@ describe('Gestion des remboursements administrateur (/admin/payments)', () => {
   });
 
   it('affiche le tableau des transactions et le bouton de remboursement pour les paiements réussis', () => {
-    cy.login('admin@locavite.ma', 'Motdepasse123!', ['ADMIN']);
+    cy.openAdminPayments();
+    cy.openRefundDialog();
+    cy.confirmRefund('Annulation client sous 48h');
+    cy.wait('@refundTotal');
+    cy.get('[data-testid="refund-dialog"]').should('not.exist');
+    cy.contains('PAY-2026-001').should('exist');
     cy.visit('/admin/payments');
     cy.wait('@getAdminPayments');
 
@@ -64,7 +69,12 @@ describe('Gestion des remboursements administrateur (/admin/payments)', () => {
   });
 
   it('permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action', () => {
-    cy.login('admin@locavite.ma', 'Motdepasse123!', ['ADMIN']);
+    cy.openAdminPayments();
+    cy.openRefundDialog();
+    cy.confirmRefund('Annulation client sous 48h');
+    cy.wait('@refundTotal');
+    cy.get('[data-testid="refund-dialog"]').should('not.exist');
+    cy.contains('PAY-2026-001').should('exist');
     cy.visit('/admin/payments');
     cy.wait('@getAdminPayments');
 
@@ -97,7 +107,12 @@ describe('Gestion des remboursements administrateur (/admin/payments)', () => {
       });
     }).as('refundTotal');
 
-    cy.login('admin@locavite.ma', 'Motdepasse123!', ['ADMIN']);
+    cy.openAdminPayments();
+    cy.openRefundDialog();
+    cy.confirmRefund('Annulation client sous 48h');
+    cy.wait('@refundTotal');
+    cy.get('[data-testid="refund-dialog"]').should('not.exist');
+    cy.contains('PAY-2026-001').should('exist');
     cy.visit('/admin/payments');
     cy.wait('@getAdminPayments');
 
@@ -131,7 +146,12 @@ describe('Gestion des remboursements administrateur (/admin/payments)', () => {
       });
     }).as('refundPartial');
 
-    cy.login('admin@locavite.ma', 'Motdepasse123!', ['ADMIN']);
+    cy.openAdminPayments();
+    cy.openRefundDialog();
+    cy.confirmRefund('Annulation client sous 48h');
+    cy.wait('@refundTotal');
+    cy.get('[data-testid="refund-dialog"]').should('not.exist');
+    cy.contains('PAY-2026-001').should('exist');
     cy.visit('/admin/payments');
     cy.wait('@getAdminPayments');
 
