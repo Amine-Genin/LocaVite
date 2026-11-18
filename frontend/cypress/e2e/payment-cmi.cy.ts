@@ -1,39 +1,8 @@
 describe('Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success)', () => {
-  const mockReservation = {
-    id: 88,
-    code: 'RES-8801',
-    userId: 2,
-    vehicleId: 1,
-    vehicle: {
-      id: 1,
-      marque: 'Dacia',
-      modele: 'Duster',
-      annee: 2024,
-      categorie: 'SUV',
-      carburant: 'DIESEL',
-      transmission: 'MANUELLE',
-      places: 5,
-      matricule: '12345-A-1',
-      prixJour: 350,
-      ville: 'Casablanca',
-      statut: 'PUBLISHED',
-    },
-    dateDebut: '2026-12-01',
-    dateFin: '2026-12-05',
-    lieuPriseEnCharge: 'Aéroport Mohammed V - Casablanca',
-    lieuRetour: 'Agence LocaVite Casablanca',
-    prixTotal: 1400.0,
-    statut: 'PENDING',
-  };
-
   beforeEach(() => {
     cy.task('db:reset');
     cy.clearLocalStorage();
-
-    cy.intercept('GET', '/api/reservations/88', {
-      statusCode: 200,
-      body: mockReservation,
-    }).as('getReservation');
+    cy.mockReservation(88);
   });
 
   it('redirige vers /login si un visiteur non authentifié accède à la page de paiement', () => {

@@ -143,7 +143,7 @@
       <span class="stat-pill pass">Passes: 20</span>
       <span class="stat-pill fail">Failures: 0</span>
       <span class="stat-pill">Pass %: 100%</span>
-      <span class="stat-pill">Duration: 27.74s</span>
+      <span class="stat-pill">Duration: 39.18s</span>
     </div>
   </header>
   <main>
@@ -159,7 +159,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet au client de télécharger sa facture PDF depuis la page de confirmation (/payment/success)</span>
-                    <span class="test-duration">1194 ms</span>
+                    <span class="test-duration">1775 ms</span>
                   </div>
                   
                 </li>
@@ -168,7 +168,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche un message d’erreur convivial si le téléchargement de facture échoue</span>
-                    <span class="test-duration">582 ms</span>
+                    <span class="test-duration">802 ms</span>
                   </div>
                   
                 </li>
@@ -177,7 +177,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet au client de télécharger sa facture depuis son historique de paiements (/my-payments)</span>
-                    <span class="test-duration">930 ms</span>
+                    <span class="test-duration">1080 ms</span>
                   </div>
                   
                 </li>
@@ -186,7 +186,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet à l’administrateur d’extraire la facture PDF depuis le tableau de bord (/admin/payments)</span>
-                    <span class="test-duration">809 ms</span>
+                    <span class="test-duration">1772 ms</span>
                   </div>
                   
                 </li>
@@ -204,7 +204,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet de choisir le paiement en espèces à la livraison (CASH_DELIVERY)</span>
-                    <span class="test-duration">2484 ms</span>
+                    <span class="test-duration">3250 ms</span>
                   </div>
                   
                 </li>
@@ -213,7 +213,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet de choisir le paiement en espèces en agence (CASH_AGENCY)</span>
-                    <span class="test-duration">792 ms</span>
+                    <span class="test-duration">1353 ms</span>
                   </div>
                   
                 </li>
@@ -222,7 +222,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet à l’administrateur de confirmer la réception d’un paiement en espèces en attente</span>
-                    <span class="test-duration">1179 ms</span>
+                    <span class="test-duration">2673 ms</span>
                   </div>
                   
                 </li>
@@ -240,7 +240,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">redirige vers /login si un visiteur non authentifié accède à la page de paiement</span>
-                    <span class="test-duration">1108 ms</span>
+                    <span class="test-duration">1547 ms</span>
                   </div>
                   
                 </li>
@@ -249,7 +249,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche le récapitulatif de réservation et le choix de paiement CMI par défaut</span>
-                    <span class="test-duration">729 ms</span>
+                    <span class="test-duration">1271 ms</span>
                   </div>
                   
                 </li>
@@ -258,7 +258,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">exécute le parcours complet CMI avec redirection vers la passerelle et page de confirmation</span>
-                    <span class="test-duration">882 ms</span>
+                    <span class="test-duration">1694 ms</span>
                   </div>
                   
                 </li>
@@ -267,7 +267,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">gère le polling d’état de paiement CMI jusqu’à obtention du statut SUCCESS</span>
-                    <span class="test-duration">2337 ms</span>
+                    <span class="test-duration">2562 ms</span>
                   </div>
                   
                 </li>
@@ -285,7 +285,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche un bandeau d’erreur explicite si l’initiation CMI échoue (ex: 503 Gateway Timeout)</span>
-                    <span class="test-duration">1667 ms</span>
+                    <span class="test-duration">2289 ms</span>
                   </div>
                   
                 </li>
@@ -294,7 +294,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche la page /payment/failure avec motif d’échec et permet de retenter le paiement</span>
-                    <span class="test-duration">546 ms</span>
+                    <span class="test-duration">796 ms</span>
                   </div>
                   
                 </li>
@@ -303,7 +303,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">redirige automatiquement vers /payment/failure si le polling CMI retourne un statut FAILED</span>
-                    <span class="test-duration">332 ms</span>
+                    <span class="test-duration">484 ms</span>
                   </div>
                   
                 </li>
@@ -312,7 +312,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet de compléter avec succès le paiement lors d’une nouvelle tentative après échec</span>
-                    <span class="test-duration">810 ms</span>
+                    <span class="test-duration">1067 ms</span>
                   </div>
                   
                 </li>
@@ -330,7 +330,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">refuse l’accès au dashboard des paiements aux utilisateurs sans rôle ADMIN</span>
-                    <span class="test-duration">1243 ms</span>
+                    <span class="test-duration">1366 ms</span>
                   </div>
                   
                 </li>
@@ -339,7 +339,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche le tableau des transactions et le bouton de remboursement pour les paiements réussis</span>
-                    <span class="test-duration">1228 ms</span>
+                    <span class="test-duration">1503 ms</span>
                   </div>
                   
                 </li>
@@ -348,7 +348,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action</span>
-                    <span class="test-duration">2748 ms</span>
+                    <span class="test-duration">3527 ms</span>
                   </div>
                   
                 </li>
@@ -357,7 +357,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">effectue un remboursement total (FULL) avec motif justificatif</span>
-                    <span class="test-duration">1843 ms</span>
+                    <span class="test-duration">3045 ms</span>
                   </div>
                   
                 </li>
@@ -366,7 +366,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">effectue un remboursement partiel (PARTIAL) avec montant et motif</span>
-                    <span class="test-duration">3182 ms</span>
+                    <span class="test-duration">3727 ms</span>
                   </div>
                   
                 </li>

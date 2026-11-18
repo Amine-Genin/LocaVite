@@ -44,6 +44,26 @@ declare global {
       loginAsClient(email?: string, password?: string, profile?: Record<string, unknown>): Chainable<void>;
 
       /**
+       * Authenticates an administrator user for E2E tests.
+       */
+      loginAdmin(email?: string): Chainable<void>;
+
+      /**
+       * Mocks the reservation endpoint using the payment reservation fixture.
+       */
+      mockReservation(reservationId?: number): Chainable<void>;
+
+      /**
+       * Mocks the admin payments list endpoint using the admin payments fixture.
+       */
+      mockAdminPayments(): Chainable<void>;
+
+      /**
+       * Logs in as admin and navigates to /admin/payments with payments intercept waited.
+       */
+      openAdminPayments(): Chainable<void>;
+
+      /**
        * Fills and submits the admin vehicle creation form (/admin/vehicles/new).
        */
       createVehicle(options?: CreateVehicleCommandOptions): Chainable<void>;
@@ -133,6 +153,35 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add('loginAdmin', (email = 'admin@locavite.ma') => {
+  cy.login(email, 'Motdepasse123!', ['ADMIN']);
+});
+
+Cypress.Commands.add('mockReservation', (reservationId = 88) => {
+  cy.fixture('payment-reservation.json').then((res) => {
+    cy.intercept('GET', `/api/reservations/${reservationId}`, {
+      statusCode: 200,
+      body: res,
+    }).as('getReservation');
+  });
+});
+
+Cypress.Commands.add('mockAdminPayments', () => {
+  cy.fixture('admin-payments.json').then((payments) => {
+    cy.intercept('GET', /\/api\/payments(\?.*)?$/, {
+      statusCode: 200,
+      body: payments,
+    }).as('getAdminPayments');
+  });
+});
+
+Cypress.Commands.add('openAdminPayments', () => {
+  cy.loginAdmin();
+  cy.mockAdminPayments();
+  cy.visit('/admin/payments');
+  cy.wait('@getAdminPayments');
+});
 
 Cypress.Commands.add('createVehicle', (options: CreateVehicleCommandOptions = {}) => {
   const {

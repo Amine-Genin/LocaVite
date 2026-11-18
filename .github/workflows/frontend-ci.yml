@@ -93,14 +93,15 @@ jobs:
           docker compose -f infra/docker/docker-compose.yml up -d
           docker compose -f infra/docker/docker-compose.yml ps
 
-      - name: Wait for PostgreSQL and Seed database
+      - name: Wait for PostgreSQL, Migrate and Seed database
         run: |
+          set -e
           echo "Waiting for PostgreSQL database to be ready..."
           docker compose -f infra/docker/docker-compose.yml exec -T postgres sh -c 'until pg_isready -h 127.0.0.1 -p 5432 -U locavite -d locavite; do sleep 1; done'
-          echo "Running Flyway migrations..."
-          ./gradlew -p backend flywayMigrate
+          echo "Applying database schema migrations..."
+          cat $(ls -v backend/src/main/resources/db/migration/V*.sql) | docker compose -f infra/docker/docker-compose.yml exec -T postgres psql -U locavite -d locavite -v ON_ERROR_STOP=1
           echo "Seeding test database with reservation and payment fixtures..."
-          docker compose -f infra/docker/docker-compose.yml exec -T postgres bash -c "set -e; psql -U locavite -d locavite -v ON_ERROR_STOP=1 < frontend/cypress/fixtures/seed.sql"
+          docker compose -f infra/docker/docker-compose.yml exec -T postgres psql -U locavite -d locavite -v ON_ERROR_STOP=1 < frontend/cypress/fixtures/seed.sql
           echo "Database seeded successfully."
 
       - name: Set up Node.js 20
@@ -146,12 +147,15 @@ jobs:
           docker compose -f infra/docker/docker-compose.yml up -d
           docker compose -f infra/docker/docker-compose.yml ps
 
-      - name: Wait for PostgreSQL and Seed database
+      - name: Wait for PostgreSQL, Migrate and Seed database
         run: |
+          set -e
           echo "Waiting for PostgreSQL database to be ready..."
           docker compose -f infra/docker/docker-compose.yml exec -T postgres sh -c 'until pg_isready -h 127.0.0.1 -p 5432 -U locavite -d locavite; do sleep 1; done'
+          echo "Applying database schema migrations..."
+          cat $(ls -v backend/src/main/resources/db/migration/V*.sql) | docker compose -f infra/docker/docker-compose.yml exec -T postgres psql -U locavite -d locavite -v ON_ERROR_STOP=1
           echo "Seeding test database with reservation fixtures..."
-          docker compose -f infra/docker/docker-compose.yml exec -T postgres psql -U locavite -d locavite < frontend/cypress/fixtures/seed.sql
+          docker compose -f infra/docker/docker-compose.yml exec -T postgres psql -U locavite -d locavite -v ON_ERROR_STOP=1 < frontend/cypress/fixtures/seed.sql
           echo "Database seeded successfully."
 
       - name: Set up Node.js 20

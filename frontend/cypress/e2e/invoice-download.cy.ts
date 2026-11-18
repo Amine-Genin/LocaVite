@@ -124,32 +124,6 @@ describe('Téléchargement de facture PDF (Succès, Espace client, Admin)', () =
   });
 
   it('permet à l’administrateur d’extraire la facture PDF depuis le tableau de bord (/admin/payments)', () => {
-    const mockAdminPayments = [
-      {
-        id: 1,
-        code: 'PAY-2026-001',
-        reservationId: 101,
-        clientNom: 'Karim Alami',
-        montant: 1200.0,
-        devise: 'MAD',
-        methode: 'CMI',
-        statut: 'SUCCESS',
-        createdAt: '2026-11-15T10:00:00Z',
-        paidAt: '2026-11-15T10:05:00Z',
-      },
-    ];
-
-    cy.intercept('GET', /\/api\/payments(\?.*)?$/, {
-      statusCode: 200,
-      body: {
-        content: mockAdminPayments,
-        totalElements: 1,
-        totalPages: 1,
-        size: 10,
-        number: 0,
-      },
-    }).as('getAdminPayments');
-
     cy.intercept('GET', '/api/payments/1/invoice*', {
       statusCode: 200,
       headers: {
@@ -158,9 +132,7 @@ describe('Téléchargement de facture PDF (Succès, Espace client, Admin)', () =
       body: '%PDF-1.4 Mock PDF Invoice Admin',
     }).as('downloadInvoiceAdmin');
 
-    cy.login('admin@locavite.ma', 'Motdepasse123!', ['ADMIN']);
-    cy.visit('/admin/payments');
-    cy.wait('@getAdminPayments');
+    cy.openAdminPayments();
 
     cy.get('[data-testid="btn-download-invoice"]').should('be.visible').click();
     cy.wait('@downloadInvoiceAdmin');

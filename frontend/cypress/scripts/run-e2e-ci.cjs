@@ -7,6 +7,8 @@ const path = require('path');
 delete process.env.ELECTRON_RUN_AS_NODE;
 
 const baseUrl = process.env.CYPRESS_BASE_URL || 'http://localhost:4200';
+const parsedUrl = new URL(baseUrl);
+const targetPort = Number(parsedUrl.port || (parsedUrl.protocol === 'https:' ? 443 : 80));
 const reportDir = path.resolve(__dirname, '../reports/mochawesome');
 const cypressBin = path.resolve(__dirname, '../../node_modules/cypress/bin/cypress');
 
@@ -66,8 +68,8 @@ function checkServerReady(url) {
 
 async function isServerUp(url) {
   if (await checkServerReady(url)) return true;
-  if (await checkPortOpen(4200, '127.0.0.1')) return true;
-  if (await checkPortOpen(4200, '::1')) return true;
+  if (await checkPortOpen(targetPort, '127.0.0.1')) return true;
+  if (await checkPortOpen(targetPort, '::1')) return true;
   return false;
 }
 
@@ -104,7 +106,7 @@ async function main() {
     let stdoutReady = false;
     serverProcess = spawn(
       process.execPath,
-      [ngCli, 'serve', '--host', '127.0.0.1', '--port', '4200'],
+      [ngCli, 'serve', '--host', '127.0.0.1', '--port', String(targetPort)],
       {
         stdio: ['ignore', 'pipe', 'pipe'],
         env: process.env,
@@ -114,7 +116,7 @@ async function main() {
     serverProcess.stdout.on('data', (chunk) => {
       const text = chunk.toString();
       process.stdout.write(text);
-      if (text.includes('4200') || text.includes('Watch mode enabled')) {
+      if (text.includes(String(targetPort)) || text.includes('Watch mode enabled')) {
         stdoutReady = true;
       }
     });

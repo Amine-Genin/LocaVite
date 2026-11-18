@@ -1,35 +1,8 @@
 describe('Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry)', () => {
-  const mockReservation = {
-    id: 88,
-    code: 'RES-8801',
-    userId: 2,
-    vehicleId: 1,
-    vehicle: {
-      id: 1,
-      marque: 'Dacia',
-      modele: 'Duster',
-      annee: 2024,
-      categorie: 'SUV',
-      prixJour: 350,
-      ville: 'Casablanca',
-      statut: 'PUBLISHED',
-    },
-    dateDebut: '2026-12-01',
-    dateFin: '2026-12-05',
-    lieuPriseEnCharge: 'Aéroport Mohammed V - Casablanca',
-    lieuRetour: 'Agence LocaVite Casablanca',
-    prixTotal: 1400.0,
-    statut: 'PENDING',
-  };
-
   beforeEach(() => {
     cy.task('db:reset');
     cy.clearLocalStorage();
-
-    cy.intercept('GET', '/api/reservations/88', {
-      statusCode: 200,
-      body: mockReservation,
-    }).as('getReservation');
+    cy.mockReservation(88);
   });
 
   it('affiche un bandeau d’erreur explicite si l’initiation CMI échoue (ex: 503 Gateway Timeout)', () => {
