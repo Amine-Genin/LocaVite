@@ -138,28 +138,28 @@
       <h1>Mochawesome Report — LocaVite E2E Cypress</h1>
     </div>
     <div class="stats-bar">
-      <span class="stat-pill">Suites: 1</span>
-      <span class="stat-pill">Tests: 4</span>
-      <span class="stat-pill pass">Passes: 4</span>
+      <span class="stat-pill">Suites: 5</span>
+      <span class="stat-pill">Tests: 20</span>
+      <span class="stat-pill pass">Passes: 20</span>
       <span class="stat-pill fail">Failures: 0</span>
       <span class="stat-pill">Pass %: 100%</span>
-      <span class="stat-pill">Duration: 106.50s</span>
+      <span class="stat-pill">Duration: 27.74s</span>
     </div>
   </header>
   <main>
     
             <div class="suite-card">
               <div class="suite-header">
-                <h3>Parcours de réservation complet (/vehicles → /reservation/:id → /reservations/:id)</h3>
-                <span class="suite-file">cypress\e2e\reservation-flow.cy.ts</span>
+                <h3>Téléchargement de facture PDF (Succès, Espace client, Admin)</h3>
+                <span class="suite-file">cypress\e2e\invoice-download.cy.ts</span>
               </div>
               <ul class="test-list">
                 
                 <li class="test-item passed">
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
-                    <span class="test-title">redirige vers /login si un utilisateur non authentifié tente de réserver</span>
-                    <span class="test-duration">16769 ms</span>
+                    <span class="test-title">permet au client de télécharger sa facture PDF depuis la page de confirmation (/payment/success)</span>
+                    <span class="test-duration">1194 ms</span>
                   </div>
                   
                 </li>
@@ -167,8 +167,8 @@
                 <li class="test-item passed">
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
-                    <span class="test-title">affiche un avertissement et bloque la confirmation si les documents ne sont pas validés</span>
-                    <span class="test-duration">30329 ms</span>
+                    <span class="test-title">affiche un message d’erreur convivial si le téléchargement de facture échoue</span>
+                    <span class="test-duration">582 ms</span>
                   </div>
                   
                 </li>
@@ -176,8 +176,8 @@
                 <li class="test-item passed">
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
-                    <span class="test-title">exécute le parcours complet de bout en bout (Recherche → Détail → Réservation → Confirmation)</span>
-                    <span class="test-duration">40618 ms</span>
+                    <span class="test-title">permet au client de télécharger sa facture depuis son historique de paiements (/my-payments)</span>
+                    <span class="test-duration">930 ms</span>
                   </div>
                   
                 </li>
@@ -185,8 +185,188 @@
                 <li class="test-item passed">
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
-                    <span class="test-title">effectue la réservation via la commande custom cy.createReservation()</span>
-                    <span class="test-duration">16841 ms</span>
+                    <span class="test-title">permet à l’administrateur d’extraire la facture PDF depuis le tableau de bord (/admin/payments)</span>
+                    <span class="test-duration">809 ms</span>
+                  </div>
+                  
+                </li>
+              </ul>
+            </div>
+
+            <div class="suite-card">
+              <div class="suite-header">
+                <h3>Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY)</h3>
+                <span class="suite-file">cypress\e2e\payment-cash.cy.ts</span>
+              </div>
+              <ul class="test-list">
+                
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">permet de choisir le paiement en espèces à la livraison (CASH_DELIVERY)</span>
+                    <span class="test-duration">2484 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">permet de choisir le paiement en espèces en agence (CASH_AGENCY)</span>
+                    <span class="test-duration">792 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">permet à l’administrateur de confirmer la réception d’un paiement en espèces en attente</span>
+                    <span class="test-duration">1179 ms</span>
+                  </div>
+                  
+                </li>
+              </ul>
+            </div>
+
+            <div class="suite-card">
+              <div class="suite-header">
+                <h3>Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success)</h3>
+                <span class="suite-file">cypress\e2e\payment-cmi.cy.ts</span>
+              </div>
+              <ul class="test-list">
+                
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">redirige vers /login si un visiteur non authentifié accède à la page de paiement</span>
+                    <span class="test-duration">1108 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche le récapitulatif de réservation et le choix de paiement CMI par défaut</span>
+                    <span class="test-duration">729 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">exécute le parcours complet CMI avec redirection vers la passerelle et page de confirmation</span>
+                    <span class="test-duration">882 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">gère le polling d’état de paiement CMI jusqu’à obtention du statut SUCCESS</span>
+                    <span class="test-duration">2337 ms</span>
+                  </div>
+                  
+                </li>
+              </ul>
+            </div>
+
+            <div class="suite-card">
+              <div class="suite-header">
+                <h3>Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry)</h3>
+                <span class="suite-file">cypress\e2e\payment-failure.cy.ts</span>
+              </div>
+              <ul class="test-list">
+                
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche un bandeau d’erreur explicite si l’initiation CMI échoue (ex: 503 Gateway Timeout)</span>
+                    <span class="test-duration">1667 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche la page /payment/failure avec motif d’échec et permet de retenter le paiement</span>
+                    <span class="test-duration">546 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">redirige automatiquement vers /payment/failure si le polling CMI retourne un statut FAILED</span>
+                    <span class="test-duration">332 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">permet de compléter avec succès le paiement lors d’une nouvelle tentative après échec</span>
+                    <span class="test-duration">810 ms</span>
+                  </div>
+                  
+                </li>
+              </ul>
+            </div>
+
+            <div class="suite-card">
+              <div class="suite-header">
+                <h3>Gestion des remboursements administrateur (/admin/payments)</h3>
+                <span class="suite-file">cypress\e2e\payment-refund.cy.ts</span>
+              </div>
+              <ul class="test-list">
+                
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">refuse l’accès au dashboard des paiements aux utilisateurs sans rôle ADMIN</span>
+                    <span class="test-duration">1243 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche le tableau des transactions et le bouton de remboursement pour les paiements réussis</span>
+                    <span class="test-duration">1228 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action</span>
+                    <span class="test-duration">2748 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">effectue un remboursement total (FULL) avec motif justificatif</span>
+                    <span class="test-duration">1843 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">effectue un remboursement partiel (PARTIAL) avec montant et motif</span>
+                    <span class="test-duration">3182 ms</span>
                   </div>
                   
                 </li>

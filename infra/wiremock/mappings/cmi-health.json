@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/fim/est3Dgate"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "text/html; charset=UTF-8"
+    },
+    "body": "<html><body><h1>CMI Gateway Health Check OK</h1></body></html>"
+  }
+}

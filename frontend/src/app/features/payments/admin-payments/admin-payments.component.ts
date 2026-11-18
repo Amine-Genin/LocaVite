@@ -99,6 +99,9 @@ export class AdminPaymentsComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    this.filterForm.get('search')?.valueChanges.subscribe(() => {
+      this.applySearchFilter();
+    });
     this.loadPayments();
   }
 

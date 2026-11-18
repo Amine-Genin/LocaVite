@@ -1,0 +1,18 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/fim/api/refund"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json; charset=UTF-8"
+    },
+    "jsonBody": {
+      "status": "APPROVED",
+      "procReturnCode": "00",
+      "transId": "TXN-REF-WIRE-9988",
+      "response": "Approved"
+    }
+  }
+}
