@@ -11,6 +11,7 @@ import { BehaviorSubject, of, throwError } from 'rxjs';
 import { VehicleDetailComponent } from './vehicle-detail.component';
 import { VehicleService } from '../services/vehicle.service';
 import { Vehicle } from '../models/vehicle.model';
+import { VehicleHistoryService } from '../services/vehicle-history.service';
 import { VehicleContactDialogComponent } from './contact-dialog/vehicle-contact-dialog.component';
 
 describe('VehicleDetailComponent', () => {
@@ -18,6 +19,7 @@ describe('VehicleDetailComponent', () => {
   let fixture: ComponentFixture<VehicleDetailComponent>;
   let router: Router;
   let vehicleService: jasmine.SpyObj<VehicleService>;
+  let vehicleHistoryService: jasmine.SpyObj<VehicleHistoryService>;
   let dialogSpy: jasmine.SpyObj<MatDialog>;
   let titleService: Title;
   let metaService: Meta;
@@ -80,6 +82,10 @@ describe('VehicleDetailComponent', () => {
       'isFavorite',
       'toggleFavorite',
     ]);
+    vehicleHistoryService = jasmine.createSpyObj('VehicleHistoryService', ['getHistoryForVehicle']);
+    vehicleHistoryService.getHistoryForVehicle.and.returnValue(
+      of({ hasListing: false, events: [] }),
+    );
 
     vehicleService.getById.and.returnValue(of(mockVehicle));
     vehicleService.getAvailability.and.returnValue(
@@ -113,6 +119,7 @@ describe('VehicleDetailComponent', () => {
         provideHttpClientTesting(),
         provideRouter([]),
         { provide: VehicleService, useValue: vehicleService },
+        { provide: VehicleHistoryService, useValue: vehicleHistoryService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -246,6 +253,36 @@ describe('VehicleDetailComponent', () => {
 
     const ogTitle = metaService.getTag("property='og:title'");
     expect(ogTitle?.content).toContain('Dacia Duster');
+  });
+
+  it('should display the used-vehicle history as a timeline', () => {
+    vehicleHistoryService.getHistoryForVehicle.and.returnValue(
+      of({
+        hasListing: true,
+        events: [
+          {
+            id: 1,
+            saleListingId: 7,
+            vehicleId: 1,
+            typeEvenement: 'VIDANGE',
+            date: '2024-06-15',
+            description: 'Vidange et filtre remplacés',
+            kilometrage: 42000,
+            verified: false,
+          },
+        ],
+      }),
+    );
+
+    component.setVehicleData(mockVehicle);
+    fixture.detectChanges();
+
+    const timeline = fixture.nativeElement.querySelector('[data-cy="vehicle-history"]');
+    expect(timeline).toBeTruthy();
+    expect(timeline.querySelector('[data-cy="history-event"]').textContent).toContain(
+      'Vidange et filtre remplacés',
+    );
+    expect(vehicleHistoryService.getHistoryForVehicle).toHaveBeenCalledWith(mockVehicle.id);
   });
 
   it('should display not found state when vehicle is not found or error occurs', () => {

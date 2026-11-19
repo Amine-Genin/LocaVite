@@ -223,6 +223,26 @@
       "DEFAULT_AGENCY": "LocaVite Agence Principale",
       "DESCRIPTION": "Description",
       "NO_DESCRIPTION": "Aucune description fournie pour ce véhicule.",
+      "HISTORY": {
+        "TITLE": "سجل المركبة",
+        "SUBTITLE": "الأحداث المصرح بها لهذه المركبة المستعملة",
+        "LOADING": "جارٍ تحميل السجل…",
+        "ERROR": "تعذر تحميل سجل المركبة.",
+        "EMPTY": "لا توجد أحداث مسجلة حالياً.",
+        "MILEAGE": "كم",
+        "DOCUMENT": "عرض المستند الداعم",
+        "VERIFIED": "تم التحقق من LocaVite",
+        "UNVERIFIED": "مصرح به من الوكالة، غير مُتحقق منه",
+        "EVENTS": {
+          "MAINTENANCE": "صيانة",
+          "REPARATION": "إصلاح",
+          "ACCIDENT": "حادث",
+          "CONTROLE_TECHNIQUE": "فحص تقني",
+          "VIDANGE": "تغيير الزيت",
+          "CHANGEMENT_PNEUS": "تغيير الإطارات",
+          "AUTRE": "حدث آخر"
+        }
+      },
       "TABS": {
         "SPECS": "Caractéristiques",
         "AVAILABILITY": "Disponibilité",

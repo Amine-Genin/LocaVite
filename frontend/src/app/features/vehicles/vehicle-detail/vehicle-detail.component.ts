@@ -12,6 +12,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { AvailabilityResponse, Vehicle } from '../models/vehicle.model';
 import { VehicleService } from '../services/vehicle.service';
+import { VehicleHistoryEvent } from '../models/vehicle-history.model';
+import { VehicleHistoryService } from '../services/vehicle-history.service';
 import { PhotoGalleryComponent } from '../photo-gallery/photo-gallery.component';
 import { AvailabilityCalendarComponent } from '../availability-calendar/availability-calendar.component';
 import { VehicleCardComponent } from '../vehicle-card/vehicle-card.component';
@@ -45,6 +47,7 @@ export class VehicleDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly vehicleService = inject(VehicleService);
+  private readonly vehicleHistoryService = inject(VehicleHistoryService);
   private readonly dialog = inject(MatDialog);
   private readonly titleService = inject(Title);
   private readonly metaService = inject(Meta);
@@ -56,8 +59,13 @@ export class VehicleDetailComponent implements OnInit, OnDestroy {
   loading = signal(true);
   error = signal(false);
   isFavorite = signal(false);
+  historyEvents = signal<VehicleHistoryEvent[]>([]);
+  historyAvailable = signal(false);
+  historyLoading = signal(false);
+  historyError = signal(false);
 
   private routeSub?: Subscription;
+  private historySub?: Subscription;
   private readonly defaultTitle = 'LocaVite · Location & Vente de Véhicules au Maroc';
 
   constructor() {
@@ -96,6 +104,7 @@ export class VehicleDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routeSub?.unsubscribe();
+    this.historySub?.unsubscribe();
     this.titleService.setTitle(this.defaultTitle);
     this.metaService.removeTag("name='description'");
     this.metaService.removeTag("property='og:title'");
@@ -111,6 +120,27 @@ export class VehicleDetailComponent implements OnInit, OnDestroy {
     }
     this.loading.set(false);
     this.error.set(false);
+    this.historySub?.unsubscribe();
+    this.historyEvents.set([]);
+    this.historyAvailable.set(false);
+    this.historyError.set(false);
+    this.historyLoading.set(!!veh.prixVente && veh.prixVente > 0);
+
+    if (veh.prixVente && veh.prixVente > 0) {
+      this.historySub = this.vehicleHistoryService
+        .getHistoryForVehicle(veh.id)
+        .pipe(
+          catchError(() => {
+            this.historyError.set(true);
+            return of({ hasListing: false, events: [] });
+          }),
+        )
+        .subscribe((result) => {
+          this.historyEvents.set(result.events);
+          this.historyAvailable.set(result.hasListing);
+          this.historyLoading.set(false);
+        });
+    }
 
     // Apply dynamic SEO tags
     this.updateSeoMeta(veh);

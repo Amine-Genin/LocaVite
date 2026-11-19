@@ -100,6 +100,7 @@ minio:
   vehicles-bucket: ${MINIO_VEHICLES_BUCKET:locavite-vehicles}
   contracts-bucket: ${MINIO_CONTRACTS_BUCKET:locavite-contracts}
   invoices-bucket: ${MINIO_INVOICES_BUCKET:locavite-invoices}
+  history-bucket: ${MINIO_HISTORY_BUCKET:locavite-history-docs}
 
 twilio:
   enabled: ${TWILIO_ENABLED:false}

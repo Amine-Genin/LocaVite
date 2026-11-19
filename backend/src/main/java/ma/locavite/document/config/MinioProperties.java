@@ -12,6 +12,7 @@ public class MinioProperties {
     private String vehiclesBucket = "locavite-vehicles";
     private String contractsBucket = "locavite-contracts";
     private String invoicesBucket = "locavite-invoices";
+    private String historyBucket = "locavite-history-docs";
     private boolean initBucket = true;
     private boolean sseEnabled = true;
 
@@ -69,6 +70,14 @@ public class MinioProperties {
 
     public void setInvoicesBucket(String invoicesBucket) {
         this.invoicesBucket = invoicesBucket;
+    }
+
+    public String getHistoryBucket() {
+        return historyBucket;
+    }
+
+    public void setHistoryBucket(String historyBucket) {
+        this.historyBucket = historyBucket;
     }
 
     public boolean isInitBucket() {
