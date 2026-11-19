@@ -1,6 +1,7 @@
 package ma.locavite.sale.dto;
 
 import ma.locavite.sale.domain.SaleStatus;
+import ma.locavite.sale.domain.SaleTaxRegime;
 import ma.locavite.sale.domain.VehicleCondition;
 
 import java.io.Serializable;
@@ -18,6 +19,8 @@ public record SaleListingResponse(
         BigDecimal prixVente,
         Boolean prixNego,
         VehicleCondition etat,
+        boolean garantieConstructeur,
+        SaleTaxRegime regimeTva,
         Integer kilometrage,
         Boolean premierProprietaire,
         LocalDate dateMiseEnCirculation,

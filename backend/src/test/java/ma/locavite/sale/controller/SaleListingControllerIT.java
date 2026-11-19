@@ -16,6 +16,7 @@ import ma.locavite.vehicle.domain.Vehicle;
 import ma.locavite.vehicle.domain.VehicleStatus;
 import ma.locavite.vehicle.repository.VehicleRepository;
 import ma.locavite.vehicle.service.CurrentUserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -74,6 +75,12 @@ class SaleListingControllerIT {
 
         when(currentUser.getCurrentUserId()).thenReturn(Optional.of(ME));
         when(currentUser.isAdmin()).thenReturn(false);
+    }
+
+    @AfterEach
+    void cleanUp() {
+        repository.deleteAll();
+        vehicleRepository.deleteAll();
     }
 
     // ---------------- HELPERS ----------------
@@ -155,6 +162,8 @@ class SaleListingControllerIT {
                 .andExpect(jsonPath("$.agenceId").value(ME))
                 .andExpect(jsonPath("$.vehicleId").value(v.getId()))
                 .andExpect(jsonPath("$.prixVente").value(310000.00))
+                .andExpect(jsonPath("$.garantieConstructeur").value(false))
+                .andExpect(jsonPath("$.regimeTva").value("MARGIN"))
                 .andExpect(jsonPath("$.numeroChassis").value("WVWZZZRAV400001"));
 
         assertThat(repository.count()).isEqualTo(1);
@@ -224,6 +233,99 @@ class SaleListingControllerIT {
                         .content(om.writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.prixVente").exists());
+    }
+
+    @Test
+    @WithMockUser(roles = "AGENCE")
+    @DisplayName("Création d'une neuve avec kilométrage supérieur à 0 -> 400 Bad Request")
+    void post_newVehicleWithMileage_returns400() throws Exception {
+        Vehicle v = createVehicle(ME, "12345-A-7");
+        Map<String, Object> invalid = new HashMap<>();
+        invalid.put("vehicleId", v.getId());
+        invalid.put("titre", "Toyota neuve");
+        invalid.put("description", "Description détaillée");
+        invalid.put("prixVente", 320000);
+        invalid.put("etat", "NEW");
+        invalid.put("kilometrage", 1);
+        invalid.put("nombreProprietaires", 0);
+
+        mvc.perform(post("/api/sale-listings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.kilometrage").exists());
+
+        assertThat(repository.count()).isZero();
+    }
+
+    @Test
+    @WithMockUser(roles = "AGENCE")
+    @DisplayName("Création d'une occasion sans date de mise en circulation -> 400 Bad Request")
+    void post_usedVehicleWithoutRegistrationDate_returns400() throws Exception {
+        Vehicle v = createVehicle(ME, "12345-A-8");
+        Map<String, Object> invalid = new HashMap<>();
+        invalid.put("vehicleId", v.getId());
+        invalid.put("titre", "Toyota occasion");
+        invalid.put("description", "Description détaillée");
+        invalid.put("prixVente", 280000);
+        invalid.put("etat", "USED");
+        invalid.put("kilometrage", 28000);
+        invalid.put("nombreProprietaires", 1);
+
+        mvc.perform(post("/api/sale-listings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.dateMiseEnCirculation").exists());
+
+        assertThat(repository.count()).isZero();
+    }
+
+    @Test
+    @WithMockUser(roles = "AGENCE")
+    @DisplayName("Création d'une occasion sans propriétaire déclaré -> 400 Bad Request")
+    void post_usedVehicleWithoutOwner_returns400() throws Exception {
+        Vehicle v = createVehicle(ME, "12345-A-10");
+        Map<String, Object> invalid = new HashMap<>();
+        invalid.put("vehicleId", v.getId());
+        invalid.put("titre", "Toyota occasion");
+        invalid.put("description", "Description détaillée");
+        invalid.put("prixVente", 280000);
+        invalid.put("etat", "USED");
+        invalid.put("kilometrage", 28000);
+        invalid.put("dateMiseEnCirculation", "2023-03-20");
+        invalid.put("nombreProprietaires", 0);
+
+        mvc.perform(post("/api/sale-listings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.nombreProprietairesCoherent").exists());
+
+        assertThat(repository.count()).isZero();
+    }
+
+    @Test
+    @WithMockUser(roles = "AGENCE")
+    @DisplayName("Création d'une neuve valide expose la garantie et la TVA standard")
+    void post_newVehicle_returnsWarrantyAndStandardVat() throws Exception {
+        Vehicle v = createVehicle(ME, "12345-A-9");
+        Map<String, Object> valid = new HashMap<>();
+        valid.put("vehicleId", v.getId());
+        valid.put("titre", "Toyota neuve");
+        valid.put("description", "Description détaillée");
+        valid.put("prixVente", 320000);
+        valid.put("etat", "NEW");
+        valid.put("kilometrage", 0);
+        valid.put("nombreProprietaires", 0);
+
+        mvc.perform(post("/api/sale-listings")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(om.writeValueAsString(valid)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.etat").value("NEW"))
+                .andExpect(jsonPath("$.garantieConstructeur").value(true))
+                .andExpect(jsonPath("$.regimeTva").value("STANDARD_20_PERCENT"));
     }
 
     // ---------------- UPDATE ----------------

@@ -1,6 +1,8 @@
 package ma.locavite.sale.mapper;
 
 import ma.locavite.sale.domain.SaleListing;
+import ma.locavite.sale.domain.SaleTaxRegime;
+import ma.locavite.sale.domain.VehicleCondition;
 import ma.locavite.sale.dto.SaleListingRequest;
 import ma.locavite.sale.dto.SaleListingResponse;
 import org.mapstruct.Mapper;
@@ -23,6 +25,8 @@ public interface SaleListingMapper {
     SaleListing toEntity(SaleListingRequest request);
 
     @Mapping(target = "vehicleId", source = "vehicle.id")
+    @Mapping(target = "garantieConstructeur", expression = "java(entity.getEtat() == VehicleCondition.NEW)")
+    @Mapping(target = "regimeTva", expression = "java(entity.getEtat() == VehicleCondition.NEW ? SaleTaxRegime.STANDARD_20_PERCENT : SaleTaxRegime.MARGIN)")
     SaleListingResponse toResponse(SaleListing entity);
 
     @Mapping(target = "id", ignore = true)

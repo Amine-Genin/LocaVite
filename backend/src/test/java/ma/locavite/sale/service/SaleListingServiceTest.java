@@ -2,6 +2,7 @@ package ma.locavite.sale.service;
 
 import ma.locavite.sale.domain.SaleListing;
 import ma.locavite.sale.domain.SaleStatus;
+import ma.locavite.sale.domain.SaleTaxRegime;
 import ma.locavite.sale.domain.VehicleCondition;
 import ma.locavite.sale.dto.SaleListingFilter;
 import ma.locavite.sale.dto.SaleListingRequest;
@@ -136,6 +137,8 @@ class SaleListingServiceTest {
             assertThat(response.vehicleId()).isEqualTo(VEHICLE_ID);
             assertThat(response.statut()).isEqualTo(SaleStatus.DRAFT);
             assertThat(response.numeroChassis()).isEqualTo("WVWZZZCDZPW000001");
+            assertThat(response.garantieConstructeur()).isFalse();
+            assertThat(response.regimeTva()).isEqualTo(SaleTaxRegime.MARGIN);
 
             ArgumentCaptor<SaleListing> captor = ArgumentCaptor.forClass(SaleListing.class);
             verify(repository).save(captor.capture());
@@ -143,6 +146,30 @@ class SaleListingServiceTest {
             assertThat(saved.getDeleted()).isFalse();
             assertThat(saved.getPrixNego()).isTrue();
             assertThat(saved.getPremierProprietaire()).isTrue();
+        }
+
+        @Test
+        @DisplayName("Création d'une occasion sans date de mise en circulation échoue")
+        void create_usedWithoutRegistrationDate_throwsBadRequest() {
+            SaleListingRequest request = new SaleListingRequest(
+                    VEHICLE_ID,
+                    "Golf 8 R-Line 2.0 TDI",
+                    "Description",
+                    new BigDecimal("280000.00"),
+                    true,
+                    VehicleCondition.USED,
+                    35000,
+                    true,
+                    null,
+                    null,
+                    1,
+                    SaleStatus.DRAFT
+            );
+
+            assertThatThrownBy(() -> service.create(request))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("date de mise en circulation");
+            verifyNoInteractions(currentUser, vehicleRepository, repository);
         }
 
         @Test

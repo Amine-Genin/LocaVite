@@ -50,6 +50,7 @@ public class SaleListingService {
 
     @Transactional
     public SaleListingResponse create(SaleListingRequest request) {
+        validateCondition(request);
         Long currentUserId = currentUser.getCurrentUserId()
                 .orElseThrow(() -> new AccessDeniedException("Utilisateur non authentifié"));
 
@@ -131,6 +132,7 @@ public class SaleListingService {
 
     @Transactional
     public SaleListingResponse update(Long id, SaleListingRequest request) {
+        validateCondition(request);
         SaleListing listing = findManageable(id);
 
         if (request.vehicleId() != null && !request.vehicleId().equals(listing.getVehicle().getId())) {
@@ -218,6 +220,13 @@ public class SaleListingService {
     private boolean canManageVehicle(Vehicle vehicle, Long userId) {
         return currentUser.isAdmin()
                 || (vehicle.getAgenceId() != null && vehicle.getAgenceId().equals(userId));
+    }
+
+    private void validateCondition(SaleListingRequest request) {
+        String error = request.conditionValidationError();
+        if (error != null) {
+            throw new IllegalArgumentException(error);
+        }
     }
 
     private void applyStatusTransition(SaleListing listing, SaleStatus newStatus) {
