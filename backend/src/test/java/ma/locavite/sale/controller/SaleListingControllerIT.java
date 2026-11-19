@@ -29,10 +29,12 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.startsWith;
@@ -139,6 +141,31 @@ class SaleListingControllerIT {
         listing.setPremierProprietaire(true);
         listing.setNumeroChassis(vin);
         listing.setStatut(statut);
+        listing.setDeleted(false);
+        return repository.saveAndFlush(listing);
+    }
+
+    private SaleListing createPublishedSearchListing(
+            Vehicle vehicle,
+            VehicleCondition condition,
+            BigDecimal price,
+            Integer mileage,
+            boolean firstOwner) {
+        SaleListing listing = new SaleListing();
+        listing.setCode("SL-" + UUID.randomUUID().toString().replace("-", "").substring(0, 6));
+        listing.setVehicle(vehicle);
+        listing.setAgenceId(vehicle.getAgenceId());
+        listing.setTitre("Annonce de recherche");
+        listing.setDescription("Annonce publiée pour les tests de recherche");
+        listing.setPrixVente(price);
+        listing.setPrixNego(false);
+        listing.setEtat(condition);
+        listing.setKilometrage(mileage);
+        listing.setPremierProprietaire(firstOwner);
+        listing.setDateMiseEnCirculation(condition == VehicleCondition.NEW ? null : LocalDate.of(2022, 1, 1));
+        listing.setNombreProprietaires(condition == VehicleCondition.NEW ? 0 : 1);
+        listing.setStatut(SaleStatus.PUBLISHED);
+        listing.setPublishedAt(Instant.now());
         listing.setDeleted(false);
         return repository.saveAndFlush(listing);
     }
@@ -506,6 +533,125 @@ class SaleListingControllerIT {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(1))
                 .andExpect(jsonPath("$.content[0].statut").value("PUBLISHED"));
+    }
+
+    @Test
+    @DisplayName("Recherche avancée : filtre les annonces par état NEW")
+    void searchAdvanced_filtersByCondition() throws Exception {
+        Vehicle vehicle = createVehicle(OTHER, "77777-A-2");
+        createPublishedSearchListing(vehicle, VehicleCondition.NEW, new BigDecimal("180000"), 0, true);
+        createPublishedSearchListing(vehicle, VehicleCondition.USED, new BigDecimal("150000"), 20000, false);
+
+        mvc.perform(get("/api/sale-listings/search")
+                        .param("etat", "NEW")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].etat").value("NEW"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    @DisplayName("Recherche avancée : filtre le prix entre 100 000 et 200 000 MAD")
+    void searchAdvanced_filtersByPriceRangeAndReturnsCount() throws Exception {
+        Vehicle vehicle = createVehicle(OTHER, "77777-A-3");
+        createPublishedSearchListing(vehicle, VehicleCondition.USED, new BigDecimal("150000"), 20000, true);
+        createPublishedSearchListing(vehicle, VehicleCondition.USED, new BigDecimal("220000"), 20000, true);
+
+        mvc.perform(get("/api/sale-listings/search")
+                        .param("prixMin", "100000")
+                        .param("prixMax", "200000")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].prixVente").value(150000))
+                .andExpect(jsonPath("$.totalElements").value(1));
+    }
+
+    @Test
+    @DisplayName("Recherche avancée : trie les annonces par prix croissant")
+    void searchAdvanced_sortsByPriceAscending() throws Exception {
+        Vehicle vehicle = createVehicle(OTHER, "77777-A-4");
+        createPublishedSearchListing(vehicle, VehicleCondition.USED, new BigDecimal("180000"), 20000, true);
+        createPublishedSearchListing(vehicle, VehicleCondition.USED, new BigDecimal("120000"), 20000, true);
+
+        mvc.perform(get("/api/sale-listings/search")
+                        .param("sort", "prixVente,asc")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].prixVente").value(120000))
+                .andExpect(jsonPath("$.content[1].prixVente").value(180000));
+    }
+
+    @Test
+    @DisplayName("Recherche avancée : trie par année et kilométrage, puis par date de publication par défaut")
+    void searchAdvanced_sortsByYearMileageAndPublicationDate() throws Exception {
+        Vehicle olderVehicle = createVehicle(OTHER, "77777-A-7");
+        olderVehicle.setAnnee(2021);
+        vehicleRepository.saveAndFlush(olderVehicle);
+        SaleListing olderListing = createPublishedSearchListing(
+                olderVehicle, VehicleCondition.USED, new BigDecimal("150000"), 30000, true);
+        olderListing.setPublishedAt(Instant.parse("2025-01-01T00:00:00Z"));
+        repository.saveAndFlush(olderListing);
+
+        Vehicle newerVehicle = createVehicle(OTHER, "77777-A-8");
+        newerVehicle.setAnnee(2024);
+        vehicleRepository.saveAndFlush(newerVehicle);
+        SaleListing newerListing = createPublishedSearchListing(
+                newerVehicle, VehicleCondition.USED, new BigDecimal("150000"), 10000, true);
+        newerListing.setPublishedAt(Instant.parse("2025-02-01T00:00:00Z"));
+        repository.saveAndFlush(newerListing);
+
+        mvc.perform(get("/api/sale-listings/search").param("sort", "annee,asc").param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].vehicleId").value(olderVehicle.getId()));
+
+        mvc.perform(get("/api/sale-listings/search").param("sort", "annee,desc").param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].vehicleId").value(newerVehicle.getId()));
+
+        mvc.perform(get("/api/sale-listings/search").param("sort", "kilometrage,asc").param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].vehicleId").value(newerVehicle.getId()));
+
+        mvc.perform(get("/api/sale-listings/search").param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].vehicleId").value(newerVehicle.getId()));
+    }
+
+    @Test
+    @DisplayName("Recherche avancée : combine les critères du véhicule et de l'annonce")
+    void searchAdvanced_combinesFilters() throws Exception {
+        Vehicle matchingVehicle = createVehicle(OTHER, "77777-A-5");
+        createPublishedSearchListing(
+                matchingVehicle, VehicleCondition.USED, new BigDecimal("150000"), 25000, true);
+
+        Vehicle otherVehicle = createVehicle(OTHER, "77777-A-6");
+        otherVehicle.setModele("Corolla");
+        vehicleRepository.saveAndFlush(otherVehicle);
+        createPublishedSearchListing(
+                otherVehicle, VehicleCondition.USED, new BigDecimal("150000"), 25000, true);
+
+        mvc.perform(get("/api/sale-listings/search")
+                        .param("etat", "USED")
+                        .param("marque", "Toyota")
+                        .param("modele", "RAV4")
+                        .param("categorie", "SUV")
+                        .param("carburant", "DIESEL")
+                        .param("transmission", "AUTOMATIQUE")
+                        .param("anneeMin", "2022")
+                        .param("anneeMax", "2024")
+                        .param("prixMin", "100000")
+                        .param("prixMax", "200000")
+                        .param("kilometrageMax", "30000")
+                        .param("ville", "Casablanca")
+                        .param("premierProprietaire", "true")
+                        .param("garantie", "false")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].vehicleId").value(matchingVehicle.getId()))
+                .andExpect(jsonPath("$.totalElements").value(1));
     }
 
     @Test

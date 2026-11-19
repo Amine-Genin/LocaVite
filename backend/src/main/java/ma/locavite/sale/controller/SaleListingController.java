@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import ma.locavite.sale.dto.SaleListingFilter;
 import ma.locavite.sale.dto.SaleListingRequest;
 import ma.locavite.sale.dto.SaleListingResponse;
+import ma.locavite.sale.dto.SaleListingSearchFilter;
 import ma.locavite.sale.service.SaleListingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -47,6 +48,13 @@ public class SaleListingController {
             SaleListingFilter filter,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(service.search(filter, pageable));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<SaleListingResponse>> searchPublished(
+            @Valid @ModelAttribute SaleListingSearchFilter filter,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(service.searchPublished(filter, pageable));
     }
 
     @PutMapping("/{id}")

@@ -1,5 +1,6 @@
 package ma.locavite.vehicle.service;
 
+import ma.locavite.common.config.RedisConfig;
 import ma.locavite.catalog.domain.Brand;
 import ma.locavite.catalog.domain.Category;
 import ma.locavite.catalog.repository.BrandRepository;
@@ -51,7 +52,8 @@ public class VehicleService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "vehicleSearch", allEntries = true),
-            @CacheEvict(value = "vehicles", allEntries = true)
+            @CacheEvict(value = "vehicles", allEntries = true),
+            @CacheEvict(value = RedisConfig.CACHE_SALE_SEARCH, allEntries = true)
     })
     public VehicleResponse create(VehicleRequest request) {
         Long agenceId = currentUser.getCurrentUserId()
@@ -93,7 +95,8 @@ public class VehicleService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "vehicleSearch", allEntries = true),
-            @CacheEvict(value = "vehicles", allEntries = true)
+            @CacheEvict(value = "vehicles", allEntries = true),
+            @CacheEvict(value = RedisConfig.CACHE_SALE_SEARCH, allEntries = true)
     })
     public VehicleResponse update(Long id, VehicleRequest request) {
         Vehicle vehicle = findManageable(id);
@@ -119,7 +122,8 @@ public class VehicleService {
     @Transactional
     @Caching(evict = {
             @CacheEvict(value = "vehicleSearch", allEntries = true),
-            @CacheEvict(value = "vehicles", allEntries = true)
+            @CacheEvict(value = "vehicles", allEntries = true),
+            @CacheEvict(value = RedisConfig.CACHE_SALE_SEARCH, allEntries = true)
     })
     public void delete(Long id) {
         Vehicle vehicle = findManageable(id);
@@ -132,7 +136,8 @@ public class VehicleService {
      */
     @Caching(evict = {
             @CacheEvict(value = "vehicleSearch", allEntries = true),
-            @CacheEvict(value = "vehicles", allEntries = true)
+            @CacheEvict(value = "vehicles", allEntries = true),
+            @CacheEvict(value = RedisConfig.CACHE_SALE_SEARCH, allEntries = true)
     })
     public void invalidateSearchCache() {
         // L'invalidation est portée par l'annotation afin de rester atomique avec le proxy Spring.

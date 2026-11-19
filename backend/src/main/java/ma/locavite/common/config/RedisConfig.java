@@ -31,7 +31,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Configuration du cache Redis pour LocaVite avec sérialisation JSON sécurisée,
@@ -46,6 +45,7 @@ public class RedisConfig implements CachingConfigurer {
     public static final String CACHE_BRANDS = "brands";
     public static final String CACHE_CATEGORIES = "categories";
     public static final String CACHE_VEHICLE_SEARCH = "vehicleSearch";
+    public static final String CACHE_SALE_SEARCH = "saleSearch";
     public static final String CACHE_VEHICLES = "vehicles";
     public static final String CACHE_VEHICLE_AVAILABILITY = "vehicleAvailability";
     public static final String CACHE_SEASONS = "seasons";
@@ -106,6 +106,8 @@ public class RedisConfig implements CachingConfigurer {
         configurations.put(CACHE_CATEGORIES, defaultConfig.entryTtl(Duration.ofHours(1)));
         // GET /api/vehicles/search (TTL 5 min)
         configurations.put(CACHE_VEHICLE_SEARCH, defaultConfig.entryTtl(Duration.ofMinutes(5)));
+        // GET /api/sale-listings/search (TTL 5 min)
+        configurations.put(CACHE_SALE_SEARCH, defaultConfig.entryTtl(Duration.ofMinutes(5)));
         // GET /api/vehicles/{id} (TTL 10 min)
         configurations.put(CACHE_VEHICLES, defaultConfig.entryTtl(Duration.ofMinutes(10)));
         configurations.put("vehicleById", defaultConfig.entryTtl(Duration.ofMinutes(10)));
@@ -117,7 +119,6 @@ public class RedisConfig implements CachingConfigurer {
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
                 .withInitialCacheConfigurations(configurations)
-                .initialCacheNames(Set.of(CACHE_BRANDS, CACHE_CATEGORIES, CACHE_VEHICLE_SEARCH, CACHE_VEHICLES, CACHE_VEHICLE_AVAILABILITY, CACHE_SEASONS))
                 .enableStatistics()
                 .build();
     }

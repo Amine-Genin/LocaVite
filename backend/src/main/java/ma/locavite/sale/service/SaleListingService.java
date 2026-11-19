@@ -1,11 +1,13 @@
 package ma.locavite.sale.service;
 
+import ma.locavite.common.config.RedisConfig;
 import ma.locavite.sale.domain.SaleListing;
 import ma.locavite.sale.domain.SaleStatus;
 import ma.locavite.sale.domain.VehicleCondition;
 import ma.locavite.sale.dto.SaleListingFilter;
 import ma.locavite.sale.dto.SaleListingRequest;
 import ma.locavite.sale.dto.SaleListingResponse;
+import ma.locavite.sale.dto.SaleListingSearchFilter;
 import ma.locavite.sale.exception.SaleListingNotFoundException;
 import ma.locavite.sale.exception.VinAlreadyExistsException;
 import ma.locavite.sale.mapper.SaleListingMapper;
@@ -15,14 +17,20 @@ import ma.locavite.vehicle.domain.Vehicle;
 import ma.locavite.vehicle.exception.VehicleNotFoundException;
 import ma.locavite.vehicle.repository.VehicleRepository;
 import ma.locavite.vehicle.service.CurrentUserService;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -49,6 +57,7 @@ public class SaleListingService {
     }
 
     @Transactional
+    @CacheEvict(value = RedisConfig.CACHE_SALE_SEARCH, allEntries = true)
     public SaleListingResponse create(SaleListingRequest request) {
         validateCondition(request);
         Long currentUserId = currentUser.getCurrentUserId()
@@ -130,7 +139,16 @@ public class SaleListingService {
                 .map(mapper::toResponse);
     }
 
+    @Cacheable(value = RedisConfig.CACHE_SALE_SEARCH, keyGenerator = "md5KeyGenerator")
+    public Page<SaleListingResponse> searchPublished(SaleListingSearchFilter filter, Pageable pageable) {
+        validateSearchFilter(filter);
+        Pageable sortedPageable = normalizeSearchPageable(pageable);
+        return repository.findAll(SaleListingSpecifications.publicSearch(filter), sortedPageable)
+                .map(mapper::toResponse);
+    }
+
     @Transactional
+    @CacheEvict(value = RedisConfig.CACHE_SALE_SEARCH, allEntries = true)
     public SaleListingResponse update(Long id, SaleListingRequest request) {
         validateCondition(request);
         SaleListing listing = findManageable(id);
@@ -172,6 +190,7 @@ public class SaleListingService {
     }
 
     @Transactional
+    @CacheEvict(value = RedisConfig.CACHE_SALE_SEARCH, allEntries = true)
     public void delete(Long id) {
         SaleListing listing = findManageable(id);
         listing.setDeleted(true);
@@ -180,6 +199,7 @@ public class SaleListingService {
     }
 
     @Transactional
+    @CacheEvict(value = RedisConfig.CACHE_SALE_SEARCH, allEntries = true)
     public SaleListingResponse publish(Long id) {
         SaleListing listing = findManageable(id);
         listing.setStatut(SaleStatus.PUBLISHED);
@@ -191,6 +211,7 @@ public class SaleListingService {
     }
 
     @Transactional
+    @CacheEvict(value = RedisConfig.CACHE_SALE_SEARCH, allEntries = true)
     public SaleListingResponse markSold(Long id) {
         SaleListing listing = findManageable(id);
         listing.setStatut(SaleStatus.SOLD);
@@ -227,6 +248,45 @@ public class SaleListingService {
         if (error != null) {
             throw new IllegalArgumentException(error);
         }
+    }
+
+    private void validateSearchFilter(SaleListingSearchFilter filter) {
+        if (filter != null && !filter.isRangesValid()) {
+            throw new IllegalArgumentException("Les bornes minimales doivent être inférieures ou égales aux bornes maximales");
+        }
+    }
+
+    private Pageable normalizeSearchPageable(Pageable pageable) {
+        if (pageable.getSort().isUnsorted()) {
+            return PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "publishedAt"));
+        }
+
+        List<Sort.Order> orders = new ArrayList<>();
+        for (Sort.Order order : pageable.getSort()) {
+            String property = switch (order.getProperty()) {
+                case "prix", "prixVente" -> "prixVente";
+                case "annee" -> "vehicle.annee";
+                case "kilometrage" -> "kilometrage";
+                case "datePublication", "publishedAt" -> "publishedAt";
+                default -> throw new IllegalArgumentException("Critère de tri non pris en charge : " + order.getProperty());
+            };
+
+            boolean supportedDirection = switch (property) {
+                case "prixVente", "vehicle.annee" -> true;
+                case "kilometrage" -> order.isAscending();
+                case "publishedAt" -> order.isDescending();
+                default -> false;
+            };
+            if (!supportedDirection) {
+                throw new IllegalArgumentException("Sens de tri non pris en charge pour : " + order.getProperty());
+            }
+            orders.add(new Sort.Order(order.getDirection(), property));
+        }
+
+        return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(orders));
     }
 
     private void applyStatusTransition(SaleListing listing, SaleStatus newStatus) {

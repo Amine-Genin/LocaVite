@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cache.CacheManager;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.anyOf;
@@ -25,12 +28,18 @@ class RedisCacheActuatorIT {
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    private RedisCacheManager redisCacheManager;
+
     @Test
     @DisplayName("Le CacheManager est configuré et contient les caches requis")
     void cacheManager_isConfiguredWithRequiredCaches() {
         assertThat(cacheManager).isNotNull();
         // Vérifie la présence des caches définis dans la spécification
-        assertThat(cacheManager.getCacheNames()).contains("brands", "categories", "vehicleSearch", "vehicles", "seasons");
+        assertThat(cacheManager.getCacheNames()).contains(
+                "brands", "categories", "vehicleSearch", "saleSearch", "vehicles", "seasons");
+        assertThat(redisCacheManager.getCacheConfigurations().get("saleSearch").getTtl())
+                .isEqualTo(Duration.ofMinutes(5));
     }
 
     @Test
