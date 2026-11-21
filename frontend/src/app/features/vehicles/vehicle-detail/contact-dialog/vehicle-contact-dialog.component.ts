@@ -1,4 +1,4 @@
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -6,8 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription, finalize } from 'rxjs';
 
 import { Vehicle } from '../../models/vehicle.model';
+import { AuthService } from '../../../../core/auth/auth.service';
+import { SaleListingContactService } from '../../services/sale-listing-contact.service';
 import { setupFallbackTranslations } from '../../vehicles.constants';
 
 export interface VehicleContactDialogData {
@@ -29,17 +32,24 @@ export interface VehicleContactDialogData {
   templateUrl: './vehicle-contact-dialog.component.html',
   styleUrl: './vehicle-contact-dialog.component.scss',
 })
-export class VehicleContactDialogComponent {
+export class VehicleContactDialogComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   readonly dialogRef = inject(MatDialogRef<VehicleContactDialogComponent>);
   private readonly translate = inject(TranslateService, { optional: true });
+  private readonly authService = inject(AuthService);
+  private readonly contactService = inject(SaleListingContactService);
 
   contactForm: FormGroup;
   isSending = false;
   isSubmitted = false;
+  isLoadingListing = true;
+  listingLookupFailed = false;
+  submitFailed = false;
+  saleListingId: number | null = null;
 
   readonly vehicle: Vehicle;
   readonly defaultPhone = '+212600000000';
+  private listingSubscription?: Subscription;
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: VehicleContactDialogData) {
     setupFallbackTranslations(this.translate);
@@ -53,6 +63,33 @@ export class VehicleContactDialogComponent {
       telephone: ['', [Validators.required]],
       message: [defaultMsg, [Validators.required]],
     });
+
+    const user = this.authService.getCurrentUser();
+    if (user) {
+      this.contactForm.patchValue({
+        nom: `${user.prenom} ${user.nom}`.trim(),
+        email: user.email,
+        telephone: user.telephone,
+      });
+    }
+
+    this.listingSubscription = this.contactService
+      .getPublishedListingIdByVehicle(this.vehicle.id)
+      .subscribe({
+        next: (id) => {
+          this.saleListingId = id;
+          this.isLoadingListing = false;
+          this.listingLookupFailed = id === null;
+        },
+        error: () => {
+          this.isLoadingListing = false;
+          this.listingLookupFailed = true;
+        },
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.listingSubscription?.unsubscribe();
   }
 
   get agencyPhoneNumber(): string {
@@ -78,11 +115,23 @@ export class VehicleContactDialogComponent {
       return;
     }
 
+    if (this.saleListingId === null || this.isLoadingListing) {
+      return;
+    }
+
     this.isSending = true;
-    setTimeout(() => {
-      this.isSending = false;
-      this.isSubmitted = true;
-    }, 400);
+    this.submitFailed = false;
+    this.contactService
+      .sendContactRequest(this.saleListingId, this.contactForm.getRawValue())
+      .pipe(finalize(() => (this.isSending = false)))
+      .subscribe({
+        next: () => {
+          this.isSubmitted = true;
+        },
+        error: () => {
+          this.submitFailed = true;
+        },
+      });
   }
 
   close(): void {

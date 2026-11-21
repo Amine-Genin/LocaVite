@@ -58,6 +58,16 @@
 
     <!-- Contact Form -->
     @if (!isSubmitted) {
+      @if (listingLookupFailed) {
+        <p class="form-error" role="alert">
+          {{ 'VEHICLES.DETAIL.CONTACT_DIALOG.LISTING_NOT_FOUND' | translate }}
+        </p>
+      }
+      @if (submitFailed) {
+        <p class="form-error" role="alert">
+          {{ 'VEHICLES.DETAIL.CONTACT_DIALOG.SEND_ERROR' | translate }}
+        </p>
+      }
       <form
         [formGroup]="contactForm"
         (ngSubmit)="onSubmit()"
@@ -134,7 +144,7 @@
             type="submit"
             mat-flat-button
             color="primary"
-            [disabled]="isSending"
+            [disabled]="isSending || isLoadingListing || !saleListingId"
             data-cy="send-contact-btn"
           >
             @if (isSending) {

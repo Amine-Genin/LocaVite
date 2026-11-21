@@ -122,11 +122,24 @@ describe('Vehicle Detail Page (/vehicles/:id) - Navigation & galerie', () => {
   });
 
   it('opens contact modal with WhatsApp and contact form on clicking Contacter agence', () => {
+    cy.intercept('GET', '/api/sale-listings*', {
+      statusCode: 200,
+      body: {
+        content: [{ id: 42 }],
+        page: { size: 1, number: 0, totalElements: 1, totalPages: 1 },
+      },
+    }).as('getSaleListing');
+    cy.intercept('POST', '/api/sale-listings/42/contact', {
+      statusCode: 201,
+      body: { id: 100, saleListingId: 42 },
+    }).as('createContactRequest');
+
     cy.visit('/vehicles/1');
     cy.wait('@getVehicle');
 
     cy.get('[data-cy="contact-agency-btn"]').click({ force: true });
     cy.get('[data-cy="contact-dialog"]').should('be.visible');
+    cy.wait('@getSaleListing');
 
     // WhatsApp action button
     cy.get('[data-cy="whatsapp-contact-btn"]').should('be.visible');
@@ -137,6 +150,11 @@ describe('Vehicle Detail Page (/vehicles/:id) - Navigation & galerie', () => {
     cy.get('[data-cy="contact-phone-input"]').type('0612345678', { force: true });
 
     cy.get('[data-cy="send-contact-btn"]').click({ force: true });
+    cy.wait('@createContactRequest').its('request.body').should('deep.include', {
+      nom: 'Yassine Alami',
+      email: 'yassine@example.com',
+      telephone: '0612345678',
+    });
     cy.get('[data-cy="contact-success-alert"]').should('be.visible');
 
     cy.get('[data-cy="contact-dialog"] button').contains(/Fermer|Close/).click({ force: true });
