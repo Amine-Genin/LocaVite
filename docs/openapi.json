@@ -196,11 +196,11 @@
               }
             }
           },
-          "401" : {
-            "description" : "Non authentifié (token JWT manquant ou invalide)"
-          },
           "403" : {
             "description" : "Accès refusé"
+          },
+          "401" : {
+            "description" : "Non authentifié (token JWT manquant ou invalide)"
           }
         },
         "security" : [ {
@@ -223,6 +223,12 @@
           "required" : true
         },
         "responses" : {
+          "400" : {
+            "description" : "Données de formulaire invalides"
+          },
+          "403" : {
+            "description" : "Accès refusé"
+          },
           "200" : {
             "description" : "Profil mis à jour avec succès",
             "content" : {
@@ -235,12 +241,6 @@
           },
           "401" : {
             "description" : "Non authentifié"
-          },
-          "400" : {
-            "description" : "Données de formulaire invalides"
-          },
-          "403" : {
-            "description" : "Accès refusé"
           }
         },
         "security" : [ {
@@ -573,14 +573,8 @@
           "required" : true
         },
         "responses" : {
-          "404" : {
-            "description" : "Utilisateur introuvable"
-          },
-          "400" : {
-            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
-          },
-          "401" : {
-            "description" : "Non authentifié"
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
           },
           "200" : {
             "description" : "Rôles mis à jour avec succès",
@@ -592,8 +586,14 @@
               }
             }
           },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
+          "404" : {
+            "description" : "Utilisateur introuvable"
+          },
+          "401" : {
+            "description" : "Non authentifié"
+          },
+          "400" : {
+            "description" : "Rôle invalide ou tentative d'auto-rétrogradation de l'administrateur"
           }
         },
         "security" : [ {
@@ -627,8 +627,11 @@
           "required" : true
         },
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
+          "403" : {
+            "description" : "Accès refusé"
+          },
+          "404" : {
+            "description" : "Saison introuvable"
           },
           "200" : {
             "description" : "Saison modifiée avec succès",
@@ -640,14 +643,11 @@
               }
             }
           },
+          "401" : {
+            "description" : "Non authentifié"
+          },
           "400" : {
             "description" : "Données invalides ou dates incohérentes"
-          },
-          "403" : {
-            "description" : "Accès refusé"
-          },
-          "404" : {
-            "description" : "Saison introuvable"
           }
         },
         "security" : [ {
@@ -669,17 +669,17 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
-          },
-          "204" : {
-            "description" : "Saison supprimée avec succès"
-          },
           "403" : {
             "description" : "Accès refusé"
           },
           "404" : {
             "description" : "Saison introuvable"
+          },
+          "204" : {
+            "description" : "Saison supprimée avec succès"
+          },
+          "401" : {
+            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -817,6 +817,12 @@
           "required" : true
         },
         "responses" : {
+          "403" : {
+            "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Document introuvable"
+          },
           "200" : {
             "description" : "Document vérifié avec succès",
             "content" : {
@@ -832,17 +838,79 @@
           },
           "401" : {
             "description" : "Non authentifié"
-          },
-          "403" : {
-            "description" : "Accès interdit (rôle ADMIN requis)"
-          },
-          "404" : {
-            "description" : "Document introuvable"
           }
         },
         "security" : [ {
           "BearerAuth" : [ ]
         } ]
+      }
+    },
+    "/api/admin/contact-requests/{id}/reply" : {
+      "put" : {
+        "tags" : [ "contact-request-controller" ],
+        "summary" : "Répondre à une demande de contact",
+        "operationId" : "reply",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ContactReplyBody"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "400" : {
+            "description" : "Réponse invalide",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContactRequestResponse"
+                }
+              }
+            }
+          },
+          "200" : {
+            "description" : "Réponse enregistrée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContactRequestResponse"
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "Demande introuvable",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContactRequestResponse"
+                }
+              }
+            }
+          },
+          "403" : {
+            "description" : "Demande appartenant à une autre agence",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContactRequestResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/vehicles" : {
@@ -1129,6 +1197,74 @@
         }
       }
     },
+    "/api/sale-listings/{id}/contact" : {
+      "post" : {
+        "tags" : [ "contact-request-controller" ],
+        "summary" : "Envoyer une demande de contact pour une annonce publiée",
+        "operationId" : "create_2",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int64"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ContactRequestBody"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "404" : {
+            "description" : "Annonce publiée introuvable",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContactRequestResponse"
+                }
+              }
+            }
+          },
+          "201" : {
+            "description" : "Demande enregistrée",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContactRequestResponse"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Données de contact invalides",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContactRequestResponse"
+                }
+              }
+            }
+          },
+          "429" : {
+            "description" : "Limite de demandes par adresse IP atteinte",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ContactRequestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/reservations" : {
       "get" : {
         "tags" : [ "Reservations" ],
@@ -1170,7 +1306,7 @@
         "tags" : [ "Reservations" ],
         "summary" : "Créer une réservation (CLIENT)",
         "description" : "Crée une nouvelle réservation avec vérification des dates, de la disponibilité et des documents client.",
-        "operationId" : "create_2",
+        "operationId" : "create_3",
         "requestBody" : {
           "content" : {
             "application/json" : {
@@ -1977,9 +2113,6 @@
           "required" : true
         },
         "responses" : {
-          "400" : {
-            "description" : "Données d'inscription invalides ou email déjà utilisé"
-          },
           "201" : {
             "description" : "Utilisateur créé avec succès",
             "content" : {
@@ -1989,6 +2122,9 @@
                 }
               }
             }
+          },
+          "400" : {
+            "description" : "Données d'inscription invalides ou email déjà utilisé"
           }
         }
       }
@@ -2013,9 +2149,6 @@
           "400" : {
             "description" : "Requête invalide"
           },
-          "401" : {
-            "description" : "Refresh token invalide ou expiré"
-          },
           "200" : {
             "description" : "Tokens rafraîchis avec succès",
             "content" : {
@@ -2025,6 +2158,9 @@
                 }
               }
             }
+          },
+          "401" : {
+            "description" : "Refresh token invalide ou expiré"
           }
         }
       }
@@ -2078,11 +2214,11 @@
               }
             }
           },
-          "401" : {
-            "description" : "Email ou mot de passe incorrect"
-          },
           "400" : {
             "description" : "Format de la requête invalide"
+          },
+          "401" : {
+            "description" : "Email ou mot de passe incorrect"
           }
         }
       }
@@ -2128,11 +2264,11 @@
           "required" : true
         },
         "responses" : {
+          "403" : {
+            "description" : "Accès refusé"
+          },
           "401" : {
             "description" : "Non authentifié"
-          },
-          "400" : {
-            "description" : "Données invalides ou dates incohérentes"
           },
           "201" : {
             "description" : "Saison créée avec succès",
@@ -2144,8 +2280,8 @@
               }
             }
           },
-          "403" : {
-            "description" : "Accès refusé"
+          "400" : {
+            "description" : "Données invalides ou dates incohérentes"
           }
         },
         "security" : [ {
@@ -2187,6 +2323,16 @@
           }
         },
         "responses" : {
+          "201" : {
+            "description" : "Événement ajouté",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/VehicleHistoryResponse"
+                }
+              }
+            }
+          },
           "404" : {
             "description" : "Annonce introuvable",
             "content" : {
@@ -2209,16 +2355,6 @@
           },
           "403" : {
             "description" : "Agence non propriétaire ou rôle insuffisant",
-            "content" : {
-              "*/*" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/VehicleHistoryResponse"
-                }
-              }
-            }
-          },
-          "201" : {
-            "description" : "Événement ajouté",
             "content" : {
               "*/*" : {
                 "schema" : {
@@ -2590,8 +2726,11 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
+          "404" : {
+            "description" : "Document introuvable"
+          },
+          "403" : {
+            "description" : "Accès non autorisé à ce document"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -2603,11 +2742,8 @@
               }
             }
           },
-          "403" : {
-            "description" : "Accès non autorisé à ce document"
-          },
-          "404" : {
-            "description" : "Document introuvable"
+          "401" : {
+            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -2633,14 +2769,14 @@
           "204" : {
             "description" : "Document supprimé avec succès"
           },
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "403" : {
             "description" : "Accès non autorisé"
           },
           "404" : {
             "description" : "Document introuvable"
+          },
+          "401" : {
+            "description" : "Non authentifié"
           }
         },
         "security" : [ {
@@ -2706,9 +2842,6 @@
           }
         } ],
         "responses" : {
-          "404" : {
-            "description" : "Saison non trouvée"
-          },
           "200" : {
             "description" : "Saison trouvée",
             "content" : {
@@ -2718,6 +2851,9 @@
                 }
               }
             }
+          },
+          "404" : {
+            "description" : "Saison non trouvée"
           }
         }
       }
@@ -2737,8 +2873,8 @@
           }
         } ],
         "responses" : {
-          "200" : {
-            "description" : "Historique chronologique récupéré",
+          "404" : {
+            "description" : "Annonce introuvable ou non publiée",
             "content" : {
               "*/*" : {
                 "schema" : {
@@ -2750,8 +2886,8 @@
               }
             }
           },
-          "404" : {
-            "description" : "Annonce introuvable ou non publiée",
+          "200" : {
+            "description" : "Historique chronologique récupéré",
             "content" : {
               "*/*" : {
                 "schema" : {
@@ -3253,11 +3389,11 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "401" : {
+            "description" : "Non authentifié"
           },
           "200" : {
             "description" : "Liste paginée des utilisateurs récupérée",
@@ -3458,11 +3594,11 @@
           }
         } ],
         "responses" : {
-          "401" : {
-            "description" : "Non authentifié"
-          },
           "403" : {
             "description" : "Accès interdit (rôle ADMIN requis)"
+          },
+          "404" : {
+            "description" : "Document introuvable"
           },
           "200" : {
             "description" : "Document récupéré avec succès",
@@ -3474,13 +3610,35 @@
               }
             }
           },
-          "404" : {
-            "description" : "Document introuvable"
+          "401" : {
+            "description" : "Non authentifié"
           }
         },
         "security" : [ {
           "BearerAuth" : [ ]
         } ]
+      }
+    },
+    "/api/admin/contact-requests" : {
+      "get" : {
+        "tags" : [ "contact-request-controller" ],
+        "summary" : "Lister les demandes de contact de l'agence",
+        "operationId" : "listForAgency",
+        "responses" : {
+          "200" : {
+            "description" : "Demandes de contact",
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/ContactRequestResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/admin/clients/{clientId}/cautions" : {
@@ -4459,6 +4617,83 @@
         },
         "description" : "Détails d'un document justificatif téléversé"
       },
+      "ContactReplyBody" : {
+        "required" : [ "replyMessage" ],
+        "type" : "object",
+        "properties" : {
+          "replyMessage" : {
+            "maxLength" : 5000,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        }
+      },
+      "ContactRequestResponse" : {
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "saleListingId" : {
+            "type" : "integer",
+            "format" : "int64"
+          },
+          "nom" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string"
+          },
+          "telephone" : {
+            "type" : "string"
+          },
+          "message" : {
+            "type" : "string"
+          },
+          "statut" : {
+            "type" : "string",
+            "enum" : [ "NEW", "READ", "REPLIED", "ARCHIVED" ]
+          },
+          "createdAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "repliedAt" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "replyMessage" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ContactRequestBody" : {
+        "required" : [ "email", "message", "nom", "telephone" ],
+        "type" : "object",
+        "properties" : {
+          "nom" : {
+            "maxLength" : 200,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "email" : {
+            "maxLength" : 255,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "telephone" : {
+            "maxLength" : 50,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "message" : {
+            "maxLength" : 5000,
+            "minLength" : 0,
+            "type" : "string"
+          }
+        }
+      },
       "ExtendReservationRequest" : {
         "required" : [ "acceptNewPrice", "newDateFin" ],
         "type" : "object",
@@ -5150,6 +5385,18 @@
             "type" : "integer",
             "format" : "int64"
           },
+          "sort" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/SortObject"
+            }
+          },
+          "unpaged" : {
+            "type" : "boolean"
+          },
+          "paged" : {
+            "type" : "boolean"
+          },
           "pageNumber" : {
             "type" : "integer",
             "format" : "int32"
@@ -5157,18 +5404,6 @@
           "pageSize" : {
             "type" : "integer",
             "format" : "int32"
-          },
-          "paged" : {
-            "type" : "boolean"
-          },
-          "unpaged" : {
-            "type" : "boolean"
-          },
-          "sort" : {
-            "type" : "array",
-            "items" : {
-              "$ref" : "#/components/schemas/SortObject"
-            }
           }
         }
       },

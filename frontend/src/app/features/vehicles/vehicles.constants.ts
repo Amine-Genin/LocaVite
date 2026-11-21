@@ -248,6 +248,8 @@ export const VEHICLE_FALLBACK_TRANSLATIONS = {
         SEND: 'Envoyer ma demande',
         SENDING: 'Envoi…',
         SUCCESS: 'Votre message a bien été transmis à notre agence ! Nous vous répondrons sous 2h.',
+        SEND_ERROR: "L'envoi a échoué. Veuillez réessayer.",
+        LISTING_NOT_FOUND: "Aucune annonce de vente publiée n'est associée à ce véhicule.",
         CALL_US: 'Ou appelez directement notre agence',
       },
       SIMILAR_TITLE: 'Véhicules similaires',

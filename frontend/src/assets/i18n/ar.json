@@ -285,6 +285,8 @@
         "SEND": "Envoyer ma demande",
         "SENDING": "Envoi…",
         "SUCCESS": "Votre message a bien été transmis à notre agence ! Nous vous répondrons sous 2h.",
+        "SEND_ERROR": "تعذر إرسال الطلب. يرجى المحاولة مرة أخرى.",
+        "LISTING_NOT_FOUND": "لا يوجد إعلان بيع منشور مرتبط بهذه المركبة.",
         "CALL_US": "Ou appelez directement notre agence"
       },
       "SIMILAR_TITLE": "Véhicules similaires",
