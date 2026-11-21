@@ -4,6 +4,11 @@ import { roleGuard } from './core/auth/role.guard';
 
 export const routes: Routes = [
   {
+    path: 'sale',
+    loadComponent: () =>
+      import('./features/sale/sale-list/sale-list.component').then((m) => m.SaleListComponent),
+  },
+  {
     path: 'vehicles',
     loadComponent: () =>
       import('./features/vehicles/vehicle-list/vehicle-list.component').then(

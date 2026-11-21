@@ -273,6 +273,45 @@
       "NOT_FOUND_MSG": "The requested vehicle does not exist or has been deactivated."
     }
   },
+  "SALE": {
+    "TITLE": "Cars for sale",
+    "SUBTITLE": "Find your next car among listings published across Morocco.",
+    "RESULTS_COUNT": "{{count}} listing(s)",
+    "LOADING": "Loading listings…",
+    "EMPTY_TITLE": "No listings found",
+    "EMPTY_MESSAGE": "No cars match your criteria. Adjust or reset the filters.",
+    "ERROR": "Unable to load sale listings.",
+    "DETAILS": "View vehicle",
+    "KM": "km",
+    "CONDITION": { "NEW": "NEW", "USED": "USED" },
+    "FILTERS": {
+      "TITLE": "Filters",
+      "CATALOG_ERROR": "Unable to load brands and categories.",
+      "OPEN": "Filters",
+      "CLOSE": "Close",
+      "ALL": "All",
+      "CONDITION": "Condition",
+      "BRAND": "Brand",
+      "CATEGORY": "Category",
+      "PRICE": "Price",
+      "MIN_PRICE": "Min",
+      "MAX_PRICE": "Max",
+      "YEAR_MIN": "Min year",
+      "YEAR_MAX": "Max year",
+      "MILEAGE_MAX": "Max mileage (km)",
+      "FUEL": "Fuel",
+      "CITY": "City",
+      "SORT": "Sort by",
+      "RESET": "Reset filters"
+    },
+    "SORT": {
+      "PRICE_ASC": "Price: low to high",
+      "PRICE_DESC": "Price: high to low",
+      "YEAR": "Newest year",
+      "MILEAGE": "Lowest mileage",
+      "RECENT": "Most recent"
+    }
+  },
   "PAYMENT": {
     "TITLE": "Complete Your Payment",
     "SUBTITLE": "Select your preferred payment method to finalize your reservation",
