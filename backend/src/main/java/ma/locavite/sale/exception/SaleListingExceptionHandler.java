@@ -2,6 +2,7 @@ package ma.locavite.sale.exception;
 
 import ma.locavite.sale.controller.SaleListingController;
 import ma.locavite.sale.controller.ContactRequestController;
+import ma.locavite.sale.controller.VisitRequestController;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-@RestControllerAdvice(assignableTypes = {SaleListingController.class, ContactRequestController.class})
+@RestControllerAdvice(assignableTypes = {
+        SaleListingController.class,
+        ContactRequestController.class,
+        VisitRequestController.class
+})
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SaleListingExceptionHandler {
 
