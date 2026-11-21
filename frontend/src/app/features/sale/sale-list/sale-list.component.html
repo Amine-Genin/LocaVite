@@ -1,0 +1,48 @@
+<main class="sale-page" data-cy="sale-page">
+  <header class="page-header">
+    <div>
+      <h1>{{ 'SALE.TITLE' | translate }}</h1>
+      <p>{{ 'SALE.SUBTITLE' | translate }}</p>
+    </div>
+    @if (!loading()) {
+      <span class="results-count" data-cy="sale-results-count">
+        {{ 'SALE.RESULTS_COUNT' | translate: { count: totalElements() } }}
+      </span>
+    }
+  </header>
+
+  <app-sale-filters
+    [filters]="filters()"
+    (filtersChange)="onFiltersChange($event)"
+  ></app-sale-filters>
+
+  @if (loading()) {
+    <section class="loading-state" aria-live="polite" data-cy="sale-loading">
+      <mat-progress-spinner mode="indeterminate" [diameter]="44"></mat-progress-spinner>
+      <p>{{ 'SALE.LOADING' | translate }}</p>
+    </section>
+  } @else if (listings().length === 0) {
+    <section class="empty-state" aria-live="polite" data-cy="sale-empty">
+      <h2>{{ 'SALE.EMPTY_TITLE' | translate }}</h2>
+      <p>{{ (error() ? 'SALE.ERROR' : 'SALE.EMPTY_MESSAGE') | translate }}</p>
+      <button mat-stroked-button type="button" (click)="resetFilters()">
+        {{ 'SALE.FILTERS.RESET' | translate }}
+      </button>
+    </section>
+  } @else {
+    <section class="sale-grid" data-cy="sale-grid">
+      @for (listing of listings(); track listing.id) {
+        <app-sale-card [listing]="listing"></app-sale-card>
+      }
+    </section>
+    <mat-paginator
+      [length]="totalElements()"
+      [pageIndex]="filters().page"
+      [pageSize]="filters().size"
+      [pageSizeOptions]="pageSizeOptions"
+      [showFirstLastButtons]="true"
+      (page)="onPageChange($event)"
+      data-cy="sale-paginator"
+    ></mat-paginator>
+  }
+</main>

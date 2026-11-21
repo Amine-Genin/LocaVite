@@ -16,6 +16,7 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
   fr: {
     NAV: {
       CATALOGUE: 'Catalogue',
+      BUY_CAR: 'Acheter une voiture',
       MY_RESERVATIONS: 'Mes réservations',
       MY_PAYMENTS: 'Mes paiements',
       ADMIN_VEHICLES: 'Flotte véhicules',
@@ -33,6 +34,7 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
   en: {
     NAV: {
       CATALOGUE: 'Vehicles',
+      BUY_CAR: 'Buy a car',
       MY_RESERVATIONS: 'My Reservations',
       MY_PAYMENTS: 'My Payments',
       ADMIN_VEHICLES: 'Fleet',
@@ -50,6 +52,7 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
   ar: {
     NAV: {
       CATALOGUE: 'الكتالوج',
+      BUY_CAR: 'شراء سيارة',
       MY_RESERVATIONS: 'حجوزاتي',
       MY_PAYMENTS: 'مدفوعاتي',
       ADMIN_VEHICLES: 'الأسطول',
@@ -419,7 +422,10 @@ export class NavbarComponent {
 
   readonly navLinks = computed<NavLinkItem[]>(() => {
     if (!this.auth.isLoggedIn()) {
-      return [{ labelKey: 'NAV.CATALOGUE', route: '/vehicles', exact: false }];
+      return [
+        { labelKey: 'NAV.CATALOGUE', route: '/vehicles', exact: false },
+        { labelKey: 'NAV.BUY_CAR', route: '/sale', exact: true },
+      ];
     }
 
     if (this.isAdminOrAgency()) {
@@ -429,18 +435,23 @@ export class NavbarComponent {
         { labelKey: 'NAV.ADMIN_RESERVATIONS', route: '/admin/reservations', exact: true },
         { labelKey: 'NAV.ADMIN_PAYMENTS', route: '/admin/payments', exact: true },
         { labelKey: 'NAV.CATALOGUE', route: '/vehicles', exact: false },
+        { labelKey: 'NAV.BUY_CAR', route: '/sale', exact: true },
       ];
     }
 
     if (this.isClient()) {
       return [
         { labelKey: 'NAV.CATALOGUE', route: '/vehicles', exact: false },
+        { labelKey: 'NAV.BUY_CAR', route: '/sale', exact: true },
         { labelKey: 'NAV.MY_RESERVATIONS', route: '/my-reservations', exact: true },
         { labelKey: 'NAV.MY_PAYMENTS', route: '/my-payments', exact: true },
       ];
     }
 
-    return [{ labelKey: 'NAV.CATALOGUE', route: '/vehicles', exact: false }];
+    return [
+      { labelKey: 'NAV.CATALOGUE', route: '/vehicles', exact: false },
+      { labelKey: 'NAV.BUY_CAR', route: '/sale', exact: true },
+    ];
   });
 
   toggleMenu(): void {
