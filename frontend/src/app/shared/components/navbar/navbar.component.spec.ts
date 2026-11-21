@@ -46,8 +46,8 @@ describe('NavbarComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should show only catalogue link when not authenticated', () => {
-    expect(component.navLinks().map((l) => l.route)).toEqual(['/vehicles']);
+  it('should show catalogue and sale links when not authenticated', () => {
+    expect(component.navLinks().map((l) => l.route)).toEqual(['/vehicles', '/sale']);
   });
 
   it('should show client links when logged in as CLIENT', () => {
@@ -56,6 +56,7 @@ describe('NavbarComponent', () => {
 
     expect(component.navLinks().map((l) => l.route)).toEqual([
       '/vehicles',
+      '/sale',
       '/my-reservations',
       '/my-payments',
     ]);
@@ -71,6 +72,7 @@ describe('NavbarComponent', () => {
       '/admin/reservations',
       '/admin/payments',
       '/vehicles',
+      '/sale',
     ]);
   });
 

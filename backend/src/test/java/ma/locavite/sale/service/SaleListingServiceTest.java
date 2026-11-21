@@ -11,9 +11,11 @@ import ma.locavite.sale.exception.SaleListingNotFoundException;
 import ma.locavite.sale.exception.VinAlreadyExistsException;
 import ma.locavite.sale.mapper.SaleListingMapper;
 import ma.locavite.sale.repository.SaleListingRepository;
+import ma.locavite.vehicle.domain.FuelType;
 import ma.locavite.vehicle.domain.Vehicle;
 import ma.locavite.vehicle.exception.VehicleNotFoundException;
 import ma.locavite.vehicle.repository.VehicleRepository;
+import ma.locavite.vehicle.repository.VehiclePhotoRepository;
 import ma.locavite.vehicle.service.CurrentUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +32,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,6 +58,9 @@ class SaleListingServiceTest {
     private VehicleRepository vehicleRepository;
 
     @Mock
+    private VehiclePhotoRepository vehiclePhotoRepository;
+
+    @Mock
     private CurrentUserService currentUser;
 
     private final SaleListingMapper mapper = Mappers.getMapper(SaleListingMapper.class);
@@ -66,11 +72,13 @@ class SaleListingServiceTest {
     @BeforeEach
     void setUp() {
         service = new SaleListingService(repository, vehicleRepository, mapper, currentUser);
+        ReflectionTestUtils.setField(mapper, "vehiclePhotoRepository", vehiclePhotoRepository);
 
         sampleVehicle = new Vehicle();
         sampleVehicle.setId(VEHICLE_ID);
         sampleVehicle.setAgenceId(AGENCY_ID);
         sampleVehicle.setModele("Golf 8");
+        sampleVehicle.setCarburant(FuelType.DIESEL);
     }
 
     private SaleListingRequest buildRequest(String vin) {
@@ -135,6 +143,7 @@ class SaleListingServiceTest {
             assertThat(response.code()).startsWith("SL-");
             assertThat(response.agenceId()).isEqualTo(AGENCY_ID);
             assertThat(response.vehicleId()).isEqualTo(VEHICLE_ID);
+            assertThat(response.carburant()).isEqualTo(FuelType.DIESEL.name());
             assertThat(response.statut()).isEqualTo(SaleStatus.DRAFT);
             assertThat(response.numeroChassis()).isEqualTo("WVWZZZCDZPW000001");
             assertThat(response.garantieConstructeur()).isFalse();
