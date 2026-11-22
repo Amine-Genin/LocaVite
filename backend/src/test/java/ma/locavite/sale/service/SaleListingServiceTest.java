@@ -12,6 +12,7 @@ import ma.locavite.sale.exception.VinAlreadyExistsException;
 import ma.locavite.sale.mapper.SaleListingMapper;
 import ma.locavite.sale.repository.SaleListingRepository;
 import ma.locavite.vehicle.domain.FuelType;
+import ma.locavite.vehicle.domain.TransmissionType;
 import ma.locavite.vehicle.domain.Vehicle;
 import ma.locavite.vehicle.exception.VehicleNotFoundException;
 import ma.locavite.vehicle.repository.VehicleRepository;
@@ -79,6 +80,7 @@ class SaleListingServiceTest {
         sampleVehicle.setAgenceId(AGENCY_ID);
         sampleVehicle.setModele("Golf 8");
         sampleVehicle.setCarburant(FuelType.DIESEL);
+        sampleVehicle.setTransmission(TransmissionType.MANUELLE);
     }
 
     private SaleListingRequest buildRequest(String vin) {
@@ -144,6 +146,7 @@ class SaleListingServiceTest {
             assertThat(response.agenceId()).isEqualTo(AGENCY_ID);
             assertThat(response.vehicleId()).isEqualTo(VEHICLE_ID);
             assertThat(response.carburant()).isEqualTo(FuelType.DIESEL.name());
+            assertThat(response.transmission()).isEqualTo(TransmissionType.MANUELLE.name());
             assertThat(response.statut()).isEqualTo(SaleStatus.DRAFT);
             assertThat(response.numeroChassis()).isEqualTo("WVWZZZCDZPW000001");
             assertThat(response.garantieConstructeur()).isFalse();

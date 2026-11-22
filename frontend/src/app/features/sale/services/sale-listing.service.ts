@@ -22,6 +22,10 @@ interface SaleListingApiPage {
 export class SaleListingService {
   private readonly http = inject(HttpClient);
 
+  getById(id: number): Observable<SaleListing> {
+    return this.http.get<SaleListing>(`/api/sale-listings/${id}`);
+  }
+
   search(filters: SaleListingFilters): Observable<SaleListingPage> {
     let params = new HttpParams();
     for (const [key, value] of Object.entries(filters)) {

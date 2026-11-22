@@ -199,7 +199,12 @@
       "PRICE_DESC": "Price: high to low",
       "YEAR": "Newest year",
       "POPULARITY": "Popularity",
-      "FUELS": { "ESSENCE": "Petrol", "DIESEL": "Diesel", "HYBRIDE": "Hybrid", "ELECTRIQUE": "Electric" },
+      "FUELS": {
+        "ESSENCE": "Petrol",
+        "DIESEL": "Diesel",
+        "HYBRIDE": "Hybrid",
+        "ELECTRIQUE": "Electric"
+      },
       "TRANSMISSIONS": { "MANUELLE": "Manual", "AUTOMATIQUE": "Automatic" }
     },
     "PAGINATION": {
@@ -310,6 +315,90 @@
       "YEAR": "Newest year",
       "MILEAGE": "Lowest mileage",
       "RECENT": "Most recent"
+    },
+    "DETAIL": {
+      "BACK": "Back to listings",
+      "LOADING": "Loading listing…",
+      "NOT_FOUND_TITLE": "Listing not found",
+      "NOT_FOUND_MESSAGE": "This listing does not exist or is no longer available.",
+      "SPECIFICATIONS": "Vehicle specifications",
+      "BRAND_MODEL": "Make and model",
+      "YEAR": "Year",
+      "VIN": "Vehicle identification number (VIN)",
+      "MILEAGE": "Mileage",
+      "FUEL": "Fuel",
+      "TRANSMISSION": "Transmission",
+      "POWER": "Power",
+      "HORSEPOWER": "hp",
+      "OWNERS": "Number of owners",
+      "CONDITION_LABEL": "Condition",
+      "NOT_PROVIDED": "Not provided",
+      "DESCRIPTION": "Description",
+      "NO_DESCRIPTION": "No description available.",
+      "KM": "km",
+      "PRICE": "Sale price",
+      "NEGOTIABLE": "Price is negotiable",
+      "NOT_NEGOTIABLE": "Price is not negotiable",
+      "MOROCCO": "Morocco",
+      "SHARE_WHATSAPP": "Share on WhatsApp",
+      "COPY_LINK": "Copy link",
+      "LINK_COPIED": "Link copied.",
+      "LINK_COPY_ERROR": "Unable to copy the link in this browser.",
+      "PHOTOS_ERROR": "Unable to load additional photos.",
+      "SIMILAR_TITLE": "Similar vehicles",
+      "SIMILAR_ERROR": "Unable to load similar listings.",
+      "HISTORY": {
+        "TITLE": "Vehicle history",
+        "SUBTITLE": "Reported events and maintenance for this vehicle.",
+        "LOADING": "Loading vehicle history…",
+        "ERROR": "Unable to load vehicle history.",
+        "EMPTY": "No vehicle history has been provided.",
+        "KM": "km",
+        "VERIFIED": "Verified",
+        "UNVERIFIED": "Unverified",
+        "DOCUMENT": "View document"
+      },
+      "CONTACT": {
+        "BUTTON": "Contact the agency",
+        "TITLE": "Contact the agency",
+        "NAME": "Full name",
+        "EMAIL": "Email address",
+        "PHONE": "Phone",
+        "MESSAGE": "Your message",
+        "REQUIRED": "This field is required.",
+        "EMAIL_INVALID": "Enter a valid email address.",
+        "SEND": "Send message",
+        "SENDING": "Sending…",
+        "SUCCESS": "Your message has been sent to the agency.",
+        "ERROR": "Sending failed. Please try again."
+      },
+      "VISIT": {
+        "BUTTON": "Request a visit",
+        "TITLE": "Request a visit",
+        "LOGIN_REQUIRED": "Sign in to request a visit.",
+        "LOGIN": "Sign in",
+        "DATE": "Preferred date",
+        "TIME_SLOT": "Time slot",
+        "LOCATION": "Meeting location",
+        "TYPE": "Visit type",
+        "TYPES": {
+          "VISITE_SIMPLE": "Vehicle viewing",
+          "ESSAI_ROUTIER": "Test drive",
+          "INSPECTION_MECANIQUE": "Mechanical inspection"
+        },
+        "REQUIRED": "This field is required.",
+        "SEND": "Send request",
+        "SENDING": "Sending…",
+        "SUCCESS": "Your visit request has been sent.",
+        "ERROR": "The request failed. Please try again."
+      },
+      "ESTIMATE": {
+        "BUTTON": "Estimate the price",
+        "LOADING": "Comparing similar listings…",
+        "RESULT": "Indicative estimate based on {{count}} comparable listing(s).",
+        "EMPTY": "No comparable listings are available to estimate a price.",
+        "ERROR": "Unable to calculate an estimate right now."
+      }
     }
   },
   "PAYMENT": {

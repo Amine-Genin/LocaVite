@@ -37,7 +37,8 @@ public abstract class SaleListingMapper {
     @Mapping(target = "modele", source = "vehicle.modele")
     @Mapping(target = "annee", source = "vehicle.annee")
     @Mapping(target = "ville", source = "vehicle.ville")
-    @Mapping(target = "carburant", expression = "java(entity.getVehicle().getCarburant().name())")
+    @Mapping(target = "carburant", expression = "java(entity.getVehicle().getCarburant() == null ? null : entity.getVehicle().getCarburant().name())")
+    @Mapping(target = "transmission", expression = "java(entity.getVehicle().getTransmission() == null ? null : entity.getVehicle().getTransmission().name())")
     @Mapping(target = "categorie", source = "vehicle.category.name")
     @Mapping(target = "photoUrl", expression = "java(resolvePhotoUrl(entity))")
     public abstract SaleListingResponse toResponse(SaleListing entity);

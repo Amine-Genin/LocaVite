@@ -199,7 +199,12 @@
       "PRICE_DESC": "Prix décroissant",
       "YEAR": "Année récente",
       "POPULARITY": "Popularité",
-      "FUELS": { "ESSENCE": "Essence", "DIESEL": "Diesel", "HYBRIDE": "Hybride", "ELECTRIQUE": "Électrique" },
+      "FUELS": {
+        "ESSENCE": "Essence",
+        "DIESEL": "Diesel",
+        "HYBRIDE": "Hybride",
+        "ELECTRIQUE": "Électrique"
+      },
       "TRANSMISSIONS": { "MANUELLE": "Manuelle", "AUTOMATIQUE": "Automatique" }
     },
     "PAGINATION": {
@@ -310,6 +315,90 @@
       "YEAR": "Année récente",
       "MILEAGE": "Kilométrage croissant",
       "RECENT": "Plus récentes"
+    },
+    "DETAIL": {
+      "BACK": "Retour aux annonces",
+      "LOADING": "Chargement de l’annonce…",
+      "NOT_FOUND_TITLE": "Annonce introuvable",
+      "NOT_FOUND_MESSAGE": "Cette annonce n’existe pas ou n’est plus disponible.",
+      "SPECIFICATIONS": "Caractéristiques du véhicule",
+      "BRAND_MODEL": "Marque et modèle",
+      "YEAR": "Année",
+      "VIN": "Numéro de châssis (VIN)",
+      "MILEAGE": "Kilométrage",
+      "FUEL": "Carburant",
+      "TRANSMISSION": "Transmission",
+      "POWER": "Puissance",
+      "HORSEPOWER": "ch",
+      "OWNERS": "Nombre de propriétaires",
+      "CONDITION_LABEL": "État",
+      "NOT_PROVIDED": "Non renseigné",
+      "DESCRIPTION": "Description",
+      "NO_DESCRIPTION": "Aucune description disponible.",
+      "KM": "km",
+      "PRICE": "Prix de vente",
+      "NEGOTIABLE": "Prix négociable",
+      "NOT_NEGOTIABLE": "Prix non négociable",
+      "MOROCCO": "Maroc",
+      "SHARE_WHATSAPP": "Partager sur WhatsApp",
+      "COPY_LINK": "Copier le lien",
+      "LINK_COPIED": "Lien copié.",
+      "LINK_COPY_ERROR": "Impossible de copier le lien depuis ce navigateur.",
+      "PHOTOS_ERROR": "Impossible de charger les photos supplémentaires.",
+      "SIMILAR_TITLE": "Véhicules similaires",
+      "SIMILAR_ERROR": "Impossible de charger les annonces similaires.",
+      "HISTORY": {
+        "TITLE": "Historique du véhicule",
+        "SUBTITLE": "Événements et interventions déclarés pour ce véhicule.",
+        "LOADING": "Chargement de l’historique…",
+        "ERROR": "Impossible de charger l’historique.",
+        "EMPTY": "Aucun événement d’historique renseigné.",
+        "KM": "km",
+        "VERIFIED": "Vérifié",
+        "UNVERIFIED": "Non vérifié",
+        "DOCUMENT": "Voir le justificatif"
+      },
+      "CONTACT": {
+        "BUTTON": "Contacter l’agence",
+        "TITLE": "Contacter l’agence",
+        "NAME": "Nom complet",
+        "EMAIL": "Adresse e-mail",
+        "PHONE": "Téléphone",
+        "MESSAGE": "Votre message",
+        "REQUIRED": "Ce champ est obligatoire.",
+        "EMAIL_INVALID": "Saisissez une adresse e-mail valide.",
+        "SEND": "Envoyer le message",
+        "SENDING": "Envoi en cours…",
+        "SUCCESS": "Votre message a été envoyé à l’agence.",
+        "ERROR": "L’envoi a échoué. Veuillez réessayer."
+      },
+      "VISIT": {
+        "BUTTON": "Demander une visite",
+        "TITLE": "Demander une visite",
+        "LOGIN_REQUIRED": "Connectez-vous pour demander une visite.",
+        "LOGIN": "Se connecter",
+        "DATE": "Date souhaitée",
+        "TIME_SLOT": "Créneau horaire",
+        "LOCATION": "Lieu de rendez-vous",
+        "TYPE": "Type de visite",
+        "TYPES": {
+          "VISITE_SIMPLE": "Visite du véhicule",
+          "ESSAI_ROUTIER": "Essai routier",
+          "INSPECTION_MECANIQUE": "Inspection mécanique"
+        },
+        "REQUIRED": "Ce champ est obligatoire.",
+        "SEND": "Envoyer la demande",
+        "SENDING": "Envoi en cours…",
+        "SUCCESS": "Votre demande de visite a été envoyée.",
+        "ERROR": "La demande a échoué. Veuillez réessayer."
+      },
+      "ESTIMATE": {
+        "BUTTON": "Estimer le prix",
+        "LOADING": "Comparaison des annonces similaires…",
+        "RESULT": "Estimation indicative basée sur {{count}} annonce(s) comparable(s).",
+        "EMPTY": "Aucune annonce comparable pour calculer une estimation.",
+        "ERROR": "Impossible de calculer une estimation pour le moment."
+      }
     }
   },
   "PAYMENT": {

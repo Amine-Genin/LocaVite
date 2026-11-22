@@ -5,14 +5,21 @@ export interface SaleListing {
   id: number;
   vehicleId: number;
   titre: string;
+  description?: string | null;
   prixVente: number;
+  prixNego?: boolean | null;
   etat: SaleCondition;
   kilometrage: number | null;
+  numeroChassis?: string | null;
+  nombreProprietaires?: number | null;
+  puissance?: number | null;
+  dateMiseEnCirculation?: string | null;
   marque: string;
   modele: string;
   annee: number;
   ville: string;
   carburant: SaleFuel | string;
+  transmission?: string | null;
   categorie: string;
   photoUrl: string | null;
   publishedAt: string | null;
@@ -21,6 +28,7 @@ export interface SaleListing {
 export interface SaleListingFilters {
   etat?: SaleCondition;
   marque?: string;
+  modele?: string;
   categorie?: string;
   prixMin?: number;
   prixMax?: number;
