@@ -1,0 +1,41 @@
+.visit-modal {
+  h2 {
+    margin-bottom: 4px;
+  }
+
+  mat-dialog-content {
+    padding-top: var(--sp-1);
+  }
+
+  form {
+    display: grid;
+    gap: 8px;
+  }
+}
+
+.listing-summary {
+  margin: 0 24px var(--sp-1);
+  color: var(--c-muted);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-1);
+}
+
+.error-message {
+  color: var(--c-error);
+}
+
+.login-required {
+  color: var(--c-muted);
+}
+
+.success-state {
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  text-align: center;
+}

@@ -1,0 +1,53 @@
+<section class="history-section" data-cy="sale-history">
+  <header>
+    <h2>{{ 'SALE.DETAIL.HISTORY.TITLE' | translate }}</h2>
+    <p>{{ 'SALE.DETAIL.HISTORY.SUBTITLE' | translate }}</p>
+  </header>
+
+  @if (loading) {
+    <div class="history-status" data-cy="sale-history-loading">
+      <mat-progress-spinner mode="indeterminate" [diameter]="28"></mat-progress-spinner>
+      <span>{{ 'SALE.DETAIL.HISTORY.LOADING' | translate }}</span>
+    </div>
+  } @else if (error) {
+    <p class="history-status error" role="alert" data-cy="sale-history-error">
+      {{ 'SALE.DETAIL.HISTORY.ERROR' | translate }}
+    </p>
+  } @else if (events.length === 0) {
+    <p class="history-status" data-cy="sale-history-empty">
+      {{ 'SALE.DETAIL.HISTORY.EMPTY' | translate }}
+    </p>
+  } @else {
+    <ol class="timeline">
+      @for (event of events; track event.id) {
+        <li class="timeline-event" data-cy="sale-history-event">
+          <span class="marker" aria-hidden="true"></span>
+          <article>
+            <div class="event-heading">
+              <h3>{{ ('VEHICLES.DETAIL.HISTORY.EVENTS.' + event.typeEvenement) | translate }}</h3>
+              <time [attr.datetime]="event.date">{{ event.date | date: 'dd/MM/yyyy' }}</time>
+            </div>
+            <p>{{ event.description }}</p>
+            <div class="event-meta">
+              <span>
+                {{ event.kilometrage | number }} {{ 'SALE.DETAIL.HISTORY.KM' | translate }}
+              </span>
+              <span [class.verified]="event.verified">
+                {{
+                  (event.verified
+                    ? 'SALE.DETAIL.HISTORY.VERIFIED'
+                    : 'SALE.DETAIL.HISTORY.UNVERIFIED') | translate
+                }}
+              </span>
+              @if (event.documentUrl) {
+                <a [href]="event.documentUrl" target="_blank" rel="noopener noreferrer">
+                  {{ 'SALE.DETAIL.HISTORY.DOCUMENT' | translate }}
+                </a>
+              }
+            </div>
+          </article>
+        </li>
+      }
+    </ol>
+  }
+</section>

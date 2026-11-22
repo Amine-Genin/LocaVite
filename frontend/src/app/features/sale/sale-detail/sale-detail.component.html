@@ -1,0 +1,251 @@
+<main class="sale-detail-page" data-cy="sale-detail-page">
+  <a class="back-link" routerLink="/sale" data-cy="sale-detail-back">
+    ← {{ 'SALE.DETAIL.BACK' | translate }}
+  </a>
+
+  @if (loading()) {
+    <div class="page-state" aria-live="polite" data-cy="sale-detail-loading">
+      <mat-progress-spinner mode="indeterminate" [diameter]="48"></mat-progress-spinner>
+      <p>{{ 'SALE.DETAIL.LOADING' | translate }}</p>
+    </div>
+  } @else if (error() || !listing()) {
+    <section class="page-state error-state" role="alert" data-cy="sale-detail-error">
+      <h1>{{ 'SALE.DETAIL.NOT_FOUND_TITLE' | translate }}</h1>
+      <p>{{ 'SALE.DETAIL.NOT_FOUND_MESSAGE' | translate }}</p>
+      <a mat-flat-button routerLink="/sale">{{ 'SALE.DETAIL.BACK' | translate }}</a>
+    </section>
+  } @else {
+    @if (listing(); as item) {
+      <header class="detail-header">
+        <div>
+          <span
+            class="condition-badge"
+            [class.new]="item.etat === 'NEW'"
+            data-cy="sale-detail-condition"
+          >
+            {{ 'SALE.CONDITION.' + item.etat | translate }}
+          </span>
+          <h1 data-cy="sale-detail-title">{{ item.marque }} {{ item.modele }}</h1>
+          <p>{{ item.annee }} · {{ item.ville }} · {{ item.categorie }}</p>
+        </div>
+        <div class="header-actions">
+          <button
+            type="button"
+            mat-stroked-button
+            [class.favorite-active]="isFavorite()"
+            [attr.aria-pressed]="isFavorite()"
+            (click)="toggleFavorite()"
+            data-cy="sale-detail-favorite"
+          >
+            {{ (isFavorite() ? 'VEHICLES.REMOVE_FAVORITE' : 'VEHICLES.ADD_FAVORITE') | translate }}
+          </button>
+          <button
+            type="button"
+            mat-stroked-button
+            (click)="shareOnWhatsApp()"
+            data-cy="sale-share-whatsapp"
+          >
+            {{ 'SALE.DETAIL.SHARE_WHATSAPP' | translate }}
+          </button>
+          <button type="button" mat-stroked-button (click)="copyLink()" data-cy="sale-copy-link">
+            {{ 'SALE.DETAIL.COPY_LINK' | translate }}
+          </button>
+        </div>
+      </header>
+
+      @if (copyStatus() !== 'idle') {
+        <p class="copy-status" aria-live="polite" [class.copy-error]="copyStatus() === 'error'">
+          {{
+            (copyStatus() === 'copied' ? 'SALE.DETAIL.LINK_COPIED' : 'SALE.DETAIL.LINK_COPY_ERROR')
+              | translate
+          }}
+        </p>
+      }
+
+      <div class="detail-layout">
+        <section class="primary-column">
+          <div class="gallery-panel">
+            <app-photo-gallery
+              [photos]="photos()"
+              [alt]="item.marque + ' ' + item.modele"
+            ></app-photo-gallery>
+            @if (photosError()) {
+              <p class="inline-error" role="alert">{{ 'SALE.DETAIL.PHOTOS_ERROR' | translate }}</p>
+            }
+          </div>
+
+          <mat-card class="information-card">
+            <mat-card-content>
+              <h2>{{ 'SALE.DETAIL.SPECIFICATIONS' | translate }}</h2>
+              <dl class="spec-grid">
+                <div>
+                  <dt>{{ 'SALE.DETAIL.BRAND_MODEL' | translate }}</dt>
+                  <dd>{{ item.marque }} {{ item.modele }}</dd>
+                </div>
+                <div>
+                  <dt>{{ 'SALE.DETAIL.YEAR' | translate }}</dt>
+                  <dd data-cy="sale-detail-year">{{ item.annee }}</dd>
+                </div>
+                <div>
+                  <dt>{{ 'SALE.DETAIL.VIN' | translate }}</dt>
+                  <dd data-cy="sale-detail-vin">
+                    {{ item.numeroChassis || ('SALE.DETAIL.NOT_PROVIDED' | translate) }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{{ 'SALE.DETAIL.MILEAGE' | translate }}</dt>
+                  <dd data-cy="sale-detail-mileage">
+                    {{
+                      item.kilometrage === null
+                        ? ('SALE.DETAIL.NOT_PROVIDED' | translate)
+                        : (item.kilometrage | number) + ' ' + ('SALE.DETAIL.KM' | translate)
+                    }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{{ 'SALE.DETAIL.FUEL' | translate }}</dt>
+                  <dd>{{ 'VEHICLES.FILTERS.FUELS.' + item.carburant | translate }}</dd>
+                </div>
+                <div>
+                  <dt>{{ 'SALE.DETAIL.TRANSMISSION' | translate }}</dt>
+                  <dd>
+                    {{
+                      item.transmission
+                        ? ('VEHICLES.FILTERS.TRANSMISSIONS.' + item.transmission | translate)
+                        : ('SALE.DETAIL.NOT_PROVIDED' | translate)
+                    }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{{ 'SALE.DETAIL.POWER' | translate }}</dt>
+                  <dd data-cy="sale-detail-power">
+                    {{
+                      item.puissance
+                        ? item.puissance + ' ' + ('SALE.DETAIL.HORSEPOWER' | translate)
+                        : ('SALE.DETAIL.NOT_PROVIDED' | translate)
+                    }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{{ 'SALE.DETAIL.OWNERS' | translate }}</dt>
+                  <dd>
+                    {{ item.nombreProprietaires ?? ('SALE.DETAIL.NOT_PROVIDED' | translate) }}
+                  </dd>
+                </div>
+                <div>
+                  <dt>{{ 'SALE.DETAIL.CONDITION_LABEL' | translate }}</dt>
+                  <dd>{{ 'SALE.CONDITION.' + item.etat | translate }}</dd>
+                </div>
+              </dl>
+
+              <section class="description-section">
+                <h2>{{ 'SALE.DETAIL.DESCRIPTION' | translate }}</h2>
+                <p data-cy="sale-detail-description">
+                  {{ item.description || ('SALE.DETAIL.NO_DESCRIPTION' | translate) }}
+                </p>
+              </section>
+            </mat-card-content>
+          </mat-card>
+
+          <app-history-timeline
+            [events]="historyEvents()"
+            [loading]="historyLoading()"
+            [error]="historyError()"
+          ></app-history-timeline>
+        </section>
+
+        <aside class="action-column">
+          <mat-card class="purchase-card">
+            <mat-card-content>
+              <p class="price-label">{{ 'SALE.DETAIL.PRICE' | translate }}</p>
+              <p class="price" data-cy="sale-detail-price">
+                {{ item.prixVente | number }} {{ 'COMMON.CURRENCY_MAD' | translate }}
+              </p>
+              <p class="negotiable">
+                {{
+                  (item.prixNego ? 'SALE.DETAIL.NEGOTIABLE' : 'SALE.DETAIL.NOT_NEGOTIABLE')
+                    | translate
+                }}
+              </p>
+              <p class="location">{{ item.ville }}, {{ 'SALE.DETAIL.MOROCCO' | translate }}</p>
+
+              <div class="action-buttons">
+                <button
+                  type="button"
+                  mat-flat-button
+                  color="primary"
+                  (click)="openContactModal()"
+                  data-cy="sale-contact-open"
+                >
+                  {{ 'SALE.DETAIL.CONTACT.BUTTON' | translate }}
+                </button>
+                <button
+                  type="button"
+                  mat-stroked-button
+                  (click)="openVisitModal()"
+                  data-cy="sale-visit-open"
+                >
+                  {{ 'SALE.DETAIL.VISIT.BUTTON' | translate }}
+                </button>
+              </div>
+
+              @if (item.etat === 'USED') {
+                <section class="estimate-section">
+                  <button
+                    type="button"
+                    mat-button
+                    (click)="toggleEstimate()"
+                    [attr.aria-expanded]="estimateVisible()"
+                    data-cy="sale-estimate-toggle"
+                  >
+                    {{ 'SALE.DETAIL.ESTIMATE.BUTTON' | translate }}
+                  </button>
+                  @if (estimateVisible()) {
+                    <div class="estimate-result" data-cy="sale-estimate-result">
+                      @if (estimateLoading()) {
+                        <p>{{ 'SALE.DETAIL.ESTIMATE.LOADING' | translate }}</p>
+                      } @else if (estimatedPrice() !== null) {
+                        <strong
+                          >{{ estimatedPrice() | number }}
+                          {{ 'COMMON.CURRENCY_MAD' | translate }}</strong
+                        >
+                        <p>
+                          {{
+                            'SALE.DETAIL.ESTIMATE.RESULT' | translate: { count: estimateCount() }
+                          }}
+                        </p>
+                      } @else {
+                        <p>
+                          {{
+                            (similarError()
+                              ? 'SALE.DETAIL.ESTIMATE.ERROR'
+                              : 'SALE.DETAIL.ESTIMATE.EMPTY'
+                            ) | translate
+                          }}
+                        </p>
+                      }
+                    </div>
+                  }
+                </section>
+              }
+            </mat-card-content>
+          </mat-card>
+        </aside>
+      </div>
+
+      @if (similarListings().length > 0 || similarError()) {
+        <section class="similar-section" data-cy="sale-similar">
+          <h2>{{ 'SALE.DETAIL.SIMILAR_TITLE' | translate }}</h2>
+          @if (similarError()) {
+            <p class="inline-error" role="alert">{{ 'SALE.DETAIL.SIMILAR_ERROR' | translate }}</p>
+          }
+          <div class="similar-grid">
+            @for (similar of similarListings(); track similar.id) {
+              <app-sale-card [listing]="similar"></app-sale-card>
+            }
+          </div>
+        </section>
+      }
+    }
+  }
+</main>

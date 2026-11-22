@@ -32,6 +32,7 @@ public record SaleListingResponse(
         Integer annee,
         String ville,
         String carburant,
+        String transmission,
         String categorie,
         String photoUrl,
         Instant createdAt,

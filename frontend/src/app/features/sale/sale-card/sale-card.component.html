@@ -41,7 +41,7 @@
     <strong class="price" data-cy="sale-price">
       {{ listing.prixVente | number }} {{ 'COMMON.CURRENCY_MAD' | translate }}
     </strong>
-    <a mat-flat-button [routerLink]="['/vehicles', listing.vehicleId]" data-cy="sale-details">
+    <a mat-flat-button [routerLink]="['/sale', listing.id]" data-cy="sale-details">
       {{ 'SALE.DETAILS' | translate }}
     </a>
   </mat-card-actions>
