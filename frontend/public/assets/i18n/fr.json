@@ -28,6 +28,8 @@
     "MY_PAYMENTS": "Mes paiements",
     "ADMIN_VEHICLES": "Flotte véhicules",
     "ADD_VEHICLE": "Ajouter véhicule",
+    "ADMIN_SALES": "Annonces de vente",
+    "ADD_SALE": "Publier une annonce",
     "ADMIN_RESERVATIONS": "Réservations",
     "ADMIN_PAYMENTS": "Paiements",
     "PROFILE": "Mon profil",
@@ -199,7 +201,12 @@
       "PRICE_DESC": "Prix décroissant",
       "YEAR": "Année récente",
       "POPULARITY": "Popularité",
-      "FUELS": { "ESSENCE": "Essence", "DIESEL": "Diesel", "HYBRIDE": "Hybride", "ELECTRIQUE": "Électrique" },
+      "FUELS": {
+        "ESSENCE": "Essence",
+        "DIESEL": "Diesel",
+        "HYBRIDE": "Hybride",
+        "ELECTRIQUE": "Électrique"
+      },
       "TRANSMISSIONS": { "MANUELLE": "Manuelle", "AUTOMATIQUE": "Automatique" }
     },
     "PAGINATION": {

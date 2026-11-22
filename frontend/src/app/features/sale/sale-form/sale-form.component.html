@@ -1,0 +1,379 @@
+<main class="sale-form-page" data-cy="sale-form-page">
+  <header class="form-header">
+    <div>
+      <h1>Publier une annonce de vente</h1>
+      <p>Créez ou mettez en vente un véhicule depuis les formulaires agence.</p>
+    </div>
+    <a mat-button routerLink="/admin/sale" data-cy="sale-form-back">Retour</a>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error-banner" role="alert" data-cy="sale-form-error">{{ errorMessage() }}</p>
+  }
+
+  <form [formGroup]="vehicleForm" (ngSubmit)="$event.preventDefault()" data-cy="sale-create-form">
+    <mat-stepper linear [orientation]="'horizontal'" data-cy="sale-stepper">
+      <mat-step [stepControl]="vehicleForm" label="Véhicule">
+        <ng-template matStepLabel>Véhicule</ng-template>
+        <section class="step-section">
+          <mat-radio-group formControlName="mode" class="mode-group" data-cy="vehicle-mode">
+            <mat-radio-button value="EXISTING">Véhicule existant</mat-radio-button>
+            <mat-radio-button value="NEW">Créer un nouveau véhicule</mat-radio-button>
+          </mat-radio-group>
+
+          @if (vehicleForm.controls.mode.value === 'EXISTING') {
+            <mat-form-field appearance="outline" class="full-field">
+              <mat-label>Véhicule existant *</mat-label>
+              <mat-select
+                formControlName="vehicleId"
+                (selectionChange)="onVehicleChanged($event.value)"
+                data-cy="existing-vehicle-select"
+              >
+                @for (vehicle of vehicles(); track vehicle.id) {
+                  <mat-option [value]="vehicle.id" data-cy="existing-vehicle-option">
+                    {{ vehicle.marque }} {{ vehicle.modele }} · {{ vehicle.annee }} ·
+                    {{ vehicle.ville }}
+                  </mat-option>
+                }
+              </mat-select>
+              @if (
+                vehicleForm.controls.vehicleId.touched && vehicleForm.controls.vehicleId.invalid
+              ) {
+                <mat-error>Sélectionnez un véhicule.</mat-error>
+              }
+            </mat-form-field>
+          } @else {
+            <div class="field-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>Marque *</mat-label>
+                <mat-select formControlName="brandId" data-cy="new-brand-select">
+                  @for (brand of brands(); track brand.id) {
+                    <mat-option [value]="brand.id">{{ brand.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Modèle *</mat-label>
+                <input matInput formControlName="modele" data-cy="new-modele-input" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Année *</mat-label>
+                <mat-select formControlName="annee">
+                  @for (year of years; track year) {
+                    <mat-option [value]="year">{{ year }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Catégorie *</mat-label>
+                <mat-select formControlName="categoryId" data-cy="new-category-select">
+                  @for (category of categories(); track category.id) {
+                    <mat-option [value]="category.id">{{ category.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Ville *</mat-label>
+                <mat-select formControlName="ville">
+                  @for (city of cities; track city) {
+                    <mat-option [value]="city">{{ city }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Matricule *</mat-label>
+                <input matInput formControlName="matricule" data-cy="new-matricule-input" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Prix journalier *</mat-label>
+                <input type="number" matInput formControlName="prixJour" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Prix de vente véhicule *</mat-label>
+                <input type="number" matInput formControlName="prixVenteVehicle" />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Carburant</mat-label>
+                <mat-select formControlName="carburant">
+                  <mat-option value="ESSENCE">Essence</mat-option>
+                  <mat-option value="DIESEL">Diesel</mat-option>
+                  <mat-option value="HYBRIDE">Hybride</mat-option>
+                  <mat-option value="ELECTRIQUE">Électrique</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Transmission</mat-label>
+                <mat-select formControlName="transmission">
+                  <mat-option value="MANUELLE">Manuelle</mat-option>
+                  <mat-option value="AUTOMATIQUE">Automatique</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Places</mat-label>
+                <input type="number" matInput min="2" max="9" formControlName="places" />
+              </mat-form-field>
+            </div>
+            <mat-form-field appearance="outline" class="full-field">
+              <mat-label>Description du véhicule *</mat-label>
+              <textarea matInput rows="3" formControlName="vehicleDescription"></textarea>
+            </mat-form-field>
+          }
+          <div class="step-actions">
+            <button
+              mat-flat-button
+              matStepperNext
+              color="primary"
+              type="button"
+              [disabled]="vehicleForm.invalid"
+            >
+              Suivant
+            </button>
+          </div>
+        </section>
+      </mat-step>
+
+      <mat-step [stepControl]="conditionForm" label="État">
+        <ng-template matStepLabel>État</ng-template>
+        <section class="step-section">
+          <form [formGroup]="conditionForm">
+            <mat-radio-group formControlName="etat" class="mode-group" data-cy="sale-condition">
+              <mat-radio-button value="NEW">Neuve</mat-radio-button>
+              <mat-radio-button value="USED">Occasion</mat-radio-button>
+            </mat-radio-group>
+          </form>
+          <div class="step-actions">
+            <button mat-button matStepperPrevious type="button">Retour</button>
+            <button mat-flat-button matStepperNext color="primary" type="button">Suivant</button>
+          </div>
+        </section>
+      </mat-step>
+
+      <mat-step [stepControl]="priceForm" label="Prix">
+        <ng-template matStepLabel>Prix</ng-template>
+        <section class="step-section" [formGroup]="priceForm">
+          <div class="field-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Prix de vente (MAD) *</mat-label>
+              <input
+                type="number"
+                matInput
+                formControlName="prixVente"
+                data-cy="sale-price-input"
+              />
+            </mat-form-field>
+            <mat-checkbox formControlName="prixNego" data-cy="sale-price-negotiable">
+              Prix négociable
+            </mat-checkbox>
+          </div>
+          <button
+            mat-stroked-button
+            type="button"
+            (click)="estimatePrice()"
+            [disabled]="estimating()"
+            data-cy="estimate-price-button"
+          >
+            <mat-icon>auto_graph</mat-icon>
+            Estimer le prix
+          </button>
+          @if (estimating()) {
+            <div class="estimate-loading">
+              <mat-progress-spinner mode="indeterminate" [diameter]="28"></mat-progress-spinner>
+            </div>
+          } @else {
+            @if (estimate(); as result) {
+              <mat-card class="estimate-card" data-cy="sale-estimate-result">
+                @if (result.estimatedPrice !== null) {
+                  <strong>{{ result.estimatedPrice | number }} MAD</strong>
+                  <p>
+                    Fourchette {{ result.minimumPrice | number }} –
+                    {{ result.maximumPrice | number }} MAD ·
+                    {{ result.comparableListings }} annonce(s)
+                  </p>
+                } @else {
+                  <p>Aucune annonce comparable disponible.</p>
+                }
+              </mat-card>
+            }
+          }
+          <div class="step-actions">
+            <button mat-button matStepperPrevious type="button">Retour</button>
+            <button
+              mat-flat-button
+              matStepperNext
+              color="primary"
+              type="button"
+              [disabled]="priceForm.invalid"
+            >
+              Suivant
+            </button>
+          </div>
+        </section>
+      </mat-step>
+
+      <mat-step [stepControl]="detailsForm" label="Détails">
+        <ng-template matStepLabel>Détails</ng-template>
+        <section class="step-section" [formGroup]="detailsForm">
+          <div class="field-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>VIN / numéro de châssis</mat-label>
+              <input matInput formControlName="numeroChassis" data-cy="sale-vin-input" />
+            </mat-form-field>
+            @if (conditionForm.controls.etat.value === 'USED') {
+              <mat-form-field appearance="outline">
+                <mat-label>Kilométrage *</mat-label>
+                <input
+                  type="number"
+                  matInput
+                  formControlName="kilometrage"
+                  data-cy="sale-mileage-input"
+                />
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Date de mise en circulation *</mat-label>
+                <input
+                  matInput
+                  [matDatepicker]="circulationPicker"
+                  formControlName="dateMiseEnCirculation"
+                />
+                <mat-datepicker-toggle
+                  matIconSuffix
+                  [for]="circulationPicker"
+                ></mat-datepicker-toggle>
+                <mat-datepicker #circulationPicker></mat-datepicker>
+              </mat-form-field>
+              <mat-form-field appearance="outline">
+                <mat-label>Nombre de propriétaires *</mat-label>
+                <input
+                  type="number"
+                  matInput
+                  formControlName="nombreProprietaires"
+                  data-cy="sale-owners-input"
+                />
+              </mat-form-field>
+            } @else {
+              <p class="condition-info" data-cy="new-condition-fields">
+                Les champs occasionnel sont masqués : kilométrage 0, date absente et 0 propriétaire.
+              </p>
+            }
+          </div>
+          <div class="step-actions">
+            <button mat-button matStepperPrevious type="button">Retour</button>
+            <button
+              mat-flat-button
+              matStepperNext
+              color="primary"
+              type="button"
+              [disabled]="detailsForm.invalid"
+            >
+              Suivant
+            </button>
+          </div>
+        </section>
+      </mat-step>
+
+      <mat-step [stepControl]="descriptionForm" label="Description">
+        <ng-template matStepLabel>Description</ng-template>
+        <section class="step-section" [formGroup]="descriptionForm">
+          <mat-form-field appearance="outline" class="full-field">
+            <mat-label>Titre *</mat-label>
+            <input matInput maxlength="255" formControlName="titre" data-cy="sale-title-input" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="full-field">
+            <mat-label>Description *</mat-label>
+            <textarea
+              matInput
+              rows="8"
+              formControlName="description"
+              data-cy="sale-description-input"
+            ></textarea>
+          </mat-form-field>
+          <div class="step-actions">
+            <button mat-button matStepperPrevious type="button">Retour</button>
+            <button
+              mat-flat-button
+              matStepperNext
+              color="primary"
+              type="button"
+              [disabled]="descriptionForm.invalid"
+            >
+              Suivant
+            </button>
+          </div>
+        </section>
+      </mat-step>
+
+      <mat-step label="Photos">
+        <ng-template matStepLabel>Photos</ng-template>
+        <section class="step-section">
+          <app-photo-uploader
+            [photos]="photos"
+            (photosChange)="onPhotosChange($event)"
+          ></app-photo-uploader>
+          <div class="step-actions">
+            <button mat-button matStepperPrevious type="button">Retour</button>
+            <button mat-flat-button matStepperNext color="primary" type="button">Suivant</button>
+          </div>
+        </section>
+      </mat-step>
+
+      <mat-step [stepControl]="publicationForm" label="Publication">
+        <ng-template matStepLabel>Publication</ng-template>
+        <section class="step-section" [formGroup]="publicationForm">
+          <mat-radio-group
+            formControlName="statut"
+            class="mode-group"
+            data-cy="sale-publication-status"
+          >
+            <mat-radio-button value="DRAFT">Brouillon</mat-radio-button>
+            <mat-radio-button value="PUBLISHED">Publier</mat-radio-button>
+          </mat-radio-group>
+
+          <div class="preview-actions">
+            <button
+              mat-stroked-button
+              type="button"
+              (click)="togglePreview()"
+              data-cy="sale-preview-toggle"
+            >
+              {{ preview() ? 'Masquer l’aperçu' : 'Voir l’aperçu' }}
+            </button>
+          </div>
+
+          @if (preview()) {
+            <mat-card class="preview-card" data-cy="sale-preview">
+              <h2>{{ descriptionForm.controls.titre.value }}</h2>
+              <p>{{ descriptionForm.controls.description.value }}</p>
+              <p>
+                {{ conditionForm.controls.etat.value === 'NEW' ? 'NEUVE' : 'OCCASION' }}
+                · {{ priceForm.controls.prixVente.value | number }} MAD ·
+                {{ detailsForm.controls.kilometrage.value ?? 0 | number }} km
+              </p>
+            </mat-card>
+          }
+
+          <div class="submit-actions">
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="submitting()"
+              (click)="submit('DRAFT')"
+              data-cy="sale-draft-button"
+            >
+              Sauvegarder en brouillon
+            </button>
+            <button
+              mat-flat-button
+              color="primary"
+              type="button"
+              [disabled]="submitting()"
+              (click)="submit('PUBLISHED')"
+              data-cy="sale-publish-button"
+            >
+              {{ submitting() ? 'Publication…' : 'Publier l’annonce' }}
+            </button>
+          </div>
+        </section>
+      </mat-step>
+    </mat-stepper>
+  </form>
+</main>

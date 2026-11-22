@@ -28,6 +28,8 @@
     "MY_PAYMENTS": "My Payments",
     "ADMIN_VEHICLES": "Fleet",
     "ADD_VEHICLE": "Add Vehicle",
+    "ADMIN_SALES": "Sale listings",
+    "ADD_SALE": "Publish listing",
     "ADMIN_RESERVATIONS": "Reservations",
     "ADMIN_PAYMENTS": "Payments",
     "PROFILE": "Profile",
@@ -199,7 +201,12 @@
       "PRICE_DESC": "Price: high to low",
       "YEAR": "Newest year",
       "POPULARITY": "Popularity",
-      "FUELS": { "ESSENCE": "Petrol", "DIESEL": "Diesel", "HYBRIDE": "Hybrid", "ELECTRIQUE": "Electric" },
+      "FUELS": {
+        "ESSENCE": "Petrol",
+        "DIESEL": "Diesel",
+        "HYBRIDE": "Hybrid",
+        "ELECTRIQUE": "Electric"
+      },
       "TRANSMISSIONS": { "MANUELLE": "Manual", "AUTOMATIQUE": "Automatic" }
     },
     "PAGINATION": {

@@ -5,6 +5,7 @@ import ma.locavite.sale.dto.SaleListingFilter;
 import ma.locavite.sale.dto.SaleListingRequest;
 import ma.locavite.sale.dto.SaleListingResponse;
 import ma.locavite.sale.dto.SaleListingSearchFilter;
+import ma.locavite.sale.dto.PriceEstimateResponse;
 import ma.locavite.sale.service.SaleListingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -55,6 +56,11 @@ public class SaleListingController {
             @Valid @ModelAttribute SaleListingSearchFilter filter,
             @PageableDefault(size = 20) Pageable pageable) {
         return ResponseEntity.ok(service.searchPublished(filter, pageable));
+    }
+
+    @PostMapping("/estimate")
+    public ResponseEntity<PriceEstimateResponse> estimate(@Valid @RequestBody SaleListingSearchFilter filter) {
+        return ResponseEntity.ok(service.estimatePrice(filter));
     }
 
     @PutMapping("/{id}")

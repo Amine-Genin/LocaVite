@@ -4,6 +4,22 @@ import { roleGuard } from './core/auth/role.guard';
 
 export const routes: Routes = [
   {
+    path: 'admin/sale/new',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['AGENCE', 'ADMIN'] },
+    loadComponent: () =>
+      import('./features/sale/sale-form/sale-form.component').then((m) => m.SaleFormComponent),
+  },
+  {
+    path: 'admin/sale',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['AGENCE', 'ADMIN'] },
+    loadComponent: () =>
+      import('./features/sale/admin-sale-list-placeholder/admin-sale-list-placeholder.component').then(
+        (m) => m.AdminSaleListPlaceholderComponent,
+      ),
+  },
+  {
     path: 'vehicles',
     loadComponent: () =>
       import('./features/vehicles/vehicle-list/vehicle-list.component').then(
@@ -22,27 +38,27 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['CLIENT'] },
     loadComponent: () =>
-      import(
-        './features/reservations/reservation-form.component'
-      ).then((m) => m.ReservationFormComponent),
+      import('./features/reservations/reservation-form.component').then(
+        (m) => m.ReservationFormComponent,
+      ),
   },
   {
     path: 'my-reservations',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['CLIENT'] },
     loadComponent: () =>
-      import(
-        './features/reservations/my-reservations.component'
-      ).then((m) => m.MyReservationsComponent),
+      import('./features/reservations/my-reservations.component').then(
+        (m) => m.MyReservationsComponent,
+      ),
   },
   {
     path: 'my-payments',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['CLIENT'] },
     loadComponent: () =>
-      import(
-        './features/payments/my-payments/my-payments.component'
-      ).then((m) => m.MyPaymentsComponent),
+      import('./features/payments/my-payments/my-payments.component').then(
+        (m) => m.MyPaymentsComponent,
+      ),
   },
   {
     path: 'reservations/:id',
@@ -76,27 +92,25 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['CLIENT'] },
     loadComponent: () =>
-      import('./features/payments/payment.component').then(
-        (m) => m.PaymentComponent,
-      ),
+      import('./features/payments/payment.component').then((m) => m.PaymentComponent),
   },
   {
     path: 'admin/reservations',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },
     loadComponent: () =>
-      import(
-        './features/reservations/admin-reservations/admin-reservations.component'
-      ).then((m) => m.AdminReservationsComponent),
+      import('./features/reservations/admin-reservations/admin-reservations.component').then(
+        (m) => m.AdminReservationsComponent,
+      ),
   },
   {
     path: 'admin/payments',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },
     loadComponent: () =>
-      import(
-        './features/payments/admin-payments/admin-payments.component'
-      ).then((m) => m.AdminPaymentsComponent),
+      import('./features/payments/admin-payments/admin-payments.component').then(
+        (m) => m.AdminPaymentsComponent,
+      ),
   },
   {
     path: 'admin/vehicles/new',
@@ -112,9 +126,9 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },
     loadComponent: () =>
-      import(
-        './features/vehicles/admin-vehicle-list-placeholder/admin-vehicle-list-placeholder.component'
-      ).then((m) => m.AdminVehicleListPlaceholderComponent),
+      import('./features/vehicles/admin-vehicle-list-placeholder/admin-vehicle-list-placeholder.component').then(
+        (m) => m.AdminVehicleListPlaceholderComponent,
+      ),
   },
   {
     path: 'login',
