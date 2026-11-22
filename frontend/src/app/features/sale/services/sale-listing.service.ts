@@ -2,7 +2,14 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
-import { SaleListing, SaleListingFilters, SaleListingPage } from '../models/sale-listing.model';
+import {
+  SaleListing,
+  SaleListingCreateRequest,
+  SaleListingFilters,
+  SaleListingPage,
+  SalePriceEstimate,
+  SalePriceEstimateFilter,
+} from '../models/sale-listing.model';
 
 interface SaleListingApiPage {
   content?: SaleListing[];
@@ -21,6 +28,14 @@ interface SaleListingApiPage {
 @Injectable({ providedIn: 'root' })
 export class SaleListingService {
   private readonly http = inject(HttpClient);
+
+  create(request: SaleListingCreateRequest): Observable<SaleListing> {
+    return this.http.post<SaleListing>('/api/sale-listings', request);
+  }
+
+  estimatePrice(filter: SalePriceEstimateFilter): Observable<SalePriceEstimate> {
+    return this.http.post<SalePriceEstimate>('/api/sale-listings/estimate', filter);
+  }
 
   getById(id: number): Observable<SaleListing> {
     return this.http.get<SaleListing>(`/api/sale-listings/${id}`);

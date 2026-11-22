@@ -24,7 +24,7 @@
           <span class="marker" aria-hidden="true"></span>
           <article>
             <div class="event-heading">
-              <h3>{{ ('VEHICLES.DETAIL.HISTORY.EVENTS.' + event.typeEvenement) | translate }}</h3>
+              <h3>{{ 'VEHICLES.DETAIL.HISTORY.EVENTS.' + event.typeEvenement | translate }}</h3>
               <time [attr.datetime]="event.date">{{ event.date | date: 'dd/MM/yyyy' }}</time>
             </div>
             <p>{{ event.description }}</p>
@@ -36,7 +36,8 @@
                 {{
                   (event.verified
                     ? 'SALE.DETAIL.HISTORY.VERIFIED'
-                    : 'SALE.DETAIL.HISTORY.UNVERIFIED') | translate
+                    : 'SALE.DETAIL.HISTORY.UNVERIFIED'
+                  ) | translate
                 }}
               </span>
               @if (event.documentUrl) {

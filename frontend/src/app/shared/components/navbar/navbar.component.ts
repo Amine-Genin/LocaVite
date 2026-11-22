@@ -21,6 +21,8 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
       MY_PAYMENTS: 'Mes paiements',
       ADMIN_VEHICLES: 'Flotte véhicules',
       ADD_VEHICLE: 'Ajouter véhicule',
+      ADMIN_SALES: 'Annonces de vente',
+      ADD_SALE: 'Publier une annonce',
       ADMIN_RESERVATIONS: 'Réservations',
       ADMIN_PAYMENTS: 'Paiements',
       PROFILE: 'Mon profil',
@@ -39,6 +41,8 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
       MY_PAYMENTS: 'My Payments',
       ADMIN_VEHICLES: 'Fleet',
       ADD_VEHICLE: 'Add Vehicle',
+      ADMIN_SALES: 'Sale listings',
+      ADD_SALE: 'Publish listing',
       ADMIN_RESERVATIONS: 'Reservations',
       ADMIN_PAYMENTS: 'Payments',
       PROFILE: 'Profile',
@@ -57,6 +61,8 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
       MY_PAYMENTS: 'مدفوعاتي',
       ADMIN_VEHICLES: 'الأسطول',
       ADD_VEHICLE: 'إضافة سيارة',
+      ADMIN_SALES: 'إعلانات البيع',
+      ADD_SALE: 'نشر إعلان',
       ADMIN_RESERVATIONS: 'الحجوزات',
       ADMIN_PAYMENTS: 'المدفوعات',
       PROFILE: 'ملفي الشخصي',
@@ -249,7 +255,9 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
         text-decoration: none;
         padding: 6px 10px;
         border-radius: 8px;
-        transition: color 0.15s ease, background-color 0.15s ease;
+        transition:
+          color 0.15s ease,
+          background-color 0.15s ease;
 
         &:hover {
           color: var(--c-primary, #1d4ed8);
@@ -418,7 +426,9 @@ export class NavbarComponent {
     return this.auth.hasRole('CLIENT');
   });
 
-  readonly homeRoute = computed(() => (this.isAdminOrAgency() ? '/admin/reservations' : '/vehicles'));
+  readonly homeRoute = computed(() =>
+    this.isAdminOrAgency() ? '/admin/reservations' : '/vehicles',
+  );
 
   readonly navLinks = computed<NavLinkItem[]>(() => {
     if (!this.auth.isLoggedIn()) {
@@ -432,6 +442,8 @@ export class NavbarComponent {
       return [
         { labelKey: 'NAV.ADMIN_VEHICLES', route: '/admin/vehicles', exact: true },
         { labelKey: 'NAV.ADD_VEHICLE', route: '/admin/vehicles/new', exact: true },
+        { labelKey: 'NAV.ADMIN_SALES', route: '/admin/sale', exact: true },
+        { labelKey: 'NAV.ADD_SALE', route: '/admin/sale/new', exact: true },
         { labelKey: 'NAV.ADMIN_RESERVATIONS', route: '/admin/reservations', exact: true },
         { labelKey: 'NAV.ADMIN_PAYMENTS', route: '/admin/payments', exact: true },
         { labelKey: 'NAV.CATALOGUE', route: '/vehicles', exact: false },

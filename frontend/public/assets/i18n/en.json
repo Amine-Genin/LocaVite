@@ -28,6 +28,8 @@
     "MY_PAYMENTS": "My Payments",
     "ADMIN_VEHICLES": "Fleet",
     "ADD_VEHICLE": "Add Vehicle",
+    "ADMIN_SALES": "Sale listings",
+    "ADD_SALE": "Publish listing",
     "ADMIN_RESERVATIONS": "Reservations",
     "ADMIN_PAYMENTS": "Payments",
     "PROFILE": "Profile",

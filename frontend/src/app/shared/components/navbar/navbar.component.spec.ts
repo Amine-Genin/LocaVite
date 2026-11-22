@@ -69,6 +69,8 @@ describe('NavbarComponent', () => {
     expect(component.navLinks().map((l) => l.route)).toEqual([
       '/admin/vehicles',
       '/admin/vehicles/new',
+      '/admin/sale',
+      '/admin/sale/new',
       '/admin/reservations',
       '/admin/payments',
       '/vehicles',

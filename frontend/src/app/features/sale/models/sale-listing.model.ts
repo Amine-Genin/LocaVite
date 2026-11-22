@@ -1,5 +1,6 @@
 export type SaleCondition = 'NEW' | 'USED';
 export type SaleFuel = 'ESSENCE' | 'DIESEL' | 'HYBRIDE' | 'ELECTRIQUE';
+export type SaleStatus = 'DRAFT' | 'PUBLISHED' | 'SOLD' | 'ARCHIVED';
 
 export interface SaleListing {
   id: number;
@@ -10,10 +11,12 @@ export interface SaleListing {
   prixNego?: boolean | null;
   etat: SaleCondition;
   kilometrage: number | null;
+  premierProprietaire?: boolean | null;
+  dateMiseEnCirculation?: string | null;
   numeroChassis?: string | null;
   nombreProprietaires?: number | null;
   puissance?: number | null;
-  dateMiseEnCirculation?: string | null;
+  statut?: SaleStatus;
   marque: string;
   modele: string;
   annee: number;
@@ -23,6 +26,40 @@ export interface SaleListing {
   categorie: string;
   photoUrl: string | null;
   publishedAt: string | null;
+}
+
+export interface SaleListingCreateRequest {
+  vehicleId: number;
+  titre: string;
+  description: string;
+  prixVente: number;
+  prixNego: boolean;
+  etat: SaleCondition;
+  kilometrage: number;
+  premierProprietaire: boolean;
+  dateMiseEnCirculation: string | null;
+  numeroChassis: string | null;
+  nombreProprietaires: number;
+  statut: 'DRAFT' | 'PUBLISHED';
+}
+
+export interface SalePriceEstimateFilter {
+  marque?: string;
+  modele?: string;
+  categorie?: string;
+  etat?: SaleCondition;
+  anneeMin?: number;
+  anneeMax?: number;
+  kilometrageMax?: number;
+  carburant?: string;
+  ville?: string;
+}
+
+export interface SalePriceEstimate {
+  estimatedPrice: number | null;
+  minimumPrice: number | null;
+  maximumPrice: number | null;
+  comparableListings: number;
 }
 
 export interface SaleListingFilters {

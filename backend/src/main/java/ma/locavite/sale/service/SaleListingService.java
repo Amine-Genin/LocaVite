@@ -8,6 +8,7 @@ import ma.locavite.sale.dto.SaleListingFilter;
 import ma.locavite.sale.dto.SaleListingRequest;
 import ma.locavite.sale.dto.SaleListingResponse;
 import ma.locavite.sale.dto.SaleListingSearchFilter;
+import ma.locavite.sale.dto.PriceEstimateResponse;
 import ma.locavite.sale.exception.SaleListingNotFoundException;
 import ma.locavite.sale.exception.VinAlreadyExistsException;
 import ma.locavite.sale.mapper.SaleListingMapper;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -145,6 +147,35 @@ public class SaleListingService {
         Pageable sortedPageable = normalizeSearchPageable(pageable);
         return repository.findAll(SaleListingSpecifications.publicSearch(filter), sortedPageable)
                 .map(mapper::toResponse);
+    }
+
+    public PriceEstimateResponse estimatePrice(SaleListingSearchFilter filter) {
+        validateSearchFilter(filter);
+        Page<SaleListing> comparable = repository.findAll(
+                SaleListingSpecifications.publicSearch(filter),
+                PageRequest.of(0, 100)
+        );
+        List<BigDecimal> prices = comparable.getContent().stream()
+                .map(SaleListing::getPrixVente)
+                .filter(java.util.Objects::nonNull)
+                .filter(price -> price.compareTo(BigDecimal.ZERO) > 0)
+                .sorted()
+                .toList();
+
+        if (prices.isEmpty()) {
+            return new PriceEstimateResponse(null, null, null, 0);
+        }
+
+        int middle = prices.size() / 2;
+        BigDecimal estimated = prices.size() % 2 == 1
+                ? prices.get(middle)
+                : prices.get(middle - 1).add(prices.get(middle)).divide(BigDecimal.valueOf(2));
+        return new PriceEstimateResponse(
+                estimated.setScale(0, java.math.RoundingMode.HALF_UP),
+                prices.get(0).setScale(0, java.math.RoundingMode.HALF_UP),
+                prices.get(prices.size() - 1).setScale(0, java.math.RoundingMode.HALF_UP),
+                prices.size()
+        );
     }
 
     @Transactional

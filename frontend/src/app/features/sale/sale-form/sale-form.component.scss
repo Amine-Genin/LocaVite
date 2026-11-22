@@ -1,0 +1,75 @@
+.sale-form-page {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.form-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  h1 {
+    margin: 0 0 0.25rem;
+  }
+  p {
+    margin: 0;
+    color: var(--c-muted);
+  }
+}
+
+.error-banner {
+  padding: 12px 16px;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.step-section {
+  padding: 24px 8px 8px;
+}
+
+.mode-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-bottom: 24px;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  align-items: center;
+}
+
+.full-field {
+  width: 100%;
+}
+
+.step-actions,
+.submit-actions,
+.preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.estimate-loading {
+  display: flex;
+  margin-top: 16px;
+}
+
+.estimate-card,
+.preview-card {
+  margin-top: 16px;
+  padding: 16px;
+}
+
+.condition-info {
+  color: var(--c-muted);
+}
