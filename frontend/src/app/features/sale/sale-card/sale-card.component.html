@@ -1,0 +1,48 @@
+<mat-card class="sale-card" data-cy="sale-card">
+  <div class="media">
+    <img
+      [src]="photoSrc"
+      [alt]="listing.marque + ' ' + listing.modele"
+      loading="lazy"
+      (error)="onImageError()"
+      data-cy="sale-photo"
+    />
+    <span class="condition-badge" [class.new]="listing.etat === 'NEW'" data-cy="sale-condition">
+      {{ 'SALE.CONDITION.' + listing.etat | translate }}
+    </span>
+    <button
+      type="button"
+      class="favorite-btn"
+      [class.active]="favorite"
+      [attr.aria-pressed]="favorite"
+      [attr.aria-label]="
+        (favorite ? 'VEHICLES.REMOVE_FAVORITE' : 'VEHICLES.ADD_FAVORITE') | translate
+      "
+      (click)="toggleFavorite($event)"
+      data-cy="sale-favorite"
+    >
+      <span aria-hidden="true">{{ favorite ? '♥' : '♡' }}</span>
+    </button>
+  </div>
+
+  <mat-card-content class="card-content">
+    <div class="title-row">
+      <h2 data-cy="sale-title">{{ listing.marque }} {{ listing.modele }}</h2>
+      <span class="year">{{ listing.annee }}</span>
+    </div>
+    <p class="category">{{ listing.categorie }}</p>
+    <div class="details">
+      <span>{{ listing.kilometrage | number }} {{ 'SALE.KM' | translate }}</span>
+      <span>{{ listing.ville }}</span>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions class="card-actions">
+    <strong class="price" data-cy="sale-price">
+      {{ listing.prixVente | number }} {{ 'COMMON.CURRENCY_MAD' | translate }}
+    </strong>
+    <a mat-flat-button [routerLink]="['/sale', listing.id]" data-cy="sale-details">
+      {{ 'SALE.DETAILS' | translate }}
+    </a>
+  </mat-card-actions>
+</mat-card>

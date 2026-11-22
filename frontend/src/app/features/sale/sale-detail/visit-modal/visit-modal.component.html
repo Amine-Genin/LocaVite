@@ -1,0 +1,85 @@
+<section class="visit-modal" data-cy="sale-visit-modal">
+  <h2 mat-dialog-title>{{ 'SALE.DETAIL.VISIT.TITLE' | translate }}</h2>
+  <p class="listing-summary">
+    {{ data.listing.marque }} {{ data.listing.modele }} · {{ data.listing.annee }}
+  </p>
+
+  <mat-dialog-content>
+    @if (!authenticated) {
+      <p class="login-required" data-cy="sale-visit-login-required">
+        {{ 'SALE.DETAIL.VISIT.LOGIN_REQUIRED' | translate }}
+      </p>
+      <a mat-flat-button routerLink="/login" (click)="close()" data-cy="sale-visit-login-link">
+        {{ 'SALE.DETAIL.VISIT.LOGIN' | translate }}
+      </a>
+    } @else if (submitted) {
+      <div class="success-state" role="status" data-cy="sale-visit-success">
+        <p>{{ 'SALE.DETAIL.VISIT.SUCCESS' | translate }}</p>
+        <button mat-flat-button type="button" (click)="close()">
+          {{ 'COMMON.CLOSE' | translate }}
+        </button>
+      </div>
+    } @else {
+      @if (failed) {
+        <p class="error-message" role="alert">{{ 'SALE.DETAIL.VISIT.ERROR' | translate }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" data-cy="sale-visit-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.DETAIL.VISIT.DATE' | translate }}</mat-label>
+          <input
+            matInput
+            type="date"
+            [min]="minDate"
+            formControlName="dateSouhaitee"
+            data-cy="sale-visit-date"
+          />
+          @if (form.controls.dateSouhaitee.touched && form.controls.dateSouhaitee.invalid) {
+            <mat-error>{{ 'SALE.DETAIL.VISIT.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.DETAIL.VISIT.TIME_SLOT' | translate }}</mat-label>
+          <input
+            matInput
+            formControlName="creneauHoraire"
+            placeholder="10:00 - 12:00"
+            data-cy="sale-visit-slot"
+          />
+          @if (form.controls.creneauHoraire.touched && form.controls.creneauHoraire.invalid) {
+            <mat-error>{{ 'SALE.DETAIL.VISIT.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.DETAIL.VISIT.LOCATION' | translate }}</mat-label>
+          <input matInput formControlName="lieu" data-cy="sale-visit-location" />
+          @if (form.controls.lieu.touched && form.controls.lieu.invalid) {
+            <mat-error>{{ 'SALE.DETAIL.VISIT.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.DETAIL.VISIT.TYPE' | translate }}</mat-label>
+          <mat-select formControlName="typeVisite" data-cy="sale-visit-type">
+            @for (type of visitTypes; track type) {
+              <mat-option [value]="type">{{
+                'SALE.DETAIL.VISIT.TYPES.' + type | translate
+              }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="close()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button mat-flat-button type="submit" [disabled]="sending" data-cy="sale-visit-submit">
+            {{ (sending ? 'SALE.DETAIL.VISIT.SENDING' : 'SALE.DETAIL.VISIT.SEND') | translate }}
+          </button>
+        </div>
+      </form>
+    }
+  </mat-dialog-content>
+</section>

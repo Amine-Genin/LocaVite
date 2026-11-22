@@ -18,6 +18,10 @@ interface SaleListingPage {
 export class VehicleHistoryService {
   private readonly http = inject(HttpClient);
 
+  getHistoryForListing(listingId: number): Observable<VehicleHistoryEvent[]> {
+    return this.http.get<VehicleHistoryEvent[]>(`/api/sale-listings/${listingId}/history`);
+  }
+
   getHistoryForVehicle(vehicleId: number): Observable<VehicleHistoryLookupResult> {
     const params = new HttpParams()
       .set('vehicleId', String(vehicleId))

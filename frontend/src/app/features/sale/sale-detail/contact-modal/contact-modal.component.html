@@ -1,0 +1,69 @@
+<section class="contact-modal" data-cy="sale-contact-modal">
+  <h2 mat-dialog-title>{{ 'SALE.DETAIL.CONTACT.TITLE' | translate }}</h2>
+  <p class="listing-summary">
+    {{ data.listing.marque }} {{ data.listing.modele }} · {{ data.listing.annee }}
+  </p>
+
+  <mat-dialog-content>
+    @if (submitted) {
+      <div class="success-state" role="status" data-cy="sale-contact-success">
+        <p>{{ 'SALE.DETAIL.CONTACT.SUCCESS' | translate }}</p>
+        <button mat-flat-button type="button" (click)="close()">
+          {{ 'COMMON.CLOSE' | translate }}
+        </button>
+      </div>
+    } @else {
+      @if (failed) {
+        <p class="error-message" role="alert">{{ 'SALE.DETAIL.CONTACT.ERROR' | translate }}</p>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" data-cy="sale-contact-form">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.DETAIL.CONTACT.NAME' | translate }}</mat-label>
+          <input matInput formControlName="nom" data-cy="sale-contact-name" />
+          @if (form.controls.nom.touched && form.controls.nom.invalid) {
+            <mat-error>{{ 'SALE.DETAIL.CONTACT.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.DETAIL.CONTACT.EMAIL' | translate }}</mat-label>
+          <input matInput type="email" formControlName="email" data-cy="sale-contact-email" />
+          @if (form.controls.email.touched && form.controls.email.invalid) {
+            <mat-error>{{ 'SALE.DETAIL.CONTACT.EMAIL_INVALID' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.DETAIL.CONTACT.PHONE' | translate }}</mat-label>
+          <input matInput type="tel" formControlName="telephone" data-cy="sale-contact-phone" />
+          @if (form.controls.telephone.touched && form.controls.telephone.invalid) {
+            <mat-error>{{ 'SALE.DETAIL.CONTACT.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'SALE.DETAIL.CONTACT.MESSAGE' | translate }}</mat-label>
+          <textarea
+            matInput
+            rows="4"
+            formControlName="message"
+            data-cy="sale-contact-message"
+          ></textarea>
+          @if (form.controls.message.touched && form.controls.message.invalid) {
+            <mat-error>{{ 'SALE.DETAIL.CONTACT.REQUIRED' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="form-actions">
+          <button mat-stroked-button type="button" (click)="close()">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button mat-flat-button type="submit" [disabled]="sending" data-cy="sale-contact-submit">
+            {{ (sending ? 'SALE.DETAIL.CONTACT.SENDING' : 'SALE.DETAIL.CONTACT.SEND') | translate }}
+          </button>
+        </div>
+      </form>
+    }
+  </mat-dialog-content>
+</section>

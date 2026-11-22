@@ -32,7 +32,6 @@ import {
   SaleListingCreateRequest,
   SalePriceEstimate,
   SaleCondition,
-  SaleStatus,
 } from '../models/sale-listing.model';
 import { SaleListingService } from '../services/sale-listing.service';
 
@@ -120,7 +119,7 @@ export class SaleFormComponent implements OnInit {
   });
 
   readonly publicationForm = this.fb.group({
-    statut: ['DRAFT' as SaleStatus, Validators.required],
+    statut: ['DRAFT' as 'DRAFT' | 'PUBLISHED', Validators.required],
   });
 
   ngOnInit(): void {
@@ -295,7 +294,9 @@ export class SaleFormComponent implements OnInit {
     this.preview.update((visible) => !visible);
   }
 
-  submit(statut: SaleStatus = this.publicationForm.controls.statut.value): void {
+  submit(
+    statut: SaleListingCreateRequest['statut'] = this.publicationForm.controls.statut.value,
+  ): void {
     const forms = [
       this.vehicleForm,
       this.conditionForm,

@@ -1,0 +1,163 @@
+<section
+  class="filters"
+  [attr.aria-label]="'SALE.FILTERS.TITLE' | translate"
+  data-cy="sale-filters"
+>
+  <div class="filter-heading">
+    <h2>{{ 'SALE.FILTERS.TITLE' | translate }}</h2>
+    <button mat-stroked-button type="button" class="mobile-toggle" (click)="toggleDrawer()">
+      {{ (drawerOpen ? 'SALE.FILTERS.CLOSE' : 'SALE.FILTERS.OPEN') | translate }}
+    </button>
+  </div>
+  @if (catalogError) {
+    <p class="catalog-error" role="alert">{{ 'SALE.FILTERS.CATALOG_ERROR' | translate }}</p>
+  }
+
+  @if (drawerOpen) {
+    <button
+      class="backdrop"
+      type="button"
+      (click)="toggleDrawer()"
+      [attr.aria-label]="'SALE.FILTERS.CLOSE' | translate"
+    ></button>
+  }
+
+  <form class="filter-panel" [class.drawer-open]="drawerOpen" [formGroup]="form">
+    <div class="drawer-heading">
+      <h2>{{ 'SALE.FILTERS.TITLE' | translate }}</h2>
+      <button mat-button type="button" (click)="toggleDrawer()">
+        {{ 'SALE.FILTERS.CLOSE' | translate }}
+      </button>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SALE.FILTERS.CONDITION' | translate }}</mat-label>
+      <mat-select formControlName="etat" data-cy="sale-filter-condition">
+        <mat-option value="">{{ 'SALE.FILTERS.ALL' | translate }}</mat-option>
+        <mat-option value="NEW">{{ 'SALE.CONDITION.NEW' | translate }}</mat-option>
+        <mat-option value="USED">{{ 'SALE.CONDITION.USED' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SALE.FILTERS.BRAND' | translate }}</mat-label>
+      <mat-select formControlName="marque" data-cy="sale-filter-brand">
+        <mat-option value="">{{ 'SALE.FILTERS.ALL' | translate }}</mat-option>
+        @for (brand of brands; track brand.id) {
+          <mat-option [value]="brand.name">{{ brand.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SALE.FILTERS.CATEGORY' | translate }}</mat-label>
+      <mat-select formControlName="categorie" data-cy="sale-filter-category">
+        <mat-option value="">{{ 'SALE.FILTERS.ALL' | translate }}</mat-option>
+        @for (category of categories; track category.id) {
+          <mat-option [value]="category.name">{{ category.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div class="range-filter">
+      <span>{{ 'SALE.FILTERS.PRICE' | translate }} ({{ 'COMMON.CURRENCY_MAD' | translate }})</span>
+      <mat-slider min="0" max="2000000" step="10000" discrete>
+        <input
+          matSliderStartThumb
+          [value]="form.controls.prixMin.value ?? 0"
+          (valueChange)="form.controls.prixMin.setValue($event)"
+          [attr.aria-label]="'SALE.FILTERS.MIN_PRICE' | translate"
+        />
+        <input
+          matSliderEndThumb
+          [value]="form.controls.prixMax.value ?? 2000000"
+          (valueChange)="form.controls.prixMax.setValue($event)"
+          [attr.aria-label]="'SALE.FILTERS.MAX_PRICE' | translate"
+        />
+      </mat-slider>
+      <div class="range-values">
+        <span
+          >{{ 'SALE.FILTERS.MIN_PRICE' | translate }}: {{ form.controls.prixMin.value ?? 0 }}</span
+        >
+        <span
+          >{{ 'SALE.FILTERS.MAX_PRICE' | translate }}:
+          {{ form.controls.prixMax.value ?? 2000000 }}</span
+        >
+      </div>
+    </div>
+
+    <div class="range-values">
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'SALE.FILTERS.YEAR_MIN' | translate }}</mat-label>
+        <input
+          matInput
+          type="number"
+          min="1900"
+          formControlName="anneeMin"
+          data-cy="sale-filter-year-min"
+        />
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>{{ 'SALE.FILTERS.YEAR_MAX' | translate }}</mat-label>
+        <input
+          matInput
+          type="number"
+          min="1900"
+          formControlName="anneeMax"
+          data-cy="sale-filter-year-max"
+        />
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SALE.FILTERS.MILEAGE_MAX' | translate }}</mat-label>
+      <input
+        matInput
+        type="number"
+        min="0"
+        formControlName="kilometrageMax"
+        data-cy="sale-filter-mileage"
+      />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SALE.FILTERS.FUEL' | translate }}</mat-label>
+      <mat-select formControlName="carburant" data-cy="sale-filter-fuel">
+        <mat-option value="">{{ 'SALE.FILTERS.ALL' | translate }}</mat-option>
+        @for (fuel of fuels; track fuel) {
+          <mat-option [value]="fuel">{{ 'VEHICLES.FILTERS.FUELS.' + fuel | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SALE.FILTERS.CITY' | translate }}</mat-label>
+      <input matInput formControlName="ville" data-cy="sale-filter-city" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>{{ 'SALE.FILTERS.SORT' | translate }}</mat-label>
+      <mat-select
+        [value]="filters.sort"
+        (selectionChange)="filtersChange.emit({ sort: $event.value })"
+        data-cy="sale-sort"
+      >
+        <mat-option value="prix,asc">{{ 'SALE.SORT.PRICE_ASC' | translate }}</mat-option>
+        <mat-option value="prix,desc">{{ 'SALE.SORT.PRICE_DESC' | translate }}</mat-option>
+        <mat-option value="annee,desc">{{ 'SALE.SORT.YEAR' | translate }}</mat-option>
+        <mat-option value="kilometrage,asc">{{ 'SALE.SORT.MILEAGE' | translate }}</mat-option>
+        <mat-option value="datePublication,desc">{{ 'SALE.SORT.RECENT' | translate }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button
+      mat-stroked-button
+      type="button"
+      class="reset-button"
+      (click)="reset()"
+      data-cy="sale-reset-filters"
+    >
+      {{ 'SALE.FILTERS.RESET' | translate }}
+    </button>
+  </form>
+</section>
