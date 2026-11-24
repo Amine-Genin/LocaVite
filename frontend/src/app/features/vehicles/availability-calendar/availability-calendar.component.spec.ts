@@ -12,12 +12,20 @@ describe('AvailabilityCalendarComponent', () => {
   let fixture: ComponentFixture<AvailabilityCalendarComponent>;
   let availabilityServiceSpy: jasmine.SpyObj<AvailabilityService>;
 
+  const today = new Date();
+  const formatIsoDate = (d: Date): string => d.toISOString().split('T')[0];
+
+  const futureFrom = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+  const futureTo = new Date(today.getFullYear(), today.getMonth() + 1, 10);
+  const unavailFrom = new Date(today.getFullYear(), today.getMonth() + 1, 15);
+  const unavailTo = new Date(today.getFullYear(), today.getMonth() + 1, 20);
+
   const mockAvailability: AvailabilityResponse = {
     available: [
-      { from: '2026-12-01', to: '2026-12-10' },
+      { from: formatIsoDate(futureFrom), to: formatIsoDate(futureTo) },
     ],
     unavailable: [
-      { from: '2026-11-20', to: '2026-11-25', reason: 'RESERVED' },
+      { from: formatIsoDate(unavailFrom), to: formatIsoDate(unavailTo), reason: 'RESERVED' },
     ],
   };
 
@@ -44,7 +52,7 @@ describe('AvailabilityCalendarComponent', () => {
   });
 
   it('should mark unavailable days with calendar-date-unavailable', () => {
-    const unavailableDate = new Date('2026-11-22T00:00:00');
+    const unavailableDate = new Date(unavailFrom.getTime() + 24 * 60 * 60 * 1000);
     const className = component.dateClass(unavailableDate, 'month');
     expect(className).toBe('calendar-date-unavailable');
   });
@@ -53,10 +61,10 @@ describe('AvailabilityCalendarComponent', () => {
     const pastDate = new Date('2020-01-01T00:00:00');
     expect(component.dateFilter(pastDate)).toBeFalse();
 
-    const unavailableDate = new Date('2026-11-21T00:00:00');
+    const unavailableDate = new Date(unavailFrom.getTime() + 24 * 60 * 60 * 1000);
     expect(component.dateFilter(unavailableDate)).toBeFalse();
 
-    const futureAvailableDate = new Date('2026-12-05T00:00:00');
+    const futureAvailableDate = new Date(futureFrom.getTime() + 24 * 60 * 60 * 1000);
     expect(component.dateFilter(futureAvailableDate)).toBeTrue();
   });
 
