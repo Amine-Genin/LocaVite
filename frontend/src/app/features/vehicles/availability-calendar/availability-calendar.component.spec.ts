@@ -44,8 +44,18 @@ describe('AvailabilityCalendarComponent', () => {
   });
 
   it('should mark unavailable days with calendar-date-unavailable', () => {
-    const unavailableDate = new Date('2026-11-22T00:00:00');
-    const className = component.dateClass(unavailableDate, 'month');
+    // Utiliser une date future pour éviter qu'elle soit classée en 'calendar-date-past'
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const futureDate = new Date(today);
+    futureDate.setDate(today.getDate() + 5);
+    const futureIso = `${futureDate.getFullYear()}-${String(futureDate.getMonth() + 1).padStart(2, '0')}-${String(futureDate.getDate()).padStart(2, '0')}`;
+
+    component.activeAvailability = {
+      available: [],
+      unavailable: [{ from: futureIso, to: futureIso, reason: 'RESERVED' }],
+    };
+    const className = component.dateClass(futureDate, 'month');
     expect(className).toBe('calendar-date-unavailable');
   });
 
