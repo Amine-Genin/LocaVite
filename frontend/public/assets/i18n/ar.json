@@ -396,6 +396,37 @@
         "EMPTY": "لا توجد إعلانات مشابهة لتقدير السعر.",
         "ERROR": "تعذر تقدير السعر حاليًا."
       }
+    },
+    "ADMIN": {
+      "TITLE": "إدارة إعلانات البيع",
+      "SUBTITLE": "تتبع وإدارة مركبات البيع الخاصة بوكالتك",
+      "NEW_LISTING": "إعلان جديد",
+      "EXPORT_CSV": "تصدير CSV",
+      "FILTER_STATUS": "تصفية حسب الحالة",
+      "FILTER_CONDITION": "تصفية حسب الحالة الميكانيكية",
+      "FILTER_SEARCH": "بحث",
+      "TABLE_VIEW": "عرض جدول",
+      "GRID_VIEW": "عرض شبكة",
+      "EMPTY_TITLE": "لم يتم العثور على أي إعلان",
+      "EMPTY_DESC": "لم تنشر بعد أي إعلان يطابق هذه المعايير.",
+      "COL_PHOTO": "الصورة",
+      "COL_TITLE": "العنوان",
+      "COL_CONDITION": "الحالة",
+      "COL_PRICE": "السعر",
+      "COL_STATUS": "الوضعية",
+      "COL_VIEWS": "المشاهدات",
+      "COL_CONTACTS": "طلبات التواصل",
+      "COL_ACTIONS": "إجراءات",
+      "ACTION_STATS": "إحصائيات",
+      "ACTION_VIEW": "عرض الإعلان",
+      "ACTION_PUBLISH": "نشر الإعلان",
+      "ACTION_UNPUBLISH": "إلغاء النشر (مسودة)",
+      "ACTION_MARK_SOLD": "تحديد كمباع",
+      "STATS_TITLE": "إحصائيات الأداء",
+      "VIEWS": "عدد المشاهدات",
+      "CONTACTS": "طلبات التواصل",
+      "VISITS": "الزيارات والتجارب",
+      "DAYS_ONLINE": "المدة على المنصة"
     }
   },
   "PAYMENT": {

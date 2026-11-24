@@ -401,6 +401,37 @@
         "EMPTY": "No comparable listings are available to estimate a price.",
         "ERROR": "Unable to calculate an estimate right now."
       }
+    },
+    "ADMIN": {
+      "TITLE": "Manage Sale Listings",
+      "SUBTITLE": "Track and manage your agency's vehicles for sale",
+      "NEW_LISTING": "New listing",
+      "EXPORT_CSV": "Export CSV",
+      "FILTER_STATUS": "Filter by status",
+      "FILTER_CONDITION": "Filter by condition",
+      "FILTER_SEARCH": "Search",
+      "TABLE_VIEW": "Table view",
+      "GRID_VIEW": "Grid view",
+      "EMPTY_TITLE": "No listings found",
+      "EMPTY_DESC": "You have not published any sale listings matching these criteria yet.",
+      "COL_PHOTO": "Photo",
+      "COL_TITLE": "Title",
+      "COL_CONDITION": "Condition",
+      "COL_PRICE": "Price",
+      "COL_STATUS": "Status",
+      "COL_VIEWS": "Views",
+      "COL_CONTACTS": "Contacts",
+      "COL_ACTIONS": "Actions",
+      "ACTION_STATS": "Statistics",
+      "ACTION_VIEW": "View listing",
+      "ACTION_PUBLISH": "Publish listing",
+      "ACTION_UNPUBLISH": "Unpublish (draft)",
+      "ACTION_MARK_SOLD": "Mark as sold",
+      "STATS_TITLE": "Performance statistics",
+      "VIEWS": "Total views",
+      "CONTACTS": "Contact requests",
+      "VISITS": "Visits & test drives",
+      "DAYS_ONLINE": "Days online"
     }
   },
   "PAYMENT": {
