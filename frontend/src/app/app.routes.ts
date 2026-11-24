@@ -15,8 +15,8 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },
     loadComponent: () =>
-      import('./features/sale/admin-sale-list-placeholder/admin-sale-list-placeholder.component').then(
-        (m) => m.AdminSaleListPlaceholderComponent,
+      import('./features/sale/admin-sale/admin-sale.component').then(
+        (m) => m.AdminSaleComponent,
       ),
   },
   {

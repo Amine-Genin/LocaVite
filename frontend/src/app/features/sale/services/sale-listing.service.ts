@@ -65,4 +65,42 @@ export class SaleListingService {
       }),
     );
   }
+
+  getMyListings(page = 0, size = 10, statut?: string): Observable<SaleListingPage> {
+    let params = new HttpParams().set('page', String(page)).set('size', String(size));
+    if (statut) {
+      params = params.set('statut', statut);
+    }
+    return this.http.get<SaleListingApiPage>('/api/sale-listings', { params }).pipe(
+      map((response) => {
+        const content = response.content ?? [];
+        const number = response.page?.number ?? response.number ?? page;
+        const s = response.page?.size ?? response.size ?? size;
+        const totalElements =
+          response.page?.totalElements ?? response.totalElements ?? content.length;
+        const totalPages =
+          response.page?.totalPages ??
+          response.totalPages ??
+          (s > 0 ? Math.ceil(totalElements / s) : 0);
+
+        return { content, number, size: s, totalElements, totalPages };
+      }),
+    );
+  }
+
+  publish(id: number): Observable<SaleListing> {
+    return this.http.put<SaleListing>(`/api/sale-listings/${id}/publish`, {});
+  }
+
+  unpublish(id: number): Observable<SaleListing> {
+    return this.http.put<SaleListing>(`/api/sale-listings/${id}`, { statut: 'DRAFT' });
+  }
+
+  markSold(id: number): Observable<SaleListing> {
+    return this.http.put<SaleListing>(`/api/sale-listings/${id}/mark-sold`, {});
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`/api/sale-listings/${id}`);
+  }
 }

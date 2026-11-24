@@ -1,0 +1,259 @@
+<main class="admin-sale-page" data-cy="admin-sale-page">
+  <header class="page-header">
+    <div>
+      <h1>{{ 'SALE.ADMIN.TITLE' | translate }}</h1>
+      <p class="subtitle">{{ 'SALE.ADMIN.SUBTITLE' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="exportCsv()" data-cy="export-csv-btn">
+        <mat-icon>download</mat-icon>
+        {{ 'SALE.ADMIN.EXPORT_CSV' | translate }}
+      </button>
+      <a mat-flat-button color="primary" routerLink="/admin/sale/new" data-cy="new-sale-btn">
+        <mat-icon>add</mat-icon>
+        {{ 'SALE.ADMIN.NEW_LISTING' | translate }}
+      </a>
+    </div>
+  </header>
+
+  <!-- Filtres et Bascule d'affichage -->
+  <mat-card class="filter-card">
+    <div class="filters-container">
+      <mat-form-field appearance="outline" class="filter-item">
+        <mat-label>{{ 'SALE.ADMIN.FILTER_STATUS' | translate }}</mat-label>
+        <mat-select [value]="statusFilter()" (selectionChange)="onStatusFilterChange($event.value)" data-cy="filter-status">
+          <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+          <mat-option value="DRAFT">{{ 'SALE.STATUS.DRAFT' | translate }}</mat-option>
+          <mat-option value="PUBLISHED">{{ 'SALE.STATUS.PUBLISHED' | translate }}</mat-option>
+          <mat-option value="SOLD">{{ 'SALE.STATUS.SOLD' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-item">
+        <mat-label>{{ 'SALE.ADMIN.FILTER_CONDITION' | translate }}</mat-label>
+        <mat-select [value]="conditionFilter()" (selectionChange)="onConditionFilterChange($event.value)" data-cy="filter-condition">
+          <mat-option value="">{{ 'COMMON.ALL' | translate }}</mat-option>
+          <mat-option value="NEW">{{ 'SALE.CONDITION.NEW' | translate }}</mat-option>
+          <mat-option value="USED">{{ 'SALE.CONDITION.USED' | translate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-item">
+        <mat-label>{{ 'SALE.ADMIN.FILTER_SEARCH' | translate }}</mat-label>
+        <input matInput [value]="searchTerm()" (input)="onSearchChange($any($event.target).value)" placeholder="Marque, modèle..." data-cy="filter-search" />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <div class="view-toggle">
+        <button
+          mat-icon-button
+          [color]="viewMode() === 'table' ? 'primary' : ''"
+          (click)="viewMode.set('table')"
+          [attr.aria-label]="'SALE.ADMIN.TABLE_VIEW' | translate"
+          data-cy="view-table-btn"
+        >
+          <mat-icon>view_list</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          [color]="viewMode() === 'grid' ? 'primary' : ''"
+          (click)="viewMode.set('grid')"
+          [attr.aria-label]="'SALE.ADMIN.GRID_VIEW' | translate"
+          data-cy="view-grid-btn"
+        >
+          <mat-icon>grid_view</mat-icon>
+        </button>
+      </div>
+    </div>
+  </mat-card>
+
+  @if (loading()) {
+    <div class="loading-state" data-cy="loading-state">
+      <mat-progress-spinner mode="indeterminate" diameter="48"></mat-progress-spinner>
+      <p>{{ 'COMMON.LOADING' | translate }}</p>
+    </div>
+  } @else if (filteredListings().length === 0) {
+    <div class="empty-state" data-cy="empty-state">
+      <mat-icon class="empty-icon">directions_car</mat-icon>
+      <h2>{{ 'SALE.ADMIN.EMPTY_TITLE' | translate }}</h2>
+      <p>{{ 'SALE.ADMIN.EMPTY_DESC' | translate }}</p>
+      <a mat-flat-button color="primary" routerLink="/admin/sale/new">
+        {{ 'SALE.ADMIN.NEW_LISTING' | translate }}
+      </a>
+    </div>
+  } @else {
+    <!-- VUE TABLEAU -->
+    @if (viewMode() === 'table') {
+      <div class="table-container mat-elevation-z2" data-cy="sale-table-container">
+        <table mat-table [dataSource]="filteredListings()" class="sale-table" data-cy="admin-sale-table">
+          <!-- Photo -->
+          <ng-container matColumnDef="photo">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SALE.ADMIN.COL_PHOTO' | translate }}</th>
+            <td mat-cell *matCellDef="let listing">
+              <img
+                [src]="listing.photoUrl || '/assets/images/car-placeholder.jpg'"
+                [alt]="listing.marque + ' ' + listing.modele"
+                class="thumb-img"
+              />
+            </td>
+          </ng-container>
+
+          <!-- Titre -->
+          <ng-container matColumnDef="titre">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SALE.ADMIN.COL_TITLE' | translate }}</th>
+            <td mat-cell *matCellDef="let listing" data-cy="listing-title">
+              <strong>{{ listing.marque }} {{ listing.modele }}</strong>
+              <div class="text-muted">{{ listing.annee }} · {{ listing.ville }}</div>
+            </td>
+          </ng-container>
+
+          <!-- État -->
+          <ng-container matColumnDef="etat">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SALE.ADMIN.COL_CONDITION' | translate }}</th>
+            <td mat-cell *matCellDef="let listing">
+              <span class="badge" [class.new]="listing.etat === 'NEW'" [class.used]="listing.etat === 'USED'">
+                {{ 'SALE.CONDITION.' + listing.etat | translate }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Prix -->
+          <ng-container matColumnDef="prix">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SALE.ADMIN.COL_PRICE' | translate }}</th>
+            <td mat-cell *matCellDef="let listing" class="price-cell">
+              {{ listing.prixVente | number }} MAD
+            </td>
+          </ng-container>
+
+          <!-- Statut -->
+          <ng-container matColumnDef="statut">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SALE.ADMIN.COL_STATUS' | translate }}</th>
+            <td mat-cell *matCellDef="let listing" data-cy="listing-status">
+              <span class="status-chip" [ngClass]="listing.statut?.toLowerCase() || 'published'">
+                {{ 'SALE.STATUS.' + (listing.statut || 'PUBLISHED') | translate }}
+              </span>
+            </td>
+          </ng-container>
+
+          <!-- Vues -->
+          <ng-container matColumnDef="vues">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SALE.ADMIN.COL_VIEWS' | translate }}</th>
+            <td mat-cell *matCellDef="let listing" data-cy="listing-views">
+              {{ getStats(listing).viewsCount }}
+            </td>
+          </ng-container>
+
+          <!-- Contacts -->
+          <ng-container matColumnDef="contacts">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SALE.ADMIN.COL_CONTACTS' | translate }}</th>
+            <td mat-cell *matCellDef="let listing" data-cy="listing-contacts">
+              {{ getStats(listing).contactsCount }}
+            </td>
+          </ng-container>
+
+          <!-- Actions -->
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef>{{ 'SALE.ADMIN.COL_ACTIONS' | translate }}</th>
+            <td mat-cell *matCellDef="let listing">
+              <button mat-icon-button [matMenuTriggerFor]="menu" [attr.aria-label]="'COMMON.ACTIONS' | translate" data-cy="actions-btn">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #menu="matMenu">
+                <button mat-menu-item (click)="openStats(listing)" data-cy="action-stats">
+                  <mat-icon>insights</mat-icon>
+                  <span>{{ 'SALE.ADMIN.ACTION_STATS' | translate }}</span>
+                </button>
+                <a mat-menu-item [routerLink]="['/sale', listing.id]" data-cy="action-view">
+                  <mat-icon>visibility</mat-icon>
+                  <span>{{ 'SALE.ADMIN.ACTION_VIEW' | translate }}</span>
+                </a>
+                @if (listing.statut === 'DRAFT') {
+                  <button mat-menu-item (click)="publish(listing)" data-cy="action-publish">
+                    <mat-icon>publish</mat-icon>
+                    <span>{{ 'SALE.ADMIN.ACTION_PUBLISH' | translate }}</span>
+                  </button>
+                } @else if (listing.statut === 'PUBLISHED') {
+                  <button mat-menu-item (click)="unpublish(listing)" data-cy="action-unpublish">
+                    <mat-icon>unpublished</mat-icon>
+                    <span>{{ 'SALE.ADMIN.ACTION_UNPUBLISH' | translate }}</span>
+                  </button>
+                  <button mat-menu-item (click)="markSold(listing)" data-cy="action-sold">
+                    <mat-icon>check_circle</mat-icon>
+                    <span>{{ 'SALE.ADMIN.ACTION_MARK_SOLD' | translate }}</span>
+                  </button>
+                }
+                <button mat-menu-item class="delete-action" (click)="delete(listing)" data-cy="action-delete">
+                  <mat-icon color="warn">delete</mat-icon>
+                  <span class="text-warn">{{ 'COMMON.DELETE' | translate }}</span>
+                </button>
+              </mat-menu>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+      </div>
+    } @else {
+      <!-- VUE GRILLE -->
+      <div class="grid-container" data-cy="sale-grid-container">
+        @for (listing of filteredListings(); track listing.id) {
+          <mat-card class="grid-card" data-cy="admin-sale-grid-card">
+            <div class="grid-thumb-wrapper">
+              <img
+                [src]="listing.photoUrl || '/assets/images/car-placeholder.jpg'"
+                [alt]="listing.marque + ' ' + listing.modele"
+                class="grid-thumb"
+              />
+              <span class="badge" [class.new]="listing.etat === 'NEW'" [class.used]="listing.etat === 'USED'">
+                {{ 'SALE.CONDITION.' + listing.etat | translate }}
+              </span>
+            </div>
+            <mat-card-content>
+              <div class="card-header-row">
+                <h3>{{ listing.marque }} {{ listing.modele }}</h3>
+                <span class="status-chip" [ngClass]="listing.statut?.toLowerCase() || 'published'">
+                  {{ 'SALE.STATUS.' + (listing.statut || 'PUBLISHED') | translate }}
+                </span>
+              </div>
+              <p class="price">{{ listing.prixVente | number }} MAD</p>
+              <div class="stats-pills">
+                <span title="Vues"><mat-icon>visibility</mat-icon> {{ getStats(listing).viewsCount }}</span>
+                <span title="Contacts"><mat-icon>chat</mat-icon> {{ getStats(listing).contactsCount }}</span>
+                <span title="Visites"><mat-icon>event</mat-icon> {{ getStats(listing).visitsCount }}</span>
+              </div>
+            </mat-card-content>
+            <mat-card-actions align="end">
+              <button mat-icon-button (click)="openStats(listing)" [title]="'SALE.ADMIN.ACTION_STATS' | translate">
+                <mat-icon>insights</mat-icon>
+              </button>
+              @if (listing.statut === 'DRAFT') {
+                <button mat-icon-button (click)="publish(listing)" [title]="'SALE.ADMIN.ACTION_PUBLISH' | translate">
+                  <mat-icon>publish</mat-icon>
+                </button>
+              } @else if (listing.statut === 'PUBLISHED') {
+                <button mat-icon-button (click)="markSold(listing)" [title]="'SALE.ADMIN.ACTION_MARK_SOLD' | translate">
+                  <mat-icon>check_circle</mat-icon>
+                </button>
+              }
+              <button mat-icon-button color="warn" (click)="delete(listing)" [title]="'COMMON.DELETE' | translate">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        }
+      </div>
+    }
+
+    <!-- Pagination -->
+    <mat-paginator
+      [length]="totalElements()"
+      [pageSize]="pageSize()"
+      [pageIndex]="pageIndex()"
+      [pageSizeOptions]="[5, 10, 20]"
+      (page)="onPageChange($event)"
+      class="paginator"
+      data-cy="admin-sale-paginator"
+    ></mat-paginator>
+  }
+</main>

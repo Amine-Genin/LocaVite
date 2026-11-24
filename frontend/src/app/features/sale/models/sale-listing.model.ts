@@ -86,3 +86,11 @@ export interface SaleListingPage {
   number: number;
   size: number;
 }
+
+export interface SaleListingStats {
+  listingId: number;
+  viewsCount: number;
+  contactsCount: number;
+  visitsCount: number;
+  daysOnline: number;
+}

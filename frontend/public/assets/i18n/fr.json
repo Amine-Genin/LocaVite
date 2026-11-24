@@ -401,6 +401,37 @@
         "EMPTY": "Aucune annonce comparable pour calculer une estimation.",
         "ERROR": "Impossible de calculer une estimation pour le moment."
       }
+    },
+    "ADMIN": {
+      "TITLE": "Gestion de mes annonces de vente",
+      "SUBTITLE": "Suivez et gérez les véhicules en vente de votre agence",
+      "NEW_LISTING": "Nouvelle annonce",
+      "EXPORT_CSV": "Exporter CSV",
+      "FILTER_STATUS": "Filtrer par statut",
+      "FILTER_CONDITION": "Filtrer par état",
+      "FILTER_SEARCH": "Rechercher",
+      "TABLE_VIEW": "Vue tableau",
+      "GRID_VIEW": "Vue grille",
+      "EMPTY_TITLE": "Aucune annonce trouvée",
+      "EMPTY_DESC": "Vous n'avez pas encore publié d'annonce de vente correspondant à ces critères.",
+      "COL_PHOTO": "Photo",
+      "COL_TITLE": "Titre",
+      "COL_CONDITION": "État",
+      "COL_PRICE": "Prix",
+      "COL_STATUS": "Statut",
+      "COL_VIEWS": "Vues",
+      "COL_CONTACTS": "Contacts",
+      "COL_ACTIONS": "Actions",
+      "ACTION_STATS": "Statistiques",
+      "ACTION_VIEW": "Voir la fiche",
+      "ACTION_PUBLISH": "Publier l'annonce",
+      "ACTION_UNPUBLISH": "Dépublier (brouillon)",
+      "ACTION_MARK_SOLD": "Marquer comme vendu",
+      "STATS_TITLE": "Statistiques de performance",
+      "VIEWS": "Nombre de vues",
+      "CONTACTS": "Demandes de contact",
+      "VISITS": "Visites & essais",
+      "DAYS_ONLINE": "Temps en ligne"
     }
   },
   "PAYMENT": {
