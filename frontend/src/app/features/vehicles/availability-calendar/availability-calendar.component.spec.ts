@@ -71,12 +71,12 @@ describe('AvailabilityCalendarComponent', () => {
   it('should allow range selection and emit dateRangeChange', () => {
     spyOn(component.dateRangeChange, 'emit');
 
-    const startDate = new Date('2026-12-02T00:00:00');
+    const startDate = new Date(futureFrom.getTime() + 24 * 60 * 60 * 1000);
     component.onDateSelected(startDate);
     expect(component.selectedRange.start).toEqual(startDate);
     expect(component.selectedRange.end).toBeNull();
 
-    const endDate = new Date('2026-12-06T00:00:00');
+    const endDate = new Date(futureFrom.getTime() + 3 * 24 * 60 * 60 * 1000);
     component.onDateSelected(endDate);
     expect(component.selectedRange.end).toEqual(endDate);
     expect(component.dateRangeChange.emit).toHaveBeenCalledWith({
@@ -86,10 +86,10 @@ describe('AvailabilityCalendarComponent', () => {
   });
 
   it('should show tooltip for unavailable dates', () => {
-    const unavail = new Date('2026-11-20T00:00:00');
+    const unavail = new Date(unavailFrom.getTime() + 24 * 60 * 60 * 1000);
     component.evaluateStatus(unavail);
 
     expect(component.selectedStatus).toBe('UNAVAILABLE');
-    expect(component.selectedTooltip).toContain('Indisponible (réservé du 2026-11-20 au 2026-11-25)');
+    expect(component.selectedTooltip).toContain(`Indisponible (réservé du ${formatIsoDate(unavailFrom)} au ${formatIsoDate(unavailTo)})`);
   });
 });
