@@ -125,6 +125,7 @@
               color="primary"
               type="button"
               [disabled]="vehicleForm.invalid"
+              data-cy="step-vehicle-next"
             >
               Suivant
             </button>
@@ -143,7 +144,15 @@
           </form>
           <div class="step-actions">
             <button mat-button matStepperPrevious type="button">Retour</button>
-            <button mat-flat-button matStepperNext color="primary" type="button">Suivant</button>
+            <button
+              mat-flat-button
+              matStepperNext
+              color="primary"
+              type="button"
+              data-cy="step-condition-next"
+            >
+              Suivant
+            </button>
           </div>
         </section>
       </mat-step>
@@ -203,6 +212,7 @@
               color="primary"
               type="button"
               [disabled]="priceForm.invalid"
+              data-cy="step-price-next"
             >
               Suivant
             </button>
@@ -234,6 +244,7 @@
                   matInput
                   [matDatepicker]="circulationPicker"
                   formControlName="dateMiseEnCirculation"
+                  data-cy="sale-circulation-input"
                 />
                 <mat-datepicker-toggle
                   matIconSuffix
@@ -264,6 +275,7 @@
               color="primary"
               type="button"
               [disabled]="detailsForm.invalid"
+              data-cy="step-details-next"
             >
               Suivant
             </button>
@@ -295,6 +307,7 @@
               color="primary"
               type="button"
               [disabled]="descriptionForm.invalid"
+              data-cy="step-description-next"
             >
               Suivant
             </button>
@@ -311,7 +324,15 @@
           ></app-photo-uploader>
           <div class="step-actions">
             <button mat-button matStepperPrevious type="button">Retour</button>
-            <button mat-flat-button matStepperNext color="primary" type="button">Suivant</button>
+            <button
+              mat-flat-button
+              matStepperNext
+              color="primary"
+              type="button"
+              data-cy="step-photos-next"
+            >
+              Suivant
+            </button>
           </div>
         </section>
       </mat-step>

@@ -1,26 +1,26 @@
 {
   "stats": {
     "suites": 5,
-    "tests": 20,
-    "passes": 20,
+    "tests": 30,
+    "passes": 27,
     "pending": 0,
-    "failures": 0,
-    "start": "2026-11-18T13:39:49.884Z",
-    "end": "2026-11-18T13:39:53.843Z",
-    "duration": 28477,
-    "passPercent": 100
+    "failures": 3,
+    "start": "2026-11-25T20:07:07.843Z",
+    "end": "2026-11-25T20:07:20.648Z",
+    "duration": 64787,
+    "passPercent": 90
   },
   "results": [
     {
-      "file": "cypress\\e2e\\invoice-download.cy.ts",
+      "file": "cypress\\e2e\\sale-contact.cy.ts",
       "suites": [
         {
-          "title": "Téléchargement de facture PDF (Succès, Espace client, Admin)",
+          "title": "Parcours de vente - Formulaire de contact (/sale/:id)",
           "tests": [
             {
-              "title": "permet au client de télécharger sa facture PDF depuis la page de confirmation (/payment/success)",
-              "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) permet au client de télécharger sa facture PDF depuis la page de confirmation (/payment/success)",
-              "duration": 1201,
+              "title": "ouvre la modale de contact depuis la fiche annonce",
+              "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) ouvre la modale de contact depuis la fiche annonce",
+              "duration": 5491,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -28,9 +28,9 @@
               "err": {}
             },
             {
-              "title": "affiche un message d’erreur convivial si le téléchargement de facture échoue",
-              "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) affiche un message d’erreur convivial si le téléchargement de facture échoue",
-              "duration": 707,
+              "title": "valide les champs obligatoires du formulaire de contact",
+              "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) valide les champs obligatoires du formulaire de contact",
+              "duration": 2412,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -38,9 +38,9 @@
               "err": {}
             },
             {
-              "title": "permet au client de télécharger sa facture depuis son historique de paiements (/my-payments)",
-              "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) permet au client de télécharger sa facture depuis son historique de paiements (/my-payments)",
-              "duration": 901,
+              "title": "valide le format invalide d adresse e-mail",
+              "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) valide le format invalide d adresse e-mail",
+              "duration": 1084,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -48,9 +48,29 @@
               "err": {}
             },
             {
-              "title": "permet à l’administrateur d’extraire la facture PDF depuis le tableau de bord (/admin/payments)",
-              "fullTitle": "Téléchargement de facture PDF (Succès, Espace client, Admin) permet à l’administrateur d’extraire la facture PDF depuis le tableau de bord (/admin/payments)",
-              "duration": 986,
+              "title": "envoie avec succès une demande de contact en tant que visiteur",
+              "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) envoie avec succès une demande de contact en tant que visiteur",
+              "duration": 2122,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "pré-remplit automatiquement les coordonnées de l utilisateur connecté",
+              "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) pré-remplit automatiquement les coordonnées de l utilisateur connecté",
+              "duration": 892,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche un message d erreur en cas d échec de l API",
+              "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) affiche un message d erreur en cas d échec de l API",
+              "duration": 2008,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -58,22 +78,22 @@
               "err": {}
             }
           ],
-          "passes": 4,
+          "passes": 6,
           "failures": 0,
           "pending": 0
         }
       ]
     },
     {
-      "file": "cypress\\e2e\\payment-cash.cy.ts",
+      "file": "cypress\\e2e\\sale-create.cy.ts",
       "suites": [
         {
-          "title": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY)",
+          "title": "Parcours de vente - Création et publication d annonce (/admin/sale/new)",
           "tests": [
             {
-              "title": "permet de choisir le paiement en espèces à la livraison (CASH_DELIVERY)",
-              "fullTitle": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY) permet de choisir le paiement en espèces à la livraison (CASH_DELIVERY)",
-              "duration": 2420,
+              "title": "redirige vers la page de connexion si l utilisateur n est pas authentifié",
+              "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) redirige vers la page de connexion si l utilisateur n est pas authentifié",
+              "duration": 1394,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -81,9 +101,9 @@
               "err": {}
             },
             {
-              "title": "permet de choisir le paiement en espèces en agence (CASH_AGENCY)",
-              "fullTitle": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY) permet de choisir le paiement en espèces en agence (CASH_AGENCY)",
-              "duration": 1064,
+              "title": "refuse l accès aux utilisateurs ayant uniquement le rôle CLIENT",
+              "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) refuse l accès aux utilisateurs ayant uniquement le rôle CLIENT",
+              "duration": 770,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -91,9 +111,111 @@
               "err": {}
             },
             {
-              "title": "permet à l’administrateur de confirmer la réception d’un paiement en espèces en attente",
-              "fullTitle": "Parcours de paiement en espèces (CASH_DELIVERY, CASH_AGENCY) permet à l’administrateur de confirmer la réception d’un paiement en espèces en attente",
-              "duration": 1217,
+              "title": "permet à une agence de créer et publier une annonce pour un véhicule existant",
+              "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) permet à une agence de créer et publier une annonce pour un véhicule existant",
+              "duration": 0,
+              "state": "failed",
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "err": {
+                "message": "Timed out retrying after 4000ms: `cy.clear()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"numeroChassis\" data-cy=\"sale-vin-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"numeroChassis\" id=\"mat-input-1\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">VIN / n...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with",
+                "estack": "CypressError: Timed out retrying after 4000ms: `cy.clear()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"numeroChassis\" data-cy=\"sale-vin-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"numeroChassis\" id=\"mat-input-1\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">VIN / n...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with\n    at ensureIsDescendent (http://localhost:4300/__cypress/runner/cypress_runner.js:112962:68)\n    at ensureDescendents (http://localhost:4300/__cypress/runner/cypress_runner.js:113013:5)\n    at ensureDescendentsAndScroll (http://localhost:4300/__cypress/runner/cypress_runner.js:113019:14)\n    at ensureElIsNotCovered (http://localhost:4300/__cypress/runner/cypress_runner.js:113150:5)\n    at runAllChecks (http://localhost:4300/__cypress/runner/cypress_runner.js:113349:52)\n    at retryActionability (http://localhost:4300/__cypress/runner/cypress_runner.js:113386:16)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise.attempt.Promise.try (http://localhost:4300/__cypress/runner/cypress_runner.js:4315:29)\n    at whenStable (http://localhost:4300/__cypress/runner/cypress_runner.js:143797:68)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:143738:14)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:4300/__cypress/runner/cypress_runner.js:1519:31)\n    at Promise._settlePromise (http://localhost:4300/__cypress/runner/cypress_runner.js:1576:18)\n    at Promise._settlePromise0 (http://localhost:4300/__cypress/runner/cypress_runner.js:1621:10)\n    at Promise._settlePromises (http://localhost:4300/__cypress/runner/cypress_runner.js:1701:18)\n    at Promise._fulfill (http://localhost:4300/__cypress/runner/cypress_runner.js:1645:18)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:5450:46)\nFrom Your Spec Code:\n    at Context.eval (webpack://locavite-frontend/./cypress/support/commands.ts:231:0)"
+              }
+            },
+            {
+              "title": "permet de sauvegarder une annonce sous forme de brouillon (DRAFT)",
+              "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) permet de sauvegarder une annonce sous forme de brouillon (DRAFT)",
+              "duration": 0,
+              "state": "failed",
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "err": {
+                "message": "Timed out retrying after 4000ms: `cy.clear()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"numeroChassis\" data-cy=\"sale-vin-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"numeroChassis\" id=\"mat-input-1\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">VIN / n...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with",
+                "estack": "CypressError: Timed out retrying after 4000ms: `cy.clear()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"numeroChassis\" data-cy=\"sale-vin-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"numeroChassis\" id=\"mat-input-1\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">VIN / n...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with\n    at ensureIsDescendent (http://localhost:4300/__cypress/runner/cypress_runner.js:112962:68)\n    at ensureDescendents (http://localhost:4300/__cypress/runner/cypress_runner.js:113013:5)\n    at ensureDescendentsAndScroll (http://localhost:4300/__cypress/runner/cypress_runner.js:113019:14)\n    at ensureElIsNotCovered (http://localhost:4300/__cypress/runner/cypress_runner.js:113150:5)\n    at runAllChecks (http://localhost:4300/__cypress/runner/cypress_runner.js:113349:52)\n    at retryActionability (http://localhost:4300/__cypress/runner/cypress_runner.js:113386:16)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise.attempt.Promise.try (http://localhost:4300/__cypress/runner/cypress_runner.js:4315:29)\n    at whenStable (http://localhost:4300/__cypress/runner/cypress_runner.js:143797:68)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:143738:14)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:4300/__cypress/runner/cypress_runner.js:1519:31)\n    at Promise._settlePromise (http://localhost:4300/__cypress/runner/cypress_runner.js:1576:18)\n    at Promise._settlePromise0 (http://localhost:4300/__cypress/runner/cypress_runner.js:1621:10)\n    at Promise._settlePromises (http://localhost:4300/__cypress/runner/cypress_runner.js:1701:18)\n    at Promise._fulfill (http://localhost:4300/__cypress/runner/cypress_runner.js:1645:18)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:5450:46)\nFrom Your Spec Code:\n    at Context.eval (webpack://locavite-frontend/./cypress/support/commands.ts:231:0)"
+              }
+            },
+            {
+              "title": "permet de visualiser l aperçu de l annonce avant publication",
+              "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) permet de visualiser l aperçu de l annonce avant publication",
+              "duration": 0,
+              "state": "failed",
+              "pass": false,
+              "fail": true,
+              "pending": false,
+              "err": {
+                "message": "Timed out retrying after 4000ms: `cy.type()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"dateMiseEnCirculation\" data-cy=\"sale-circulation-input\" class=\"mat-mdc-input-element mat-datepicker-input ng-untouched ng-pristine ng-invalid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"dateMiseEnCirculation\" ng-reflect-mat-datepicker=\"[object Object]\" id=\"mat-input-5\" required=\"\" aria-required=\"true\" aria-haspopup=\"dialog\" data-mat-calendar=\"mat-datepicker-0\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">Date de...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with",
+                "estack": "CypressError: Timed out retrying after 4000ms: `cy.type()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"dateMiseEnCirculation\" data-cy=\"sale-circulation-input\" class=\"mat-mdc-input-element mat-datepicker-input ng-untouched ng-pristine ng-invalid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"dateMiseEnCirculation\" ng-reflect-mat-datepicker=\"[object Object]\" id=\"mat-input-5\" required=\"\" aria-required=\"true\" aria-haspopup=\"dialog\" data-mat-calendar=\"mat-datepicker-0\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">Date de...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with\n    at ensureIsDescendent (http://localhost:4300/__cypress/runner/cypress_runner.js:112962:68)\n    at ensureDescendents (http://localhost:4300/__cypress/runner/cypress_runner.js:113013:5)\n    at ensureDescendentsAndScroll (http://localhost:4300/__cypress/runner/cypress_runner.js:113019:14)\n    at ensureElIsNotCovered (http://localhost:4300/__cypress/runner/cypress_runner.js:113150:5)\n    at runAllChecks (http://localhost:4300/__cypress/runner/cypress_runner.js:113349:52)\n    at retryActionability (http://localhost:4300/__cypress/runner/cypress_runner.js:113386:16)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise.attempt.Promise.try (http://localhost:4300/__cypress/runner/cypress_runner.js:4315:29)\n    at whenStable (http://localhost:4300/__cypress/runner/cypress_runner.js:143797:68)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:143738:14)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:4300/__cypress/runner/cypress_runner.js:1519:31)\n    at Promise._settlePromise (http://localhost:4300/__cypress/runner/cypress_runner.js:1576:18)\n    at Promise._settlePromise0 (http://localhost:4300/__cypress/runner/cypress_runner.js:1621:10)\n    at Promise._settlePromises (http://localhost:4300/__cypress/runner/cypress_runner.js:1701:18)\n    at Promise._fulfill (http://localhost:4300/__cypress/runner/cypress_runner.js:1645:18)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:5450:46)\nFrom Your Spec Code:\n    at Context.eval (webpack://locavite-frontend/./cypress/e2e/sale-create.cy.ts:164:0)"
+              }
+            }
+          ],
+          "passes": 2,
+          "failures": 3,
+          "pending": 0
+        }
+      ]
+    },
+    {
+      "file": "cypress\\e2e\\sale-detail.cy.ts",
+      "suites": [
+        {
+          "title": "Parcours de vente - Détail, Galerie et Historique (/sale/:id)",
+          "tests": [
+            {
+              "title": "affiche les caractéristiques complètes du véhicule et les spécifications",
+              "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche les caractéristiques complètes du véhicule et les spécifications",
+              "duration": 1999,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "permet de naviguer entre la liste et la vue détaillée",
+              "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) permet de naviguer entre la liste et la vue détaillée",
+              "duration": 1926,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche la galerie de photos et permet de faire défiler les images",
+              "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche la galerie de photos et permet de faire défiler les images",
+              "duration": 689,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche la frise chronologique d historique avec les événements vérifiés",
+              "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche la frise chronologique d historique avec les événements vérifiés",
+              "duration": 582,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "propose le partage WhatsApp et la copie de lien",
+              "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) propose le partage WhatsApp et la copie de lien",
+              "duration": 541,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche la section des annonces similaires",
+              "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche la section des annonces similaires",
+              "duration": 672,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -101,22 +223,22 @@
               "err": {}
             }
           ],
-          "passes": 3,
+          "passes": 6,
           "failures": 0,
           "pending": 0
         }
       ]
     },
     {
-      "file": "cypress\\e2e\\payment-cmi.cy.ts",
+      "file": "cypress\\e2e\\sale-list.cy.ts",
       "suites": [
         {
-          "title": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success)",
+          "title": "Parcours de vente - Liste et Filtres (/sale)",
           "tests": [
             {
-              "title": "redirige vers /login si un visiteur non authentifié accède à la page de paiement",
-              "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) redirige vers /login si un visiteur non authentifié accède à la page de paiement",
-              "duration": 1311,
+              "title": "affiche la liste des annonces de vente avec grille, cartes et prix",
+              "fullTitle": "Parcours de vente - Liste et Filtres (/sale) affiche la liste des annonces de vente avec grille, cartes et prix",
+              "duration": 2186,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -124,9 +246,9 @@
               "err": {}
             },
             {
-              "title": "affiche le récapitulatif de réservation et le choix de paiement CMI par défaut",
-              "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) affiche le récapitulatif de réservation et le choix de paiement CMI par défaut",
-              "duration": 782,
+              "title": "filtre les annonces par état (Neuf / Occasion)",
+              "fullTitle": "Parcours de vente - Liste et Filtres (/sale) filtre les annonces par état (Neuf / Occasion)",
+              "duration": 1999,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -134,9 +256,9 @@
               "err": {}
             },
             {
-              "title": "exécute le parcours complet CMI avec redirection vers la passerelle et page de confirmation",
-              "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) exécute le parcours complet CMI avec redirection vers la passerelle et page de confirmation",
-              "duration": 856,
+              "title": "applique les filtres depuis les paramètres de l URL",
+              "fullTitle": "Parcours de vente - Liste et Filtres (/sale) applique les filtres depuis les paramètres de l URL",
+              "duration": 797,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -144,9 +266,39 @@
               "err": {}
             },
             {
-              "title": "gère le polling d’état de paiement CMI jusqu’à obtention du statut SUCCESS",
-              "fullTitle": "Parcours de paiement CMI en ligne (/payment/:reservationId, /payment/success) gère le polling d’état de paiement CMI jusqu’à obtention du statut SUCCESS",
-              "duration": 2363,
+              "title": "permet de changer le tri des annonces",
+              "fullTitle": "Parcours de vente - Liste et Filtres (/sale) permet de changer le tri des annonces",
+              "duration": 818,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "gère la pagination des résultats",
+              "fullTitle": "Parcours de vente - Liste et Filtres (/sale) gère la pagination des résultats",
+              "duration": 884,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche l état vide lorsqu aucun résultat ne correspond",
+              "fullTitle": "Parcours de vente - Liste et Filtres (/sale) affiche l état vide lorsqu aucun résultat ne correspond",
+              "duration": 545,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "permet d ajouter une annonce aux favoris",
+              "fullTitle": "Parcours de vente - Liste et Filtres (/sale) permet d ajouter une annonce aux favoris",
+              "duration": 618,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -154,22 +306,22 @@
               "err": {}
             }
           ],
-          "passes": 4,
+          "passes": 7,
           "failures": 0,
           "pending": 0
         }
       ]
     },
     {
-      "file": "cypress\\e2e\\payment-failure.cy.ts",
+      "file": "cypress\\e2e\\sale-visit.cy.ts",
       "suites": [
         {
-          "title": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry)",
+          "title": "Parcours de vente - Demande de visite (/sale/:id)",
           "tests": [
             {
-              "title": "affiche un bandeau d’erreur explicite si l’initiation CMI échoue (ex: 503 Gateway Timeout)",
-              "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) affiche un bandeau d’erreur explicite si l’initiation CMI échoue (ex: 503 Gateway Timeout)",
-              "duration": 2195,
+              "title": "exige une authentification pour les visiteurs non connectés",
+              "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) exige une authentification pour les visiteurs non connectés",
+              "duration": 3591,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -177,9 +329,9 @@
               "err": {}
             },
             {
-              "title": "affiche la page /payment/failure avec motif d’échec et permet de retenter le paiement",
-              "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) affiche la page /payment/failure avec motif d’échec et permet de retenter le paiement",
-              "duration": 920,
+              "title": "affiche le formulaire complet de visite pour un client connecté",
+              "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) affiche le formulaire complet de visite pour un client connecté",
+              "duration": 2224,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -187,9 +339,9 @@
               "err": {}
             },
             {
-              "title": "redirige automatiquement vers /payment/failure si le polling CMI retourne un statut FAILED",
-              "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) redirige automatiquement vers /payment/failure si le polling CMI retourne un statut FAILED",
-              "duration": 456,
+              "title": "valide les champs obligatoires du formulaire de visite",
+              "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) valide les champs obligatoires du formulaire de visite",
+              "duration": 1212,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -197,9 +349,29 @@
               "err": {}
             },
             {
-              "title": "permet de compléter avec succès le paiement lors d’une nouvelle tentative après échec",
-              "fullTitle": "Gestion des échecs de paiement et parcours de nouvelle tentative (/payment/failure, retry) permet de compléter avec succès le paiement lors d’une nouvelle tentative après échec",
-              "duration": 948,
+              "title": "envoie avec succès une demande de visite simple",
+              "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) envoie avec succès une demande de visite simple",
+              "duration": 1819,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "permet de sélectionner un essai routier et de le soumettre",
+              "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) permet de sélectionner un essai routier et de le soumettre",
+              "duration": 1857,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche un message d erreur en cas d échec réseau",
+              "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) affiche un message d erreur en cas d échec réseau",
+              "duration": 1694,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -207,70 +379,7 @@
               "err": {}
             }
           ],
-          "passes": 4,
-          "failures": 0,
-          "pending": 0
-        }
-      ]
-    },
-    {
-      "file": "cypress\\e2e\\payment-refund.cy.ts",
-      "suites": [
-        {
-          "title": "Gestion des remboursements administrateur (/admin/payments)",
-          "tests": [
-            {
-              "title": "refuse l’accès au dashboard des paiements aux utilisateurs sans rôle ADMIN",
-              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) refuse l’accès au dashboard des paiements aux utilisateurs sans rôle ADMIN",
-              "duration": 1328,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "affiche le tableau des transactions et le bouton de remboursement pour les paiements réussis",
-              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) affiche le tableau des transactions et le bouton de remboursement pour les paiements réussis",
-              "duration": 1358,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action",
-              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) permet d’ouvrir et d’annuler la boîte de dialogue de remboursement sans action",
-              "duration": 2482,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "effectue un remboursement total (FULL) avec motif justificatif",
-              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) effectue un remboursement total (FULL) avec motif justificatif",
-              "duration": 1948,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            },
-            {
-              "title": "effectue un remboursement partiel (PARTIAL) avec montant et motif",
-              "fullTitle": "Gestion des remboursements administrateur (/admin/payments) effectue un remboursement partiel (PARTIAL) avec montant et motif",
-              "duration": 2064,
-              "state": "passed",
-              "pass": true,
-              "fail": false,
-              "pending": false,
-              "err": {}
-            }
-          ],
-          "passes": 5,
+          "passes": 6,
           "failures": 0,
           "pending": 0
         }

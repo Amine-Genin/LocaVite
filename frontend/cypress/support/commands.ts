@@ -29,6 +29,28 @@ export interface CreateReservationCommandOptions {
   submit?: boolean;
 }
 
+export interface CreateSaleListingCommandOptions {
+  mode?: 'EXISTING' | 'NEW';
+  vehicleId?: number;
+  vehicleIndex?: number;
+  marque?: string;
+  modele?: string;
+  annee?: number;
+  categorie?: string;
+  matricule?: string;
+  prixJour?: number;
+  prixVenteVehicle?: number;
+  etat?: 'NEW' | 'USED';
+  prixVente?: number;
+  prixNego?: boolean;
+  numeroChassis?: string;
+  kilometrage?: number;
+  nombreProprietaires?: number;
+  titre?: string;
+  description?: string;
+  statut?: 'DRAFT' | 'PUBLISHED';
+}
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
@@ -42,6 +64,11 @@ declare global {
        * Authenticates a client user for reservation E2E tests.
        */
       loginAsClient(email?: string, password?: string, profile?: Record<string, unknown>): Chainable<void>;
+
+      /**
+       * Authenticates an agency user for sale E2E tests.
+       */
+      loginAsAgence(email?: string, password?: string): Chainable<void>;
 
       /**
        * Authenticates an administrator user for E2E tests.
@@ -72,6 +99,11 @@ declare global {
        * Fills the reservation stepper steps and optionally submits the reservation.
        */
       createReservation(options?: CreateReservationCommandOptions): Chainable<void>;
+
+      /**
+       * Fills the sale listing creation stepper steps (/admin/sale/new) and submits.
+       */
+      createSaleListing(options?: CreateSaleListingCommandOptions): Chainable<void>;
     }
   }
 }
@@ -308,5 +340,127 @@ Cypress.Commands.add('createReservation', (options: CreateReservationCommandOpti
 
   if (submit) {
     cy.get('[data-cy="confirm-reservation-btn"]').should('not.be.disabled').click();
+  }
+});
+
+Cypress.Commands.add(
+  'loginAsAgence',
+  (email = 'agence@locavite.ma', _password = 'AgencePass123!') => {
+    const roles = ['AGENCE'];
+    const token = createMockJwt(email, roles);
+    const user = {
+      id: 3,
+      nom: 'Agence',
+      prenom: 'Casablanca',
+      email,
+      telephone: '0612345678',
+      roles,
+      createdAt: '2026-01-15T10:00:00',
+    };
+
+    cy.window({ log: false }).then((win) => {
+      win.localStorage.setItem('accessToken', token);
+      win.localStorage.setItem('refreshToken', 'mock-refresh-token');
+      win.localStorage.setItem('currentUser', JSON.stringify(user));
+      win.localStorage.setItem('auth_token', token);
+      win.localStorage.setItem('auth_user', JSON.stringify(user));
+    });
+
+    cy.on('window:before:load', (win) => {
+      win.localStorage.setItem('accessToken', token);
+      win.localStorage.setItem('refreshToken', 'mock-refresh-token');
+      win.localStorage.setItem('currentUser', JSON.stringify(user));
+      win.localStorage.setItem('auth_token', token);
+      win.localStorage.setItem('auth_user', JSON.stringify(user));
+    });
+  },
+);
+
+Cypress.Commands.add('createSaleListing', (options: CreateSaleListingCommandOptions = {}) => {
+  const {
+    mode = 'EXISTING',
+    vehicleId,
+    vehicleIndex = 0,
+    marque = 'Dacia',
+    modele = 'Duster',
+    categorie = 'SUV',
+    matricule = '12345-A-1',
+    etat = 'USED',
+    prixVente = 185000,
+    prixNego = true,
+    numeroChassis = 'VF1HJD20260315001',
+    kilometrage = 45000,
+    nombreProprietaires = 1,
+    titre = 'Dacia Duster 1.5 dCi Prestige',
+    description = 'Véhicule en parfait état, première main, révisé régulièrement.',
+    statut = 'PUBLISHED',
+  } = options;
+
+  // Étape 1 : Véhicule
+  if (mode === 'EXISTING') {
+    cy.get('[data-cy="existing-vehicle-select"]').click();
+    if (vehicleId) {
+      cy.get(`mat-option[ng-reflect-value="${vehicleId}"]`).click();
+    } else {
+      cy.get('mat-option').eq(vehicleIndex).click();
+    }
+  } else {
+    cy.get('[data-cy="vehicle-mode"] mat-radio-button').last().click();
+    cy.get('[data-cy="new-brand-select"]').click();
+    cy.get('mat-option').contains(marque).click();
+    cy.get('[data-cy="new-modele-input"]').clear().type(modele);
+    cy.get('[data-cy="new-category-select"]').click();
+    cy.get('mat-option').contains(categorie).click();
+    cy.get('[data-cy="new-matricule-input"]').clear().type(matricule);
+  }
+  cy.get('[data-cy="step-vehicle-next"]').click();
+
+  // Étape 2 : État
+  if (etat === 'NEW') {
+    cy.get('[data-cy="sale-condition"] mat-radio-button').first().click();
+  } else {
+    cy.get('[data-cy="sale-condition"] mat-radio-button').last().click();
+  }
+  cy.get('[data-cy="step-condition-next"]').click();
+
+  // Étape 3 : Prix
+  cy.get('[data-cy="sale-price-input"]').clear().type(String(prixVente));
+  if (prixNego) {
+    cy.get('[data-cy="sale-price-negotiable"] input[type="checkbox"]').check({ force: true });
+  } else {
+    cy.get('[data-cy="sale-price-negotiable"] input[type="checkbox"]').uncheck({ force: true });
+  }
+  cy.get('[data-cy="step-price-next"]').click();
+
+  // Étape 4 : Détails
+  if (numeroChassis) {
+    cy.get('[data-cy="sale-vin-input"]').clear().type(numeroChassis);
+  }
+  if (etat === 'USED') {
+    if (kilometrage !== undefined) {
+      cy.get('[data-cy="sale-mileage-input"]').clear().type(String(kilometrage));
+    }
+    cy.get('[data-cy="sale-circulation-input"]').clear().type('2023-01-15');
+    if (nombreProprietaires !== undefined) {
+      cy.get('[data-cy="sale-owners-input"]').clear().type(String(nombreProprietaires));
+    }
+  }
+  cy.get('[data-cy="step-details-next"]').click();
+
+  // Étape 5 : Description
+  cy.get('[data-cy="sale-title-input"]').clear().type(titre);
+  cy.get('[data-cy="sale-description-input"]').clear().type(description);
+  cy.get('[data-cy="step-description-next"]').click();
+
+  // Étape 6 : Photos
+  cy.get('[data-cy="step-photos-next"]').click();
+
+  // Étape 7 : Publication
+  if (statut === 'DRAFT') {
+    cy.get('[data-cy="sale-publication-status"] mat-radio-button').first().click();
+    cy.get('[data-cy="sale-draft-button"]').click();
+  } else {
+    cy.get('[data-cy="sale-publication-status"] mat-radio-button').last().click();
+    cy.get('[data-cy="sale-publish-button"]').click();
   }
 });
