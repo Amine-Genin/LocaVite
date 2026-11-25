@@ -22,6 +22,7 @@ import ma.locavite.vehicle.repository.VehicleRepository;
 import ma.locavite.vehicle.service.CurrentUserService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,6 +60,7 @@ public class SaleListingService {
         this(repository, vehicleRepository, mapper, currentUser, null);
     }
 
+    @Autowired
     public SaleListingService(
             SaleListingRepository repository,
             VehicleRepository vehicleRepository,

@@ -17,6 +17,7 @@ import ma.locavite.sale.repository.VisitRequestRepository;
 import ma.locavite.sale.event.VisitConfirmedEvent;
 import ma.locavite.sale.event.VisitReminderJ1Event;
 import ma.locavite.sale.event.VisitRequestCreatedEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import ma.locavite.vehicle.service.CurrentUserService;
 import org.slf4j.Logger;
@@ -54,6 +55,7 @@ public class VisitService {
         this(visitRepository, listingRepository, userRepository, currentUser, mailSender, smsService, null);
     }
 
+    @Autowired
     public VisitService(
             VisitRequestRepository visitRepository,
             SaleListingRepository listingRepository,
