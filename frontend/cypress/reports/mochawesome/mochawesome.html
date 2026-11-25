@@ -138,12 +138,12 @@
       <h1>Mochawesome Report — LocaVite E2E Cypress</h1>
     </div>
     <div class="stats-bar">
-      <span class="stat-pill">Suites: 5</span>
-      <span class="stat-pill">Tests: 30</span>
-      <span class="stat-pill pass">Passes: 27</span>
-      <span class="stat-pill fail">Failures: 3</span>
-      <span class="stat-pill">Pass %: 90%</span>
-      <span class="stat-pill">Duration: 64.79s</span>
+      <span class="stat-pill">Suites: 7</span>
+      <span class="stat-pill">Tests: 35</span>
+      <span class="stat-pill pass">Passes: 35</span>
+      <span class="stat-pill fail">Failures: 0</span>
+      <span class="stat-pill">Pass %: 100%</span>
+      <span class="stat-pill">Duration: 85.67s</span>
     </div>
   </header>
   <main>
@@ -159,7 +159,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">ouvre la modale de contact depuis la fiche annonce</span>
-                    <span class="test-duration">5491 ms</span>
+                    <span class="test-duration">5772 ms</span>
                   </div>
                   
                 </li>
@@ -168,7 +168,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">valide les champs obligatoires du formulaire de contact</span>
-                    <span class="test-duration">2412 ms</span>
+                    <span class="test-duration">2850 ms</span>
                   </div>
                   
                 </li>
@@ -177,7 +177,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">valide le format invalide d adresse e-mail</span>
-                    <span class="test-duration">1084 ms</span>
+                    <span class="test-duration">2132 ms</span>
                   </div>
                   
                 </li>
@@ -186,7 +186,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">envoie avec succès une demande de contact en tant que visiteur</span>
-                    <span class="test-duration">2122 ms</span>
+                    <span class="test-duration">2618 ms</span>
                   </div>
                   
                 </li>
@@ -195,7 +195,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">pré-remplit automatiquement les coordonnées de l utilisateur connecté</span>
-                    <span class="test-duration">892 ms</span>
+                    <span class="test-duration">868 ms</span>
                   </div>
                   
                 </li>
@@ -204,7 +204,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche un message d erreur en cas d échec de l API</span>
-                    <span class="test-duration">2008 ms</span>
+                    <span class="test-duration">2725 ms</span>
                   </div>
                   
                 </li>
@@ -222,7 +222,7 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">redirige vers la page de connexion si l utilisateur n est pas authentifié</span>
-                    <span class="test-duration">1394 ms</span>
+                    <span class="test-duration">1482 ms</span>
                   </div>
                   
                 </li>
@@ -231,123 +231,36 @@
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">refuse l accès aux utilisateurs ayant uniquement le rôle CLIENT</span>
-                    <span class="test-duration">770 ms</span>
+                    <span class="test-duration">1034 ms</span>
                   </div>
                   
                 </li>
 
-                <li class="test-item failed">
+                <li class="test-item passed">
                   <div class="test-row">
-                    <span class="status-badge failed">✗</span>
+                    <span class="status-badge passed">✓</span>
                     <span class="test-title">permet à une agence de créer et publier une annonce pour un véhicule existant</span>
-                    <span class="test-duration">0 ms</span>
+                    <span class="test-duration">8081 ms</span>
                   </div>
-                  <pre class="error-box">CypressError: Timed out retrying after 4000ms: `cy.clear()` failed because this element:
-
-`&lt;input _ngcontent-ng-c3415424962=&quot;&quot; matinput=&quot;&quot; formcontrolname=&quot;numeroChassis&quot; data-cy=&quot;sale-vin-input&quot; class=&quot;mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored&quot; ng-reflect-name=&quot;numeroChassis&quot; id=&quot;mat-input-1&quot; aria-invalid=&quot;false&quot; aria-required=&quot;false&quot;&gt;`
-
-is being covered by another element:
-
-`&lt;mat-label _ngcontent-ng-c3415424962=&quot;&quot;&gt;VIN / n...&lt;/mat-label&gt;`
-
-Fix this problem, or use {force: true} to disable error checking.
-
-https://on.cypress.io/element-cannot-be-interacted-with
-    at ensureIsDescendent (http://localhost:4300/__cypress/runner/cypress_runner.js:112962:68)
-    at ensureDescendents (http://localhost:4300/__cypress/runner/cypress_runner.js:113013:5)
-    at ensureDescendentsAndScroll (http://localhost:4300/__cypress/runner/cypress_runner.js:113019:14)
-    at ensureElIsNotCovered (http://localhost:4300/__cypress/runner/cypress_runner.js:113150:5)
-    at runAllChecks (http://localhost:4300/__cypress/runner/cypress_runner.js:113349:52)
-    at retryActionability (http://localhost:4300/__cypress/runner/cypress_runner.js:113386:16)
-    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)
-    at Promise.attempt.Promise.try (http://localhost:4300/__cypress/runner/cypress_runner.js:4315:29)
-    at whenStable (http://localhost:4300/__cypress/runner/cypress_runner.js:143797:68)
-    at &lt;unknown&gt; (http://localhost:4300/__cypress/runner/cypress_runner.js:143738:14)
-    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)
-    at Promise._settlePromiseFromHandler (http://localhost:4300/__cypress/runner/cypress_runner.js:1519:31)
-    at Promise._settlePromise (http://localhost:4300/__cypress/runner/cypress_runner.js:1576:18)
-    at Promise._settlePromise0 (http://localhost:4300/__cypress/runner/cypress_runner.js:1621:10)
-    at Promise._settlePromises (http://localhost:4300/__cypress/runner/cypress_runner.js:1701:18)
-    at Promise._fulfill (http://localhost:4300/__cypress/runner/cypress_runner.js:1645:18)
-    at &lt;unknown&gt; (http://localhost:4300/__cypress/runner/cypress_runner.js:5450:46)
-From Your Spec Code:
-    at Context.eval (webpack://locavite-frontend/./cypress/support/commands.ts:231:0)</pre>
+                  
                 </li>
 
-                <li class="test-item failed">
+                <li class="test-item passed">
                   <div class="test-row">
-                    <span class="status-badge failed">✗</span>
+                    <span class="status-badge passed">✓</span>
                     <span class="test-title">permet de sauvegarder une annonce sous forme de brouillon (DRAFT)</span>
-                    <span class="test-duration">0 ms</span>
+                    <span class="test-duration">7177 ms</span>
                   </div>
-                  <pre class="error-box">CypressError: Timed out retrying after 4000ms: `cy.clear()` failed because this element:
-
-`&lt;input _ngcontent-ng-c3415424962=&quot;&quot; matinput=&quot;&quot; formcontrolname=&quot;numeroChassis&quot; data-cy=&quot;sale-vin-input&quot; class=&quot;mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored&quot; ng-reflect-name=&quot;numeroChassis&quot; id=&quot;mat-input-1&quot; aria-invalid=&quot;false&quot; aria-required=&quot;false&quot;&gt;`
-
-is being covered by another element:
-
-`&lt;mat-label _ngcontent-ng-c3415424962=&quot;&quot;&gt;VIN / n...&lt;/mat-label&gt;`
-
-Fix this problem, or use {force: true} to disable error checking.
-
-https://on.cypress.io/element-cannot-be-interacted-with
-    at ensureIsDescendent (http://localhost:4300/__cypress/runner/cypress_runner.js:112962:68)
-    at ensureDescendents (http://localhost:4300/__cypress/runner/cypress_runner.js:113013:5)
-    at ensureDescendentsAndScroll (http://localhost:4300/__cypress/runner/cypress_runner.js:113019:14)
-    at ensureElIsNotCovered (http://localhost:4300/__cypress/runner/cypress_runner.js:113150:5)
-    at runAllChecks (http://localhost:4300/__cypress/runner/cypress_runner.js:113349:52)
-    at retryActionability (http://localhost:4300/__cypress/runner/cypress_runner.js:113386:16)
-    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)
-    at Promise.attempt.Promise.try (http://localhost:4300/__cypress/runner/cypress_runner.js:4315:29)
-    at whenStable (http://localhost:4300/__cypress/runner/cypress_runner.js:143797:68)
-    at &lt;unknown&gt; (http://localhost:4300/__cypress/runner/cypress_runner.js:143738:14)
-    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)
-    at Promise._settlePromiseFromHandler (http://localhost:4300/__cypress/runner/cypress_runner.js:1519:31)
-    at Promise._settlePromise (http://localhost:4300/__cypress/runner/cypress_runner.js:1576:18)
-    at Promise._settlePromise0 (http://localhost:4300/__cypress/runner/cypress_runner.js:1621:10)
-    at Promise._settlePromises (http://localhost:4300/__cypress/runner/cypress_runner.js:1701:18)
-    at Promise._fulfill (http://localhost:4300/__cypress/runner/cypress_runner.js:1645:18)
-    at &lt;unknown&gt; (http://localhost:4300/__cypress/runner/cypress_runner.js:5450:46)
-From Your Spec Code:
-    at Context.eval (webpack://locavite-frontend/./cypress/support/commands.ts:231:0)</pre>
+                  
                 </li>
 
-                <li class="test-item failed">
+                <li class="test-item passed">
                   <div class="test-row">
-                    <span class="status-badge failed">✗</span>
+                    <span class="status-badge passed">✓</span>
                     <span class="test-title">permet de visualiser l aperçu de l annonce avant publication</span>
-                    <span class="test-duration">0 ms</span>
+                    <span class="test-duration">4851 ms</span>
                   </div>
-                  <pre class="error-box">CypressError: Timed out retrying after 4000ms: `cy.type()` failed because this element:
-
-`&lt;input _ngcontent-ng-c3415424962=&quot;&quot; matinput=&quot;&quot; formcontrolname=&quot;dateMiseEnCirculation&quot; data-cy=&quot;sale-circulation-input&quot; class=&quot;mat-mdc-input-element mat-datepicker-input ng-untouched ng-pristine ng-invalid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored&quot; ng-reflect-name=&quot;dateMiseEnCirculation&quot; ng-reflect-mat-datepicker=&quot;[object Object]&quot; id=&quot;mat-input-5&quot; required=&quot;&quot; aria-required=&quot;true&quot; aria-haspopup=&quot;dialog&quot; data-mat-calendar=&quot;mat-datepicker-0&quot;&gt;`
-
-is being covered by another element:
-
-`&lt;mat-label _ngcontent-ng-c3415424962=&quot;&quot;&gt;Date de...&lt;/mat-label&gt;`
-
-Fix this problem, or use {force: true} to disable error checking.
-
-https://on.cypress.io/element-cannot-be-interacted-with
-    at ensureIsDescendent (http://localhost:4300/__cypress/runner/cypress_runner.js:112962:68)
-    at ensureDescendents (http://localhost:4300/__cypress/runner/cypress_runner.js:113013:5)
-    at ensureDescendentsAndScroll (http://localhost:4300/__cypress/runner/cypress_runner.js:113019:14)
-    at ensureElIsNotCovered (http://localhost:4300/__cypress/runner/cypress_runner.js:113150:5)
-    at runAllChecks (http://localhost:4300/__cypress/runner/cypress_runner.js:113349:52)
-    at retryActionability (http://localhost:4300/__cypress/runner/cypress_runner.js:113386:16)
-    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)
-    at Promise.attempt.Promise.try (http://localhost:4300/__cypress/runner/cypress_runner.js:4315:29)
-    at whenStable (http://localhost:4300/__cypress/runner/cypress_runner.js:143797:68)
-    at &lt;unknown&gt; (http://localhost:4300/__cypress/runner/cypress_runner.js:143738:14)
-    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)
-    at Promise._settlePromiseFromHandler (http://localhost:4300/__cypress/runner/cypress_runner.js:1519:31)
-    at Promise._settlePromise (http://localhost:4300/__cypress/runner/cypress_runner.js:1576:18)
-    at Promise._settlePromise0 (http://localhost:4300/__cypress/runner/cypress_runner.js:1621:10)
-    at Promise._settlePromises (http://localhost:4300/__cypress/runner/cypress_runner.js:1701:18)
-    at Promise._fulfill (http://localhost:4300/__cypress/runner/cypress_runner.js:1645:18)
-    at &lt;unknown&gt; (http://localhost:4300/__cypress/runner/cypress_runner.js:5450:46)
-From Your Spec Code:
-    at Context.eval (webpack://locavite-frontend/./cypress/e2e/sale-create.cy.ts:164:0)</pre>
+                  
                 </li>
               </ul>
             </div>
@@ -363,7 +276,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche les caractéristiques complètes du véhicule et les spécifications</span>
-                    <span class="test-duration">1999 ms</span>
+                    <span class="test-duration">2005 ms</span>
                   </div>
                   
                 </li>
@@ -372,7 +285,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet de naviguer entre la liste et la vue détaillée</span>
-                    <span class="test-duration">1926 ms</span>
+                    <span class="test-duration">1773 ms</span>
                   </div>
                   
                 </li>
@@ -381,7 +294,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche la galerie de photos et permet de faire défiler les images</span>
-                    <span class="test-duration">689 ms</span>
+                    <span class="test-duration">995 ms</span>
                   </div>
                   
                 </li>
@@ -390,7 +303,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche la frise chronologique d historique avec les événements vérifiés</span>
-                    <span class="test-duration">582 ms</span>
+                    <span class="test-duration">677 ms</span>
                   </div>
                   
                 </li>
@@ -399,7 +312,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">propose le partage WhatsApp et la copie de lien</span>
-                    <span class="test-duration">541 ms</span>
+                    <span class="test-duration">670 ms</span>
                   </div>
                   
                 </li>
@@ -408,7 +321,70 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche la section des annonces similaires</span>
-                    <span class="test-duration">672 ms</span>
+                    <span class="test-duration">727 ms</span>
+                  </div>
+                  
+                </li>
+              </ul>
+            </div>
+
+            <div class="suite-card">
+              <div class="suite-header">
+                <h3>Estimation dans le formulaire de vente agence (/admin/sale/new)</h3>
+                <span class="suite-file">cypress\e2e\sale-estimate.cy.ts</span>
+              </div>
+              <ul class="test-list">
+                
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">calcule et affiche l estimation ML indicative avec fourchette de prix</span>
+                    <span class="test-duration">3700 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche un message lorsqu aucune annonce comparable n est disponible</span>
+                    <span class="test-duration">1756 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche une bannière d erreur si le service d estimation ML échoue</span>
+                    <span class="test-duration">1529 ms</span>
+                  </div>
+                  
+                </li>
+              </ul>
+            </div>
+
+            <div class="suite-card">
+              <div class="suite-header">
+                <h3>Estimation sur la page de détail (/sale/:id)</h3>
+                <span class="suite-file">cypress\e2e\sale-estimate.cy.ts</span>
+              </div>
+              <ul class="test-list">
+                
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche l estimation basée sur le marché pour un véhicule d occasion</span>
+                    <span class="test-duration">1296 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">masque le bouton d estimation pour un véhicule neuf</span>
+                    <span class="test-duration">668 ms</span>
                   </div>
                   
                 </li>
@@ -426,7 +402,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche la liste des annonces de vente avec grille, cartes et prix</span>
-                    <span class="test-duration">2186 ms</span>
+                    <span class="test-duration">2390 ms</span>
                   </div>
                   
                 </li>
@@ -435,7 +411,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">filtre les annonces par état (Neuf / Occasion)</span>
-                    <span class="test-duration">1999 ms</span>
+                    <span class="test-duration">2357 ms</span>
                   </div>
                   
                 </li>
@@ -444,7 +420,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">applique les filtres depuis les paramètres de l URL</span>
-                    <span class="test-duration">797 ms</span>
+                    <span class="test-duration">762 ms</span>
                   </div>
                   
                 </li>
@@ -453,7 +429,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet de changer le tri des annonces</span>
-                    <span class="test-duration">818 ms</span>
+                    <span class="test-duration">1121 ms</span>
                   </div>
                   
                 </li>
@@ -462,7 +438,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">gère la pagination des résultats</span>
-                    <span class="test-duration">884 ms</span>
+                    <span class="test-duration">987 ms</span>
                   </div>
                   
                 </li>
@@ -471,7 +447,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche l état vide lorsqu aucun résultat ne correspond</span>
-                    <span class="test-duration">545 ms</span>
+                    <span class="test-duration">1013 ms</span>
                   </div>
                   
                 </li>
@@ -480,7 +456,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet d ajouter une annonce aux favoris</span>
-                    <span class="test-duration">618 ms</span>
+                    <span class="test-duration">756 ms</span>
                   </div>
                   
                 </li>
@@ -498,7 +474,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">exige une authentification pour les visiteurs non connectés</span>
-                    <span class="test-duration">3591 ms</span>
+                    <span class="test-duration">3213 ms</span>
                   </div>
                   
                 </li>
@@ -507,7 +483,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche le formulaire complet de visite pour un client connecté</span>
-                    <span class="test-duration">2224 ms</span>
+                    <span class="test-duration">3255 ms</span>
                   </div>
                   
                 </li>
@@ -516,7 +492,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">valide les champs obligatoires du formulaire de visite</span>
-                    <span class="test-duration">1212 ms</span>
+                    <span class="test-duration">2382 ms</span>
                   </div>
                   
                 </li>
@@ -525,7 +501,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">envoie avec succès une demande de visite simple</span>
-                    <span class="test-duration">1819 ms</span>
+                    <span class="test-duration">2556 ms</span>
                   </div>
                   
                 </li>
@@ -534,7 +510,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">permet de sélectionner un essai routier et de le soumettre</span>
-                    <span class="test-duration">1857 ms</span>
+                    <span class="test-duration">2842 ms</span>
                   </div>
                   
                 </li>
@@ -543,7 +519,7 @@ From Your Spec Code:
                   <div class="test-row">
                     <span class="status-badge passed">✓</span>
                     <span class="test-title">affiche un message d erreur en cas d échec réseau</span>
-                    <span class="test-duration">1694 ms</span>
+                    <span class="test-duration">2623 ms</span>
                   </div>
                   
                 </li>

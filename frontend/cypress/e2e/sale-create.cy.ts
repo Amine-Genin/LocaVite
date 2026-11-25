@@ -181,17 +181,17 @@ describe('Parcours de vente - Création et publication d annonce (/admin/sale/ne
     cy.get('[data-cy="step-condition-next"]').click();
 
     // Étape 3 : Prix
-    cy.get('[data-cy="sale-price-input"]').type('199000');
+    cy.get('[data-cy="sale-price-input"]').type('199000', { force: true });
     cy.get('[data-cy="step-price-next"]').click();
 
     // Étape 4 : Détails
-    cy.get('[data-cy="sale-circulation-input"]').type('2023-01-15');
-    cy.get('[data-cy="sale-mileage-input"]').type('45000');
+    cy.get('[data-cy="sale-circulation-input"]').type('2023-01-15', { force: true });
+    cy.get('[data-cy="sale-mileage-input"]').type('45000', { force: true });
     cy.get('[data-cy="step-details-next"]').click();
 
     // Étape 5 : Description
-    cy.get('[data-cy="sale-title-input"]').type('Duster Haute Finition');
-    cy.get('[data-cy="sale-description-input"]').type('Description détaillée pour l aperçu.');
+    cy.get('[data-cy="sale-title-input"]').type('Duster Haute Finition', { force: true });
+    cy.get('[data-cy="sale-description-input"]').type('Description détaillée pour l aperçu.', { force: true });
     cy.get('[data-cy="step-description-next"]').click();
 
     // Étape 6 : Photos

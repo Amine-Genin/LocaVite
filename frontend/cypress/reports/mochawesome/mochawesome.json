@@ -1,14 +1,14 @@
 {
   "stats": {
-    "suites": 5,
-    "tests": 30,
-    "passes": 27,
+    "suites": 7,
+    "tests": 35,
+    "passes": 35,
     "pending": 0,
-    "failures": 3,
-    "start": "2026-11-25T20:07:07.843Z",
-    "end": "2026-11-25T20:07:20.648Z",
-    "duration": 64787,
-    "passPercent": 90
+    "failures": 0,
+    "start": "2026-11-25T20:34:55.551Z",
+    "end": "2026-11-25T20:35:13.230Z",
+    "duration": 85668,
+    "passPercent": 100
   },
   "results": [
     {
@@ -20,7 +20,7 @@
             {
               "title": "ouvre la modale de contact depuis la fiche annonce",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) ouvre la modale de contact depuis la fiche annonce",
-              "duration": 5491,
+              "duration": 5772,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -30,7 +30,7 @@
             {
               "title": "valide les champs obligatoires du formulaire de contact",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) valide les champs obligatoires du formulaire de contact",
-              "duration": 2412,
+              "duration": 2850,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -40,7 +40,7 @@
             {
               "title": "valide le format invalide d adresse e-mail",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) valide le format invalide d adresse e-mail",
-              "duration": 1084,
+              "duration": 2132,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -50,7 +50,7 @@
             {
               "title": "envoie avec succès une demande de contact en tant que visiteur",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) envoie avec succès une demande de contact en tant que visiteur",
-              "duration": 2122,
+              "duration": 2618,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -60,7 +60,7 @@
             {
               "title": "pré-remplit automatiquement les coordonnées de l utilisateur connecté",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) pré-remplit automatiquement les coordonnées de l utilisateur connecté",
-              "duration": 892,
+              "duration": 868,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -70,7 +70,7 @@
             {
               "title": "affiche un message d erreur en cas d échec de l API",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) affiche un message d erreur en cas d échec de l API",
-              "duration": 2008,
+              "duration": 2725,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -93,7 +93,7 @@
             {
               "title": "redirige vers la page de connexion si l utilisateur n est pas authentifié",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) redirige vers la page de connexion si l utilisateur n est pas authentifié",
-              "duration": 1394,
+              "duration": 1482,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -103,7 +103,7 @@
             {
               "title": "refuse l accès aux utilisateurs ayant uniquement le rôle CLIENT",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) refuse l accès aux utilisateurs ayant uniquement le rôle CLIENT",
-              "duration": 770,
+              "duration": 1034,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -113,45 +113,36 @@
             {
               "title": "permet à une agence de créer et publier une annonce pour un véhicule existant",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) permet à une agence de créer et publier une annonce pour un véhicule existant",
-              "duration": 0,
-              "state": "failed",
-              "pass": false,
-              "fail": true,
+              "duration": 8081,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
               "pending": false,
-              "err": {
-                "message": "Timed out retrying after 4000ms: `cy.clear()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"numeroChassis\" data-cy=\"sale-vin-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"numeroChassis\" id=\"mat-input-1\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">VIN / n...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with",
-                "estack": "CypressError: Timed out retrying after 4000ms: `cy.clear()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"numeroChassis\" data-cy=\"sale-vin-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"numeroChassis\" id=\"mat-input-1\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">VIN / n...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with\n    at ensureIsDescendent (http://localhost:4300/__cypress/runner/cypress_runner.js:112962:68)\n    at ensureDescendents (http://localhost:4300/__cypress/runner/cypress_runner.js:113013:5)\n    at ensureDescendentsAndScroll (http://localhost:4300/__cypress/runner/cypress_runner.js:113019:14)\n    at ensureElIsNotCovered (http://localhost:4300/__cypress/runner/cypress_runner.js:113150:5)\n    at runAllChecks (http://localhost:4300/__cypress/runner/cypress_runner.js:113349:52)\n    at retryActionability (http://localhost:4300/__cypress/runner/cypress_runner.js:113386:16)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise.attempt.Promise.try (http://localhost:4300/__cypress/runner/cypress_runner.js:4315:29)\n    at whenStable (http://localhost:4300/__cypress/runner/cypress_runner.js:143797:68)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:143738:14)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:4300/__cypress/runner/cypress_runner.js:1519:31)\n    at Promise._settlePromise (http://localhost:4300/__cypress/runner/cypress_runner.js:1576:18)\n    at Promise._settlePromise0 (http://localhost:4300/__cypress/runner/cypress_runner.js:1621:10)\n    at Promise._settlePromises (http://localhost:4300/__cypress/runner/cypress_runner.js:1701:18)\n    at Promise._fulfill (http://localhost:4300/__cypress/runner/cypress_runner.js:1645:18)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:5450:46)\nFrom Your Spec Code:\n    at Context.eval (webpack://locavite-frontend/./cypress/support/commands.ts:231:0)"
-              }
+              "err": {}
             },
             {
               "title": "permet de sauvegarder une annonce sous forme de brouillon (DRAFT)",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) permet de sauvegarder une annonce sous forme de brouillon (DRAFT)",
-              "duration": 0,
-              "state": "failed",
-              "pass": false,
-              "fail": true,
+              "duration": 7177,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
               "pending": false,
-              "err": {
-                "message": "Timed out retrying after 4000ms: `cy.clear()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"numeroChassis\" data-cy=\"sale-vin-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"numeroChassis\" id=\"mat-input-1\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">VIN / n...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with",
-                "estack": "CypressError: Timed out retrying after 4000ms: `cy.clear()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"numeroChassis\" data-cy=\"sale-vin-input\" class=\"mat-mdc-input-element ng-untouched ng-pristine ng-valid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"numeroChassis\" id=\"mat-input-1\" aria-invalid=\"false\" aria-required=\"false\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">VIN / n...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with\n    at ensureIsDescendent (http://localhost:4300/__cypress/runner/cypress_runner.js:112962:68)\n    at ensureDescendents (http://localhost:4300/__cypress/runner/cypress_runner.js:113013:5)\n    at ensureDescendentsAndScroll (http://localhost:4300/__cypress/runner/cypress_runner.js:113019:14)\n    at ensureElIsNotCovered (http://localhost:4300/__cypress/runner/cypress_runner.js:113150:5)\n    at runAllChecks (http://localhost:4300/__cypress/runner/cypress_runner.js:113349:52)\n    at retryActionability (http://localhost:4300/__cypress/runner/cypress_runner.js:113386:16)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise.attempt.Promise.try (http://localhost:4300/__cypress/runner/cypress_runner.js:4315:29)\n    at whenStable (http://localhost:4300/__cypress/runner/cypress_runner.js:143797:68)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:143738:14)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:4300/__cypress/runner/cypress_runner.js:1519:31)\n    at Promise._settlePromise (http://localhost:4300/__cypress/runner/cypress_runner.js:1576:18)\n    at Promise._settlePromise0 (http://localhost:4300/__cypress/runner/cypress_runner.js:1621:10)\n    at Promise._settlePromises (http://localhost:4300/__cypress/runner/cypress_runner.js:1701:18)\n    at Promise._fulfill (http://localhost:4300/__cypress/runner/cypress_runner.js:1645:18)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:5450:46)\nFrom Your Spec Code:\n    at Context.eval (webpack://locavite-frontend/./cypress/support/commands.ts:231:0)"
-              }
+              "err": {}
             },
             {
               "title": "permet de visualiser l aperçu de l annonce avant publication",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) permet de visualiser l aperçu de l annonce avant publication",
-              "duration": 0,
-              "state": "failed",
-              "pass": false,
-              "fail": true,
+              "duration": 4851,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
               "pending": false,
-              "err": {
-                "message": "Timed out retrying after 4000ms: `cy.type()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"dateMiseEnCirculation\" data-cy=\"sale-circulation-input\" class=\"mat-mdc-input-element mat-datepicker-input ng-untouched ng-pristine ng-invalid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"dateMiseEnCirculation\" ng-reflect-mat-datepicker=\"[object Object]\" id=\"mat-input-5\" required=\"\" aria-required=\"true\" aria-haspopup=\"dialog\" data-mat-calendar=\"mat-datepicker-0\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">Date de...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with",
-                "estack": "CypressError: Timed out retrying after 4000ms: `cy.type()` failed because this element:\n\n`<input _ngcontent-ng-c3415424962=\"\" matinput=\"\" formcontrolname=\"dateMiseEnCirculation\" data-cy=\"sale-circulation-input\" class=\"mat-mdc-input-element mat-datepicker-input ng-untouched ng-pristine ng-invalid mat-mdc-form-field-input-control mdc-text-field__input cdk-text-field-autofill-monitored\" ng-reflect-name=\"dateMiseEnCirculation\" ng-reflect-mat-datepicker=\"[object Object]\" id=\"mat-input-5\" required=\"\" aria-required=\"true\" aria-haspopup=\"dialog\" data-mat-calendar=\"mat-datepicker-0\">`\n\nis being covered by another element:\n\n`<mat-label _ngcontent-ng-c3415424962=\"\">Date de...</mat-label>`\n\nFix this problem, or use {force: true} to disable error checking.\n\nhttps://on.cypress.io/element-cannot-be-interacted-with\n    at ensureIsDescendent (http://localhost:4300/__cypress/runner/cypress_runner.js:112962:68)\n    at ensureDescendents (http://localhost:4300/__cypress/runner/cypress_runner.js:113013:5)\n    at ensureDescendentsAndScroll (http://localhost:4300/__cypress/runner/cypress_runner.js:113019:14)\n    at ensureElIsNotCovered (http://localhost:4300/__cypress/runner/cypress_runner.js:113150:5)\n    at runAllChecks (http://localhost:4300/__cypress/runner/cypress_runner.js:113349:52)\n    at retryActionability (http://localhost:4300/__cypress/runner/cypress_runner.js:113386:16)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise.attempt.Promise.try (http://localhost:4300/__cypress/runner/cypress_runner.js:4315:29)\n    at whenStable (http://localhost:4300/__cypress/runner/cypress_runner.js:143797:68)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:143738:14)\n    at tryCatcher (http://localhost:4300/__cypress/runner/cypress_runner.js:1807:23)\n    at Promise._settlePromiseFromHandler (http://localhost:4300/__cypress/runner/cypress_runner.js:1519:31)\n    at Promise._settlePromise (http://localhost:4300/__cypress/runner/cypress_runner.js:1576:18)\n    at Promise._settlePromise0 (http://localhost:4300/__cypress/runner/cypress_runner.js:1621:10)\n    at Promise._settlePromises (http://localhost:4300/__cypress/runner/cypress_runner.js:1701:18)\n    at Promise._fulfill (http://localhost:4300/__cypress/runner/cypress_runner.js:1645:18)\n    at <unknown> (http://localhost:4300/__cypress/runner/cypress_runner.js:5450:46)\nFrom Your Spec Code:\n    at Context.eval (webpack://locavite-frontend/./cypress/e2e/sale-create.cy.ts:164:0)"
-              }
+              "err": {}
             }
           ],
-          "passes": 2,
-          "failures": 3,
+          "passes": 5,
+          "failures": 0,
           "pending": 0
         }
       ]
@@ -165,7 +156,7 @@
             {
               "title": "affiche les caractéristiques complètes du véhicule et les spécifications",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche les caractéristiques complètes du véhicule et les spécifications",
-              "duration": 1999,
+              "duration": 2005,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -175,7 +166,7 @@
             {
               "title": "permet de naviguer entre la liste et la vue détaillée",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) permet de naviguer entre la liste et la vue détaillée",
-              "duration": 1926,
+              "duration": 1773,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -185,7 +176,7 @@
             {
               "title": "affiche la galerie de photos et permet de faire défiler les images",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche la galerie de photos et permet de faire défiler les images",
-              "duration": 689,
+              "duration": 995,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -195,7 +186,7 @@
             {
               "title": "affiche la frise chronologique d historique avec les événements vérifiés",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche la frise chronologique d historique avec les événements vérifiés",
-              "duration": 582,
+              "duration": 677,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -205,7 +196,7 @@
             {
               "title": "propose le partage WhatsApp et la copie de lien",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) propose le partage WhatsApp et la copie de lien",
-              "duration": 541,
+              "duration": 670,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -215,7 +206,7 @@
             {
               "title": "affiche la section des annonces similaires",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche la section des annonces similaires",
-              "duration": 672,
+              "duration": 727,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -230,6 +221,77 @@
       ]
     },
     {
+      "file": "cypress\\e2e\\sale-estimate.cy.ts",
+      "suites": [
+        {
+          "title": "Estimation dans le formulaire de vente agence (/admin/sale/new)",
+          "tests": [
+            {
+              "title": "calcule et affiche l estimation ML indicative avec fourchette de prix",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation dans le formulaire de vente agence (/admin/sale/new) calcule et affiche l estimation ML indicative avec fourchette de prix",
+              "duration": 3700,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche un message lorsqu aucune annonce comparable n est disponible",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation dans le formulaire de vente agence (/admin/sale/new) affiche un message lorsqu aucune annonce comparable n est disponible",
+              "duration": 1756,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche une bannière d erreur si le service d estimation ML échoue",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation dans le formulaire de vente agence (/admin/sale/new) affiche une bannière d erreur si le service d estimation ML échoue",
+              "duration": 1529,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 3,
+          "failures": 0,
+          "pending": 0
+        },
+        {
+          "title": "Estimation sur la page de détail (/sale/:id)",
+          "tests": [
+            {
+              "title": "affiche l estimation basée sur le marché pour un véhicule d occasion",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation sur la page de détail (/sale/:id) affiche l estimation basée sur le marché pour un véhicule d occasion",
+              "duration": 1296,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "masque le bouton d estimation pour un véhicule neuf",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation sur la page de détail (/sale/:id) masque le bouton d estimation pour un véhicule neuf",
+              "duration": 668,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 2,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    },
+    {
       "file": "cypress\\e2e\\sale-list.cy.ts",
       "suites": [
         {
@@ -238,7 +300,7 @@
             {
               "title": "affiche la liste des annonces de vente avec grille, cartes et prix",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) affiche la liste des annonces de vente avec grille, cartes et prix",
-              "duration": 2186,
+              "duration": 2390,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -248,7 +310,7 @@
             {
               "title": "filtre les annonces par état (Neuf / Occasion)",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) filtre les annonces par état (Neuf / Occasion)",
-              "duration": 1999,
+              "duration": 2357,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -258,7 +320,7 @@
             {
               "title": "applique les filtres depuis les paramètres de l URL",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) applique les filtres depuis les paramètres de l URL",
-              "duration": 797,
+              "duration": 762,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -268,7 +330,7 @@
             {
               "title": "permet de changer le tri des annonces",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) permet de changer le tri des annonces",
-              "duration": 818,
+              "duration": 1121,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -278,7 +340,7 @@
             {
               "title": "gère la pagination des résultats",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) gère la pagination des résultats",
-              "duration": 884,
+              "duration": 987,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -288,7 +350,7 @@
             {
               "title": "affiche l état vide lorsqu aucun résultat ne correspond",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) affiche l état vide lorsqu aucun résultat ne correspond",
-              "duration": 545,
+              "duration": 1013,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -298,7 +360,7 @@
             {
               "title": "permet d ajouter une annonce aux favoris",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) permet d ajouter une annonce aux favoris",
-              "duration": 618,
+              "duration": 756,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -321,7 +383,7 @@
             {
               "title": "exige une authentification pour les visiteurs non connectés",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) exige une authentification pour les visiteurs non connectés",
-              "duration": 3591,
+              "duration": 3213,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -331,7 +393,7 @@
             {
               "title": "affiche le formulaire complet de visite pour un client connecté",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) affiche le formulaire complet de visite pour un client connecté",
-              "duration": 2224,
+              "duration": 3255,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -341,7 +403,7 @@
             {
               "title": "valide les champs obligatoires du formulaire de visite",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) valide les champs obligatoires du formulaire de visite",
-              "duration": 1212,
+              "duration": 2382,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -351,7 +413,7 @@
             {
               "title": "envoie avec succès une demande de visite simple",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) envoie avec succès une demande de visite simple",
-              "duration": 1819,
+              "duration": 2556,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -361,7 +423,7 @@
             {
               "title": "permet de sélectionner un essai routier et de le soumettre",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) permet de sélectionner un essai routier et de le soumettre",
-              "duration": 1857,
+              "duration": 2842,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -371,7 +433,7 @@
             {
               "title": "affiche un message d erreur en cas d échec réseau",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) affiche un message d erreur en cas d échec réseau",
-              "duration": 1694,
+              "duration": 2623,
               "state": "passed",
               "pass": true,
               "fail": false,

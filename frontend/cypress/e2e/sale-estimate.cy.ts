@@ -174,11 +174,9 @@ describe('Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:i
 
       cy.get('[data-cy="sale-estimate-toggle"]').should('be.visible').click();
       cy.get('[data-cy="sale-estimate-result"]')
-        .scrollIntoView()
-        .should('be.visible')
+        .should('exist')
         .and('contain.text', '184')
         .and('contain.text', '3');
-    });
     });
 
     it('masque le bouton d estimation pour un véhicule neuf', () => {

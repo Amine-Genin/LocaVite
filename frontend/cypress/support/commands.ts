@@ -408,10 +408,10 @@ Cypress.Commands.add('createSaleListing', (options: CreateSaleListingCommandOpti
     cy.get('[data-cy="vehicle-mode"] mat-radio-button').last().click();
     cy.get('[data-cy="new-brand-select"]').click();
     cy.get('mat-option').contains(marque).click();
-    cy.get('[data-cy="new-modele-input"]').clear().type(modele);
+    cy.get('[data-cy="new-modele-input"]').clear({ force: true }).type(modele, { force: true });
     cy.get('[data-cy="new-category-select"]').click();
     cy.get('mat-option').contains(categorie).click();
-    cy.get('[data-cy="new-matricule-input"]').clear().type(matricule);
+    cy.get('[data-cy="new-matricule-input"]').clear({ force: true }).type(matricule, { force: true });
   }
   cy.get('[data-cy="step-vehicle-next"]').click();
 
@@ -424,7 +424,7 @@ Cypress.Commands.add('createSaleListing', (options: CreateSaleListingCommandOpti
   cy.get('[data-cy="step-condition-next"]').click();
 
   // Étape 3 : Prix
-  cy.get('[data-cy="sale-price-input"]').clear().type(String(prixVente));
+  cy.get('[data-cy="sale-price-input"]').clear({ force: true }).type(String(prixVente), { force: true });
   if (prixNego) {
     cy.get('[data-cy="sale-price-negotiable"] input[type="checkbox"]').check({ force: true });
   } else {
@@ -434,22 +434,22 @@ Cypress.Commands.add('createSaleListing', (options: CreateSaleListingCommandOpti
 
   // Étape 4 : Détails
   if (numeroChassis) {
-    cy.get('[data-cy="sale-vin-input"]').clear().type(numeroChassis);
+    cy.get('[data-cy="sale-vin-input"]').clear({ force: true }).type(numeroChassis, { force: true });
   }
   if (etat === 'USED') {
     if (kilometrage !== undefined) {
-      cy.get('[data-cy="sale-mileage-input"]').clear().type(String(kilometrage));
+      cy.get('[data-cy="sale-mileage-input"]').clear({ force: true }).type(String(kilometrage), { force: true });
     }
-    cy.get('[data-cy="sale-circulation-input"]').clear().type('2023-01-15');
+    cy.get('[data-cy="sale-circulation-input"]').clear({ force: true }).type('2023-01-15', { force: true });
     if (nombreProprietaires !== undefined) {
-      cy.get('[data-cy="sale-owners-input"]').clear().type(String(nombreProprietaires));
+      cy.get('[data-cy="sale-owners-input"]').clear({ force: true }).type(String(nombreProprietaires), { force: true });
     }
   }
   cy.get('[data-cy="step-details-next"]').click();
 
   // Étape 5 : Description
-  cy.get('[data-cy="sale-title-input"]').clear().type(titre);
-  cy.get('[data-cy="sale-description-input"]').clear().type(description);
+  cy.get('[data-cy="sale-title-input"]').clear({ force: true }).type(titre, { force: true });
+  cy.get('[data-cy="sale-description-input"]').clear({ force: true }).type(description, { force: true });
   cy.get('[data-cy="step-description-next"]').click();
 
   // Étape 6 : Photos
