@@ -11,11 +11,14 @@ import ma.locavite.sale.dto.ContactReplyBody;
 import ma.locavite.sale.dto.ContactRequestBody;
 import ma.locavite.sale.dto.ContactRequestResponse;
 import ma.locavite.sale.exception.SaleListingNotFoundException;
+import ma.locavite.sale.event.ContactReplySentEvent;
+import ma.locavite.sale.event.ContactRequestCreatedEvent;
 import ma.locavite.sale.repository.ContactRequestRepository;
 import ma.locavite.sale.repository.SaleListingRepository;
 import ma.locavite.vehicle.service.CurrentUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.access.AccessDeniedException;
@@ -37,6 +40,7 @@ public class ContactRequestService {
     private final CurrentUserService currentUser;
     private final JavaMailSender mailSender;
     private final SmsService smsService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public ContactRequestService(
             ContactRequestRepository contactRepository,
@@ -45,12 +49,24 @@ public class ContactRequestService {
             CurrentUserService currentUser,
             JavaMailSender mailSender,
             SmsService smsService) {
+        this(contactRepository, listingRepository, userRepository, currentUser, mailSender, smsService, null);
+    }
+
+    public ContactRequestService(
+            ContactRequestRepository contactRepository,
+            SaleListingRepository listingRepository,
+            UserRepository userRepository,
+            CurrentUserService currentUser,
+            JavaMailSender mailSender,
+            SmsService smsService,
+            ApplicationEventPublisher eventPublisher) {
         this.contactRepository = contactRepository;
         this.listingRepository = listingRepository;
         this.userRepository = userRepository;
         this.currentUser = currentUser;
         this.mailSender = mailSender;
         this.smsService = smsService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -70,6 +86,9 @@ public class ContactRequestService {
         User agency = userRepository.findById(listing.getAgenceId())
                 .orElseThrow(() -> new IllegalStateException("Compte de l'agence introuvable"));
         notifyAgency(saved, listing, agency);
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new ContactRequestCreatedEvent(saved, listing));
+        }
         return toResponse(saved);
     }
 
@@ -101,7 +120,11 @@ public class ContactRequestService {
         request.setReplyMessage(body.replyMessage().trim());
         request.setRepliedAt(Instant.now());
         request.setStatut(ContactStatus.REPLIED);
-        return toResponse(contactRepository.save(request));
+        ContactRequest saved = contactRepository.save(request);
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new ContactReplySentEvent(saved, saved.getSaleListing(), body.replyMessage().trim()));
+        }
+        return toResponse(saved);
     }
 
     private void notifyAgency(ContactRequest request, SaleListing listing, User agency) {

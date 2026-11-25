@@ -4,7 +4,8 @@ import java.util.Locale;
 
 public enum NotificationChannel {
     SMS,
-    WHATSAPP;
+    WHATSAPP,
+    EMAIL;
 
     public static NotificationChannel from(String value) {
         if (value == null || value.isBlank()) {

@@ -1,0 +1,35 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" th:dir="${isRtl ? 'rtl' : 'ltr'}">
+<head><meta charset="UTF-8"><title>LocaVite</title></head>
+<body>
+<div th:if="${#locale.language == 'fr'}">
+    <h2>Visite confirmée</h2>
+    <p>Votre visite pour le véhicule <strong th:text="${listing.titre}">Véhicule</strong> est confirmée !</p>
+    <ul>
+        <li><strong>Date :</strong> <span th:text="${visitRequest.dateSouhaitee}">2026-12-01</span></li>
+        <li><strong>Créneau :</strong> <span th:text="${visitRequest.creneauHoraire}">10:00</span></li>
+        <li><strong>Lieu :</strong> <span th:text="${visitRequest.lieu}">Casablanca</span></li>
+        <li th:if="${visitRequest.notes != null}"><strong>Notes de l'agence :</strong> <span th:text="${visitRequest.notes}">Notes</span></li>
+    </ul>
+</div>
+<div th:if="${#locale.language == 'en'}">
+    <h2>Visit Confirmed</h2>
+    <p>Your visit for vehicle <strong th:text="${listing.titre}">Vehicle</strong> is confirmed!</p>
+    <ul>
+        <li><strong>Date:</strong> <span th:text="${visitRequest.dateSouhaitee}">2026-12-01</span></li>
+        <li><strong>Time slot:</strong> <span th:text="${visitRequest.creneauHoraire}">10:00</span></li>
+        <li><strong>Location:</strong> <span th:text="${visitRequest.lieu}">Casablanca</span></li>
+        <li th:if="${visitRequest.notes != null}"><strong>Agency notes:</strong> <span th:text="${visitRequest.notes}">Notes</span></li>
+    </ul>
+</div>
+<div th:if="${#locale.language == 'ar'}">
+    <h2>تأكيد موعد الزيارة</h2>
+    <p>تم تأكيد موعد زيارتكم للسيارة <strong th:text="${listing.titre}">السيارة</strong> بنجاح!</p>
+    <ul>
+        <li><strong>التاريخ:</strong> <span th:text="${visitRequest.dateSouhaitee}">2026-12-01</span></li>
+        <li><strong>الموعد:</strong> <span th:text="${visitRequest.creneauHoraire}">10:00</span></li>
+        <li><strong>المكان:</strong> <span th:text="${visitRequest.lieu}">الدار البيضاء</span></li>
+        <li th:if="${visitRequest.notes != null}"><strong>ملاحظات الوكالة:</strong> <span th:text="${visitRequest.notes}">Notes</span></li>
+    </ul>
+</div>
+</body></html>

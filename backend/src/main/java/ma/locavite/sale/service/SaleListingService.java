@@ -11,6 +11,8 @@ import ma.locavite.sale.dto.SaleListingSearchFilter;
 import ma.locavite.sale.dto.PriceEstimateResponse;
 import ma.locavite.sale.exception.SaleListingNotFoundException;
 import ma.locavite.sale.exception.VinAlreadyExistsException;
+import ma.locavite.sale.event.SaleListingPublishedEvent;
+import ma.locavite.sale.event.SaleListingSoldEvent;
 import ma.locavite.sale.mapper.SaleListingMapper;
 import ma.locavite.sale.repository.SaleListingRepository;
 import ma.locavite.sale.spec.SaleListingSpecifications;
@@ -20,6 +22,7 @@ import ma.locavite.vehicle.repository.VehicleRepository;
 import ma.locavite.vehicle.service.CurrentUserService;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -46,16 +49,27 @@ public class SaleListingService {
     private final VehicleRepository vehicleRepository;
     private final SaleListingMapper mapper;
     private final CurrentUserService currentUser;
+    private final ApplicationEventPublisher eventPublisher;
 
     public SaleListingService(
             SaleListingRepository repository,
             VehicleRepository vehicleRepository,
             SaleListingMapper mapper,
             CurrentUserService currentUser) {
+        this(repository, vehicleRepository, mapper, currentUser, null);
+    }
+
+    public SaleListingService(
+            SaleListingRepository repository,
+            VehicleRepository vehicleRepository,
+            SaleListingMapper mapper,
+            CurrentUserService currentUser,
+            ApplicationEventPublisher eventPublisher) {
         this.repository = repository;
         this.vehicleRepository = vehicleRepository;
         this.mapper = mapper;
         this.currentUser = currentUser;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -238,6 +252,9 @@ public class SaleListingService {
             listing.setPublishedAt(Instant.now());
         }
         SaleListing saved = repository.save(listing);
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new SaleListingPublishedEvent(saved));
+        }
         return mapper.toResponse(saved);
     }
 
@@ -248,6 +265,9 @@ public class SaleListingService {
         listing.setStatut(SaleStatus.SOLD);
         listing.setSoldAt(Instant.now());
         SaleListing saved = repository.save(listing);
+        if (eventPublisher != null) {
+            eventPublisher.publishEvent(new SaleListingSoldEvent(saved));
+        }
         return mapper.toResponse(saved);
     }
 

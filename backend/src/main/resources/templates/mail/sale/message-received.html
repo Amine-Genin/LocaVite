@@ -1,0 +1,23 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" th:dir="${isRtl ? 'rtl' : 'ltr'}">
+<head><meta charset="UTF-8"><title>LocaVite</title></head>
+<body>
+<div th:if="${#locale.language == 'fr'}">
+    <h2>Nouveau message concernant votre demande</h2>
+    <p>L'agence a répondu à votre demande concernant l'annonce <strong th:text="${listing.titre}">Véhicule</strong> :</p>
+    <blockquote th:text="${replyMessage}">Message</blockquote>
+    <p>Merci pour votre confiance.</p>
+</div>
+<div th:if="${#locale.language == 'en'}">
+    <h2>New Message Regarding Your Inquiry</h2>
+    <p>The agency replied to your inquiry for listing <strong th:text="${listing.titre}">Vehicle</strong>:</p>
+    <blockquote th:text="${replyMessage}">Message</blockquote>
+    <p>Thank you for using LocaVite.</p>
+</div>
+<div th:if="${#locale.language == 'ar'}">
+    <h2>رسالة جديدة بخصوص طلبكم</h2>
+    <p>قامت الوكالة بالرد على استفساركم بخصوص الإعلان <strong th:text="${listing.titre}">السيارة</strong>:</p>
+    <blockquote th:text="${replyMessage}">الرسالة</blockquote>
+    <p>شكراً لثقتكم في لوكافيت.</p>
+</div>
+</body></html>
