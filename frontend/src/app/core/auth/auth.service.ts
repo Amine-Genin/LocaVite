@@ -217,6 +217,7 @@ export class AuthService implements OnDestroy {
 
     if (delayMs !== null && delayMs > 0) {
       this.refreshTimer = setTimeout(() => {
+        this.refreshTimer = null;
         if (this.getRefreshToken()) {
           this.refreshToken().subscribe({
             error: () => {

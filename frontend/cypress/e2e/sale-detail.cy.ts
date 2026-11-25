@@ -1,29 +1,7 @@
+import { MOCK_SALE_LISTING } from '../support/sale-fixtures';
+
 describe('Parcours de vente - Détail, Galerie et Historique (/sale/:id)', () => {
-  const mockListing = {
-    id: 31,
-    vehicleId: 12,
-    titre: 'Dacia Duster 1.5 dCi Prestige',
-    description: 'SUV polyvalent et robuste en parfait état. Première main, carnet d entretien complet chez le concessionnaire.',
-    prixVente: 185000,
-    prixNego: true,
-    etat: 'USED',
-    kilometrage: 52000,
-    premierProprietaire: true,
-    dateMiseEnCirculation: '2022-03-15',
-    numeroChassis: 'VF1HJD20260315001',
-    nombreProprietaires: 1,
-    puissance: 115,
-    statut: 'PUBLISHED',
-    marque: 'Dacia',
-    modele: 'Duster',
-    annee: 2022,
-    ville: 'Casablanca',
-    carburant: 'DIESEL',
-    transmission: 'MANUELLE',
-    categorie: 'SUV',
-    photoUrl: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d',
-    publishedAt: '2026-03-01T10:00:00Z',
-  };
+  const mockListing = MOCK_SALE_LISTING;
 
   const mockPhotos = [
     { id: 101, vehicleId: 12, url: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d', isPrimary: true },

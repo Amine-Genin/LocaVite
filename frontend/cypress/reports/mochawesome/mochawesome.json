@@ -5,9 +5,9 @@
     "passes": 35,
     "pending": 0,
     "failures": 0,
-    "start": "2026-11-25T20:34:55.551Z",
-    "end": "2026-11-25T20:35:13.230Z",
-    "duration": 85668,
+    "start": "2026-11-25T23:29:07.469Z",
+    "end": "2026-11-25T23:29:16.502Z",
+    "duration": 51912,
     "passPercent": 100
   },
   "results": [
@@ -20,7 +20,7 @@
             {
               "title": "ouvre la modale de contact depuis la fiche annonce",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) ouvre la modale de contact depuis la fiche annonce",
-              "duration": 5772,
+              "duration": 3184,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -30,7 +30,7 @@
             {
               "title": "valide les champs obligatoires du formulaire de contact",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) valide les champs obligatoires du formulaire de contact",
-              "duration": 2850,
+              "duration": 1416,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -40,7 +40,7 @@
             {
               "title": "valide le format invalide d adresse e-mail",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) valide le format invalide d adresse e-mail",
-              "duration": 2132,
+              "duration": 1060,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -50,7 +50,7 @@
             {
               "title": "envoie avec succès une demande de contact en tant que visiteur",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) envoie avec succès une demande de contact en tant que visiteur",
-              "duration": 2618,
+              "duration": 1570,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -60,7 +60,7 @@
             {
               "title": "pré-remplit automatiquement les coordonnées de l utilisateur connecté",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) pré-remplit automatiquement les coordonnées de l utilisateur connecté",
-              "duration": 868,
+              "duration": 526,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -70,7 +70,7 @@
             {
               "title": "affiche un message d erreur en cas d échec de l API",
               "fullTitle": "Parcours de vente - Formulaire de contact (/sale/:id) affiche un message d erreur en cas d échec de l API",
-              "duration": 2725,
+              "duration": 1660,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -93,7 +93,7 @@
             {
               "title": "redirige vers la page de connexion si l utilisateur n est pas authentifié",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) redirige vers la page de connexion si l utilisateur n est pas authentifié",
-              "duration": 1482,
+              "duration": 1115,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -103,7 +103,7 @@
             {
               "title": "refuse l accès aux utilisateurs ayant uniquement le rôle CLIENT",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) refuse l accès aux utilisateurs ayant uniquement le rôle CLIENT",
-              "duration": 1034,
+              "duration": 641,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -113,7 +113,7 @@
             {
               "title": "permet à une agence de créer et publier une annonce pour un véhicule existant",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) permet à une agence de créer et publier une annonce pour un véhicule existant",
-              "duration": 8081,
+              "duration": 5560,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -123,7 +123,7 @@
             {
               "title": "permet de sauvegarder une annonce sous forme de brouillon (DRAFT)",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) permet de sauvegarder une annonce sous forme de brouillon (DRAFT)",
-              "duration": 7177,
+              "duration": 4303,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -133,7 +133,7 @@
             {
               "title": "permet de visualiser l aperçu de l annonce avant publication",
               "fullTitle": "Parcours de vente - Création et publication d annonce (/admin/sale/new) permet de visualiser l aperçu de l annonce avant publication",
-              "duration": 4851,
+              "duration": 3259,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -156,7 +156,7 @@
             {
               "title": "affiche les caractéristiques complètes du véhicule et les spécifications",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche les caractéristiques complètes du véhicule et les spécifications",
-              "duration": 2005,
+              "duration": 1595,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -166,7 +166,7 @@
             {
               "title": "permet de naviguer entre la liste et la vue détaillée",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) permet de naviguer entre la liste et la vue détaillée",
-              "duration": 1773,
+              "duration": 1220,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -176,7 +176,7 @@
             {
               "title": "affiche la galerie de photos et permet de faire défiler les images",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche la galerie de photos et permet de faire défiler les images",
-              "duration": 995,
+              "duration": 647,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -186,7 +186,7 @@
             {
               "title": "affiche la frise chronologique d historique avec les événements vérifiés",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche la frise chronologique d historique avec les événements vérifiés",
-              "duration": 677,
+              "duration": 453,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -196,7 +196,7 @@
             {
               "title": "propose le partage WhatsApp et la copie de lien",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) propose le partage WhatsApp et la copie de lien",
-              "duration": 670,
+              "duration": 486,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -206,7 +206,7 @@
             {
               "title": "affiche la section des annonces similaires",
               "fullTitle": "Parcours de vente - Détail, Galerie et Historique (/sale/:id) affiche la section des annonces similaires",
-              "duration": 727,
+              "duration": 467,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -229,7 +229,7 @@
             {
               "title": "calcule et affiche l estimation ML indicative avec fourchette de prix",
               "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation dans le formulaire de vente agence (/admin/sale/new) calcule et affiche l estimation ML indicative avec fourchette de prix",
-              "duration": 3700,
+              "duration": 2633,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -239,7 +239,7 @@
             {
               "title": "affiche un message lorsqu aucune annonce comparable n est disponible",
               "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation dans le formulaire de vente agence (/admin/sale/new) affiche un message lorsqu aucune annonce comparable n est disponible",
-              "duration": 1756,
+              "duration": 1355,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -249,7 +249,7 @@
             {
               "title": "affiche une bannière d erreur si le service d estimation ML échoue",
               "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation dans le formulaire de vente agence (/admin/sale/new) affiche une bannière d erreur si le service d estimation ML échoue",
-              "duration": 1529,
+              "duration": 1091,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -267,7 +267,7 @@
             {
               "title": "affiche l estimation basée sur le marché pour un véhicule d occasion",
               "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation sur la page de détail (/sale/:id) affiche l estimation basée sur le marché pour un véhicule d occasion",
-              "duration": 1296,
+              "duration": 611,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -277,7 +277,7 @@
             {
               "title": "masque le bouton d estimation pour un véhicule neuf",
               "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation sur la page de détail (/sale/:id) masque le bouton d estimation pour un véhicule neuf",
-              "duration": 668,
+              "duration": 390,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -300,7 +300,7 @@
             {
               "title": "affiche la liste des annonces de vente avec grille, cartes et prix",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) affiche la liste des annonces de vente avec grille, cartes et prix",
-              "duration": 2390,
+              "duration": 1619,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -310,7 +310,7 @@
             {
               "title": "filtre les annonces par état (Neuf / Occasion)",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) filtre les annonces par état (Neuf / Occasion)",
-              "duration": 2357,
+              "duration": 1725,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -320,7 +320,7 @@
             {
               "title": "applique les filtres depuis les paramètres de l URL",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) applique les filtres depuis les paramètres de l URL",
-              "duration": 762,
+              "duration": 481,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -330,7 +330,7 @@
             {
               "title": "permet de changer le tri des annonces",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) permet de changer le tri des annonces",
-              "duration": 1121,
+              "duration": 647,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -340,7 +340,7 @@
             {
               "title": "gère la pagination des résultats",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) gère la pagination des résultats",
-              "duration": 987,
+              "duration": 595,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -350,7 +350,7 @@
             {
               "title": "affiche l état vide lorsqu aucun résultat ne correspond",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) affiche l état vide lorsqu aucun résultat ne correspond",
-              "duration": 1013,
+              "duration": 553,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -360,7 +360,7 @@
             {
               "title": "permet d ajouter une annonce aux favoris",
               "fullTitle": "Parcours de vente - Liste et Filtres (/sale) permet d ajouter une annonce aux favoris",
-              "duration": 756,
+              "duration": 636,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -383,7 +383,7 @@
             {
               "title": "exige une authentification pour les visiteurs non connectés",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) exige une authentification pour les visiteurs non connectés",
-              "duration": 3213,
+              "duration": 1669,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -393,7 +393,7 @@
             {
               "title": "affiche le formulaire complet de visite pour un client connecté",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) affiche le formulaire complet de visite pour un client connecté",
-              "duration": 3255,
+              "duration": 1099,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -403,7 +403,7 @@
             {
               "title": "valide les champs obligatoires du formulaire de visite",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) valide les champs obligatoires du formulaire de visite",
-              "duration": 2382,
+              "duration": 1201,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -413,7 +413,7 @@
             {
               "title": "envoie avec succès une demande de visite simple",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) envoie avec succès une demande de visite simple",
-              "duration": 2556,
+              "duration": 1697,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -423,7 +423,7 @@
             {
               "title": "permet de sélectionner un essai routier et de le soumettre",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) permet de sélectionner un essai routier et de le soumettre",
-              "duration": 2842,
+              "duration": 1707,
               "state": "passed",
               "pass": true,
               "fail": false,
@@ -433,7 +433,7 @@
             {
               "title": "affiche un message d erreur en cas d échec réseau",
               "fullTitle": "Parcours de vente - Demande de visite (/sale/:id) affiche un message d erreur en cas d échec réseau",
-              "duration": 2623,
+              "duration": 1393,
               "state": "passed",
               "pass": true,
               "fail": false,

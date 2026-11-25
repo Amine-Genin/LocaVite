@@ -1,3 +1,5 @@
+import { MOCK_BRANDS, MOCK_CATEGORIES } from '../support/sale-fixtures';
+
 describe('Parcours de vente - Liste et Filtres (/sale)', () => {
   beforeEach(() => {
     cy.task('db:reset');
@@ -5,21 +7,12 @@ describe('Parcours de vente - Liste et Filtres (/sale)', () => {
 
     cy.intercept('GET', '/api/brands', {
       statusCode: 200,
-      body: [
-        { id: 1, name: 'Dacia' },
-        { id: 2, name: 'Peugeot' },
-        { id: 3, name: 'Renault' },
-        { id: 4, name: 'Volkswagen' },
-      ],
+      body: MOCK_BRANDS,
     }).as('getBrands');
 
     cy.intercept('GET', '/api/categories', {
       statusCode: 200,
-      body: [
-        { id: 1, name: 'CITADINE' },
-        { id: 2, name: 'SUV' },
-        { id: 3, name: 'BERLINE' },
-      ],
+      body: MOCK_CATEGORIES,
     }).as('getCategories');
 
     cy.fixture('sale-listings.json').then((listings) => {

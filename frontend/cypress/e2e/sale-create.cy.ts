@@ -1,32 +1,7 @@
+import { MOCK_AGENCY_VEHICLES, MOCK_BRANDS, MOCK_CATEGORIES } from '../support/sale-fixtures';
+
 describe('Parcours de vente - Création et publication d annonce (/admin/sale/new)', () => {
-  const mockVehicles = [
-    {
-      id: 10,
-      marque: 'Dacia',
-      modele: 'Duster',
-      annee: 2022,
-      ville: 'Casablanca',
-      categorie: 'SUV',
-      prixJour: 350,
-      prixVente: 180000,
-      matricule: '78945-A-1',
-      statut: 'PUBLISHED',
-      agenceId: 3,
-    },
-    {
-      id: 11,
-      marque: 'Renault',
-      modele: 'Clio 5',
-      annee: 2023,
-      ville: 'Rabat',
-      categorie: 'CITADINE',
-      prixJour: 280,
-      prixVente: 140000,
-      matricule: '12345-B-2',
-      statut: 'PUBLISHED',
-      agenceId: 3,
-    },
-  ];
+  const mockVehicles = MOCK_AGENCY_VEHICLES;
 
   beforeEach(() => {
     cy.task('db:reset');
@@ -34,18 +9,12 @@ describe('Parcours de vente - Création et publication d annonce (/admin/sale/ne
 
     cy.intercept('GET', '/api/brands', {
       statusCode: 200,
-      body: [
-        { id: 1, name: 'Dacia' },
-        { id: 2, name: 'Renault' },
-      ],
+      body: MOCK_BRANDS,
     }).as('getBrands');
 
     cy.intercept('GET', '/api/categories', {
       statusCode: 200,
-      body: [
-        { id: 1, name: 'CITADINE' },
-        { id: 2, name: 'SUV' },
-      ],
+      body: MOCK_CATEGORIES,
     }).as('getCategories');
 
     cy.intercept('GET', /\/api\/vehicles(\/search)?(\?.*)?$/, {

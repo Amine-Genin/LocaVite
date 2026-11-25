@@ -62,6 +62,10 @@ jobs:
           projectBaseDir: frontend
           args: >
             -Dsonar.qualitygate.wait=false
+            -Dsonar.tests=src,cypress
+            -Dsonar.test.inclusions=src/**/*.spec.ts,cypress/**/*.cy.ts,cypress/**/*.ts
+            -Dsonar.exclusions=node_modules/**,dist/**,cypress/**,**/cypress/**,public/**,src/public/**,src/assets/**,**/reports/**,**/*.html,**/*.json
+            -Dsonar.cpd.exclusions=src/environments/**,src/**/*.spec.ts,src/assets/**,cypress/**,**/cypress/**,**/*.cy.ts,**/reports/**,**/*.html,**/*.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

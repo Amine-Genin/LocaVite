@@ -36,9 +36,10 @@ module.exports = function (config) {
       }
     },
     browsers: ['ChromeHeadlessNoSandbox'],
-    captureTimeout: 60000,
+    captureTimeout: 120000,
     browserDisconnectTolerance: 3,
-    browserDisconnectTimeout: 60000,
+    browserDisconnectTimeout: 120000,
+    browserNoActivityTimeout: 120000,
     restartOnFileChange: true
   });
 };

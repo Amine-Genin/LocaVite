@@ -1,45 +1,18 @@
+import { MOCK_AGENCY_VEHICLES, MOCK_SALE_LISTING, MOCK_BRANDS, MOCK_CATEGORIES } from '../support/sale-fixtures';
+
 describe('Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id)', () => {
-  const mockVehicles = [
-    {
-      id: 10,
-      marque: 'Dacia',
-      modele: 'Duster',
-      annee: 2022,
-      ville: 'Casablanca',
-      categorie: 'SUV',
-      prixJour: 350,
-      prixVente: 180000,
-      matricule: '78945-A-1',
-      statut: 'PUBLISHED',
-      agenceId: 3,
-    },
-  ];
+  const mockVehicles = [MOCK_AGENCY_VEHICLES[0]];
 
   const mockUsedListing = {
-    id: 31,
+    ...MOCK_SALE_LISTING,
     vehicleId: 10,
-    titre: 'Dacia Duster 1.5 dCi Prestige',
-    description: 'SUV polyvalent.',
-    prixVente: 185000,
-    prixNego: true,
-    etat: 'USED',
-    kilometrage: 52000,
-    marque: 'Dacia',
-    modele: 'Duster',
-    annee: 2022,
-    ville: 'Casablanca',
-    carburant: 'DIESEL',
-    transmission: 'MANUELLE',
-    categorie: 'SUV',
-    photoUrl: 'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d',
-    publishedAt: '2026-03-01T10:00:00Z',
   };
 
   const mockNewListing = {
     ...mockUsedListing,
     id: 32,
     titre: 'Peugeot 208 GT Neuve',
-    etat: 'NEW',
+    etat: 'NEW' as const,
     kilometrage: 0,
     marque: 'Peugeot',
     modele: '208',
@@ -54,8 +27,8 @@ describe('Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:i
     beforeEach(() => {
       cy.loginAsAgence();
 
-      cy.intercept('GET', '/api/brands', { statusCode: 200, body: [{ id: 1, name: 'Dacia' }] });
-      cy.intercept('GET', '/api/categories', { statusCode: 200, body: [{ id: 1, name: 'SUV' }] });
+      cy.intercept('GET', '/api/brands', { statusCode: 200, body: MOCK_BRANDS });
+      cy.intercept('GET', '/api/categories', { statusCode: 200, body: MOCK_CATEGORIES });
       cy.intercept('GET', /\/api\/vehicles(\/search)?(\?.*)?$/, {
         statusCode: 200,
         body: { content: mockVehicles, totalElements: 1, totalPages: 1, number: 0, size: 10 },
