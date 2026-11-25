@@ -1,0 +1,20 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" th:dir="${isRtl ? 'rtl' : 'ltr'}">
+<head><meta charset="UTF-8"><title>LocaVite</title></head>
+<body>
+<div th:if="${#locale.language == 'fr'}">
+    <h2>Annonce publiée</h2>
+    <p>Félicitations, votre annonce de vente <strong th:text="${listing.titre}">Véhicule</strong> (<span th:text="${listing.code}">CODE</span>) est maintenant publiée et visible par les acheteurs.</p>
+    <p><strong>Prix :</strong> <span th:text="${listing.prixVente}">0</span> MAD</p>
+</div>
+<div th:if="${#locale.language == 'en'}">
+    <h2>Listing Published</h2>
+    <p>Congratulations, your sale listing <strong th:text="${listing.titre}">Vehicle</strong> (<span th:text="${listing.code}">CODE</span>) is now published and visible to buyers.</p>
+    <p><strong>Price:</strong> <span th:text="${listing.prixVente}">0</span> MAD</p>
+</div>
+<div th:if="${#locale.language == 'ar'}">
+    <h2>تم نشر الإعلان</h2>
+    <p>تهانينا، إعلان البيع الخاص بكم <strong th:text="${listing.titre}">السيارة</strong> (<span th:text="${listing.code}">CODE</span>) أصبح الآن منشوراً ومتاحاً للمشترين.</p>
+    <p><strong>السعر:</strong> <span th:text="${listing.prixVente}">0</span> درهم</p>
+</div>
+</body></html>

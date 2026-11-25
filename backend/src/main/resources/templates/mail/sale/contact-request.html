@@ -1,0 +1,38 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" th:lang="${#locale.language}" th:dir="${isRtl ? 'rtl' : 'ltr'}">
+<head><meta charset="UTF-8"><title>LocaVite</title></head>
+<body>
+<div th:if="${#locale.language == 'fr'}">
+    <h2>Nouvelle demande de contact</h2>
+    <p>Vous avez reçu une nouvelle demande de contact pour l'annonce <strong th:text="${listing.titre}">Véhicule</strong> (<span th:text="${listing.code}">CODE</span>).</p>
+    <ul>
+        <li><strong>Nom :</strong> <span th:text="${contactRequest.nom}">Nom</span></li>
+        <li><strong>Email :</strong> <span th:text="${contactRequest.email}">email@example.com</span></li>
+        <li><strong>Téléphone :</strong> <span th:text="${contactRequest.telephone}">0600000000</span></li>
+    </ul>
+    <p><strong>Message :</strong></p>
+    <blockquote th:text="${contactRequest.message}">Message</blockquote>
+</div>
+<div th:if="${#locale.language == 'en'}">
+    <h2>New Contact Inquiry</h2>
+    <p>You received a new contact inquiry for listing <strong th:text="${listing.titre}">Vehicle</strong> (<span th:text="${listing.code}">CODE</span>).</p>
+    <ul>
+        <li><strong>Name:</strong> <span th:text="${contactRequest.nom}">Name</span></li>
+        <li><strong>Email:</strong> <span th:text="${contactRequest.email}">email@example.com</span></li>
+        <li><strong>Phone:</strong> <span th:text="${contactRequest.telephone}">0600000000</span></li>
+    </ul>
+    <p><strong>Message:</strong></p>
+    <blockquote th:text="${contactRequest.message}">Message</blockquote>
+</div>
+<div th:if="${#locale.language == 'ar'}">
+    <h2>طلب اتصال جديد</h2>
+    <p>لقد تلقيتم طلب اتصال جديد بخصوص الإعلان <strong th:text="${listing.titre}">السيارة</strong> (<span th:text="${listing.code}">CODE</span>).</p>
+    <ul>
+        <li><strong>الاسم:</strong> <span th:text="${contactRequest.nom}">الاسم</span></li>
+        <li><strong>البريد الإلكتروني:</strong> <span th:text="${contactRequest.email}">email@example.com</span></li>
+        <li><strong>الهاتف:</strong> <span th:text="${contactRequest.telephone}">0600000000</span></li>
+    </ul>
+    <p><strong>الرسالة:</strong></p>
+    <blockquote th:text="${contactRequest.message}">الرسالة</blockquote>
+</div>
+</body></html>

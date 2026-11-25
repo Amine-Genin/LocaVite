@@ -80,6 +80,8 @@ public class NotificationTemplateService {
                     : lang == ContractLanguage.EN
                     ? String.format("LocaVite: Cash payment %s is confirmed. Your receipt has been emailed.", code)
                     : String.format("LocaVite : Le paiement en espèces %s est confirmé. Votre reçu a été envoyé par email.", code);
+
+            default -> String.format("LocaVite : Événement %s concernant %s.", notifType, vehicule);
         };
     }
 
