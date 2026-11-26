@@ -1,0 +1,151 @@
+<main class="dashboard-page" data-testid="admin-dashboard">
+  <section class="dashboard-heading">
+    <div>
+      <p class="eyebrow">LOCAVITE · PILOTAGE</p>
+      <h1>Tableau de bord</h1>
+      <p class="subtitle">Une vue claire de l’activité de votre flotte et de vos réservations.</p>
+    </div>
+    <div class="heading-actions dashboard-controls">
+      <mat-button-toggle-group
+        aria-label="Période du tableau de bord"
+        [value]="selectedPeriod()"
+        (change)="selectPeriod($any($event.value))"
+        data-testid="dashboard-period"
+      >
+        <mat-button-toggle value="7d">7 jours</mat-button-toggle>
+        <mat-button-toggle value="30d">30 jours</mat-button-toggle>
+        <mat-button-toggle value="90d">90 jours</mat-button-toggle>
+        <mat-button-toggle value="1y">1 an</mat-button-toggle>
+        <mat-button-toggle value="custom">Personnalisée</mat-button-toggle>
+      </mat-button-toggle-group>
+      <button mat-stroked-button type="button" class="export-button" (click)="exportPdf()" data-testid="dashboard-export">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Exporter PDF
+      </button>
+    </div>
+  </section>
+
+  @if (selectedPeriod() === 'custom') {
+    <section class="custom-range" aria-label="Période personnalisée">
+      <label>Du <input type="date" [value]="customFrom()" (input)="customFrom.set($any($event.target).value)" data-testid="dashboard-from" /></label>
+      <label>Au <input type="date" [value]="customTo()" (input)="customTo.set($any($event.target).value)" data-testid="dashboard-to" /></label>
+      <button mat-flat-button color="primary" type="button" (click)="applyCustomPeriod()">Appliquer</button>
+    </section>
+  }
+
+  @if (errorMessage()) {
+    <div class="error-banner" role="alert" data-testid="dashboard-error">
+      <mat-icon>error_outline</mat-icon>{{ errorMessage() }}
+    </div>
+  }
+
+  @if (isLoading() && !dashboard()) {
+    <div class="loading-state"><mat-spinner diameter="42"></mat-spinner><span>Chargement des indicateurs…</span></div>
+  }
+
+  @if (dashboard(); as data) {
+    <section class="kpi-grid" aria-label="Indicateurs clés">
+      <article class="kpi-card revenue" data-testid="kpi-revenue">
+        <div class="kpi-icon"><mat-icon>payments</mat-icon></div>
+        <div class="kpi-label">Revenus du mois</div>
+        <div class="kpi-value">{{ data.kpis.monthlyRevenue | number:'1.0-0' }} <small>MAD</small></div>
+        <div class="kpi-note" [class.positive]="revenueChange() >= 0" [class.negative]="revenueChange() < 0">
+          <mat-icon>{{ revenueChange() >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
+          {{ revenueChange() >= 0 ? '+' : '' }}{{ revenueChange() | number:'1.0-1' }}% vs mois précédent
+        </div>
+      </article>
+      <article class="kpi-card" data-testid="kpi-active-reservations">
+        <div class="kpi-icon blue"><mat-icon>event_available</mat-icon></div>
+        <div class="kpi-label">Réservations actives</div>
+        <div class="kpi-value">{{ data.kpis.activeReservations }}</div>
+        <div class="kpi-note">En cours de location</div>
+      </article>
+      <article class="kpi-card" data-testid="kpi-vehicles">
+        <div class="kpi-icon teal"><mat-icon>directions_car</mat-icon></div>
+        <div class="kpi-label">Véhicules disponibles</div>
+        <div class="kpi-value">{{ data.kpis.availableVehicles }} <small>/ {{ data.kpis.totalVehicles }}</small></div>
+        <div class="kpi-note">Dans votre flotte</div>
+      </article>
+      <article class="kpi-card" data-testid="kpi-occupancy">
+        <div class="kpi-icon purple"><mat-icon>donut_large</mat-icon></div>
+        <div class="kpi-label">Taux d’occupation</div>
+        <div class="kpi-value">{{ data.kpis.occupancyRate | number:'1.0-1' }}<small>%</small></div>
+        <div class="kpi-note">Sur la période sélectionnée</div>
+      </article>
+      <article class="kpi-card" data-testid="kpi-clients">
+        <div class="kpi-icon amber"><mat-icon>groups</mat-icon></div>
+        <div class="kpi-label">Clients</div>
+        <div class="kpi-value">{{ data.kpis.clients }}</div>
+        <div class="kpi-note">Comptes clients</div>
+      </article>
+      <article class="kpi-card" data-testid="kpi-sales">
+        <div class="kpi-icon rose"><mat-icon>sell</mat-icon></div>
+        <div class="kpi-label">Ventes en cours</div>
+        <div class="kpi-value">{{ data.kpis.salesInProgress }}</div>
+        <div class="kpi-note">Annonces actives</div>
+      </article>
+    </section>
+
+    @if (isLoading()) {
+      <div class="refresh-indicator"><mat-spinner diameter="22"></mat-spinner>Actualisation des graphiques…</div>
+    }
+
+    <section class="charts-grid" aria-label="Graphiques d’activité">
+      <mat-card class="chart-card chart-wide">
+        <mat-card-header><mat-card-title>Évolution des revenus</mat-card-title><mat-card-subtitle>Encaissements confirmés sur la période</mat-card-subtitle></mat-card-header>
+        <mat-card-content><div class="chart-wrap"><canvas #revenueCanvas data-testid="chart-revenue" aria-label="Évolution des revenus"></canvas></div></mat-card-content>
+      </mat-card>
+      <mat-card class="chart-card">
+        <mat-card-header><mat-card-title>Réservations par statut</mat-card-title><mat-card-subtitle>Réservations créées sur la période</mat-card-subtitle></mat-card-header>
+        <mat-card-content><div class="chart-wrap chart-donut"><canvas #statusCanvas data-testid="chart-status" aria-label="Réservations par statut"></canvas></div></mat-card-content>
+      </mat-card>
+      <mat-card class="chart-card">
+        <mat-card-header><mat-card-title>Véhicules par catégorie</mat-card-title><mat-card-subtitle>Répartition de la flotte</mat-card-subtitle></mat-card-header>
+        <mat-card-content><div class="chart-wrap chart-donut"><canvas #categoryCanvas data-testid="chart-category" aria-label="Répartition des véhicules par catégorie"></canvas></div></mat-card-content>
+      </mat-card>
+      <mat-card class="chart-card chart-wide">
+        <mat-card-header><mat-card-title>Top 5 des véhicules</mat-card-title><mat-card-subtitle>Les plus réservés sur la période</mat-card-subtitle></mat-card-header>
+        <mat-card-content><div class="chart-wrap"><canvas #topVehiclesCanvas data-testid="chart-top-vehicles" aria-label="Top cinq véhicules"></canvas></div></mat-card-content>
+      </mat-card>
+      <mat-card class="chart-card chart-wide">
+        <mat-card-header><mat-card-title>Taux d’occupation mensuel</mat-card-title><mat-card-subtitle>Part des jours de flotte réservés</mat-card-subtitle></mat-card-header>
+        <mat-card-content><div class="chart-wrap"><canvas #occupancyCanvas data-testid="chart-occupancy" aria-label="Taux d’occupation par mois"></canvas></div></mat-card-content>
+      </mat-card>
+    </section>
+
+    <section class="recent-grid" aria-label="Activité récente">
+      <mat-card class="recent-card">
+        <mat-card-header><mat-card-title>Dernières réservations</mat-card-title><a mat-button routerLink="/admin/reservations">Tout voir</a></mat-card-header>
+        <mat-card-content>
+          @if (data.recent.reservations.length) {
+            <div class="table-scroll"><table><thead><tr><th>Réservation</th><th>Client / véhicule</th><th>Statut</th><th>Montant</th></tr></thead>
+              <tbody>@for (item of data.recent.reservations; track item.id) {<tr><td><strong>{{ item.code }}</strong><small>{{ item.createdAt | date:'dd/MM/yyyy' }}</small></td><td>{{ item.client }}<small>{{ item.vehicle }}</small></td><td><span class="status-pill" [attr.data-status]="item.status">{{ item.status }}</span></td><td>{{ item.amount | number:'1.0-0' }} MAD</td></tr>}</tbody>
+            </table></div>
+          } @else { <p class="empty-table">Aucune réservation récente.</p> }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="recent-card">
+        <mat-card-header><mat-card-title>Derniers paiements</mat-card-title><a mat-button routerLink="/admin/payments">Tout voir</a></mat-card-header>
+        <mat-card-content>
+          @if (data.recent.payments.length) {
+            <div class="table-scroll"><table><thead><tr><th>Paiement</th><th>Client</th><th>Statut</th><th>Montant</th></tr></thead>
+              <tbody>@for (item of data.recent.payments; track item.id) {<tr><td><strong>{{ item.code }}</strong><small>{{ item.createdAt | date:'dd/MM/yyyy' }}</small></td><td>{{ item.client }}</td><td><span class="status-pill" [attr.data-status]="item.status">{{ item.status }}</span></td><td>{{ item.amount | number:'1.0-0' }} MAD</td></tr>}</tbody>
+            </table></div>
+          } @else { <p class="empty-table">Aucun paiement récent.</p> }
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="recent-card">
+        <mat-card-header><mat-card-title>Derniers messages</mat-card-title><a mat-button routerLink="/admin/sale">Annonces</a></mat-card-header>
+        <mat-card-content>
+          @if (data.recent.contacts.length) {
+            <div class="contact-list">@for (item of data.recent.contacts; track item.id) {
+              <article class="contact-item"><div class="contact-heading"><strong>{{ item.name }}</strong><span class="status-pill" [attr.data-status]="item.status">{{ item.status }}</span></div><a [href]="'mailto:' + item.email">{{ item.email }}</a><p>{{ item.message }}</p><small>{{ item.createdAt | date:'dd/MM/yyyy · HH:mm' }}</small></article>
+            }</div>
+          } @else { <p class="empty-table">Aucun message récent.</p> }
+        </mat-card-content>
+      </mat-card>
+    </section>
+  }
+</main>

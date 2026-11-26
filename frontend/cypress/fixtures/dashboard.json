@@ -1,0 +1,75 @@
+{
+  "kpis": {
+    "monthlyRevenue": 184500,
+    "previousMonthRevenue": 162000,
+    "activeReservations": 18,
+    "availableVehicles": 24,
+    "totalVehicles": 38,
+    "occupancyRate": 62.4,
+    "clients": 216,
+    "salesInProgress": 7
+  },
+  "charts": {
+    "revenue": [
+      { "label": "2026-01", "amount": 132000 },
+      { "label": "2026-02", "amount": 157000 },
+      { "label": "2026-03", "amount": 184500 }
+    ],
+    "reservationsByStatus": [
+      { "label": "ACTIVE", "count": 18 },
+      { "label": "PENDING", "count": 8 },
+      { "label": "COMPLETED", "count": 36 }
+    ],
+    "vehiclesByCategory": [
+      { "label": "SUV", "count": 15 },
+      { "label": "CITADINE", "count": 13 },
+      { "label": "BERLINE", "count": 10 }
+    ],
+    "topVehicles": [
+      { "label": "Dacia Duster", "count": 21 },
+      { "label": "Renault Clio", "count": 16 },
+      { "label": "Peugeot 208", "count": 12 }
+    ],
+    "occupancyByMonth": [
+      { "label": "2026-01", "rate": 51.2 },
+      { "label": "2026-02", "rate": 58.7 },
+      { "label": "2026-03", "rate": 62.4 }
+    ]
+  },
+  "recent": {
+    "reservations": [
+      {
+        "id": 101,
+        "code": "LV-TEST101",
+        "client": "Ahmed Benali",
+        "vehicle": "Dacia Duster",
+        "status": "ACTIVE",
+        "startDate": "2026-11-20",
+        "endDate": "2026-11-26",
+        "amount": 2100,
+        "createdAt": "2026-11-19T10:00:00Z"
+      }
+    ],
+    "payments": [
+      {
+        "id": 201,
+        "code": "PAY-TEST201",
+        "client": "Ahmed Benali",
+        "amount": 2100,
+        "status": "SUCCESS",
+        "createdAt": "2026-11-19T11:00:00Z"
+      }
+    ],
+    "contacts": [
+      {
+        "id": 301,
+        "saleListingId": 31,
+        "name": "Samira Alaoui",
+        "email": "samira@example.com",
+        "message": "Je souhaite visiter le véhicule ce week-end.",
+        "status": "NEW",
+        "createdAt": "2026-11-19T12:00:00Z"
+      }
+    ]
+  }
+}

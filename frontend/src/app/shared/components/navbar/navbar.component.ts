@@ -19,6 +19,7 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
       BUY_CAR: 'Acheter une voiture',
       MY_RESERVATIONS: 'Mes réservations',
       MY_PAYMENTS: 'Mes paiements',
+      ADMIN_DASHBOARD: 'Tableau de bord',
       ADMIN_VEHICLES: 'Flotte véhicules',
       ADD_VEHICLE: 'Ajouter véhicule',
       ADMIN_SALES: 'Annonces de vente',
@@ -39,6 +40,7 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
       BUY_CAR: 'Buy a car',
       MY_RESERVATIONS: 'My Reservations',
       MY_PAYMENTS: 'My Payments',
+      ADMIN_DASHBOARD: 'Dashboard',
       ADMIN_VEHICLES: 'Fleet',
       ADD_VEHICLE: 'Add Vehicle',
       ADMIN_SALES: 'Sale listings',
@@ -59,6 +61,7 @@ const NAV_FALLBACKS: Record<string, { NAV: Record<string, string> }> = {
       BUY_CAR: 'شراء سيارة',
       MY_RESERVATIONS: 'حجوزاتي',
       MY_PAYMENTS: 'مدفوعاتي',
+      ADMIN_DASHBOARD: 'لوحة القيادة',
       ADMIN_VEHICLES: 'الأسطول',
       ADD_VEHICLE: 'إضافة سيارة',
       ADMIN_SALES: 'إعلانات البيع',
@@ -440,6 +443,7 @@ export class NavbarComponent {
 
     if (this.isAdminOrAgency()) {
       return [
+        { labelKey: 'NAV.ADMIN_DASHBOARD', route: '/admin/dashboard', exact: true },
         { labelKey: 'NAV.ADMIN_VEHICLES', route: '/admin/vehicles', exact: true },
         { labelKey: 'NAV.ADD_VEHICLE', route: '/admin/vehicles/new', exact: true },
         { labelKey: 'NAV.ADMIN_SALES', route: '/admin/sale', exact: true },

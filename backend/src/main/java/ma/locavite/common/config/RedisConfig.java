@@ -115,6 +115,8 @@ public class RedisConfig implements CachingConfigurer {
         configurations.put(CACHE_VEHICLE_AVAILABILITY, defaultConfig.entryTtl(Duration.ofMinutes(1)));
         // Tarifs saisonniers (TTL 24h)
         configurations.put(CACHE_SEASONS, defaultConfig.entryTtl(Duration.ofHours(24)));
+        // Dashboard aggregates and recent activity (TTL 5 min)
+        configurations.put("adminDashboard", defaultConfig.entryTtl(Duration.ofMinutes(5)));
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
