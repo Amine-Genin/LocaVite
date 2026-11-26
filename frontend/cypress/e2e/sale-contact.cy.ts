@@ -1,30 +1,17 @@
-import { MOCK_SALE_LISTING } from '../support/sale-fixtures';
+import { setupSaleDetailIntercepts, visitSaleDetail } from '../support/sale-fixtures';
 
 describe('Parcours de vente - Formulaire de contact (/sale/:id)', () => {
-  const mockListing = MOCK_SALE_LISTING;
-
   beforeEach(() => {
-    cy.task('db:reset');
-    cy.clearLocalStorage();
-
-    cy.intercept('GET', '/api/sale-listings/31', {
-      statusCode: 200,
-      body: mockListing,
-    }).as('getSaleDetail');
-
-    cy.intercept('GET', '/api/vehicles/12/photos', { statusCode: 200, body: [] });
-    cy.intercept('GET', '/api/sale-listings/31/history', { statusCode: 200, body: [] });
-    cy.intercept('GET', /\/api\/sale-listings\/search(\?.*)?$/, {
-      statusCode: 200,
-      body: { content: [], totalElements: 0, totalPages: 0, number: 0, size: 10 },
-    });
+    setupSaleDetailIntercepts();
   });
 
-  it('ouvre la modale de contact depuis la fiche annonce', () => {
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
-
+  const openContactModal = () => {
+    visitSaleDetail();
     cy.get('[data-cy="sale-contact-open"]').click();
+  };
+
+  it('ouvre la modale de contact depuis la fiche annonce', () => {
+    openContactModal();
     cy.get('[data-cy="sale-contact-modal"]').should('be.visible');
     cy.get('[data-cy="sale-contact-form"]').should('be.visible');
     cy.get('[data-cy="sale-contact-name"]').should('be.visible');
@@ -34,11 +21,7 @@ describe('Parcours de vente - Formulaire de contact (/sale/:id)', () => {
   });
 
   it('valide les champs obligatoires du formulaire de contact', () => {
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
-
-    cy.get('[data-cy="sale-contact-open"]').click();
-    cy.get('[data-cy="sale-contact-modal"]').should('be.visible');
+    openContactModal();
 
     // Vider le message par défaut
     cy.get('[data-cy="sale-contact-message"]').clear();
@@ -49,10 +32,7 @@ describe('Parcours de vente - Formulaire de contact (/sale/:id)', () => {
   });
 
   it('valide le format invalide d adresse e-mail', () => {
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
-
-    cy.get('[data-cy="sale-contact-open"]').click();
+    openContactModal();
 
     cy.get('[data-cy="sale-contact-email"]').type('adresse-invalide');
     cy.get('[data-cy="sale-contact-name"]').click(); // Blur
@@ -73,10 +53,7 @@ describe('Parcours de vente - Formulaire de contact (/sale/:id)', () => {
       });
     }).as('sendContact');
 
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
-
-    cy.get('[data-cy="sale-contact-open"]').click();
+    openContactModal();
 
     cy.get('[data-cy="sale-contact-name"]').type('Karim Tazi');
     cy.get('[data-cy="sale-contact-email"]').type('karim.tazi@example.com');
@@ -95,10 +72,7 @@ describe('Parcours de vente - Formulaire de contact (/sale/:id)', () => {
       telephone: '0612345678',
     });
 
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
-
-    cy.get('[data-cy="sale-contact-open"]').click();
+    openContactModal();
 
     cy.get('[data-cy="sale-contact-name"]').should('have.value', 'Ahmed Benali');
     cy.get('[data-cy="sale-contact-email"]').should('have.value', 'ahmed.benali@locavite.ma');
@@ -111,10 +85,7 @@ describe('Parcours de vente - Formulaire de contact (/sale/:id)', () => {
       body: { error: 'Internal Server Error' },
     }).as('sendContactFail');
 
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
-
-    cy.get('[data-cy="sale-contact-open"]').click();
+    openContactModal();
 
     cy.get('[data-cy="sale-contact-name"]').type('Karim Tazi');
     cy.get('[data-cy="sale-contact-email"]').type('karim.tazi@example.com');

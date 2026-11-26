@@ -1,36 +1,26 @@
-import { MOCK_SALE_LISTING } from '../support/sale-fixtures';
+import { setupSaleDetailIntercepts, visitSaleDetail } from '../support/sale-fixtures';
 
 describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
-  const mockListing = MOCK_SALE_LISTING;
-
-  const tomorrow = () => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const getNextDayFormatted = () => {
+    const nextDate = new Date();
+    nextDate.setDate(nextDate.getDate() + 1);
+    const yyyy = nextDate.getFullYear();
+    const mm = String(nextDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(nextDate.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   };
 
   beforeEach(() => {
-    cy.task('db:reset');
-    cy.clearLocalStorage();
-
-    cy.intercept('GET', '/api/sale-listings/31', {
-      statusCode: 200,
-      body: mockListing,
-    }).as('getSaleDetail');
-
-    cy.intercept('GET', '/api/vehicles/12/photos', { statusCode: 200, body: [] });
-    cy.intercept('GET', '/api/sale-listings/31/history', { statusCode: 200, body: [] });
-    cy.intercept('GET', /\/api\/sale-listings\/search(\?.*)?$/, {
-      statusCode: 200,
-      body: { content: [], totalElements: 0, totalPages: 0, number: 0, size: 10 },
-    });
+    setupSaleDetailIntercepts();
   });
 
-  it('exige une authentification pour les visiteurs non connectés', () => {
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
-
+  const openVisitModal = () => {
+    visitSaleDetail();
     cy.get('[data-cy="sale-visit-open"]').click();
+  };
+
+  it('exige une authentification pour les visiteurs non connectés', () => {
+    openVisitModal();
     cy.get('[data-cy="sale-visit-modal"]').should('be.visible');
     cy.get('[data-cy="sale-visit-login-required"]').should('be.visible');
     cy.get('[data-cy="sale-visit-login-link"]').should('have.attr', 'href', '/login');
@@ -38,10 +28,7 @@ describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
 
   it('affiche le formulaire complet de visite pour un client connecté', () => {
     cy.loginAsClient();
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
-
-    cy.get('[data-cy="sale-visit-open"]').click();
+    openVisitModal();
     cy.get('[data-cy="sale-visit-modal"]').should('be.visible');
     cy.get('[data-cy="sale-visit-form"]').should('be.visible');
     cy.get('[data-cy="sale-visit-date"]').should('be.visible');
@@ -52,10 +39,7 @@ describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
 
   it('valide les champs obligatoires du formulaire de visite', () => {
     cy.loginAsClient();
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
-
-    cy.get('[data-cy="sale-visit-open"]').click();
+    openVisitModal();
     cy.get('[data-cy="sale-visit-form"]').should('be.visible');
 
     // Cliquer directement sur envoyer sans remplir
@@ -67,9 +51,9 @@ describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
   it('envoie avec succès une demande de visite simple', () => {
     cy.loginAsClient();
 
-    const visitDate = tomorrow();
+    const dateTarget = getNextDayFormatted();
     cy.intercept('POST', '/api/sale-listings/31/visit-request', (req) => {
-      expect(req.body.dateSouhaitee).to.equal(visitDate);
+      expect(req.body.dateSouhaitee).to.equal(dateTarget);
       expect(req.body.creneauHoraire).to.equal('10:00 - 12:00');
       expect(req.body.lieu).to.equal('LocaVite Agence Casablanca');
       expect(req.body.typeVisite).to.equal('VISITE_SIMPLE');
@@ -79,7 +63,7 @@ describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
         body: {
           id: 501,
           saleListingId: 31,
-          dateSouhaitee: visitDate,
+          dateSouhaitee: dateTarget,
           creneauHoraire: '10:00 - 12:00',
           lieu: 'LocaVite Agence Casablanca',
           typeVisite: 'VISITE_SIMPLE',
@@ -88,12 +72,9 @@ describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
       });
     }).as('requestVisit');
 
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
+    openVisitModal();
 
-    cy.get('[data-cy="sale-visit-open"]').click();
-
-    cy.get('[data-cy="sale-visit-date"]').type(visitDate);
+    cy.get('[data-cy="sale-visit-date"]').type(dateTarget);
     cy.get('[data-cy="sale-visit-slot"]').type('10:00 - 12:00');
     cy.get('[data-cy="sale-visit-location"]').type('LocaVite Agence Casablanca');
 
@@ -106,7 +87,7 @@ describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
   it('permet de sélectionner un essai routier et de le soumettre', () => {
     cy.loginAsClient();
 
-    const visitDate = tomorrow();
+    const dateTarget = getNextDayFormatted();
     cy.intercept('POST', '/api/sale-listings/31/visit-request', (req) => {
       expect(req.body.typeVisite).to.equal('ESSAI_ROUTIER');
 
@@ -115,7 +96,7 @@ describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
         body: {
           id: 502,
           saleListingId: 31,
-          dateSouhaitee: visitDate,
+          dateSouhaitee: dateTarget,
           creneauHoraire: '15:00 - 17:00',
           lieu: 'Casablanca Anfa',
           typeVisite: 'ESSAI_ROUTIER',
@@ -124,12 +105,9 @@ describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
       });
     }).as('requestTestDrive');
 
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
+    openVisitModal();
 
-    cy.get('[data-cy="sale-visit-open"]').click();
-
-    cy.get('[data-cy="sale-visit-date"]').type(visitDate);
+    cy.get('[data-cy="sale-visit-date"]').type(dateTarget);
     cy.get('[data-cy="sale-visit-slot"]').type('15:00 - 17:00');
     cy.get('[data-cy="sale-visit-location"]').type('Casablanca Anfa');
 
@@ -151,12 +129,9 @@ describe('Parcours de vente - Demande de visite (/sale/:id)', () => {
       body: { error: 'Server Error' },
     }).as('requestVisitError');
 
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
+    openVisitModal();
 
-    cy.get('[data-cy="sale-visit-open"]').click();
-
-    cy.get('[data-cy="sale-visit-date"]').type(tomorrow());
+    cy.get('[data-cy="sale-visit-date"]').type(getNextDayFormatted());
     cy.get('[data-cy="sale-visit-slot"]').type('10:00 - 12:00');
     cy.get('[data-cy="sale-visit-location"]').type('Agence');
 

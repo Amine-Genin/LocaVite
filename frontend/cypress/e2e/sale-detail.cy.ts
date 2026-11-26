@@ -1,4 +1,4 @@
-import { MOCK_SALE_LISTING } from '../support/sale-fixtures';
+import { MOCK_SALE_LISTING, visitSaleDetail } from '../support/sale-fixtures';
 
 describe('Parcours de vente - Détail, Galerie et Historique (/sale/:id)', () => {
   const mockListing = MOCK_SALE_LISTING;
@@ -86,8 +86,7 @@ describe('Parcours de vente - Détail, Galerie et Historique (/sale/:id)', () =>
   });
 
   it('affiche les caractéristiques complètes du véhicule et les spécifications', () => {
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
+    visitSaleDetail();
 
     cy.get('[data-cy="sale-detail-page"]').should('be.visible');
     cy.get('[data-cy="sale-detail-title"]').should('contain.text', 'Dacia Duster');
@@ -122,8 +121,7 @@ describe('Parcours de vente - Détail, Galerie et Historique (/sale/:id)', () =>
   });
 
   it('affiche la galerie de photos et permet de faire défiler les images', () => {
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
+    visitSaleDetail();
     cy.wait('@getPhotos');
 
     cy.get('[data-cy="photo-gallery"]').should('be.visible');
@@ -144,8 +142,7 @@ describe('Parcours de vente - Détail, Galerie et Historique (/sale/:id)', () =>
   });
 
   it('affiche la frise chronologique d historique avec les événements vérifiés', () => {
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
+    visitSaleDetail();
     cy.wait('@getHistory');
 
     cy.get('[data-cy="sale-history"]').should('be.visible');
@@ -161,16 +158,14 @@ describe('Parcours de vente - Détail, Galerie et Historique (/sale/:id)', () =>
   });
 
   it('propose le partage WhatsApp et la copie de lien', () => {
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
+    visitSaleDetail();
 
     cy.get('[data-cy="sale-share-whatsapp"]').should('be.visible');
     cy.get('[data-cy="sale-copy-link"]').should('be.visible').click();
   });
 
   it('affiche la section des annonces similaires', () => {
-    cy.visit('/sale/31');
-    cy.wait('@getSaleDetail');
+    visitSaleDetail();
     cy.wait('@getSimilarListings');
 
     cy.get('[data-cy="sale-similar"]').should('be.visible');

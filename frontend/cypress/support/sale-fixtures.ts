@@ -65,3 +65,23 @@ export const MOCK_CATEGORIES = [
   { id: 2, name: 'SUV' },
   { id: 3, name: 'BERLINE' },
 ];
+
+export function setupSaleDetailIntercepts(listingId = 31, vehicleId = 12) {
+  cy.task('db:reset');
+  cy.clearLocalStorage();
+  cy.intercept('GET', `/api/sale-listings/${listingId}`, {
+    statusCode: 200,
+    body: MOCK_SALE_LISTING,
+  }).as('getSaleDetail');
+  cy.intercept('GET', `/api/vehicles/${vehicleId}/photos`, { statusCode: 200, body: [] });
+  cy.intercept('GET', `/api/sale-listings/${listingId}/history`, { statusCode: 200, body: [] });
+  cy.intercept('GET', /\/api\/sale-listings\/search(\?.*)?$/, {
+    statusCode: 200,
+    body: { content: [], totalElements: 0, totalPages: 0, number: 0, size: 10 },
+  });
+}
+
+export function visitSaleDetail(listingId = 31) {
+  cy.visit(`/sale/${listingId}`);
+  cy.wait('@getSaleDetail');
+}
