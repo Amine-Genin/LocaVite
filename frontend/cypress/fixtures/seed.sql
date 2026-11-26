@@ -5,7 +5,7 @@
 -- ==============================================================================
 
 -- 1. Nettoyage des réservations et données de test
-TRUNCATE TABLE reservation_options, reservation_contracts, caution_transactions,
+TRUNCATE TABLE sale_listings, reservation_options, reservation_contracts, caution_transactions,
   reservation_extensions, refunds, payments, idempotency_keys, reservations RESTART IDENTITY CASCADE;
 DELETE FROM documents WHERE user_id IN (SELECT id FROM users WHERE email IN ('ahmed.benali@locavite.ma', 'client@locavite.ma'));
 

@@ -71,7 +71,7 @@ describe('LoginComponent', () => {
 
     fixture = TestBed.createComponent(LoginComponent);
     component = fixture.componentInstance;
-    snackBarSpy = spyOn((component as unknown as { snackBar: MatSnackBar }).snackBar, 'open').and.callThrough();
+    snackBarSpy = spyOn((component as unknown as { snackBar: MatSnackBar }).snackBar, 'open').and.stub();
     fixture.detectChanges();
   });
 

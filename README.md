@@ -7,6 +7,7 @@
 [![Frontend CI](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 [![Cypress E2E](https://img.shields.io/badge/Cypress%20E2E-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 [![Cypress Paiement](https://img.shields.io/badge/Cypress%20Paiement-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
+[![Cypress Vente](https://img.shields.io/github/actions/workflow/status/Amine-Genin/LocaVite/frontend-ci.yml?branch=main&job=e2e-cypress-sale&label=Cypress%20Vente&logo=cypress)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml?query=workflow%3A%22Frontend+CI%22)
 
 ### Qualité du code Backend (SonarCloud)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Amine-Genin_LocaVite-backend&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Amine-Genin_LocaVite-backend)
@@ -168,6 +169,7 @@ npm run build
 
 [![Cypress E2E](https://img.shields.io/badge/Cypress%20E2E-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 [![Cypress Paiement](https://img.shields.io/badge/Cypress%20Paiement-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
+[![Cypress Vente](https://img.shields.io/badge/Cypress%20Vente-passing-04C38E?logo=cypress&logoColor=white)](https://github.com/Amine-Genin/LocaVite/actions/workflows/frontend-ci.yml)
 
 Les tests E2E Cypress (`Cypress 13+`) couvrent l'intégralité du parcours critique de réservation, du paiement et du catalogue dans `frontend/cypress/e2e/` :
 

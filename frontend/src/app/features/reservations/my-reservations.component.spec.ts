@@ -19,13 +19,19 @@ describe('MyReservationsComponent', () => {
   let dialogSpy: jasmine.SpyObj<MatDialog>;
   let router: Router;
 
+  const getRelativeDate = (days: number): string => {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() + days);
+    return d.toISOString().split('T')[0];
+  };
+
   const mockReservations: Reservation[] = [
     {
       id: 1,
       code: 'LV-UPCOMING1',
       statut: 'PENDING',
-      dateDebut: '2026-11-20',
-      dateFin: '2026-11-25',
+      dateDebut: getRelativeDate(2),
+      dateFin: getRelativeDate(7),
       prixTotal: 1200,
       vehicleId: 10,
     },
@@ -33,8 +39,8 @@ describe('MyReservationsComponent', () => {
       id: 2,
       code: 'LV-ACTIVE1',
       statut: 'ACTIVE',
-      dateDebut: '2026-11-10',
-      dateFin: '2026-11-15',
+      dateDebut: getRelativeDate(-2),
+      dateFin: getRelativeDate(3),
       prixTotal: 2500,
       vehicleId: 11,
     },
@@ -42,8 +48,8 @@ describe('MyReservationsComponent', () => {
       id: 3,
       code: 'LV-COMPLETED1',
       statut: 'COMPLETED',
-      dateDebut: '2026-10-01',
-      dateFin: '2026-10-05',
+      dateDebut: getRelativeDate(-30),
+      dateFin: getRelativeDate(-25),
       prixTotal: 900,
       vehicleId: 10,
     },
@@ -51,8 +57,8 @@ describe('MyReservationsComponent', () => {
       id: 4,
       code: 'LV-CANCELLED1',
       statut: 'CANCELLED',
-      dateDebut: '2026-10-10',
-      dateFin: '2026-10-12',
+      dateDebut: getRelativeDate(-15),
+      dateFin: getRelativeDate(-10),
       prixTotal: 600,
       vehicleId: 12,
     },
