@@ -1,9 +1,12 @@
+import { withCurrentReservationDates } from '../support/reservation-fixtures';
+
 describe('Gestion des réservations client (/my-reservations)', () => {
   beforeEach(() => {
     cy.task('db:reset');
     cy.clearLocalStorage();
 
     cy.fixture('reservations.json').then((resData) => {
+      const myReservations = withCurrentReservationDates(resData.myReservations);
       cy.intercept('GET', '/api/users/me', {
         statusCode: 200,
         body: resData.clientUser,
@@ -12,8 +15,8 @@ describe('Gestion des réservations client (/my-reservations)', () => {
       cy.intercept('GET', /\/api\/reservations\/me.*/, {
         statusCode: 200,
         body: {
-          content: resData.myReservations,
-          totalElements: resData.myReservations.length,
+          content: myReservations,
+          totalElements: myReservations.length,
           totalPages: 1,
           size: 20,
           number: 0,
