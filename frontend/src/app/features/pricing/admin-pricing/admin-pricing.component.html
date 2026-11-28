@@ -1,0 +1,333 @@
+<section class="admin-pricing-page container" data-testid="admin-pricing-page">
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Tarifs saisonniers & Options</h1>
+      <p class="page-subtitle">
+        Configurez vos saisons, options journalières, remises et simulez vos tarifs en temps réel.
+      </p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="state-card" data-testid="pricing-loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Chargement de la configuration tarifaire…</p>
+    </div>
+  } @else {
+    <div class="tabs-card">
+      <mat-tab-group animationDuration="150ms" data-testid="pricing-tabs">
+        <!-- ONGLET 1 : SAISONS -->
+        <mat-tab label="Saisons">
+          <div class="tab-body">
+            <div class="tab-toolbar">
+              <h3>Tarifs saisonniers ({{ seasons().length }})</h3>
+              <button
+                type="button"
+                mat-flat-button
+                (click)="openSeasonModal()"
+                data-testid="add-season-btn"
+              >
+                <mat-icon>add</mat-icon>
+                Ajouter une saison
+              </button>
+            </div>
+
+            <div class="table-scroll">
+              <table mat-table [dataSource]="seasons()" class="pricing-table" data-testid="seasons-table">
+                <ng-container matColumnDef="nom">
+                  <th mat-header-cell *matHeaderCellDef>Nom</th>
+                  <td mat-cell *matCellDef="let s">
+                    <div class="season-name-cell">
+                      <span
+                        class="color-dot"
+                        [style.background]="seasonColorMap().get(s.id)"
+                      ></span>
+                      <div>
+                        <strong>{{ s.nom }}</strong>
+                        @if (s.agenceId) {
+                          <span class="sub-tag">Agence #{{ s.agenceId }}</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="dates">
+                  <th mat-header-cell *matHeaderCellDef>Dates</th>
+                  <td mat-cell *matCellDef="let s">
+                    {{ s.dateDebut | date: 'dd/MM/yyyy' }} → {{ s.dateFin | date: 'dd/MM/yyyy' }}
+                    @if (s.isRecurring) {
+                      <span class="sub-tag">Récurrent</span>
+                    }
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="coefficient">
+                  <th mat-header-cell *matHeaderCellDef>Coefficient</th>
+                  <td mat-cell *matCellDef="let s">
+                    <span class="coeff-pill">×{{ s.coefficient | number: '1.2-2' }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="priorite">
+                  <th mat-header-cell *matHeaderCellDef>Priorité</th>
+                  <td mat-cell *matCellDef="let s">P{{ s.priorite }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef class="actions-col">Actions</th>
+                  <td mat-cell *matCellDef="let s" class="actions-col">
+                    <button
+                      type="button"
+                      mat-icon-button
+                      (click)="openSeasonModal(s)"
+                      [attr.data-testid]="'edit-season-' + s.id"
+                      aria-label="Modifier"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button
+                      type="button"
+                      mat-icon-button
+                      (click)="deleteSeason(s)"
+                      [attr.data-testid]="'delete-season-' + s.id"
+                      aria-label="Supprimer"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="seasonColumns"></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: seasonColumns"
+                  [attr.data-testid]="'season-row-' + row.id"
+                ></tr>
+              </table>
+            </div>
+
+            <!-- Aperçu calendrier annuel -->
+            <div class="annual-calendar" data-testid="annual-calendar">
+              <div class="calendar-header">
+                <h4>Aperçu calendrier annuel {{ calendarYear() }}</h4>
+                <div class="year-nav">
+                  <button type="button" mat-stroked-button (click)="shiftCalendarYear(-1)">
+                    <mat-icon>chevron_left</mat-icon>
+                  </button>
+                  <span class="year-label">{{ calendarYear() }}</span>
+                  <button type="button" mat-stroked-button (click)="shiftCalendarYear(1)">
+                    <mat-icon>chevron_right</mat-icon>
+                  </button>
+                </div>
+              </div>
+
+              <div class="calendar-legend">
+                @for (s of seasons(); track s.id) {
+                  <span class="legend-chip">
+                    <i class="color-dot" [style.background]="seasonColorMap().get(s.id)"></i>
+                    {{ s.nom }} (×{{ s.coefficient }})
+                  </span>
+                }
+              </div>
+
+              <div class="months-grid">
+                @for (month of annualCalendar(); track month.name) {
+                  <div class="month-card">
+                    <div class="month-title">{{ month.name }}</div>
+                    <div class="days-grid">
+                      @for (day of month.days; track day.iso) {
+                        <span
+                          class="day-cell"
+                          [style.background]="day.color"
+                          [class.has-season]="day.seasonName"
+                          [matTooltip]="day.tooltip"
+                        >
+                          {{ day.day }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- ONGLET 2 : OPTIONS -->
+        <mat-tab label="Options">
+          <div class="tab-body">
+            <div class="tab-toolbar">
+              <h3>Options journalières ({{ options().length }})</h3>
+              <button
+                type="button"
+                mat-flat-button
+                (click)="openOptionModal()"
+                data-testid="add-option-btn"
+              >
+                <mat-icon>add</mat-icon>
+                Ajouter une option
+              </button>
+            </div>
+
+            <div class="table-scroll">
+              <table mat-table [dataSource]="options()" class="pricing-table" data-testid="options-table">
+                <ng-container matColumnDef="type">
+                  <th mat-header-cell *matHeaderCellDef>Type</th>
+                  <td mat-cell *matCellDef="let o">
+                    <span class="code-pill">{{ o.type }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="libelle">
+                  <th mat-header-cell *matHeaderCellDef>Libellé</th>
+                  <td mat-cell *matCellDef="let o"><strong>{{ o.libelle || o.type }}</strong></td>
+                </ng-container>
+
+                <ng-container matColumnDef="prixJour">
+                  <th mat-header-cell *matHeaderCellDef>Prix / jour</th>
+                  <td mat-cell *matCellDef="let o">{{ o.prixJour | number: '1.2-2' }} MAD</td>
+                </ng-container>
+
+                <ng-container matColumnDef="actif">
+                  <th mat-header-cell *matHeaderCellDef>Actif</th>
+                  <td mat-cell *matCellDef="let o">
+                    <mat-slide-toggle
+                      [checked]="o.actif"
+                      (change)="toggleOptionActive(o, $event.checked)"
+                      [attr.data-testid]="'option-toggle-' + o.id"
+                    >
+                      {{ o.actif ? 'Actif' : 'Inactif' }}
+                    </mat-slide-toggle>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef class="actions-col">Actions</th>
+                  <td mat-cell *matCellDef="let o" class="actions-col">
+                    <button
+                      type="button"
+                      mat-icon-button
+                      (click)="openOptionModal(o)"
+                      [attr.data-testid]="'edit-option-' + o.id"
+                      aria-label="Modifier"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button
+                      type="button"
+                      mat-icon-button
+                      (click)="deleteOption(o)"
+                      [attr.data-testid]="'delete-option-' + o.id"
+                      aria-label="Supprimer"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="optionColumns"></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: optionColumns"
+                  [attr.data-testid]="'option-row-' + row.id"
+                ></tr>
+              </table>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- ONGLET 3 : REMISES -->
+        <mat-tab label="Remises">
+          <div class="tab-body">
+            <div class="tab-toolbar">
+              <h3>Remises & Codes promo ({{ discounts().length }})</h3>
+              <button
+                type="button"
+                mat-flat-button
+                (click)="openDiscountModal()"
+                data-testid="add-discount-btn"
+              >
+                <mat-icon>add</mat-icon>
+                Ajouter une remise
+              </button>
+            </div>
+
+            <div class="table-scroll">
+              <table mat-table [dataSource]="discounts()" class="pricing-table" data-testid="discounts-table">
+                <ng-container matColumnDef="libelle">
+                  <th mat-header-cell *matHeaderCellDef>Nom</th>
+                  <td mat-cell *matCellDef="let d"><strong>{{ d.libelle }}</strong></td>
+                </ng-container>
+
+                <ng-container matColumnDef="type">
+                  <th mat-header-cell *matHeaderCellDef>Type</th>
+                  <td mat-cell *matCellDef="let d">
+                    <span class="code-pill">
+                      {{ d.type === 'LONG_DURATION' ? 'Longue durée' : 'Code promo' }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="pourcentage">
+                  <th mat-header-cell *matHeaderCellDef>Valeur</th>
+                  <td mat-cell *matCellDef="let d">
+                    <span class="coeff-pill">-{{ d.pourcentage | number: '1.0-2' }}%</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="conditions">
+                  <th mat-header-cell *matHeaderCellDef>Conditions</th>
+                  <td mat-cell *matCellDef="let d">{{ formatDiscountConditions(d) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="actif">
+                  <th mat-header-cell *matHeaderCellDef>Statut</th>
+                  <td mat-cell *matCellDef="let d">
+                    <span class="status-pill" [class.active]="d.actif">
+                      {{ d.actif ? 'Actif' : 'Inactif' }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef class="actions-col">Actions</th>
+                  <td mat-cell *matCellDef="let d" class="actions-col">
+                    <button
+                      type="button"
+                      mat-icon-button
+                      (click)="openDiscountModal(d)"
+                      [attr.data-testid]="'edit-discount-' + d.id"
+                      aria-label="Modifier"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button
+                      type="button"
+                      mat-icon-button
+                      (click)="deleteDiscount(d)"
+                      [attr.data-testid]="'delete-discount-' + d.id"
+                      aria-label="Supprimer"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="discountColumns"></tr>
+                <tr
+                  mat-row
+                  *matRowDef="let row; columns: discountColumns"
+                  [attr.data-testid]="'discount-row-' + row.id"
+                ></tr>
+              </table>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+
+    <!-- Simulateur de prix en temps réel -->
+    <app-pricing-simulator [availableOptions]="options()"></app-pricing-simulator>
+  }
+</section>

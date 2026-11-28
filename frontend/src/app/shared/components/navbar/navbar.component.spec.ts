@@ -73,6 +73,7 @@ describe('NavbarComponent', () => {
       '/admin/sale/new',
       '/admin/reservations',
       '/admin/payments',
+      '/admin/pricing',
       '/vehicles',
       '/sale',
     ]);

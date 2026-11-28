@@ -1,0 +1,121 @@
+<div class="modal-shell" data-testid="season-form-modal">
+  <div class="modal-header">
+    <h2 mat-dialog-title>{{ isEdit ? 'Modifier la saison' : 'Ajouter une saison' }}</h2>
+    <button type="button" mat-icon-button (click)="cancel()" aria-label="Fermer">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-dialog-content class="modal-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nom de la saison</mat-label>
+        <input
+          matInput
+          formControlName="nom"
+          placeholder="Ex: Haute saison été"
+          data-testid="season-nom-input"
+        />
+        @if (form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
+          <mat-error>Le nom est obligatoire</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="two-cols">
+        <mat-form-field appearance="outline">
+          <mat-label>Date de début</mat-label>
+          <input
+            matInput
+            [matDatepicker]="startPicker"
+            formControlName="dateDebut"
+            data-testid="season-start-input"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Date de fin</mat-label>
+          <input
+            matInput
+            [matDatepicker]="endPicker"
+            formControlName="dateFin"
+            data-testid="season-end-input"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <div class="two-cols">
+        <mat-form-field appearance="outline">
+          <mat-label>Coefficient</mat-label>
+          <input
+            matInput
+            type="number"
+            step="0.05"
+            min="0.01"
+            formControlName="coefficient"
+            data-testid="season-coeff-input"
+          />
+          <span matTextSuffix>×</span>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Priorité</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            formControlName="priorite"
+            data-testid="season-priority-input"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="two-cols align-center">
+        <mat-form-field appearance="outline">
+          <mat-label>Agence ID (optionnel)</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            formControlName="agenceId"
+            placeholder="Global si vide"
+            data-testid="season-agence-input"
+          />
+        </mat-form-field>
+
+        <mat-slide-toggle formControlName="isRecurring" data-testid="season-recurring-toggle">
+          Saison récurrente chaque année
+        </mat-slide-toggle>
+      </div>
+
+      @if (form.hasError('invalidDateRange')) {
+        <div class="alert-error" data-testid="season-date-error">
+          <mat-icon>error_outline</mat-icon>
+          <span>La date de début doit être strictement antérieure à la date de fin.</span>
+        </div>
+      }
+
+      @if (overlapErrorMessage) {
+        <div class="alert-error" data-testid="season-overlap-error">
+          <mat-icon>warning</mat-icon>
+          <span>{{ overlapErrorMessage }}</span>
+        </div>
+      }
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="modal-actions">
+      <button type="button" mat-stroked-button (click)="cancel()">Annuler</button>
+      <button
+        type="submit"
+        mat-flat-button
+        [disabled]="form.invalid"
+        data-testid="season-submit-btn"
+      >
+        {{ isEdit ? 'Enregistrer' : 'Créer la saison' }}
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div>

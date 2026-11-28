@@ -1,0 +1,140 @@
+.simulator-card {
+  background: var(--c-surface, #ffffff);
+  border: 1px solid var(--c-border, #dde3ea);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.simulator-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.sim-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-navy, #142e45);
+}
+
+.sim-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--c-muted, #5f6f7f);
+}
+
+.simulator-layout {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 24px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sim-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.options-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.options-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-navy, #142e45);
+}
+
+.options-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.opt-price {
+  font-size: 12px;
+  color: var(--c-muted, #5f6f7f);
+}
+
+.sim-result {
+  background: #f8fafc;
+  border: 1px solid var(--c-border, #dde3ea);
+  border-radius: 10px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.sim-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 12px;
+  font-size: 14px;
+  color: var(--c-muted, #5f6f7f);
+}
+
+.sim-error {
+  color: var(--c-error, #a72d35);
+}
+
+.quote-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quote-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--c-navy, #142e45);
+}
+
+.discount-row {
+  color: var(--c-success, #176a50);
+}
+
+.quote-total {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 2px solid var(--c-border, #dde3ea);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--c-navy, #142e45);
+
+  strong {
+    font-size: 22px;
+    font-weight: 750;
+    color: var(--c-primary, #b4532a);
+  }
+}
