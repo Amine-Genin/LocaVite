@@ -1,0 +1,31 @@
+<main class="dashboard">
+  <header class="page-heading">
+    <div><span class="eyebrow">ESPACE ADMINISTRATION</span><h1>Vue d’ensemble</h1><p>Pilotez votre activité en un coup d’œil.</p></div>
+    <div class="header-actions"><div class="periods" aria-label="Période"><button *ngFor="let p of ['7j','30j','90j','1an']" [class.selected]="period() === p" (click)="setPeriod($any(p))">{{ p }}</button></div><button class="export" mat-button (click)="printPdf()"><mat-icon>picture_as_pdf</mat-icon> Exporter PDF</button></div>
+  </header>
+  <div class="custom-period"><label>Du <input type="date" #from></label><label>Au <input type="date" #to></label><button (click)="setPeriod('custom', from.value, to.value)">Appliquer</button></div>
+  <div class="loading" *ngIf="loading()"><mat-spinner diameter="34"></mat-spinner><span>Chargement des indicateurs…</span></div>
+  <p class="error" *ngIf="error()">{{ error() }}</p>
+  <ng-container *ngIf="!loading()">
+    <section class="kpis">
+      <article class="kpi"><div class="kpi-icon green"><mat-icon>payments</mat-icon></div><span>Revenus de la période</span><strong>{{ kpis().revenue | number:'1.0-0' }} <small>MAD</small></strong><em [class.negative]="kpis().revenueChange < 0">{{ kpis().revenueChange >= 0 ? '+' : '' }}{{ kpis().revenueChange | number:'1.0-1' }}% vs période précédente</em></article>
+      <article class="kpi"><div class="kpi-icon blue"><mat-icon>event_available</mat-icon></div><span>Réservations actives</span><strong>{{ kpis().active }}</strong><em>En cours ou à confirmer</em></article>
+      <article class="kpi"><div class="kpi-icon purple"><mat-icon>directions_car</mat-icon></div><span>Véhicules disponibles</span><strong>{{ kpis().available }} <small>/ {{ kpis().totalVehicles }}</small></strong><em>Flotte publiée</em></article>
+      <article class="kpi"><div class="kpi-icon amber"><mat-icon>donut_large</mat-icon></div><span>Taux d’occupation</span><strong>{{ kpis().occupancy }}<small>%</small></strong><em>Véhicules actuellement loués</em></article>
+      <article class="kpi"><div class="kpi-icon rose"><mat-icon>group</mat-icon></div><span>Clients</span><strong>{{ kpis().clients }}</strong><em>Clients ayant réservé</em></article>
+      <article class="kpi"><div class="kpi-icon teal"><mat-icon>sell</mat-icon></div><span>Ventes en cours</span><strong>{{ kpis().sales }}</strong><em>Annonces actives</em></article>
+    </section>
+    <section class="charts">
+      <article class="panel wide"><div class="panel-title"><div><h2>Évolution des revenus</h2><p>12 derniers mois · MAD</p></div><mat-icon>trending_up</mat-icon></div><div class="chart"><canvas id="revenue-chart"></canvas></div></article>
+      <article class="panel"><div class="panel-title"><div><h2>Réservations par statut</h2><p>Vue d’ensemble</p></div></div><div class="chart"><canvas id="status-chart"></canvas></div></article>
+      <article class="panel"><div class="panel-title"><div><h2>Catégories de véhicules</h2><p>Répartition de la flotte</p></div></div><div class="chart"><canvas id="category-chart"></canvas></div></article>
+      <article class="panel"><div class="panel-title"><div><h2>Véhicules les plus réservés</h2><p>Top 5 de la flotte</p></div></div><div class="chart"><canvas id="top-chart"></canvas></div></article>
+      <article class="panel"><div class="panel-title"><div><h2>Taux d’occupation</h2><p>Évolution mensuelle</p></div></div><div class="chart"><canvas id="occupancy-chart"></canvas></div></article>
+    </section>
+    <section class="tables">
+      <article class="panel"><div class="panel-title"><div><h2>Dernières réservations</h2><p>Les 5 plus récentes</p></div></div><div class="table-row" *ngFor="let r of reservations()"><div class="avatar">{{ (r.clientNom || 'C').slice(0,1) }}</div><div class="row-main"><b>{{ r.clientNom || 'Client' }}</b><small>{{ r.code || 'Réservation' }}</small></div><span class="status" [attr.data-status]="r.statut">{{ r.statut }}</span></div><p class="empty" *ngIf="!reservations().length">Aucune réservation récente.</p></article>
+      <article class="panel"><div class="panel-title"><div><h2>Derniers paiements</h2><p>Les 5 plus récents</p></div></div><div class="table-row" *ngFor="let p of payments()"><div class="avatar money"><mat-icon>payments</mat-icon></div><div class="row-main"><b>{{ p.clientNom || p.code || 'Paiement' }}</b><small>{{ p.statut }}</small></div><strong>{{ p.montant | number:'1.0-0' }} MAD</strong></div><p class="empty" *ngIf="!payments().length">Aucun paiement récent.</p></article>
+      <article class="panel"><div class="panel-title"><div><h2>Messages de contact</h2><p>Les 5 derniers messages</p></div></div><div class="table-row" *ngFor="let c of contacts()"><div class="avatar message"><mat-icon>mail</mat-icon></div><div class="row-main"><b>{{ c.nom || c.titre || 'Nouveau message' }}</b><small>{{ c.createdAt | date:'dd/MM/yyyy' }}</small></div><span class="status">{{ c.statut || 'Nouveau' }}</span></div><p class="empty" *ngIf="!contacts().length">Aucun message récent.</p></article>
+    </section>
+  </ng-container>
+</main>
