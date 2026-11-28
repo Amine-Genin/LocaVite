@@ -103,12 +103,16 @@ export class AdminFleetComponent implements OnInit {
 
   readonly categories = computed<string[]>(() => {
     const source = this.allVehiclesSnapshot().length ? this.allVehiclesSnapshot() : this.vehicles();
-    return [...new Set(source.map((v) => v.categorie).filter(Boolean))].sort();
+    return [...new Set(source.map((v) => v.categorie).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b),
+    );
   });
 
   readonly cities = computed<string[]>(() => {
     const source = this.allVehiclesSnapshot().length ? this.allVehiclesSnapshot() : this.vehicles();
-    return [...new Set(source.map((v) => v.ville).filter(Boolean))].sort();
+    return [...new Set(source.map((v) => v.ville).filter(Boolean))].sort((a, b) =>
+      a.localeCompare(b),
+    );
   });
 
   readonly filteredVehicles = computed<FleetVehicle[]>(() => {
