@@ -5,6 +5,7 @@ import ma.locavite.reservation.dto.SeasonRequest;
 import ma.locavite.reservation.dto.SeasonResponse;
 import ma.locavite.reservation.event.SeasonChangedEvent;
 import ma.locavite.reservation.exception.SeasonNotFoundException;
+import ma.locavite.reservation.exception.SeasonOverlapException;
 import ma.locavite.reservation.repository.SeasonRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -168,5 +169,57 @@ class SeasonServiceTest {
 
         verify(seasonRepository).delete(existing);
         verify(eventPublisher).publishEvent(any(SeasonChangedEvent.class));
+    }
+
+    @Test
+    @DisplayName("create détecte le chevauchement de saisons ayant la même priorité")
+    void create_overlappingSamePriority_throwsSeasonOverlapException() {
+        Season existing = new Season("Haute saison été", LocalDate.of(2026, 7, 1), LocalDate.of(2026, 8, 31), new BigDecimal("1.50"), 3);
+        existing.setId(5L);
+        when(seasonRepository.findAll()).thenReturn(List.of(existing));
+
+        SeasonRequest overlapping = new SeasonRequest(
+                "Saison concurrente",
+                LocalDate.of(2026, 8, 1),
+                LocalDate.of(2026, 9, 15),
+                new BigDecimal("1.60"),
+                3,
+                null,
+                null,
+                false
+        );
+
+        assertThatThrownBy(() -> seasonService.create(overlapping))
+                .isInstanceOf(SeasonOverlapException.class)
+                .hasMessageContaining("Chevauchement détecté");
+        verify(seasonRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("create autorise un chevauchement si la priorité est distincte")
+    void create_overlappingDifferentPriority_succeeds() {
+        Season existing = new Season("Haute saison été", LocalDate.of(2026, 7, 1), LocalDate.of(2026, 8, 31), new BigDecimal("1.50"), 3);
+        existing.setId(5L);
+        when(seasonRepository.findAll()).thenReturn(List.of(existing));
+        when(seasonRepository.save(any(Season.class))).thenAnswer(inv -> {
+            Season s = inv.getArgument(0);
+            s.setId(6L);
+            return s;
+        });
+
+        SeasonRequest higherPriority = new SeasonRequest(
+                "Pic Août",
+                LocalDate.of(2026, 8, 1),
+                LocalDate.of(2026, 8, 20),
+                new BigDecimal("1.90"),
+                4,
+                null,
+                null,
+                false
+        );
+
+        SeasonResponse response = seasonService.create(higherPriority);
+        assertThat(response.getId()).isEqualTo(6L);
+        assertThat(response.getPriorite()).isEqualTo(4);
     }
 }
