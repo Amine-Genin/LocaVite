@@ -440,7 +440,7 @@ export class NavbarComponent {
 
     if (this.isAdminOrAgency()) {
       return [
-        { labelKey: 'NAV.ADMIN_VEHICLES', route: '/admin/vehicles', exact: true },
+        { labelKey: 'NAV.ADMIN_VEHICLES', route: '/admin/fleet', exact: true },
         { labelKey: 'NAV.ADD_VEHICLE', route: '/admin/vehicles/new', exact: true },
         { labelKey: 'NAV.ADMIN_SALES', route: '/admin/sale', exact: true },
         { labelKey: 'NAV.ADD_SALE', route: '/admin/sale/new', exact: true },

@@ -1,0 +1,167 @@
+<div class="gantt-container" data-testid="fleet-calendar">
+  <div class="gantt-toolbar">
+    <div class="toolbar-left">
+      <div class="nav-controls">
+        <button
+          type="button"
+          mat-stroked-button
+          (click)="shiftPeriod(-1)"
+          data-testid="calendar-prev-btn"
+          aria-label="Période précédente"
+        >
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <button
+          type="button"
+          mat-stroked-button
+          (click)="goToToday()"
+          data-testid="calendar-today-btn"
+        >
+          Aujourd'hui
+        </button>
+        <button
+          type="button"
+          mat-stroked-button
+          (click)="shiftPeriod(1)"
+          data-testid="calendar-next-btn"
+          aria-label="Période suivante"
+        >
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+
+      <span class="period-label" data-testid="calendar-period-label">{{ periodTitle() }}</span>
+
+      @if (selectedVehicle(); as vehicle) {
+        <div class="vehicle-filter-pill" data-testid="calendar-vehicle-filter">
+          <span>Filtre : {{ vehicle.marque }} {{ vehicle.modele }} ({{ vehicle.matricule }})</span>
+          <button
+            type="button"
+            class="clear-pill-btn"
+            (click)="onClearVehicleFilter()"
+            data-testid="calendar-clear-vehicle-btn"
+          >
+            Voir toute la flotte
+          </button>
+        </div>
+      }
+    </div>
+
+    <div class="toolbar-right">
+      <div class="range-toggle" role="group" aria-label="Durée affichée">
+        <button
+          type="button"
+          class="range-btn"
+          [class.active]="rangeDays() === 7"
+          (click)="setRange(7)"
+        >
+          7j
+        </button>
+        <button
+          type="button"
+          class="range-btn"
+          [class.active]="rangeDays() === 14"
+          (click)="setRange(14)"
+        >
+          14j
+        </button>
+        <button
+          type="button"
+          class="range-btn"
+          [class.active]="rangeDays() === 30"
+          (click)="setRange(30)"
+        >
+          30j
+        </button>
+      </div>
+
+      <div class="gantt-legend">
+        <span class="legend-item"><i class="dot bar-confirmed"></i> Confirmée</span>
+        <span class="legend-item"><i class="dot bar-active"></i> En cours</span>
+        <span class="legend-item"><i class="dot bar-pending"></i> En attente</span>
+        <span class="legend-item"><i class="dot bar-completed"></i> Terminée</span>
+      </div>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="gantt-state">
+      <mat-spinner diameter="36"></mat-spinner>
+      <p>Chargement du planning des réservations…</p>
+    </div>
+  } @else if (visibleVehicles().length === 0) {
+    <div class="gantt-state">
+      <mat-icon>directions_car</mat-icon>
+      <p>Aucun véhicule à afficher sur le calendrier.</p>
+    </div>
+  } @else {
+    <div class="gantt-scroll">
+      <div class="gantt-grid" [style.--days-count]="rangeDays()">
+        <!-- Header row -->
+        <div class="gantt-header-row">
+          <div class="vehicle-col header-cell">Véhicule ({{ visibleVehicles().length }})</div>
+          <div class="timeline-cols">
+            @for (day of days(); track day.iso) {
+              <div
+                class="day-header"
+                [class.weekend]="day.isWeekend"
+                [class.today]="day.isToday"
+              >
+                <span class="day-name">{{ day.dayName }}</span>
+                <span class="day-num">{{ day.dayNumber }}</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Vehicle rows -->
+        @for (vehicle of visibleVehicles(); track vehicle.id) {
+          <div class="gantt-row" [attr.data-testid]="'calendar-row-' + vehicle.id">
+            <button
+              type="button"
+              class="vehicle-col vehicle-cell"
+              (click)="onSelectVehicle(vehicle)"
+            >
+              <img
+                [src]="vehicle.photoUrl"
+                [alt]="vehicle.marque + ' ' + vehicle.modele"
+                class="row-thumb"
+              />
+              <div class="row-vehicle-info">
+                <span class="row-vehicle-name">{{ vehicle.marque }} {{ vehicle.modele }}</span>
+                <span class="row-vehicle-sub">{{ vehicle.matricule }} · {{ vehicle.ville }}</span>
+              </div>
+              <span class="status-dot status-{{ vehicle.statut.toLowerCase() }}"></span>
+            </button>
+
+            <div class="timeline-track">
+              <div class="track-cells">
+                @for (day of days(); track day.iso) {
+                  <div
+                    class="track-cell"
+                    [class.weekend]="day.isWeekend"
+                    [class.today]="day.isToday"
+                  ></div>
+                }
+              </div>
+
+              @for (bar of getBarsForVehicle(vehicle.id); track bar.reservation.id) {
+                <div
+                  class="gantt-bar"
+                  [ngClass]="bar.statusClass"
+                  [style.left.%]="bar.leftPercent"
+                  [style.width.%]="bar.widthPercent"
+                  [matTooltip]="bar.tooltip"
+                  matTooltipPosition="above"
+                  [attr.data-testid]="'gantt-bar-' + bar.reservation.id"
+                >
+                  <span class="bar-label">{{ bar.label }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
