@@ -1,0 +1,70 @@
+.modal-shell {
+  min-width: 320px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px 8px;
+  border-bottom: 1px solid var(--c-border, #dde3ea);
+
+  h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--c-navy, #142e45);
+  }
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 24px !important;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.align-center {
+  align-items: center;
+}
+
+.alert-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--c-error-bg, #fdebec);
+  color: var(--c-error, #a72d35);
+  font-size: 13px;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}
+
+.modal-actions {
+  padding: 12px 24px 16px !important;
+  border-top: 1px solid var(--c-border, #dde3ea);
+  gap: 8px;
+}

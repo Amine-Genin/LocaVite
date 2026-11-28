@@ -1,0 +1,102 @@
+<div class="modal-shell" data-testid="discount-form-modal">
+  <div class="modal-header">
+    <h2 mat-dialog-title>{{ isEdit ? 'Modifier la remise' : 'Ajouter une remise' }}</h2>
+    <button type="button" mat-icon-button (click)="cancel()" aria-label="Fermer">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-dialog-content class="modal-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Type de remise</mat-label>
+        <mat-select formControlName="type" data-testid="discount-type-select">
+          <mat-option value="PROMO_CODE">Code promo</mat-option>
+          <mat-option value="LONG_DURATION">Longue durée</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nom / Libellé</mat-label>
+        <input
+          matInput
+          formControlName="libelle"
+          placeholder="Ex: Promo Été 15%"
+          data-testid="discount-libelle-input"
+        />
+      </mat-form-field>
+
+      <div class="two-cols">
+        <mat-form-field appearance="outline">
+          <mat-label>Valeur (%)</mat-label>
+          <input
+            matInput
+            type="number"
+            min="1"
+            max="100"
+            formControlName="pourcentage"
+            data-testid="discount-value-input"
+          />
+          <span matTextSuffix>%</span>
+        </mat-form-field>
+
+        @if (isPromoCode) {
+          <mat-form-field appearance="outline">
+            <mat-label>Code promo</mat-label>
+            <input
+              matInput
+              formControlName="code"
+              placeholder="EX: ETE2026"
+              data-testid="discount-code-input"
+            />
+          </mat-form-field>
+        } @else {
+          <mat-form-field appearance="outline">
+            <mat-label>Durée minimale (jours)</mat-label>
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="minDays"
+              data-testid="discount-mindays-input"
+            />
+          </mat-form-field>
+        }
+      </div>
+
+      @if (isPromoCode) {
+        <div class="two-cols">
+          <mat-form-field appearance="outline">
+            <mat-label>Valide à partir du</mat-label>
+            <input matInput [matDatepicker]="discStart" formControlName="dateDebut" />
+            <mat-datepicker-toggle matIconSuffix [for]="discStart"></mat-datepicker-toggle>
+            <mat-datepicker #discStart></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Valide jusqu’au</mat-label>
+            <input matInput [matDatepicker]="discEnd" formControlName="dateFin" />
+            <mat-datepicker-toggle matIconSuffix [for]="discEnd"></mat-datepicker-toggle>
+            <mat-datepicker #discEnd></mat-datepicker>
+          </mat-form-field>
+        </div>
+      }
+
+      <mat-slide-toggle formControlName="actif" data-testid="discount-actif-toggle">
+        Remise active
+      </mat-slide-toggle>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="modal-actions">
+      <button type="button" mat-stroked-button (click)="cancel()">Annuler</button>
+      <button
+        type="submit"
+        mat-flat-button
+        [disabled]="!canSubmit"
+        data-testid="discount-submit-btn"
+      >
+        {{ isEdit ? 'Enregistrer' : 'Créer la remise' }}
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div>

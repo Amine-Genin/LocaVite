@@ -1,0 +1,64 @@
+<div class="modal-shell" data-testid="option-form-modal">
+  <div class="modal-header">
+    <h2 mat-dialog-title>{{ isEdit ? 'Modifier l’option' : 'Ajouter une option' }}</h2>
+    <button type="button" mat-icon-button (click)="cancel()" aria-label="Fermer">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-dialog-content class="modal-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Type d’option</mat-label>
+        <mat-select formControlName="type" data-testid="option-type-select">
+          @for (opt of optionTypes; track opt.value) {
+            <mat-option [value]="opt.value" [disabled]="isTypeDisabled(opt.value)">
+              {{ opt.label }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Libellé</mat-label>
+        <input
+          matInput
+          formControlName="libelle"
+          placeholder="Ex: GPS Navigation Pro"
+          data-testid="option-libelle-input"
+        />
+      </mat-form-field>
+
+      <div class="two-cols align-center">
+        <mat-form-field appearance="outline">
+          <mat-label>Prix par jour</mat-label>
+          <input
+            matInput
+            type="number"
+            min="0"
+            step="5"
+            formControlName="prixJour"
+            data-testid="option-price-input"
+          />
+          <span matTextSuffix>MAD</span>
+        </mat-form-field>
+
+        <mat-slide-toggle formControlName="actif" data-testid="option-actif-toggle">
+          Option active
+        </mat-slide-toggle>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="modal-actions">
+      <button type="button" mat-stroked-button (click)="cancel()">Annuler</button>
+      <button
+        type="submit"
+        mat-flat-button
+        [disabled]="form.invalid"
+        data-testid="option-submit-btn"
+      >
+        {{ isEdit ? 'Enregistrer' : 'Créer l’option' }}
+      </button>
+    </mat-dialog-actions>
+  </form>
+</div>

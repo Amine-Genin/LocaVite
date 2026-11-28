@@ -1,0 +1,171 @@
+<section class="simulator-card" data-testid="pricing-simulator">
+  <div class="simulator-header">
+    <div>
+      <h2 class="sim-title">Simulateur de prix en temps réel</h2>
+      <p class="sim-subtitle">
+        Testez instantanément l’impact de vos saisons, options et codes promo.
+      </p>
+    </div>
+    <button
+      type="button"
+      mat-stroked-button
+      (click)="simulate()"
+      data-testid="simulate-btn"
+    >
+      <mat-icon>calculate</mat-icon>
+      Recalculer
+    </button>
+  </div>
+
+  <div class="simulator-layout">
+    <form [formGroup]="form" class="sim-form">
+      <div class="two-cols">
+        <mat-form-field appearance="outline">
+          <mat-label>Véhicule</mat-label>
+          <mat-select formControlName="vehicleId" data-testid="sim-vehicle-select">
+            <mat-option [value]="null">Tarif manuel (sans véhicule)</mat-option>
+            @for (v of vehicles(); track v.id) {
+              <mat-option [value]="v.id">
+                {{ v.marque }} {{ v.modele }} ({{ v.prixJour }} MAD/j)
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (!form.get('vehicleId')?.value) {
+          <mat-form-field appearance="outline">
+            <mat-label>Prix journalier de base (MAD)</mat-label>
+            <input
+              matInput
+              type="number"
+              min="1"
+              formControlName="prixJour"
+              data-testid="sim-daily-price-input"
+            />
+          </mat-form-field>
+        } @else {
+          <mat-form-field appearance="outline">
+            <mat-label>Code promo (optionnel)</mat-label>
+            <input
+              matInput
+              formControlName="promoCode"
+              placeholder="EX: ETE2026"
+              data-testid="sim-promo-input"
+            />
+          </mat-form-field>
+        }
+      </div>
+
+      <div class="two-cols">
+        <mat-form-field appearance="outline">
+          <mat-label>Date de début</mat-label>
+          <input
+            matInput
+            [matDatepicker]="simStart"
+            formControlName="dateDebut"
+            data-testid="sim-start-input"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="simStart"></mat-datepicker-toggle>
+          <mat-datepicker #simStart></mat-datepicker>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Date de fin</mat-label>
+          <input
+            matInput
+            [matDatepicker]="simEnd"
+            formControlName="dateFin"
+            data-testid="sim-end-input"
+          />
+          <mat-datepicker-toggle matIconSuffix [for]="simEnd"></mat-datepicker-toggle>
+          <mat-datepicker #simEnd></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      @if (!form.get('vehicleId')?.value) {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Code promo (optionnel)</mat-label>
+          <input
+            matInput
+            formControlName="promoCode"
+            placeholder="EX: ETE2026"
+            data-testid="sim-promo-input"
+          />
+        </mat-form-field>
+      }
+
+      <div class="options-group">
+        <span class="options-label">Options incluses :</span>
+        <div class="options-list">
+          @for (opt of optionChoices; track opt.type) {
+            <mat-checkbox
+              [checked]="isOptionSelected(opt.type)"
+              (change)="toggleOption(opt.type, $event.checked)"
+              [attr.data-testid]="'sim-option-' + opt.type"
+            >
+              {{ opt.libelle }}
+              @if (opt.prixJour !== undefined) {
+                <span class="opt-price">({{ opt.prixJour }} MAD/j)</span>
+              }
+            </mat-checkbox>
+          }
+        </div>
+      </div>
+    </form>
+
+    <div class="sim-result" data-testid="sim-result-panel">
+      @if (loading()) {
+        <div class="sim-state">
+          <mat-spinner diameter="32"></mat-spinner>
+          <span>Calcul en cours…</span>
+        </div>
+      } @else if (error()) {
+        <div class="sim-state sim-error" data-testid="sim-error">
+          <mat-icon>error_outline</mat-icon>
+          <span>{{ error() }}</span>
+        </div>
+      } @else {
+        @if (result(); as quote) {
+        <div class="quote-breakdown">
+          <div class="quote-row">
+            <span>Durée</span>
+            <strong data-testid="sim-days">{{ quote.jours }} jours</strong>
+          </div>
+          <div class="quote-row">
+            <span>Sous-total saisonnier</span>
+            <strong data-testid="sim-subtotal">{{ quote.sousTotal | number: '1.2-2' }} MAD</strong>
+          </div>
+          <div class="quote-row">
+            <span>Options</span>
+            <strong data-testid="sim-options-total">{{ quote.options | number: '1.2-2' }} MAD</strong>
+          </div>
+          @if (quote.remiseDuree > 0) {
+            <div class="quote-row discount-row">
+              <span>Remise longue durée</span>
+              <strong>- {{ quote.remiseDuree | number: '1.2-2' }} MAD</strong>
+            </div>
+          }
+          @if (quote.remisePromo > 0) {
+            <div class="quote-row discount-row">
+              <span>Code promo ({{ quote.promoCodeApplique }})</span>
+              <strong>- {{ quote.remisePromo | number: '1.2-2' }} MAD</strong>
+            </div>
+          }
+          <div class="quote-row">
+            <span>TVA (20%)</span>
+            <strong>{{ quote.tva | number: '1.2-2' }} MAD</strong>
+          </div>
+          <div class="quote-row">
+            <span>Caution</span>
+            <strong>{{ quote.caution | number: '1.2-2' }} MAD</strong>
+          </div>
+          <div class="quote-total">
+            <span>Total TTC (caution incluse)</span>
+            <strong data-testid="sim-total">{{ quote.total | number: '1.2-2' }} MAD</strong>
+          </div>
+        </div>
+        }
+      }
+    </div>
+  </div>
+</section>
