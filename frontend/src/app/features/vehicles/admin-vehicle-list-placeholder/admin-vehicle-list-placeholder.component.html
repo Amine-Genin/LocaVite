@@ -1,0 +1,36 @@
+<main class="fleet-page" data-cy="admin-vehicles-page">
+  <header class="page-header">
+    <div><span class="eyebrow">ESPACE AGENCE</span><h1 data-cy="admin-vehicles-title">Gestion de la flotte</h1><p>Suivez l’état, les réservations et la performance de vos véhicules.</p></div>
+    <div class="header-actions"><button mat-stroked-button class="csv" (click)="exportCsv()"><mat-icon>download</mat-icon> Exporter CSV</button><a mat-raised-button color="primary" routerLink="/admin/vehicles/new" data-cy="add-vehicle-nav-btn"><mat-icon>add</mat-icon> Ajouter un véhicule</a></div>
+  </header>
+
+  <section class="filters" aria-label="Filtres de flotte">
+    <label>Statut<select [ngModel]="filter().statut" (ngModelChange)="setFilter('statut', $event)"><option value="">Tous les statuts</option><option *ngFor="let status of statuses" [value]="status">{{ status }}</option></select></label>
+    <label>Catégorie<input [ngModel]="filter().categorie" (ngModelChange)="setFilter('categorie', $event)" placeholder="Ex. SUV"></label>
+    <label>Ville<input [ngModel]="filter().ville" (ngModelChange)="setFilter('ville', $event)" placeholder="Ex. Casablanca"></label>
+    <button mat-flat-button color="primary" (click)="applyFilters()"><mat-icon>filter_list</mat-icon> Filtrer</button><button mat-button (click)="reset()">Réinitialiser</button>
+  </section>
+
+  <div class="loading" *ngIf="loading()"><mat-spinner diameter="32"></mat-spinner><span>Chargement de la flotte…</span></div>
+  <section class="fleet-table-wrap" *ngIf="!loading()" data-cy="admin-vehicles-content">
+    <div class="table-meta"><strong>{{ vehicles().length }} véhicule{{ vehicles().length > 1 ? 's' : '' }}</strong><span>Les revenus couvrent le mois et l’année en cours.</span></div>
+    <div class="table-scroll" *ngIf="vehicles().length; else noVehicles">
+      <table><thead><tr><th>Véhicule</th><th>Statut</th><th>Localisation</th><th>Prochaine réservation</th><th>Kilométrage</th><th>Maintenance</th><th>Revenus</th><th>Occupation</th><th>Actions</th></tr></thead>
+        <tbody><ng-container *ngFor="let v of vehicles(); trackBy: trackById"><tr [class.active-row]="selectedVehicle() === v.id">
+          <td><div class="vehicle"><div class="car-icon"><mat-icon>directions_car</mat-icon></div><div><b>{{ v.marque }} {{ v.modele }}</b><small>{{ v.annee }} · {{ v.matricule }} · {{ v.categorie }}</small></div></div></td>
+          <td><span class="status-pill" [attr.data-status]="v.statut">{{ v.statut }}</span></td>
+          <td><b class="small-strong">{{ v.localisationActuelle || v.ville }}</b><small>{{ v.ville }}</small></td>
+          <td><span *ngIf="v.prochaineReservation; else noBooking">{{ v.prochaineReservation | date:'dd/MM/yyyy' }}</span><ng-template #noBooking><span class="muted">Aucune prévue</span></ng-template></td>
+          <td>{{ v.kilometrage | number }} km</td>
+          <td><div class="maintenance"><span>Dernière : {{ v.derniereMaintenance ? (v.derniereMaintenance | date:'dd/MM/yy') : '—' }}</span><span>Prochaine : {{ v.prochaineMaintenance ? (v.prochaineMaintenance | date:'dd/MM/yy') : '—' }}</span></div></td>
+          <td><div class="revenue"><b>{{ v.revenusMois | number:'1.0-0' }} MAD</b><small>{{ v.revenusAnnee | number:'1.0-0' }} MAD année</small></div></td>
+          <td><div class="occupancy"><b>{{ v.tauxOccupation }}%</b><span><i [style.width.%]="v.tauxOccupation"></i></span></div></td>
+          <td><div class="actions"><select aria-label="Changer le statut" [value]="v.statut" (change)="changeStatus(v, $any($event.target).value)"><option *ngFor="let status of statuses" [value]="status">{{ status }}</option></select><button mat-icon-button aria-label="Voir l’historique" title="Historique" (click)="showHistory(v.id)"><mat-icon>history</mat-icon></button><button mat-icon-button aria-label="Ajouter une maintenance" title="Ajouter une maintenance" (click)="addMaintenance(v)"><mat-icon>build</mat-icon></button><button mat-icon-button aria-label="Déclarer un incident" title="Déclarer un incident" (click)="addIncident(v)"><mat-icon>report_problem</mat-icon></button><button *ngIf="isAdmin" mat-icon-button aria-label="Transférer vers une agence" title="Transférer" (click)="transfer(v)"><mat-icon>swap_horiz</mat-icon></button></div></td>
+        </tr>
+        <tr class="history-row" *ngIf="selectedVehicle() === v.id"><td colspan="9"><section class="history-panel"><header><div><h2>Historique complet</h2><p>Réservations, maintenances, incidents et changements de statut</p></div><button mat-icon-button aria-label="Fermer l’historique" (click)="closeHistory()"><mat-icon>close</mat-icon></button></header><div class="history-list" *ngIf="history().length; else noHistory"><article *ngFor="let item of history()"><span class="history-icon"><mat-icon>{{ item.type === 'RESERVATION' ? 'event' : item.type === 'MAINTENANCE' ? 'build' : item.type === 'INCIDENT' ? 'report_problem' : 'sync_alt' }}</mat-icon></span><div><b>{{ item.type }} <span *ngIf="item.ancienStatut || item.nouveauStatut">· {{ item.ancienStatut || '—' }} → {{ item.nouveauStatut }}</span></b><p>{{ item.description || 'Changement de statut' }}</p><small>{{ item.date || item.dateHeure | date:'dd/MM/yyyy HH:mm' }} <span *ngIf="item.kilometrage">· {{ item.kilometrage | number }} km</span></small></div></article></div><ng-template #noHistory><p class="muted">Aucun événement enregistré pour ce véhicule.</p></ng-template></section></td></tr>
+        </ng-container></tbody>
+      </table>
+    </div>
+    <ng-template #noVehicles><div class="empty"><mat-icon>directions_car</mat-icon><b>Aucun véhicule trouvé</b><p>Modifiez les filtres ou ajoutez un véhicule à votre flotte.</p></div></ng-template>
+  </section>
+</main>

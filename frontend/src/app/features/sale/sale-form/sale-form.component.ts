@@ -232,6 +232,8 @@ export class SaleFormComponent implements OnInit {
   }
 
   estimatePrice(): void {
+    this.errorMessage.set('');
+    this.estimate.set(null);
     const mode = this.vehicleForm.controls.mode.value;
     let marque = '';
     let modele = '';

@@ -1,1 +1,215 @@
-<!DOCTYPE html><html><head><title>LocaVite Mochawesome</title></head><body><p>Placeholder</p></body></html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mochawesome Report - LocaVite E2E Cypress</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --pass: #16a34a;
+      --fail: #dc2626;
+      --pending: #d97706;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: #0f172a;
+      color: #fff;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 1.35rem;
+    }
+    .stats-bar {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .stat-pill {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .stat-pill.pass { color: #4ade80; }
+    .stat-pill.fail { color: #f87171; }
+    main {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1.25rem;
+    }
+    .suite-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    .suite-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f1f5f9;
+    }
+    .suite-header h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+    .suite-file {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: monospace;
+    }
+    .test-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .test-item {
+      padding: 0.75rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .test-item:last-child {
+      border-bottom: none;
+    }
+    .test-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 50%;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .status-badge.passed { background: var(--pass); }
+    .status-badge.failed { background: var(--fail); }
+    .status-badge.pending { background: var(--pending); }
+    .test-title {
+      flex: 1;
+      font-size: 0.925rem;
+    }
+    .test-duration {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: monospace;
+    }
+    .error-box {
+      margin: 0.6rem 0 0 2.15rem;
+      padding: 0.75rem;
+      background: #fef2f2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      border-radius: 0.5rem;
+      font-size: 0.8rem;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Mochawesome Report — LocaVite E2E Cypress</h1>
+    </div>
+    <div class="stats-bar">
+      <span class="stat-pill">Suites: 2</span>
+      <span class="stat-pill">Tests: 5</span>
+      <span class="stat-pill pass">Passes: 5</span>
+      <span class="stat-pill fail">Failures: 0</span>
+      <span class="stat-pill">Pass %: 100%</span>
+      <span class="stat-pill">Duration: 7.16s</span>
+    </div>
+  </header>
+  <main>
+    
+            <div class="suite-card">
+              <div class="suite-header">
+                <h3>Estimation dans le formulaire de vente agence (/admin/sale/new)</h3>
+                <span class="suite-file">cypress\e2e\sale-estimate.cy.ts</span>
+              </div>
+              <ul class="test-list">
+                
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">calcule et affiche l estimation ML indicative avec fourchette de prix</span>
+                    <span class="test-duration">3042 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche un message lorsqu aucune annonce comparable n est disponible</span>
+                    <span class="test-duration">1393 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche une bannière d erreur si le service d estimation ML échoue</span>
+                    <span class="test-duration">1253 ms</span>
+                  </div>
+                  
+                </li>
+              </ul>
+            </div>
+
+            <div class="suite-card">
+              <div class="suite-header">
+                <h3>Estimation sur la page de détail (/sale/:id)</h3>
+                <span class="suite-file">cypress\e2e\sale-estimate.cy.ts</span>
+              </div>
+              <ul class="test-list">
+                
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">affiche l estimation basée sur le marché pour un véhicule d occasion</span>
+                    <span class="test-duration">724 ms</span>
+                  </div>
+                  
+                </li>
+
+                <li class="test-item passed">
+                  <div class="test-row">
+                    <span class="status-badge passed">✓</span>
+                    <span class="test-title">masque le bouton d estimation pour un véhicule neuf</span>
+                    <span class="test-duration">495 ms</span>
+                  </div>
+                  
+                </li>
+              </ul>
+            </div>
+  </main>
+</body>
+</html>

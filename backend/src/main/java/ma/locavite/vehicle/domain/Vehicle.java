@@ -64,6 +64,15 @@ public class Vehicle {
     @Column(name = "agence_id", nullable = false)
     private Long agenceId;
 
+    @Column(nullable = false)
+    private Integer kilometrage = 0;
+
+    @Column(name = "derniere_maintenance")
+    private java.time.LocalDate derniereMaintenance;
+
+    @Column(name = "prochaine_maintenance")
+    private java.time.LocalDate prochaineMaintenance;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -102,6 +111,12 @@ public class Vehicle {
     public void setStatut(VehicleStatus statut) { this.statut = statut; }
     public Long getAgenceId() { return agenceId; }
     public void setAgenceId(Long agenceId) { this.agenceId = agenceId; }
+    public Integer getKilometrage() { return kilometrage; }
+    public void setKilometrage(Integer kilometrage) { this.kilometrage = kilometrage; }
+    public java.time.LocalDate getDerniereMaintenance() { return derniereMaintenance; }
+    public void setDerniereMaintenance(java.time.LocalDate derniereMaintenance) { this.derniereMaintenance = derniereMaintenance; }
+    public java.time.LocalDate getProchaineMaintenance() { return prochaineMaintenance; }
+    public void setProchaineMaintenance(java.time.LocalDate prochaineMaintenance) { this.prochaineMaintenance = prochaineMaintenance; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
