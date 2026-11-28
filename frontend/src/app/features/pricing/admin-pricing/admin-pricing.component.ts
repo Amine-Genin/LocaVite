@@ -359,6 +359,6 @@ export class AdminPricingComponent implements OnInit {
         return curr.priorite > best.priorite ? curr : best;
       }
       return curr.coefficient > best.coefficient ? curr : best;
-    });
+    }, matching[0]);
   }
 }
