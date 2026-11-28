@@ -8,7 +8,7 @@ CREATE TABLE vehicle_status_history (
     ancien_statut VARCHAR(20),
     nouveau_statut VARCHAR(20) NOT NULL,
     raison VARCHAR(500),
-    date TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     user_id BIGINT NOT NULL
 );
 CREATE INDEX idx_vehicle_status_history_vehicle_date ON vehicle_status_history(vehicle_id, date DESC);
@@ -21,7 +21,7 @@ CREATE TABLE vehicle_maintenance (
     kilometrage INTEGER NOT NULL CHECK (kilometrage >= 0),
     prochaine_maintenance DATE,
     created_by BIGINT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_vehicle_maintenance_vehicle_date ON vehicle_maintenance(vehicle_id, date DESC);
 
@@ -32,6 +32,6 @@ CREATE TABLE vehicle_incidents (
     description VARCHAR(1000) NOT NULL,
     gravite VARCHAR(20) NOT NULL,
     created_by BIGINT NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX idx_vehicle_incidents_vehicle_date ON vehicle_incidents(vehicle_id, date DESC);
