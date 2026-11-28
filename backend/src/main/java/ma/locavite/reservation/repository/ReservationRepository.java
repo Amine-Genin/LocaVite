@@ -92,4 +92,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
 
     @Query("SELECT r.id FROM Reservation r WHERE r.vehicleId IN :vehicleIds")
     List<Long> findIdsByVehicleIdIn(@Param("vehicleIds") Collection<Long> vehicleIds);
+
+    List<ma.locavite.reservation.domain.Reservation> findByVehicleIdOrderByDateDebutAsc(Long vehicleId);
 }
