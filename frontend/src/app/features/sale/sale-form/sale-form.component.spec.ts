@@ -169,4 +169,5 @@ describe('SaleFormComponent', () => {
       (fixture.nativeElement as HTMLElement).querySelector('[data-cy="sale-estimate-result"]'),
     ).toBeTruthy();
   });
+
 });

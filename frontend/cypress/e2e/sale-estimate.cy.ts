@@ -115,9 +115,11 @@ describe('Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:i
       cy.get('[data-cy="step-condition-next"]').click();
 
       cy.get('[data-cy="estimate-price-button"]').click();
-      cy.wait('@estimateError');
+      cy.wait('@estimateError').its('response.statusCode').should('eq', 500);
 
-      cy.get('[data-cy="sale-form-error"]').should('be.visible');
+      cy.get('[data-cy="sale-form-error"]')
+        .should('be.visible')
+        .and('contain.text', 'Impossible de calculer une estimation pour le moment.');
     });
   });
 

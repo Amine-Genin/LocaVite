@@ -1,1 +1,86 @@
-{"stats":{"suites":0,"tests":0,"passes":0,"pending":0,"failures":0}}
+{
+  "stats": {
+    "suites": 2,
+    "tests": 5,
+    "passes": 5,
+    "pending": 0,
+    "failures": 0,
+    "start": "2026-11-28T01:07:48.557Z",
+    "end": "2026-11-28T01:07:55.725Z",
+    "duration": 7158,
+    "passPercent": 100
+  },
+  "results": [
+    {
+      "file": "cypress\\e2e\\sale-estimate.cy.ts",
+      "suites": [
+        {
+          "title": "Estimation dans le formulaire de vente agence (/admin/sale/new)",
+          "tests": [
+            {
+              "title": "calcule et affiche l estimation ML indicative avec fourchette de prix",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation dans le formulaire de vente agence (/admin/sale/new) calcule et affiche l estimation ML indicative avec fourchette de prix",
+              "duration": 3042,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche un message lorsqu aucune annonce comparable n est disponible",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation dans le formulaire de vente agence (/admin/sale/new) affiche un message lorsqu aucune annonce comparable n est disponible",
+              "duration": 1393,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "affiche une bannière d erreur si le service d estimation ML échoue",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation dans le formulaire de vente agence (/admin/sale/new) affiche une bannière d erreur si le service d estimation ML échoue",
+              "duration": 1253,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 3,
+          "failures": 0,
+          "pending": 0
+        },
+        {
+          "title": "Estimation sur la page de détail (/sale/:id)",
+          "tests": [
+            {
+              "title": "affiche l estimation basée sur le marché pour un véhicule d occasion",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation sur la page de détail (/sale/:id) affiche l estimation basée sur le marché pour un véhicule d occasion",
+              "duration": 724,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            },
+            {
+              "title": "masque le bouton d estimation pour un véhicule neuf",
+              "fullTitle": "Parcours de vente - Estimation de prix ML (/admin/sale/new et /sale/:id) Estimation sur la page de détail (/sale/:id) masque le bouton d estimation pour un véhicule neuf",
+              "duration": 495,
+              "state": "passed",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "err": {}
+            }
+          ],
+          "passes": 2,
+          "failures": 0,
+          "pending": 0
+        }
+      ]
+    }
+  ]
+}
