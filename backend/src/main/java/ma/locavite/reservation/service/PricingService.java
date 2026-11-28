@@ -1,12 +1,16 @@
 package ma.locavite.reservation.service;
 
 import ma.locavite.reservation.config.PricingProperties;
+import ma.locavite.reservation.domain.Discount;
+import ma.locavite.reservation.domain.DiscountType;
 import ma.locavite.reservation.domain.OptionPrice;
 import ma.locavite.reservation.domain.ReservationOption;
 import ma.locavite.reservation.domain.Season;
 import ma.locavite.reservation.dto.PriceQuoteResponse;
+import ma.locavite.reservation.repository.DiscountRepository;
 import ma.locavite.reservation.repository.OptionPriceRepository;
 import ma.locavite.vehicle.domain.Vehicle;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,19 +28,31 @@ public class PricingService {
     private static final BigDecimal LOW_SEASON_COEFFICIENT = BigDecimal.ONE;
     private static final BigDecimal LONG_RENTAL_DISCOUNT = new BigDecimal("0.10");
     private static final BigDecimal VERY_LONG_RENTAL_DISCOUNT = new BigDecimal("0.20");
+    private static final BigDecimal HUNDRED = new BigDecimal("100");
     private static final BigDecimal VAT_DIVISOR = new BigDecimal("100");
 
     private final SeasonService seasonService;
     private final OptionPriceRepository optionPriceRepository;
     private final PricingProperties pricingProperties;
+    private final DiscountRepository discountRepository;
 
     public PricingService(
             SeasonService seasonService,
             OptionPriceRepository optionPriceRepository,
             PricingProperties pricingProperties) {
+        this(seasonService, optionPriceRepository, pricingProperties, null);
+    }
+
+    @Autowired
+    public PricingService(
+            SeasonService seasonService,
+            OptionPriceRepository optionPriceRepository,
+            PricingProperties pricingProperties,
+            DiscountRepository discountRepository) {
         this.seasonService = seasonService;
         this.optionPriceRepository = optionPriceRepository;
         this.pricingProperties = pricingProperties;
+        this.discountRepository = discountRepository;
     }
 
     public PriceQuoteResponse calculate(
@@ -55,9 +71,7 @@ public class PricingService {
         List<Season> seasons = seasonService.getAll();
         BigDecimal sousTotal = calculateSeasonalSubtotal(vehicle, dateDebut, dateFin, seasons);
         BigDecimal optionsTotal = calculateOptions(options, jours);
-        BigDecimal remiseRate = jours > 30
-                ? VERY_LONG_RENTAL_DISCOUNT
-                : jours > 7 ? LONG_RENTAL_DISCOUNT : BigDecimal.ZERO;
+        BigDecimal remiseRate = resolveDurationDiscountRate(jours);
         BigDecimal remise = sousTotal.multiply(remiseRate).setScale(2, RoundingMode.HALF_UP);
         BigDecimal taxableAmount = sousTotal.subtract(remise).add(optionsTotal);
         BigDecimal tva = taxableAmount
@@ -156,7 +170,9 @@ public class PricingService {
 
         Map<ReservationOption, BigDecimal> prices = new EnumMap<>(ReservationOption.class);
         for (OptionPrice optionPrice : optionPriceRepository.findAll()) {
-            prices.put(optionPrice.getType(), optionPrice.getPrixJour());
+            if (!Boolean.FALSE.equals(optionPrice.getActif())) {
+                prices.put(optionPrice.getType(), optionPrice.getPrixJour());
+            }
         }
 
         BigDecimal total = BigDecimal.ZERO;
@@ -168,6 +184,24 @@ public class PricingService {
             total = total.add(prixJour.multiply(BigDecimal.valueOf(jours)));
         }
         return scale(total);
+    }
+
+    private BigDecimal resolveDurationDiscountRate(long jours) {
+        if (discountRepository != null) {
+            List<Discount> durationDiscounts = discountRepository
+                    .findByTypeAndActifTrueOrderByMinDaysDesc(DiscountType.LONG_DURATION);
+            if (durationDiscounts != null && !durationDiscounts.isEmpty()) {
+                for (Discount discount : durationDiscounts) {
+                    if (discount.getMinDays() != null && jours >= discount.getMinDays()) {
+                        return discount.getPourcentage().divide(HUNDRED, 4, RoundingMode.HALF_UP);
+                    }
+                }
+                return BigDecimal.ZERO;
+            }
+        }
+        return jours > 30
+                ? VERY_LONG_RENTAL_DISCOUNT
+                : jours > 7 ? LONG_RENTAL_DISCOUNT : BigDecimal.ZERO;
     }
 
     private BigDecimal scale(BigDecimal amount) {

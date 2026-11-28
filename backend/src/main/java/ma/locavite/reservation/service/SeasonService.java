@@ -6,6 +6,7 @@ import ma.locavite.reservation.dto.SeasonRequest;
 import ma.locavite.reservation.dto.SeasonResponse;
 import ma.locavite.reservation.event.SeasonChangedEvent;
 import ma.locavite.reservation.exception.SeasonNotFoundException;
+import ma.locavite.reservation.exception.SeasonOverlapException;
 import ma.locavite.reservation.repository.SeasonRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class SeasonService {
@@ -68,6 +70,7 @@ public class SeasonService {
     @CacheEvict(value = RedisConfig.CACHE_SEASONS, allEntries = true)
     public SeasonResponse create(SeasonRequest request) {
         validateDates(request);
+        validateNoOverlapWithoutDistinctPriority(request, null);
 
         Season season = new Season(
                 request.getNom(),
@@ -92,6 +95,7 @@ public class SeasonService {
     @CacheEvict(value = RedisConfig.CACHE_SEASONS, allEntries = true)
     public SeasonResponse update(Long id, SeasonRequest request) {
         validateDates(request);
+        validateNoOverlapWithoutDistinctPriority(request, id);
 
         Season existing = getById(id);
         existing.setNom(request.getNom());
@@ -131,6 +135,39 @@ public class SeasonService {
         if (!request.getDateDebut().isBefore(request.getDateFin())) {
             throw new IllegalArgumentException("La date de début doit être strictement antérieure à la date de fin");
         }
+    }
+
+    private void validateNoOverlapWithoutDistinctPriority(SeasonRequest request, Long excludeId) {
+        Integer newPriority = request.getPriorite();
+        List<Season> existingSeasons = seasonRepository.findAll();
+        if (existingSeasons == null || existingSeasons.isEmpty()) {
+            return;
+        }
+
+        for (Season existing : existingSeasons) {
+            if (excludeId != null && excludeId.equals(existing.getId())) {
+                continue;
+            }
+            if (!Objects.equals(existing.getAgenceId(), request.getAgenceId())
+                    || !Objects.equals(existing.getVehicleId(), request.getVehicleId())) {
+                continue;
+            }
+            if (datesOverlap(request.getDateDebut(), request.getDateFin(), existing.getDateDebut(), existing.getDateFin())
+                    && Objects.equals(newPriority, existing.getPriorite())) {
+                throw new SeasonOverlapException(
+                        "Chevauchement détecté avec la saison '" + existing.getNom()
+                                + "' (" + existing.getDateDebut() + " → " + existing.getDateFin()
+                                + ") ayant la même priorité (" + newPriority + "). Définissez une priorité distincte.");
+            }
+        }
+    }
+
+    private boolean datesOverlap(java.time.LocalDate start1, java.time.LocalDate end1,
+                                 java.time.LocalDate start2, java.time.LocalDate end2) {
+        if (start1 == null || end1 == null || start2 == null || end2 == null) {
+            return false;
+        }
+        return !start1.isAfter(end2) && !start2.isAfter(end1);
     }
 
     private void publishChangeEvent(Season season, String action) {
