@@ -59,9 +59,9 @@ describe('VehicleHistoryModalComponent', () => {
   let fleetServiceSpy: jasmine.SpyObj<FleetService>;
   let dialogRefSpy: jasmine.SpyObj<MatDialogRef<VehicleHistoryModalComponent>>;
 
-  const setup = async (historyResult = of(MOCK_HISTORY)) => {
+  beforeEach(async () => {
     fleetServiceSpy = jasmine.createSpyObj('FleetService', ['getHistory']);
-    fleetServiceSpy.getHistory.and.returnValue(historyResult);
+    fleetServiceSpy.getHistory.and.returnValue(of(MOCK_HISTORY));
     dialogRefSpy = jasmine.createSpyObj('MatDialogRef', ['close']);
 
     const dialogData: VehicleHistoryModalData = { vehicle: MOCK_VEHICLE };
@@ -77,11 +77,10 @@ describe('VehicleHistoryModalComponent', () => {
 
     fixture = TestBed.createComponent(VehicleHistoryModalComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
-  };
+  });
 
-  it('devrait charger et afficher la timeline d’historique dans la modale', async () => {
-    await setup();
+  it('devrait charger et afficher la timeline d’historique dans la modale', () => {
+    fixture.detectChanges();
 
     expect(fleetServiceSpy.getHistory).toHaveBeenCalledWith(1);
     const items = fixture.nativeElement.querySelectorAll('[data-testid="history-timeline-item"]');
@@ -94,8 +93,8 @@ describe('VehicleHistoryModalComponent', () => {
     expect(text).toContain('24,500 km');
   });
 
-  it('devrait filtrer les événements de la timeline par type', async () => {
-    await setup();
+  it('devrait filtrer les événements de la timeline par type', () => {
+    fixture.detectChanges();
 
     component.setTypeFilter('MAINTENANCE');
     fixture.detectChanges();
@@ -105,22 +104,24 @@ describe('VehicleHistoryModalComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('Vidange');
   });
 
-  it('devrait afficher un état vide lorsque l’historique est vide', async () => {
-    await setup(of([]));
+  it('devrait afficher un état vide lorsque l’historique est vide', () => {
+    fleetServiceSpy.getHistory.and.returnValue(of([]));
+    fixture.detectChanges();
 
     const empty = fixture.nativeElement.querySelector('[data-testid="history-empty"]');
     expect(empty).toBeTruthy();
   });
 
-  it('devrait afficher un message d’erreur en cas d’échec API', async () => {
-    await setup(throwError(() => new Error('Network error')));
+  it('devrait afficher un message d’erreur en cas d’échec API', () => {
+    fleetServiceSpy.getHistory.and.returnValue(throwError(() => new Error('Network error')));
+    fixture.detectChanges();
 
     const errorEl = fixture.nativeElement.querySelector('[data-testid="history-error"]');
     expect(errorEl).toBeTruthy();
   });
 
-  it('devrait fermer la modale au clic sur Fermer', async () => {
-    await setup();
+  it('devrait fermer la modale au clic sur Fermer', () => {
+    fixture.detectChanges();
     component.close();
     expect(dialogRefSpy.close).toHaveBeenCalled();
   });
