@@ -1,0 +1,120 @@
+<div class="history-modal" data-testid="vehicle-history-modal">
+  <div class="modal-header">
+    <div class="vehicle-summary">
+      @if (data.vehicle.photoUrl) {
+        <img
+          [src]="data.vehicle.photoUrl"
+          [alt]="data.vehicle.marque + ' ' + data.vehicle.modele"
+          class="vehicle-thumb"
+        />
+      }
+      <div>
+        <h2 mat-dialog-title class="modal-title">
+          Historique · {{ data.vehicle.marque }} {{ data.vehicle.modele }} ({{ data.vehicle.annee }})
+        </h2>
+        <p class="vehicle-meta">
+          <span class="matricule">{{ data.vehicle.matricule }}</span>
+          <span>•</span>
+          <span>{{ data.vehicle.ville }}</span>
+          <span>•</span>
+          <span class="status-pill status-{{ data.vehicle.statut.toLowerCase() }}">
+            {{ getStatusLabel(data.vehicle.statut) }}
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <button
+      type="button"
+      mat-icon-button
+      (click)="close()"
+      aria-label="Fermer la modale"
+      data-testid="close-history-modal"
+    >
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="filter-bar" role="group" aria-label="Filtrer par type d'événement">
+    @for (type of eventTypes; track type) {
+      <button
+        type="button"
+        class="filter-chip"
+        [class.active]="activeTypeFilter() === type"
+        (click)="setTypeFilter(type)"
+      >
+        {{ getTypeLabel(type) }}
+      </button>
+    }
+  </div>
+
+  <mat-dialog-content class="modal-body">
+    @if (loading()) {
+      <div class="state-box" data-testid="history-loading">
+        <mat-spinner diameter="36"></mat-spinner>
+        <p>Chargement de l'historique…</p>
+      </div>
+    } @else if (error()) {
+      <div class="state-box error-box" data-testid="history-error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ error() }}</p>
+        <button type="button" mat-stroked-button (click)="loadHistory()">Réessayer</button>
+      </div>
+    } @else if (filteredEvents().length === 0) {
+      <div class="state-box empty-box" data-testid="history-empty">
+        <mat-icon>history</mat-icon>
+        <p>Aucun événement enregistré pour ce véhicule.</p>
+      </div>
+    } @else {
+      <ol class="timeline" data-testid="history-timeline">
+        @for (event of filteredEvents(); track $index) {
+          <li class="timeline-item" data-testid="history-timeline-item">
+            <div class="timeline-marker" [ngClass]="getEventClass(event.type)">
+              <mat-icon>{{ getEventIcon(event.type) }}</mat-icon>
+            </div>
+
+            <div class="timeline-card">
+              <div class="timeline-top">
+                <span class="event-badge" [ngClass]="getEventClass(event.type)">
+                  {{ getTypeLabel(event.type) }}
+                </span>
+                <span class="event-date">
+                  {{ (event.dateHeure || event.date) | date: 'dd/MM/yyyy HH:mm' }}
+                </span>
+              </div>
+
+              @if (event.ancienStatut || event.nouveauStatut) {
+                <div class="status-transition">
+                  @if (event.ancienStatut) {
+                    <span class="transition-pill old">{{ getStatusLabel(event.ancienStatut) }}</span>
+                    <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                  }
+                  @if (event.nouveauStatut) {
+                    <span class="transition-pill new">{{ getStatusLabel(event.nouveauStatut) }}</span>
+                  }
+                </div>
+              }
+
+              @if (event.description) {
+                <p class="event-description">{{ event.description }}</p>
+              }
+
+              @if (event.kilometrage !== undefined && event.kilometrage !== null) {
+                <div class="event-mileage">
+                  <mat-icon>speed</mat-icon>
+                  <span>{{ event.kilometrage | number }} km</span>
+                </div>
+              }
+            </div>
+          </li>
+        }
+      </ol>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="modal-footer">
+    <button type="button" mat-flat-button (click)="close()" data-testid="history-close-btn">
+      Fermer
+    </button>
+  </mat-dialog-actions>
+</div>

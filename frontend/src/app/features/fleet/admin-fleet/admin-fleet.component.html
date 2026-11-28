@@ -1,0 +1,337 @@
+<section class="admin-fleet-page container" data-testid="admin-fleet-page">
+  <!-- Header -->
+  <header class="page-header">
+    <div>
+      <h1 class="page-title">Gestion de la flotte</h1>
+      <p class="page-subtitle">
+        Pilotez vos véhicules, statuts, historiques et planning de réservations en un seul endroit.
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        type="button"
+        mat-stroked-button
+        (click)="exportCsv()"
+        data-testid="export-csv-btn"
+      >
+        <mat-icon>download</mat-icon>
+        Exporter CSV
+      </button>
+
+      <a
+        mat-flat-button
+        routerLink="/admin/vehicles/new"
+        data-testid="add-vehicle-btn"
+      >
+        <mat-icon>add</mat-icon>
+        Ajouter un véhicule
+      </a>
+    </div>
+  </header>
+
+  <!-- KPI Statistics -->
+  <div class="stats-grid" data-testid="fleet-stats">
+    <div class="stat-card" data-testid="stat-total">
+      <div class="stat-icon icon-total">
+        <mat-icon>directions_car</mat-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Total véhicules</span>
+        <strong class="stat-value">{{ stats().total }}</strong>
+      </div>
+    </div>
+
+    <div class="stat-card" data-testid="stat-available">
+      <div class="stat-icon icon-available">
+        <mat-icon>check_circle</mat-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">Disponibles</span>
+        <strong class="stat-value">{{ stats().available }}</strong>
+      </div>
+    </div>
+
+    <div class="stat-card" data-testid="stat-rented">
+      <div class="stat-icon icon-rented">
+        <mat-icon>key</mat-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">En location</span>
+        <strong class="stat-value">{{ stats().rented }}</strong>
+      </div>
+    </div>
+
+    <div class="stat-card" data-testid="stat-maintenance">
+      <div class="stat-icon icon-maintenance">
+        <mat-icon>build</mat-icon>
+      </div>
+      <div class="stat-content">
+        <span class="stat-label">En maintenance</span>
+        <strong class="stat-value">{{ stats().maintenance }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar: Search, Filters & View Toggle -->
+  <div class="controls-card">
+    <div class="filters-row">
+      <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+        <mat-label>Recherche rapide</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Marque, modèle, matricule, ville…"
+          data-testid="fleet-search-input"
+        />
+        @if (searchQuery()) {
+          <button
+            type="button"
+            matSuffix
+            mat-icon-button
+            aria-label="Effacer la recherche"
+            (click)="searchQuery.set('')"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+        <mat-label>Statut</mat-label>
+        <mat-select
+          [ngModel]="statusFilter()"
+          (ngModelChange)="statusFilter.set($event); onFilterChange()"
+          data-testid="filter-status-select"
+        >
+          <mat-option value="">Tous les statuts</mat-option>
+          @for (opt of statusOptions; track opt.value) {
+            <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+        <mat-label>Catégorie</mat-label>
+        <mat-select
+          [ngModel]="categoryFilter()"
+          (ngModelChange)="categoryFilter.set($event); onFilterChange()"
+          data-testid="filter-category-select"
+        >
+          <mat-option value="">Toutes</mat-option>
+          @for (cat of categories(); track cat) {
+            <mat-option [value]="cat">{{ cat }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field" subscriptSizing="dynamic">
+        <mat-label>Ville</mat-label>
+        <mat-select
+          [ngModel]="cityFilter()"
+          (ngModelChange)="cityFilter.set($event); onFilterChange()"
+          data-testid="filter-city-select"
+        >
+          <mat-option value="">Toutes</mat-option>
+          @for (city of cities(); track city) {
+            <mat-option [value]="city">{{ city }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (hasActiveFilters()) {
+        <button
+          type="button"
+          mat-stroked-button
+          class="reset-btn"
+          (click)="resetFilters()"
+          data-testid="reset-filters-btn"
+        >
+          <mat-icon>restart_alt</mat-icon>
+          Réinitialiser
+        </button>
+      }
+    </div>
+
+    <div class="view-toggle" role="group" aria-label="Mode d'affichage">
+      <button
+        type="button"
+        class="toggle-btn"
+        [class.active]="viewMode() === 'table'"
+        (click)="setViewMode('table')"
+        data-testid="view-toggle-table"
+      >
+        <mat-icon>table_rows</mat-icon>
+        <span>Tableau</span>
+      </button>
+      <button
+        type="button"
+        class="toggle-btn"
+        [class.active]="viewMode() === 'grid'"
+        (click)="setViewMode('grid')"
+        data-testid="view-toggle-grid"
+      >
+        <mat-icon>grid_view</mat-icon>
+        <span>Grille</span>
+      </button>
+      <button
+        type="button"
+        class="toggle-btn"
+        [class.active]="viewMode() === 'calendar'"
+        (click)="setViewMode('calendar')"
+        data-testid="view-toggle-calendar"
+      >
+        <mat-icon>calendar_month</mat-icon>
+        <span>Calendrier</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  @if (loading()) {
+    <div class="state-card" data-testid="fleet-loading">
+      <mat-spinner diameter="42"></mat-spinner>
+      <p>Chargement de la flotte…</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="state-card error-state" data-testid="fleet-error">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ errorMessage() }}</p>
+      <button type="button" mat-stroked-button (click)="loadFleet()">Réessayer</button>
+    </div>
+  } @else {
+    @switch (viewMode()) {
+      @case ('table') {
+        <app-fleet-table
+          [vehicles]="filteredVehicles()"
+          [updatingVehicleId]="updatingVehicleId()"
+          (viewDetails)="onViewDetails($event)"
+          (editVehicle)="onEditVehicle($event)"
+          (statusChange)="onStatusChange($event)"
+          (viewHistory)="onViewHistory($event)"
+          (viewCalendar)="onViewCalendar($event)"
+        ></app-fleet-table>
+      }
+
+      @case ('grid') {
+        @if (filteredVehicles().length === 0) {
+          <div class="state-card" data-testid="fleet-grid-empty">
+            <mat-icon>directions_car_filled</mat-icon>
+            <p>Aucun véhicule ne correspond aux critères sélectionnés.</p>
+          </div>
+        } @else {
+          <div class="fleet-grid" data-testid="fleet-grid">
+            @for (vehicle of filteredVehicles(); track vehicle.id) {
+              <article class="vehicle-card" [attr.data-testid]="'fleet-card-' + vehicle.id">
+                <div class="card-media">
+                  <img
+                    [src]="vehicle.photoUrl"
+                    [alt]="vehicle.marque + ' ' + vehicle.modele"
+                    class="card-img"
+                  />
+                  <button
+                    type="button"
+                    class="card-status-badge status-{{ vehicle.statut.toLowerCase() }}"
+                    [matMenuTriggerFor]="cardStatusMenu"
+                    [disabled]="updatingVehicleId() === vehicle.id"
+                  >
+                    <span>{{ getStatusLabel(vehicle.statut) }}</span>
+                    <mat-icon>arrow_drop_down</mat-icon>
+                  </button>
+                  <mat-menu #cardStatusMenu="matMenu">
+                    @for (opt of changeableStatuses; track opt.value) {
+                      <button
+                        type="button"
+                        mat-menu-item
+                        [disabled]="vehicle.statut === opt.value"
+                        (click)="onStatusChange({ vehicle, statut: opt.value })"
+                      >
+                        {{ opt.label }}
+                      </button>
+                    }
+                  </mat-menu>
+                </div>
+
+                <div class="card-body">
+                  <div class="card-title-row">
+                    <div>
+                      <h3 class="card-title">{{ vehicle.marque }} {{ vehicle.modele }}</h3>
+                      <p class="card-sub">
+                        {{ vehicle.matricule }} · {{ vehicle.annee }} · {{ vehicle.categorie }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="card-meta">
+                    <div class="meta-item">
+                      <mat-icon>location_on</mat-icon>
+                      <span>{{ vehicle.localisationActuelle || vehicle.ville }}</span>
+                    </div>
+                    <div class="meta-item">
+                      <mat-icon>event</mat-icon>
+                      <span>
+                        @if (vehicle.prochaineReservation) {
+                          Prochaine résa : {{ vehicle.prochaineReservation | date: 'dd/MM/yyyy' }}
+                        } @else {
+                          Aucune résa prévue
+                        }
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="card-metrics">
+                    <div class="metric">
+                      <span class="metric-label">Revenus mois</span>
+                      <strong>{{ vehicle.revenusMois | number: '1.0-0' }} MAD</strong>
+                    </div>
+                    <div class="metric">
+                      <span class="metric-label">Occupation</span>
+                      <strong>{{ vehicle.tauxOccupation | number: '1.0-1' }}%</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-actions">
+                  <button type="button" mat-button (click)="onViewDetails(vehicle)">
+                    <mat-icon>visibility</mat-icon>
+                    Détails
+                  </button>
+                  <button type="button" mat-button (click)="onViewHistory(vehicle)">
+                    <mat-icon>history</mat-icon>
+                    Historique
+                  </button>
+                  <button type="button" mat-button (click)="onViewCalendar(vehicle)">
+                    <mat-icon>calendar_month</mat-icon>
+                    Planning
+                  </button>
+                  <button
+                    type="button"
+                    mat-icon-button
+                    (click)="onEditVehicle(vehicle)"
+                    aria-label="Modifier"
+                  >
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      }
+
+      @case ('calendar') {
+        <app-fleet-calendar
+          [vehicles]="filteredVehicles()"
+          [reservations]="reservations()"
+          [selectedVehicleId]="selectedCalendarVehicleId()"
+          [loading]="calendarLoading()"
+          (clearVehicleFilter)="onClearCalendarVehicle()"
+          (vehicleSelect)="onViewHistory($event)"
+        ></app-fleet-calendar>
+      }
+    }
+  }
+</section>

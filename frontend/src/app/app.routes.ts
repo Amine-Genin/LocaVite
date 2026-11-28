@@ -4,6 +4,15 @@ import { roleGuard } from './core/auth/role.guard';
 
 export const routes: Routes = [
   {
+    path: 'admin/fleet',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['AGENCE', 'ADMIN'] },
+    loadComponent: () =>
+      import('./features/fleet/admin-fleet/admin-fleet.component').then(
+        (m) => m.AdminFleetComponent,
+      ),
+  },
+  {
     path: 'admin/dashboard',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['AGENCE', 'ADMIN'] },

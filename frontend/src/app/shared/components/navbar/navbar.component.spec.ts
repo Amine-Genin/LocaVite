@@ -67,7 +67,7 @@ describe('NavbarComponent', () => {
     authServiceMock.hasAnyRole.and.returnValue(true);
 
     expect(component.navLinks().map((l) => l.route)).toEqual([
-      '/admin/vehicles',
+      '/admin/fleet',
       '/admin/vehicles/new',
       '/admin/sale',
       '/admin/sale/new',

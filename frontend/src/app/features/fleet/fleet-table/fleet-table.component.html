@@ -1,0 +1,241 @@
+<div class="table-wrapper" data-testid="fleet-table-container">
+  <div class="table-scroll">
+    <table
+      mat-table
+      [dataSource]="dataSource"
+      matSort
+      class="fleet-table"
+      data-testid="fleet-table"
+    >
+      <!-- Photo -->
+      <ng-container matColumnDef="photo">
+        <th mat-header-cell *matHeaderCellDef>Photo</th>
+        <td mat-cell *matCellDef="let vehicle">
+          <img
+            [src]="vehicle.photoUrl"
+            [alt]="vehicle.marque + ' ' + vehicle.modele"
+            class="vehicle-photo"
+          />
+        </td>
+      </ng-container>
+
+      <!-- Marque / Modèle -->
+      <ng-container matColumnDef="vehicle">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="vehicle">Marque / Modèle</th>
+        <td mat-cell *matCellDef="let vehicle">
+          <div class="vehicle-cell">
+            <span class="vehicle-title">{{ vehicle.marque }} {{ vehicle.modele }}</span>
+            <span class="vehicle-sub">
+              <span class="matricule">{{ vehicle.matricule }}</span>
+              <span>· {{ vehicle.annee }}</span>
+              <span>· {{ vehicle.categorie }}</span>
+            </span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Statut (with quick dropdown) -->
+      <ng-container matColumnDef="statut">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="statut">Statut</th>
+        <td mat-cell *matCellDef="let vehicle">
+          <button
+            type="button"
+            class="status-dropdown-trigger status-{{ vehicle.statut.toLowerCase() }}"
+            [matMenuTriggerFor]="statusMenu"
+            [disabled]="updatingVehicleId === vehicle.id"
+            [attr.data-testid]="'status-dropdown-' + vehicle.id"
+            aria-label="Changer le statut du véhicule"
+          >
+            <span class="status-dot"></span>
+            <span>{{ getStatusLabel(vehicle.statut) }}</span>
+            <mat-icon class="dropdown-caret">arrow_drop_down</mat-icon>
+          </button>
+
+          <mat-menu #statusMenu="matMenu">
+            @for (option of availableStatuses; track option.value) {
+              <button
+                type="button"
+                mat-menu-item
+                [disabled]="vehicle.statut === option.value"
+                (click)="onChangeStatus(vehicle, option.value)"
+                [attr.data-testid]="'status-option-' + vehicle.id + '-' + option.value"
+              >
+                <span class="menu-status-dot status-{{ option.value.toLowerCase() }}"></span>
+                <span>{{ option.label }}</span>
+              </button>
+            }
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <!-- Localisation -->
+      <ng-container matColumnDef="localisation">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="localisation">Localisation</th>
+        <td mat-cell *matCellDef="let vehicle">
+          <div class="location-cell">
+            <mat-icon class="loc-icon">location_on</mat-icon>
+            <div>
+              <div class="loc-main">{{ vehicle.localisationActuelle || vehicle.ville }}</div>
+              @if (vehicle.localisationActuelle && vehicle.localisationActuelle !== vehicle.ville) {
+                <div class="loc-sub">{{ vehicle.ville }}</div>
+              }
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Prochaine réservation -->
+      <ng-container matColumnDef="prochaineReservation">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="prochaineReservation">
+          Prochaine résa
+        </th>
+        <td mat-cell *matCellDef="let vehicle">
+          @if (vehicle.prochaineReservation) {
+            <span class="next-res-pill">
+              <mat-icon>event</mat-icon>
+              {{ vehicle.prochaineReservation | date: 'dd/MM/yyyy' }}
+            </span>
+          } @else {
+            <span class="muted-text">Aucune</span>
+          }
+        </td>
+      </ng-container>
+
+      <!-- Revenus -->
+      <ng-container matColumnDef="revenus">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="revenus">Revenus</th>
+        <td mat-cell *matCellDef="let vehicle">
+          <div class="revenue-cell">
+            <span class="rev-month">{{ vehicle.revenusMois | number: '1.0-0' }} MAD</span>
+            <span class="rev-year">{{ vehicle.revenusAnnee | number: '1.0-0' }} MAD / an</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Taux d'occupation -->
+      <ng-container matColumnDef="tauxOccupation">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header="tauxOccupation">Taux occupation</th>
+        <td mat-cell *matCellDef="let vehicle">
+          <div class="occupancy-cell">
+            <div class="occupancy-bar-track">
+              <div
+                class="occupancy-bar-fill"
+                [ngClass]="getOccupancyClass(vehicle.tauxOccupation)"
+                [style.width.%]="vehicle.tauxOccupation"
+              ></div>
+            </div>
+            <span class="occupancy-value">{{ vehicle.tauxOccupation | number: '1.0-1' }}%</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+        <td mat-cell *matCellDef="let vehicle" class="actions-cell">
+          <button
+            type="button"
+            mat-icon-button
+            [matMenuTriggerFor]="actionsMenu"
+            [attr.data-testid]="'actions-menu-' + vehicle.id"
+            aria-label="Actions du véhicule"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+
+          <mat-menu #actionsMenu="matMenu">
+            <button
+              type="button"
+              mat-menu-item
+              (click)="viewDetails.emit(vehicle)"
+              [attr.data-testid]="'action-details-' + vehicle.id"
+            >
+              <mat-icon>visibility</mat-icon>
+              <span>Voir détails</span>
+            </button>
+
+            <button
+              type="button"
+              mat-menu-item
+              (click)="editVehicle.emit(vehicle)"
+              [attr.data-testid]="'action-edit-' + vehicle.id"
+            >
+              <mat-icon>edit</mat-icon>
+              <span>Modifier</span>
+            </button>
+
+            <button
+              type="button"
+              mat-menu-item
+              [matMenuTriggerFor]="rowStatusSubmenu"
+              [attr.data-testid]="'action-change-status-' + vehicle.id"
+            >
+              <mat-icon>swap_horiz</mat-icon>
+              <span>Changer statut</span>
+            </button>
+
+            <mat-divider></mat-divider>
+
+            <button
+              type="button"
+              mat-menu-item
+              (click)="viewHistory.emit(vehicle)"
+              [attr.data-testid]="'action-history-' + vehicle.id"
+            >
+              <mat-icon>history</mat-icon>
+              <span>Voir historique</span>
+            </button>
+
+            <button
+              type="button"
+              mat-menu-item
+              (click)="viewCalendar.emit(vehicle)"
+              [attr.data-testid]="'action-calendar-' + vehicle.id"
+            >
+              <mat-icon>calendar_month</mat-icon>
+              <span>Voir calendrier réservations</span>
+            </button>
+          </mat-menu>
+
+          <mat-menu #rowStatusSubmenu="matMenu">
+            @for (option of availableStatuses; track option.value) {
+              <button
+                type="button"
+                mat-menu-item
+                [disabled]="vehicle.statut === option.value"
+                (click)="onChangeStatus(vehicle, option.value)"
+              >
+                <span class="menu-status-dot status-{{ option.value.toLowerCase() }}"></span>
+                <span>{{ option.label }}</span>
+              </button>
+            }
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns"
+        class="fleet-row"
+        [attr.data-testid]="'fleet-row-' + row.id"
+      ></tr>
+
+      <tr class="mat-row empty-row" *matNoDataRow>
+        <td class="mat-cell" [attr.colspan]="displayedColumns.length">
+          <div class="empty-table-state" data-testid="fleet-table-empty">
+            <mat-icon>directions_car_filled</mat-icon>
+            <p>Aucun véhicule ne correspond aux critères sélectionnés.</p>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    [pageSize]="10"
+    showFirstLastButtons
+    aria-label="Pagination de la flotte"
+  ></mat-paginator>
+</div>
